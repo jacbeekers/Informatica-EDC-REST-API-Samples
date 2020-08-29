@@ -1,7 +1,6 @@
 .classpath
 .project
 /bin/
-output1.csv
 .pydevproject
 python/.env
 python/.env*
@@ -19,6 +18,10 @@ __pycache__/
 
 #temp
 temp/
+
+#data
+*.csv
+*.xlsx
 
 # Distribution / packaging
 .Python
