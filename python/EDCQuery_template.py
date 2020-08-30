@@ -66,7 +66,7 @@ def main():
             core.Dataset \
             ) \
             and core.resourceName:" + edc_resource_name
-            
+
     print("\tquery=" + query)
 
     schema_id = None
