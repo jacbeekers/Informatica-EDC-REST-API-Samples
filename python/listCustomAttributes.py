@@ -34,7 +34,7 @@ sess.headers.update({"Accept": "application/json"})
 # ******************************************************
 # set variables for connecting to the catalog
 # and running a query to get a result-set
-# the processItem function will be called for each item
+# the process_item function will be called for each item
 # Note:
 #     preferred way is to use Authorization http header
 #     vs id/pwd

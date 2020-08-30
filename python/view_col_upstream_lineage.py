@@ -32,7 +32,7 @@ parser = argparse.ArgumentParser(parents=[edcHelper.argparser])
 # add args specific to this utility (left/right resource, schema, classtype...)
 parser.add_argument(
     "-f",
-    "--csvFileName",
+    "--csv_file_name",
     default="viewcol_linage.csv",
     required=False,
     help=(
@@ -96,7 +96,7 @@ def main():
         "From Object",
         "To Object",
     ]
-    outputFile = args.outDir + "/" + args.csvFileName
+    outputFile = args.outDir + "/" + args.csv_file_name
     fullpath = os.path.abspath(outputFile)
     fCSVFile = open(outputFile, "w", newline="", encoding="utf-8")
     from pathlib import Path
@@ -174,7 +174,7 @@ def main():
         "right_name",
         "right_type",
     ]
-    outputFile = args.outDir + "/" + args.csvFileName
+    outputFile = args.outDir + "/" + args.csv_file_name
     fullpath = os.path.abspath(outputFile)
     fCSVFile = open(outputFile, "w", newline="", encoding="utf-8")
     print("csv file initialized. " + outputFile)
@@ -193,10 +193,10 @@ def main():
     for lineageitem in lineage_json["items"]:
         outid = lineageitem["outId"]
         inid = lineageitem["inId"]
-        outname = edcutils.getFactValue(lineageitem["outEmbedded"], "core.name")
-        outclass = edcutils.getFactValue(lineageitem["outEmbedded"], "core.classType")
-        inname = edcutils.getFactValue(lineageitem["inEmbedded"], "core.name")
-        inclass = edcutils.getFactValue(lineageitem["inEmbedded"], "core.classType")
+        outname = edcutils.get_fact_value(lineageitem["outEmbedded"], "core.name")
+        outclass = edcutils.get_fact_value(lineageitem["outEmbedded"], "core.classType")
+        inname = edcutils.get_fact_value(lineageitem["inEmbedded"], "core.name")
+        inclass = edcutils.get_fact_value(lineageitem["inEmbedded"], "core.classType")
         print(f"a link to process - {outid} {outname} {outclass} -> {inid} {inname} {inclass}")
         colWriter.writerow([outid, outname, outclass, inid, inname, inclass])
 

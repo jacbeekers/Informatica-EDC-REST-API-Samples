@@ -55,7 +55,7 @@ def readLocalArgs() -> argparse.Namespace:
     # check for args overriding the env vars
     # Note: adding parent arg parser here will also show/use common edc connection vars
     parser = argparse.ArgumentParser(parents=[edcSession.argparser])
-    # add args specific to this utility (resourceName, resourceType, outDir, -sim)
+    # add args specific to this utility (resource_name, resourceType, outDir, -sim)
 
     parser.add_argument(
         "-f",
@@ -92,7 +92,7 @@ def readLocalArgs() -> argparse.Namespace:
 def main():
     """
     read command-line args, prompt for db user/pwd if needed
-    for each entry in databaseFile (arg) - try to create/execute a resource
+    for each property in databaseFile (arg) - try to create/execute a resource
     """
     global edcSession
     edcSession = EDCSession()

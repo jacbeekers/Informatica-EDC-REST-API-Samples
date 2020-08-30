@@ -71,9 +71,9 @@ Sample Programs in the Project
   * use this script before you call use the other scripts, to get the right format for authenticating & not storing passwords in the .py files
     * an alternate is to prompt for a password within your script & encode the id:password
   * use `encodeUser27.py` for legacy python
-* `EDCQuery_template.py`:  a template/skeleton that shows how to connect to the catalog and execute a search using python.  the result-set processing includes handling the paging model.  It also uses the `getFactValue` method in `edcutils.py` to extract the item name from the facts array
+* `EDCQuery_template.py`:  a template/skeleton that shows how to connect to the catalog and execute a search using python.  the result-set processing includes handling the paging model.  It also uses the `get_fact_value` method in `edcutils.py` to extract the item name from the facts array
 * Utility/Heloer Scripts
-  * `edcutils.py`:  utility/helper methods for common tasks - like get an attribute value `getFactValue(item, attrName)`
+  * `edcutils.py`:  utility/helper methods for common tasks - like get an attribute value `get_fact_value(item, attrName)`
   * `edcSessionHelper.py`: EDCSession class helps you configure a requests.session object and also provides command-line args for connecting to the catalog (-c/-edcurl EDC URL, -a/--auth auth credentials (see encodeUser.py), -u username (will prompt for pwd - recommend using -a, -s/--sslcert SSLCERT).  
     * this class also supports using the following environment vars:
       * INFA_EDC_URL - e.g. http://yourcatalogserver:9085 or https://yourcatalogserver:9085

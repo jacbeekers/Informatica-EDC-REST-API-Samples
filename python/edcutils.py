@@ -13,19 +13,21 @@ from requests.auth import HTTPBasicAuth
 import os
 
 
-def getFactValue(item, attrName):
+def get_fact_value(item, attribute_name, json_property):
     """
     returns the value of a fact (attribute) from an item
 
     iterates over the "facts" list - looking for a matching attributeId
-    to the paramater attrName
-    returns the "value" property or ""
+    to the parameter attribute_name
+    returns the "value" json_property or ""
     """
     # get the value of a specific fact from an item
     value = ""
     for facts in item["facts"]:
-        if facts.get("attributeId") == attrName:
-            value = facts.get("value")
+        if facts.get("attributeId") == attribute_name:
+            value = facts.get(json_property)
+            if value is None:
+                value = ""
             break
     return value
 
@@ -352,7 +354,7 @@ def executeResourceLoadUsingSession(url, session, resourceName):
     print("\turl=" + apiURL)
     header = {"accept": "application/json", "Content-Type": "application/json"}
     print("\t" + str(header))
-    params = {"resourceName": resourceName}
+    params = {"resource_name": resourceName}
     print("\t" + str(params))
     uploadResp = session.post(apiURL, data=json.dumps(params), headers=header)
     print("\tresponse=" + str(uploadResp.status_code))
@@ -383,7 +385,7 @@ def executeResourceLoad(url, user, pWd, resourceName):
     print("\turl=" + apiURL)
     header = {"accept": "application/json", "Content-Type": "application/json"}
     print("\t" + str(header))
-    params = {"resourceName": resourceName}
+    params = {"resource_name": resourceName}
     print("\t" + str(params))
     uploadResp = requests.post(
         apiURL,
@@ -416,7 +418,7 @@ def createOrUpdateAndExecuteResourceUsingSession(
     scannerId,
 ):
     """
-    create or update resourceName  (new way with sessions)
+    create or update resource_name  (new way with sessions)
     upload a file
     execute the scan
     optionally wait for the scan to complete
@@ -492,10 +494,10 @@ def createOrUpdateAndExecuteResourceUsingSession(
 
                 # print(templateJson)
                 # set the resource name
-                templateJson["resourceIdentifier"]["resourceName"] = resourceName
+                templateJson["resourceIdentifier"]["resource_name"] = resourceName
 
                 # print(templateJson)
-                # set the File property (in configOptions)
+                # set the File json_property (in configOptions)
                 for config in templateJson["scannerConfigurations"]:
                     for opt in config["configOptions"]:
                         optId = opt.get("optionId")
@@ -572,7 +574,7 @@ def createOrUpdateAndExecuteResource(
     scannerId,
 ):
     """
-    create or update resourceName   (note: old way - consider moving to sessions (better for id/pwd/ssl validation))
+    create or update resource_name   (note: old way - consider moving to sessions (better for id/pwd/ssl validation))
     upload a file
     execute the scan
     optionally wait for the scan to complete
@@ -648,10 +650,10 @@ def createOrUpdateAndExecuteResource(
 
                 # print(templateJson)
                 # set the resource name
-                templateJson["resourceIdentifier"]["resourceName"] = resourceName
+                templateJson["resourceIdentifier"]["resource_name"] = resourceName
 
                 # print(templateJson)
-                # set the File property (in configOptions)
+                # set the File json_property (in configOptions)
                 for config in templateJson["scannerConfigurations"]:
                     for opt in config["configOptions"]:
                         optId = opt.get("optionId")
@@ -735,7 +737,7 @@ def getResourceObjectCount(url, user, pWd, resourceName):
     get the resource object count - given a resource name (and catalog url)
     """
 
-    apiURL = url + "/access/2/catalog/data/objects?q=core.resourceName:" + resourceName
+    apiURL = url + "/access/2/catalog/data/objects?q=core.resource_name:" + resourceName
     print(
         "getting object count for catalog resource:-"
         + apiURL

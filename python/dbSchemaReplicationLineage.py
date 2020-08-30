@@ -28,7 +28,7 @@ process:-
         Association,From Connection,To Connection,From Object,To Object
 
         where:  From Connection and To Connection will be empty
-                Assocition will be either core.DirectionalDataFlow
+                Association will be either core.DirectionalDataFlow
                 or core.DataSetDataFlow
                 the From and To Object will be the full object id
 
@@ -38,42 +38,43 @@ process:-
         and works native in v10.2.1+
 """
 
-import platform
 import argparse
-import json
-import requests
-from requests.auth import HTTPBasicAuth
 import csv
-import edcutils
+import json
 import time
-import edcSessionHelper
 
-# set edc helper session + variables (easy/re-useable connection to edc api)
+import edcSessionHelper
+import edcutils
+
+# set edc helper session + variables (easy/re-usable connection to edc api)
 edcHelper = edcSessionHelper.EDCSession()
 
 # define script command-line parameters (in global scope for gooey/wooey)
 parser = argparse.ArgumentParser(parents=[edcHelper.argparser])
 # add args specific to this utility (left/right resource, schema, classtype...)
 parser.add_argument(
-    "-lr", "--leftresource", required=False, help="name of the left resource to find objects"
+    "-lr", "--leftresource", required=True, help="name of the left resource to find objects"
 )
 parser.add_argument(
-    "-ls", "--leftschema", required=False, help="name of the left schema/container object"
+    "-ls", "--leftschema", required=True, help="name of the left schema/container object"
 )
 parser.add_argument(
-    "-lt", "--lefttype", required=False, default="com.infa.ldm.relational.Schema", help="class type for the schema level object"
+    "-lt", "--lefttype", required=False, default="com.infa.ldm.relational.Schema",
+    help="class type for the schema level object"
 )
 parser.add_argument(
-    "-rr", "--rightresource", required=False, help="name of the right resource to find objects"
+    "-rr", "--rightresource", required=True, help="name of the right resource to find objects"
 )
 parser.add_argument(
-    "-rs", "--rightschema", required=False, help="name of the right schema/container object"
+    "-rs", "--rightschema", required=True, help="name of the right schema/container object"
 )
 parser.add_argument(
-    "-rt", "--righttype", required=False, default="com.infa.ldm.relational.Schema", help="class type for the right schema level object"
+    "-rt", "--righttype", required=False, default="com.infa.ldm.relational.Schema",
+    help="class type for the right schema level object"
 )
 parser.add_argument(
-    "-pfx", "--csvprefix", required=False, default="schemaLineage", help="prefix to use when creating the output csv file"
+    "-pfx", "--csvprefix", required=False, default="schemaLineage",
+    help="prefix to use when creating the output csv file"
 )
 parser.add_argument(
     "-rtp", "--righttableprefix", required=False, default="", help="table prefix for right datasets"
@@ -90,7 +91,7 @@ parser.add_argument(
 )
 
 
-def getSchemaContents(schemaName, schemaType, resourceName):
+def get_schema_objects(schema_name, schema_type, resource_name):
     """
     given a schema name, schema class type (e.g. hanadb is different)
     and resource name, find the schema object
@@ -105,23 +106,23 @@ def getSchemaContents(schemaName, schemaType, resourceName):
     key=table  val=tableid
     key=table.column  val=columnid
     """
-    print("\tgetSchemaContents for:" + schemaName + " resource=" + resourceName)
+    print("\tget_schema_objects for:" + schema_name + " resource=" + resource_name)
     # schemaDict returned  key=TABLE.COLUMN value=column id
-    schemaDict = {}
-    tableNames = {}
+    schema_dict = {}
+    table_names = {}
 
     # url = catalogServer + "/access/2/catalog/data/objects"
     url = edcHelper.baseUrl + "/access/2/catalog/data/objects"
-    query = (f'+core.resourceName:"{resourceName}"'
-        + f' +core.classType:"{schemaType}"'
-        + f' +core.name:"{schemaName}"'
-    )
+    query = (f'+core.resourceName:"{resource_name}"'
+             + f' +core.classType:"{schema_type}"'
+             + f' +core.name:"{schema_name}"'
+             )
     parameters = {"q": query, "offset": 0, "pageSize": 1}
     print("\tquery=" + query)
 
-    schemaId = None
-    tableCount = 0
-    columnCount = 0
+    schema_id = None
+    table_count = 0
+    column_count = 0
     # make the call to find the schema object
     response = edcHelper.session.get(url, params=parameters, timeout=3)
     print(f"session get finished: {response.status_code}")
@@ -137,18 +138,18 @@ def getSchemaContents(schemaName, schemaType, resourceName):
         return
 
     # get the total # of objects returned (first part of the json resultset)
-    totalObjects = response.json()["metadata"]["totalCount"]
-    print("\tobjects returned: " + str(totalObjects))
+    total_objects = response.json()["metadata"]["totalCount"]
+    print("\tobjects returned: " + str(total_objects))
 
     for item in response.json()["items"]:
-        schemaId = item["id"]
-        schemaName = edcutils.getFactValue(item, "core.name")
+        schema_id = item["id"]
+        schema_name = edcutils.get_fact_value(item, "core.name")
         # get the tables & columns
-        print("\tfound schema: " + schemaName + " id=" + schemaId)
+        print("\tfound schema: " + schema_name + " id=" + schema_id)
 
-        lineageURL = edcHelper.baseUrl + "/access/2/catalog/data/relationships"
-        lineageParms = {
-            "seed": schemaId,
+        lineage_url = edcHelper.baseUrl + "/access/2/catalog/data/relationships"
+        lineage_parms = {
+            "seed": schema_id,
             "association": "core.ParentChild",
             "depth": "2",
             "direction": "OUT",
@@ -157,16 +158,16 @@ def getSchemaContents(schemaName, schemaType, resourceName):
             "removeDuplicateAggregateLinks": "false",
         }
         print(
-            "\tGET child rels for schema: " + lineageURL + " parms=" + str(lineageParms)
+            "\tGET child rels for schema: " + lineage_url + " parms=" + str(lineage_parms)
         )
         # get using uid/pwd
-        lineageResp = edcHelper.session.get(
-            lineageURL,
-            params=lineageParms,
+        lineage_response = edcHelper.session.get(
+            lineage_url,
+            params=lineage_parms,
         )
-        lineageStatus = lineageResp.status_code
-        print("\tlineage resp=" + str(lineageStatus))
-        if lineageStatus != 200:
+        lineage_status = lineage_response.status_code
+        print("\tlineage resp=" + str(lineage_status))
+        if lineage_status != 200:
             print(
                 f"error getting schema contents (tables) rc={rc}"
                 f" response:{response.json}"
@@ -178,64 +179,64 @@ def getSchemaContents(schemaName, schemaType, resourceName):
                 print(str(response))
             return
 
-        if lineageResp.text.startswith("{items:"):
+        if lineage_response.text.startswith("{items:"):
             # bug (10.2.0 & 10.2.1) - the items collection should be "items"
-            lineageJson = lineageResp.text.replace("items", '"items"', 1)
+            lineage_json = lineage_response.text.replace("items", '"items"', 1)
         else:
-            lineageJson = lineageResp.text
+            lineage_json = lineage_response.text
         # relsJson = json.loads(lineageJson.replace('items', '"items"'))
-        relsJson = json.loads(lineageJson)
+        rels_json = json.loads(lineage_json)
         # print(len(relsJson))
 
-        for lineageItem in relsJson["items"]:
+        for lineageItem in rels_json["items"]:
             # print('\t\t' + str(lineageItem))
-            inId = lineageItem.get("inId")
-            outId = lineageItem.get("outId")
+            in_id = lineageItem.get("inId")
+            out_id = lineageItem.get("outId")
 
             # print('new inId===' + inId + " outId=" + outId)
-            # print(edcutils.getFactValue(lineageItem["inEmbedded"], "core.name"))
-            assocId = lineageItem.get("associationId")
+            # print(edcutils.get_fact_value(lineageItem["inEmbedded"], "core.name"))
+            assoc_id = lineageItem.get("associationId")
             # print("\t\t" + inId + " assoc=" + assocId)
             # if assocId=='com.infa.ldm.relational.SchemaTable':
-            if assocId.endswith(".SchemaTable"):
+            if assoc_id.endswith(".SchemaTable"):
                 # note - custom lineage does not need table and column
                 # count the tables & store table names
-                tableCount += 1
+                table_count += 1
                 # tableName = inId.split('/')[-1]
-                tableName = edcutils.getFactValue(
+                table_name = edcutils.get_fact_value(
                     lineageItem["inEmbedded"], "core.name"
                 ).lower()
                 # store the table name (for lookup when processing the columns)
                 # key=id, val=name
-                tableNames[inId] = tableName
-                schemaDict[tableName] = inId
+                table_names[in_id] = table_name
+                schema_dict[table_name] = in_id
             # if assocId=='com.infa.ldm.relational.TableColumn':
-            if assocId.endswith(".TableColumn") or assocId.endswith(
-                ".TablePrimaryKeyColumn"
+            if assoc_id.endswith(".TableColumn") or assoc_id.endswith(
+                    ".TablePrimaryKeyColumn"
             ):
                 # columnName = inId.split('/')[-1]
-                columnCount += 1
-                columnName = edcutils.getFactValue(
+                column_count += 1
+                column_name = edcutils.get_fact_value(
                     lineageItem["inEmbedded"], "core.name"
                 ).lower()
-                tableName = tableNames[outId].lower()
+                table_name = table_names[out_id].lower()
                 # print("column=" + tableName + "." + columnName)
-                schemaDict[tableName + "." + columnName] = inId
+                schema_dict[table_name + "." + column_name] = in_id
 
     print(
         "\tgetSchema: returning "
-        + str(columnCount)
+        + str(column_count)
         + " columns, in "
-        + str(tableCount)
+        + str(table_count)
         + " tables"
     )
-    return schemaDict, schemaId
+    return schema_dict, schema_id
 
 
 def main():
     """
     initialise the csv file(s) to write
-    call getSchemaContents for both left and right schema objects
+    call get_schema_objects for both left and right schema objects
     match the tables/columns from the left schema to the right
     when matched
         write a lineage link - table and column level
@@ -268,7 +269,7 @@ def main():
     print(f"right table prefix:{args.righttableprefix}")
 
     # initialize csv output file
-    columnHeader = [
+    column_header = [
         "Association",
         "From Connection",
         "To Connection",
@@ -277,15 +278,15 @@ def main():
     ]
 
     # set the csv fileName
-    csvFileName = (
+    csv_file_name = (
         f"{args.outDir}/{args.csvprefix}_{args.leftschema.lower()}"
         f"_{args.rightschema.lower()}.csv"
     )
     # python 3 & 2.7 use different methods
-    print("initializing file: " + csvFileName)
-    fCSVFile = open(csvFileName, "w", newline="", encoding="utf-8")
-    colWriter = csv.writer(fCSVFile)
-    colWriter.writerow(columnHeader)
+    print("initializing file: " + csv_file_name)
+    f_csv_file = open(csv_file_name, "w", newline="", encoding="utf-8")
+    col_writer = csv.writer(f_csv_file)
+    col_writer.writerow(column_header)
 
     # get the objects from the left schema into memory
     print(
@@ -293,7 +294,7 @@ def main():
         f" resource={args.leftresource}"
         f" type={args.lefttype}"
     )
-    leftObjects, leftSchemaId = getSchemaContents(
+    left_objects, left_schema_id = get_schema_objects(
         args.leftschema, args.lefttype, args.leftresource
     )
 
@@ -303,48 +304,48 @@ def main():
         f" resource={args.rightresource}"
         f" type={args.righttype}"
     )
-    rightObjects, rightSchemaId = getSchemaContents(
+    right_objects, right_schema_id = get_schema_objects(
         args.rightschema, args.righttype, args.rightresource
     )
 
     matches = 0
     missing = 0
 
-    if len(leftObjects) > 0 and len(rightObjects) > 0:
+    if len(left_objects) > 0 and len(right_objects) > 0:
         # create the lineage file
-        colWriter.writerow(
-            ["core.DataSourceDataFlow", "", "", leftSchemaId, rightSchemaId]
+        col_writer.writerow(
+            ["core.DataSourceDataFlow", "", "", left_schema_id, right_schema_id]
         )
         # iterate over all left objects - looking for matching right ones
-        print("\nprocessing: " + str(len(leftObjects)) + " objects (left side)")
-        for leftName, leftVal in leftObjects.items():
+        print("\nprocessing: " + str(len(left_objects)) + " objects (left side)")
+        for left_name, leftVal in left_objects.items():
             # if the target is using a prefix - add it to leftName
             if len(args.righttableprefix) > 0:
-                leftName = args.righttableprefix.lower() + leftName
+                left_name = args.righttableprefix.lower() + left_name
 
-            # print("key=" + leftName + " " + leftVal + " " + str(leftName.count('.')))
-            if leftName in rightObjects.keys():
+            # print("key=" + left_name + " " + leftVal + " " + str(left_name.count('.')))
+            if left_name in right_objects.keys():
                 # match
-                rightVal = rightObjects.get(leftName)
+                right_val = right_objects.get(left_name)
                 matches += 1
-                # print("\t" + rightVal)
+                # print("\t" + right_val)
                 # check if it is formatted as table.column or just table
-                if leftName.count(".") == 1:
+                if left_name.count(".") == 1:
                     # column lineage - using DirectionalDataFlow
-                    colWriter.writerow(
-                        ["core.DirectionalDataFlow", "", "", leftVal, rightVal]
+                    col_writer.writerow(
+                        ["core.DirectionalDataFlow", "", "", leftVal, right_val]
                     )
                 else:
                     # table level - using core.DataSetDataFlow
-                    colWriter.writerow(
-                        ["core.DataSetDataFlow", "", "", leftVal, rightVal]
+                    col_writer.writerow(
+                        ["core.DataSetDataFlow", "", "", leftVal, right_val]
                     )
 
                 # write a line to the custom lineage csv file (connection assignment)
                 # colWriter.writerow([leftResource,rightResource,leftRef,rightRef])
             else:
                 missing += 1
-                print("\t no match on right side for key=" + leftName)
+                print("\t no match on right side for key=" + left_name)
 
     else:
         print("error getting schema info... - no linking/lineage created")
@@ -354,7 +355,7 @@ def main():
     )
     print("run time = %s seconds ---" % (time.time() - start_time))
 
-    fCSVFile.close()
+    f_csv_file.close()
 
 
 # call main - if not already called or used by another script

@@ -196,7 +196,7 @@ def updateObjectAttr(session, catalogUrl, resourceName, attr):
   
       url = catalogUrl + "/access/2/catalog/data/objects"
       query = (
-          "core.resourceName:"
+          "core.resource_name:"
           + resourceName
           + " and core.classType:"
           + objectType

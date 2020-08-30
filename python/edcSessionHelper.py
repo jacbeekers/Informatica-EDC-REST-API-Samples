@@ -29,6 +29,8 @@ import base64
 import getpass
 import requests
 from urllib.parse import urljoin
+import warnings
+warnings.filterwarnings('ignore', message='Unverified HTTPS request')
 
 # from pathlib import Path
 import pathlib

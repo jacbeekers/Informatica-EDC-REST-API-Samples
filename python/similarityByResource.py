@@ -69,7 +69,7 @@ def listResources():
         allResources = resp.json()
         for aResource in allResources:
             # print(f"resource={aResource}")
-            resName = aResource["resourceName"]
+            resName = aResource["resource_name"]
             resType = aResource["resourceTypeName"]
             resourceDict[resName] = resType
     else:
@@ -133,7 +133,7 @@ def getElementsForResource(resourceName):
     """
     get the count of elements for a resource
     """
-    q = f'+core.resourceName:"{resourceName}" +core.allclassTypes:"core.DataElement"'
+    q = f'+core.resource_name:"{resourceName}" +core.allclassTypes:"core.DataElement"'
     parameters = {"q": q, "offset": 0, "pageSize": 1}
 
     try:
@@ -159,9 +159,9 @@ def writeSimilarityResults(resourceName, theWriter, totalToExtract):
         edcHelper.baseUrl + "/access/1/catalog/data/objects"
     )  # note:  v1 api used here for additionalFacts
     # header = {"Accept": "application/json"}
-    # note:  if you want to test for a single resource, add and core.resourceName:<name>
+    # note:  if you want to test for a single resource, add and core.resource_name:<name>
     query = (
-        f'+core.resourceName:"{resourceName}" +core.allclassTypes:(core.DataElement)'
+        f'+core.resource_name:"{resourceName}" +core.allclassTypes:(core.DataElement)'
     )
     # initial value - set to > 0 will be over-written by the count of objects returned
     total = totalToExtract
@@ -348,7 +348,7 @@ def processFoundItem(foundItem):
 
 
 def initCsvOutFile():
-    # csvFileName = "out/similarObjectsByResource.csv"
+    # csv_file_name = "out/similarObjectsByResource.csv"
     columnHeader = [
         "From Resource",
         "ObjectId",

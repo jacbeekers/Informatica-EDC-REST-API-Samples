@@ -14,28 +14,32 @@ get a list of all custom attributes in EDC & count the usage of each attribute
 the id would be used for any search/custom import activiies
 output printed to the console
 
-Tested with:  v10.4.0, 10.2.2sp1
+Informatica tested with:  v10.4.0, 10.2.2sp1
+Jac. tested with: v10.4.1
 """
-import requests
-import time
-import sys
-import urllib3
-import csv
 import argparse
+import csv
 import os
+import sys
+import time
 from pathlib import PurePath
-from edcSessionHelper import EDCSession
+
+import requests
+import urllib3
 from openpyxl import Workbook
+
+from edcSessionHelper import EDCSession
 
 urllib3.disable_warnings()
 
 
-class mem:
+class MemVariables:
     """
     empty class for storing variables & not making them global
     """
 
     edcSession: EDCSession = EDCSession()
+    workbook = Workbook()
 
 
 start_time = time.time()
@@ -43,16 +47,16 @@ start_time = time.time()
 # header = {}
 # auth = None
 
-pageSize = 500  # number of objects for each page/chunk
+pageSize = 5000  # number of objects for each page/chunk
 
 # the csv lineage file to write to
-csvFileName = "domain_summary.csv"
+csv_file_name = "domain_summary.csv"
 excelFileName = "domain_summary.xlsx"
 # the path to write to - can be overwritten by -o cmdlink parameter
-csvFilePath = "out/"
+csv_file_path = "out/"
 
 # edcSession = EDCSession()
-parser = argparse.ArgumentParser(parents=[mem.edcSession.argparser])
+parser = argparse.ArgumentParser(parents=[MemVariables.edcSession.argparser])
 parser.add_argument("-o", "--output", default="./out", help="output folder - e.g. .out")
 # parser.add_argument(
 #     "-xls",
@@ -70,7 +74,7 @@ parser.add_argument(
 )
 
 
-def searchSummaryv1(session, resturl, querystring):
+def search_summary_v1(session, resturl, querystring):
     try:
         resp = session.get(resturl, params=querystring, timeout=3)
         # print(f"api status code={resp.status_code}")
@@ -82,10 +86,10 @@ def searchSummaryv1(session, resturl, querystring):
         return 0, None
 
 
-def setupExcelWorkbook(wbFolder, wbName):
-    mem.wb = Workbook()
+def setup_excel_workbook(workbook_folder, workbook_name):
+    MemVariables.workbook = Workbook()
     # set file path
-    # mem.wbpath = f"{wbFolder}/{wbName}"
+    # MemVariables.wbpath = f"{wbFolder}/{wbName}"
 
 
 def getDomainQueryStats(resultJson, domainData, classData, resourceData):
@@ -110,14 +114,14 @@ def getDomainQueryStats(resultJson, domainData, classData, resourceData):
                 # facets returned 0 values (which we don't want)
                 if row["count"] > 0:
                     classData[row["value"]] = row["count"]
-        if aFacet["fieldName"] == "core.resourceName":
+        if aFacet["fieldName"] == "core.resource_name":
             for row in aFacet["rows"]:
                 # for older versions (before 10.2.2hf1)
                 # facets returned 0 values (which we don't want)
                 if row["count"] > 0:
                     resourceData[row["value"]] = row["count"]
 
-    # mem objects are updated, nothing to return
+    # MemVariables objects are updated, nothing to return
     return
 
 
@@ -147,7 +151,7 @@ def printDomainSumarytoExcelWorksheet(workbook, sheetName, domainData):
                 domain_obj.get("dataDomainsRejected", 0),
             )
         )
-    ws1.auto_filter.ref = f"A1:E{rowcount+1}"
+    ws1.auto_filter.ref = f"A1:E{rowcount + 1}"
     # print(f"worksheet autofilter {sheetName} = A1:E{rowcount+1}")
 
 
@@ -193,30 +197,31 @@ def main():
     p = PurePath(sys.argv[0])
     print(f"{p.name} starting in {os.getcwd()}")
 
+    csv_file_path = "."
     # read any command-line args passed
     # (only needed if using extra args from what is used in edcSession
     print("\treading command-line specific to domainSummary extractor")
     args, unknown = parser.parse_known_args()
     # initialize http session to EDC, storing the baseurl
-    mem.edcSession.initUrlAndSessionFromEDCSettings()
+    MemVariables.edcSession.initUrlAndSessionFromEDCSettings()
     # print(
-    #     f"args from cmdline/env vars: url={mem.edcSession.baseUrl}"
-    #     f"  session={mem.edcSession.session}"
+    #     f"args from cmdline/env vars: url={MemVariables.edcSession.baseUrl}"
+    #     f"  session={MemVariables.edcSession.session}"
     #     f"arg={args}"
     # )
 
     # create the output path if it does not exist
     if args.output is not None:
-        csvFilePath = args.output
-        print(f"\t\toutput path={csvFilePath}")
-        if csvFilePath != "":
-            if not os.path.exists(csvFilePath):
-                os.makedirs(csvFilePath)
+        csv_file_path = args.output
+        print(f"\t\toutput path={csv_file_path}")
+        if csv_file_path != "":
+            if not os.path.exists(csv_file_path):
+                os.makedirs(csv_file_path)
 
-    mem.outputCsvFile = csvFilePath + "/" + csvFileName
+    MemVariables.outputCsvFile = csv_file_path + "/" + csv_file_name
     print(f"\t\toutput excel file=True")
     print(f"\t\toutput csv files={args.writeToCSV}")
-    mem.outputExcelFile = csvFilePath + "/" + excelFileName
+    MemVariables.outputExcelFile = csv_file_path + "/" + excelFileName
 
     # format the query parameters for finding all domains (+ rejected) for all resources
     querystring = {
@@ -231,7 +236,7 @@ def main():
         "rootto": "false",
         "facet.field": [
             "core.classType",
-            "core.resourceName",
+            "core.resource_name",
             "com.infa.ldm.profiling.dataDomainsInferred",
             "com.infa.ldm.profiling.dataDomainsAll",
             "com.infa.ldm.profiling.dataDomainsRejected",
@@ -242,8 +247,8 @@ def main():
 
     print(f"\nexecuting search for domains in use q={querystring['q']}")
     print(f"\tusing facets: {querystring['facet.field']}")
-    resturl = mem.edcSession.baseUrl + "/access/1/catalog/data/search"
-    rc, domainJson = searchSummaryv1(mem.edcSession.session, resturl, querystring)
+    resturl = MemVariables.edcSession.baseUrl + "/access/1/catalog/data/search"
+    rc, domainJson = search_summary_v1(MemVariables.edcSession.session, resturl, querystring)
     print(f"query rc= {rc}")
     if rc != 200:
         print(f"error running query: {rc} {domainJson}")
@@ -253,45 +258,45 @@ def main():
     itemCount = domainJson["totalCount"]
     print(f"items found={domainJson['totalCount']:,}")
 
-    mem.domainData = dict()
-    mem.classData = dict()
-    mem.resourceData = dict()
+    MemVariables.domainData = dict()
+    MemVariables.classData = dict()
+    MemVariables.resourceData = dict()
 
     # analyze - all domains (including rejected)
-    getDomainQueryStats(domainJson, mem.domainData, mem.classData, mem.resourceData)
+    getDomainQueryStats(domainJson, MemVariables.domainData, MemVariables.classData, MemVariables.resourceData)
 
     # print to csv file
-    print(f"domains used: {len(mem.domainData)}")
+    print(f"domains used: {len(MemVariables.domainData)}")
     if args.writeToCSV:
-        printDomainSummaryToCsv(f"out/domainSummary.csv", mem.domainData)
+        printDomainSummaryToCsv(f"out/domainSummary.csv", MemVariables.domainData)
     # if args.writeToExcel:
-    setupExcelWorkbook(csvFilePath, "datadomain_summary.xlsx")
-    printDomainSumarytoExcelWorksheet(mem.wb, "all domains", mem.domainData)
+    setup_excel_workbook(csv_file_path, "datadomain_summary.xlsx")
+    printDomainSumarytoExcelWorksheet(MemVariables.workbook, "all domains", MemVariables.domainData)
 
-    print(f"\nclasses using any domains {len(mem.classData)}")
-    ws1 = mem.wb.create_sheet()
+    print(f"\nclasses using any domains {len(MemVariables.classData)}")
+    ws1 = MemVariables.workbook.create_sheet()
     ws1.title = "classes used"
     ws1.append(("Class Type", "Count"))
     ws1.column_dimensions["A"].width = 50
-    for theclass, countdomains in sorted(mem.classData.items()):
+    for theclass, countdomains in sorted(MemVariables.classData.items()):
         print(f"\tclass {theclass}:{countdomains}")
         ws1.append((theclass, countdomains))
 
-    print(f"\nresources using any domains {len(mem.resourceData)}")
+    print(f"\nresources using any domains {len(MemVariables.resourceData)}")
     print("\texecuting count of domains for each resource")
-    ws1 = mem.wb.create_sheet()
+    ws1 = MemVariables.workbook.create_sheet()
     ws1.title = "resources used"
     ws1.append(("Resource Name", "Count of Domains"))
     ws1.column_dimensions["A"].width = 50
     for theresource, countdomains in sorted(
-        mem.resourceData.items(), key=lambda x: x[0].lower()
+            MemVariables.resourceData.items(), key=lambda x: x[0].lower()
     ):
         # print(f"\tresource {theresource}:{countdomains}")
         ws1.append((theresource, countdomains))
 
     # for each resource - count the instances of all domains
     # requires 1 api call per resource
-    # print(f"\tgetting resource specific counts resources={len(mem.resourceData)}")
+    # print(f"\tgetting resource specific counts resources={len(MemVariables.resourceData)}")
     querystring = {
         "q": "+com.infa.ldm.profiling.dataDomainsAll:*",
         "offset": "0",
@@ -309,13 +314,13 @@ def main():
         # "includeRefObjects": "false",
     }
 
-    for resourceName in sorted(mem.resourceData, key=str.casefold):
+    for resourceName in sorted(MemVariables.resourceData, key=str.casefold):
         print(f"\t{resourceName}", end="")
         querystring["q"] = (
             f"+com.infa.ldm.profiling.dataDomainsAll:* "
-            f'+core.resourceName:"{resourceName}"'
+            f'+core.resource_name:"{resourceName}"'
         )
-        rc, resourceJson = searchSummaryv1(mem.edcSession.session, resturl, querystring)
+        rc, resourceJson = search_summary_v1(MemVariables.edcSession.session, resturl, querystring)
         resitems = resourceJson["totalCount"]
         print(f" objects={resitems:,}")
 
@@ -325,17 +330,17 @@ def main():
         getDomainQueryStats(resourceJson, resData, resClass, resRes)
         if args.writeToCSV:
             printDomainSummaryToCsv(f"out/domainSummary_{resourceName}.csv", resData)
-        printDomainSumarytoExcelWorksheet(mem.wb, resourceName, resData)
+        printDomainSumarytoExcelWorksheet(MemVariables.workbook, resourceName, resData)
 
     # save the excel workbook
-    print(f"saving output to {mem.outputExcelFile}")
-    mem.wb.save(mem.outputExcelFile)
+    print(f"saving output to {MemVariables.outputExcelFile}")
+    MemVariables.workbook.save(MemVariables.outputExcelFile)
 
     print("")
     print(f"Finished - run time = {time.time() - start_time:.2f} seconds")
-    print(f"         domains in use={len(mem.domainData)}")
+    print(f"         domains in use={len(MemVariables.domainData)}")
     print(f"items with domain usage={itemCount:,}")
-    print(f" resources with domains={len(mem.resourceData)}")
+    print(f" resources with domains={len(MemVariables.resourceData)}")
 
     return
 

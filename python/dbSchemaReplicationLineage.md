@@ -88,7 +88,7 @@ right: resource=landing_hive
 right:   schema=landing
 initializing file: out/schemaLineage_ot_landing.csv
 get left schema: name=OT resource=ot_oracle type=com.infa.ldm.relational.Schema
-	getSchemaContents for:OT resource=ot_oracle
+	get_schema_objects for:OT resource=ot_oracle
 	query=core.resourceName:ot_oracle and core.classType:com.infa.ldm.relational.Schema and core.name_lc_exact:OT
 	objects returned: 1
 	found schema: OT id=ot_oracle://informatica/OT
@@ -96,7 +96,7 @@ get left schema: name=OT resource=ot_oracle type=com.infa.ldm.relational.Schema
 	lineage resp=200
 	getSchema: returning 54 columns, in 12 tables
 get left schema: name=landing resource=landing_hive type=com.infa.ldm.relational.Schema
-	getSchemaContents for:landing resource=landing_hive
+	get_schema_objects for:landing resource=landing_hive
 	query=core.resourceName:landing_hive and core.classType:com.infa.ldm.relational.Schema and core.name_lc_exact:landing
 	objects returned: 1
 	found schema: landing id=landing_hive://Hive Metastore/landing

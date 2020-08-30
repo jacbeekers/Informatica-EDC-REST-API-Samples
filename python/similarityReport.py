@@ -40,7 +40,7 @@ objectsurl = (
     catalogServer + "/access/1/catalog/data/objects"
 )  # note:  v1 api used here for additionalFacts
 header = {"Accept": "application/json"}
-# note:  if you want to test for a single resource, add and core.resourceName:<name>
+# note:  if you want to test for a single resource, add and core.resource_name:<name>
 query = " core.allclassTypes:( \
  com.infa.ldm.relational.Column OR \
  com.infa.ldm.relational.ViewColumn OR \
@@ -52,7 +52,7 @@ query = " core.allclassTypes:( \
  com.infa.ldm.file.parquet.PARQUETField \
  ) \
  "
-# and core.resourceName:* \
+# and core.resource_name:* \
 
 # format the csv output file (note may differ for python 2.7 & 3)
 csvFileName = "out/similarObjects.csv"

@@ -34,7 +34,7 @@ parser = argparse.ArgumentParser(parents=[edcHelper.argparser])
 # add args specific to this utility (left/right resource, schema, classtype...)
 parser.add_argument(
     "-f",
-    "--csvFileName",
+    "--csv_file_name",
     default="dbms_externalDBLinks.csv",
     required=False,
     help=(
@@ -203,7 +203,7 @@ def processExternalDB(dbId, classType, dbName, resType, resName, colWriter):
             # find the table...
             schemaName = inId.split("/")[-2]
             inEmbedded = lineageItem.get("inEmbedded")
-            tableName = edcutils.getFactValue(inEmbedded, "core.name")
+            tableName = edcutils.get_fact_value(inEmbedded, "core.name")
             print(
                 f"\tprocessing table={tableName} schema={schemaName}"
                 f" db={dbName} id={inId}"
@@ -217,7 +217,7 @@ def processExternalDB(dbId, classType, dbName, resType, resName, colWriter):
                 + "\""
             )
             if dbUnknown and schemaName == "":
-                q = q + " and core.resourceName:" + resName
+                q = q + " and core.resource_name:" + resName
             # if dbUnknown==False:
             #    q=q+ ' and ' + dbName
             q = q + ' and core.resourceType:"' + resType + '"'
@@ -358,7 +358,7 @@ def main():
         "From Object",
         "To Object",
     ]
-    outputFile = args.outDir + "/" + args.csvFileName
+    outputFile = args.outDir + "/" + args.csv_file_name
     fullpath = os.path.abspath(outputFile)
     fCSVFile = open(outputFile, "w", newline="", encoding="utf-8")
     from pathlib import Path
@@ -396,10 +396,10 @@ def main():
         itemId = extDBItem["id"]
         currentDB += 1
         print(f"processing database: {itemId} {currentDB} of {total}")
-        itemType = edcutils.getFactValue(extDBItem, "core.classType")
-        itemName = edcutils.getFactValue(extDBItem, "core.name")
-        resourceName = edcutils.getFactValue(extDBItem, "core.resourceName")
-        resourceType = edcutils.getFactValue(extDBItem, "core.resourceType")
+        itemType = edcutils.get_fact_value(extDBItem, "core.classType")
+        itemName = edcutils.get_fact_value(extDBItem, "core.name")
+        resourceName = edcutils.get_fact_value(extDBItem, "core.resource_name")
+        resourceType = edcutils.get_fact_value(extDBItem, "core.resourceType")
 
         tabLinks, colLinks, errors = processExternalDB(
             itemId, itemType, itemName, resourceType, resourceName, colWriter
@@ -426,7 +426,7 @@ def main():
             edcHelper.session,
             args.lineageResourceName,
             args.lineageResourceTemplate,
-            args.csvFileName,
+            args.csv_file_name,
             fullpath,
             waitToComplete,
             "LineageScanner"

@@ -25,9 +25,9 @@ parser = argparse.ArgumentParser(parents=[edcHelper.argparser])
 
 # check for args overriding the env vars
 # parser = argparse.ArgumentParser()
-# add args specific to this utility (resourceName, resourceType, outDir, force)
+# add args specific to this utility (resource_name, resourceType, outDir, force)
 parser.add_argument(
-    "-rn", "--resourceName", required=True, help="resource name for xdoc download"
+    "-rn", "--resource_name", required=True, help="resource name for xdoc download"
 )
 parser.add_argument(
     "-rt",
@@ -80,7 +80,7 @@ def main():
         resourceName = args.resourceName
     else:
         print(
-            "no resourceName specified - we can't download xdocs without knowing "
+            "no resource_name specified - we can't download xdocs without knowing "
             "what resource name to use. exiting"
         )
         return
@@ -108,7 +108,7 @@ def main():
         try:
             xdocurl = f"{edcHelper.baseUrl}/access/1/catalog/data/downloadXdocs"
             parms = {}
-            parms["resourceName"] = resourceName
+            parms["resource_name"] = resourceName
             parms["providerId"] = resourceType
             print(
                 f"executing xdoc download via endpoint: {xdocurl} with params={parms}"
@@ -116,7 +116,7 @@ def main():
 
             resp = edcHelper.session.get(xdocurl, params=parms, timeout=10)
             if resp.status_code == 200:
-                with open(xdocFile, "wb") as outfile:
+                with open(xdocFile, "workbook") as outfile:
                     outfile.write(resp.content)
                 print(f"xdoc size={len(resp.text)}")
                 processXdocDownloadFile(xdocFile, resourceName, outFolder)
