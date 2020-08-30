@@ -25,6 +25,7 @@ temp/
 *.secrets
 
 # Distribution / packaging
+*.zip
 .Python
 build/
 develop-eggs/
