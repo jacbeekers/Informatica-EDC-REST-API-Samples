@@ -1,0 +1,7 @@
+{
+  "meta": "task",
+  "task": {
+    "name": "ETL process",
+    "type": "orchestrator.config.tasks.Dummy"
+  }
+}

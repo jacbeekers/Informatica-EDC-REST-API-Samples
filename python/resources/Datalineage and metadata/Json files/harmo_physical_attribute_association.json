@@ -1,0 +1,27 @@
+{
+  "meta": "physical_attribute_assocation",
+  "uid": "7c5585fc-5691-45c3-bd2f-42d9acded9d4",
+  "name": "",
+  "version": "1.0.0",
+  "physicalEntityAssocation": "d9a474f7-8924-42ed-be2e-fc6779ff3363",
+  "sourceTargetAttributeLinks": [
+    {
+      "transformation": {
+        "uid": "1c8a78ce-e612-43a2-b93a-1cbbec82892f",
+        "from": [
+          "402cfcb3-0d69-4d09-84a3-f56dd154c4a2"
+        ],
+        "to": "ca695ed0-9d50-4a5e-923d-f707733ca03d",
+        "description": "It is a one to one mapping of column from source to target",
+        "formula": "{{402cfcb3-0d69-4d09-84a3-f56dd154c4a2}}"
+      }
+    }
+  ],
+  "transformation": {
+    "uid": "bd234b2d-dc83-4ab7-8ba2-519350f58eee",
+    "from": [],
+    "to": "4e9c59f9-cb84-44bf-b30a-194b9be64f2c",
+    "description": "snapshot date is only available in target entity",
+    "formula": "current_timestamp()"
+  }
+}

@@ -1,0 +1,18 @@
+{
+    "meta": "dag",
+    "dag_name": "ETL process",
+    "schedule_interval": "* * * * * *",
+    "tasks": [
+        {
+            "name": "ETL process",
+            "type": "orchestrator.config.tasks.ExternalTask",
+            "dag_name": "example_dag",
+            "downstream": [
+                {
+                    "name": "other_task",
+                    "type": "orchestrator.config.tasks.Dummy"
+                }
+            ]
+        }
+    ]
+}

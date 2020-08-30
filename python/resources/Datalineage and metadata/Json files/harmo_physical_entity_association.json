@@ -1,0 +1,10 @@
+{
+  "meta": "physical_entity_association",
+  "uid": "d9a474f7-8924-42ed-be2e-fc6779ff3363",
+  "name": "pc_contract_header to har_contract_header",
+  "job": "2c43088b-0ae3-411f-bb0f-f33e40b21f9c", 
+  "dag": "24231a7a-acd0-4f5d-86a6-77fa61028c1a", 
+  "task": "dddf8c61-24f3-420b-8be8-8edcc834c7a4",
+  "version": "1.0.0",
+  "sourceTargetEntityLinks": [ { "from" : "1137faba-24d3-4e5d-9d28-a0d8fcddacb5", "to": "8b6d7895-9028-41a4-9f13-31cbce276ad8"}]
+}

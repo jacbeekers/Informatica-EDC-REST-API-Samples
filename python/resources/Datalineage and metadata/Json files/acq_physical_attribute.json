@@ -1,0 +1,92 @@
+{
+  "meta": "physical_attribute",
+  "attribute_list": [
+    {
+      "uid": "38f6eecb-cc1b-4224-ac4a-7f982703f328",
+      "name": "id",
+      "description": "id"
+    },
+    {
+      "uid": "402cfcb3-0d69-4d09-84a3-f56dd154c4a2",
+      "name": "record_type2",
+      "description": "record_type2"
+    },
+    {
+      "uid": "abd4e3b3-6161-43dd-8f2f-52aeb685c51b",
+      "name": "bbrefcontractid",
+      "description": "bbrefcontractid"
+    },
+    {
+      "uid": "737b40a1-2da2-43d2-9294-47b3e8154f38",
+      "name": "bblock_id",
+      "description": "bblock_id"
+    },
+    {
+      "uid": "b2e34de8-e423-4556-9eb4-8b4e5f2bd34b",
+      "name": "chid",
+      "description": "chid"
+    },
+    {
+      "uid": "9af77906-f043-4ee0-a2af-60fad28c321d",
+      "name": "product_id",
+      "description": "product_id"
+    },
+    {
+      "uid": "457194f8-4185-40df-a088-6145a6cea4bb",
+      "name": "cluster_id",
+      "description": "cluster_id"
+    },
+    {
+      "uid": "02fe4512-60a5-4ebb-b6bf-2aa510489982",
+      "name": "chcontractnamecust",
+      "description": "chcontractnamecust"
+    },
+    {
+      "uid": "bd3062df-9aef-4d43-94f8-fbaea06c04ef",
+      "name": "chcontr_stat",
+      "description": "chcontr_stat"
+    },
+    {
+      "uid": "6a5c7ec9-6896-4e3a-9b33-64e076191840",
+      "name": "datetm_created",
+      "description": "datetm_created"
+    },
+    {
+      "uid": "0f5beacd-bb2d-4e83-9372-6a9e08f6e2cc",
+      "name": "datetm_modified",
+      "description": "datetm_modified"
+    },
+    {
+      "uid": "fdcef27d-0432-437a-a907-0d2b6d36b50f",
+      "name": "chuserid",
+      "description": "chuserid"
+    },
+    {
+      "uid": "4e27a6aa-2e26-4626-a3f8-b46d8919eefc",
+      "name": "chid_parent",
+      "description": "chid_parent"
+    },
+    {
+      "uid": "4202c467-0908-4c2f-8a86-da71650abd38",
+      "name": "comm_contrnr",
+      "description": "comm_contrnr"
+    },
+    {
+      "uid": "2a26c5fa-cd54-4646-9886-6525676e7b1b",
+      "name": "mgbuscontnr",
+      "description": "mgbuscontnr"
+    },
+    {
+      "uid": "4ed667ba-b94f-45c2-867c-4114ee456c36",
+      "name": "transferservice",
+      "description": "transferservice"
+    },
+    {
+      "uid": "13931504-b222-4ec0-8cbd-747f89c28ea8",
+      "name": "blockingcode",
+      "description": "blockingcode"
+    }
+  ],
+  "physicalEntity": "1137faba-24d3-4e5d-9d28-a0d8fcddacb5",
+  "version": "1.0.0"
+}

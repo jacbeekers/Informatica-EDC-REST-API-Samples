@@ -1,0 +1,97 @@
+{
+	"meta" : "physical_attribute",
+	"attribute_list": [
+		{
+			"uid": "e5732433-da86-4b44-b0bc-df063cf5e7d2",
+			"name": "id",
+			"description": "id"
+		},
+		{
+			"uid": "ca695ed0-9d50-4a5e-923d-f707733ca03d",
+			"name": "record_type2",
+			"description": "record_type2"
+		},
+		{
+			"uid": "f5bd6c82-c5e8-4ec5-8ca5-f6b4b983af93",
+			"name": "bbrefcontractid",
+			"description": "bbrefcontractid"
+		},
+		{
+			"uid": "56113f77-984d-4972-be05-42b1587fdd43",
+			"name": "bblock_id",
+			"description": "bblock_id"
+		},
+		{
+			"uid": "65ef40a5-f839-4ca0-a48a-71155b380606",
+			"name": "chid",
+			"description": "chid"
+		},
+		{
+			"uid": "2a69e858-efde-4232-a480-829c8253b895",
+			"name": "product_id",
+			"description": "product_id"
+		},
+		{
+			"uid": "7e677326-9937-46c8-bc5f-9ceac8edc20d",
+			"name": "cluster_id",
+			"description": "cluster_id"
+		},
+		{
+			"uid": "18aa0fcf-945a-4817-970d-144bcf68bb59",
+			"name": "chcontractnamecust",
+			"description": "chcontractnamecust"
+		},
+		{
+			"uid": "a591b576-ee5d-4eef-b60d-f7263312b3d2",
+			"name": "chcontr_stat",
+			"description": "chcontr_stat"
+		},
+		{
+			"uid": "db7d3eed-c9be-459a-b667-5a8dde5543ae",
+			"name": "datetm_created",
+			"description": "datetm_created"
+		},
+		{
+			"uid": "babacced-490e-43f6-aed9-476e84d018c4",
+			"name": "datetm_modified",
+			"description": "datetm_modified"
+		},
+		{
+			"uid": "a2b3e719-8ceb-48bd-8dcb-9b0e597ac240",
+			"name": "chuserid",
+			"description": "chuserid"
+		},
+		{
+			"uid": "2a75c1b1-175e-4c6b-aa22-8f42cfcb88f7",
+			"name": "chid_parent",
+			"description": "chid_parent"
+		},
+		{
+			"uid": "42f7f938-1ed9-42cc-88b8-6d05b108854f",
+			"name": "comm_contrnr",
+			"description": "comm_contrnr"
+		},
+		{
+			"uid": "ad814991-0aa7-4a5c-8de5-ccbd40ba023a",
+			"name": "mgbuscontnr",
+			"description": "mgbuscontnr"
+		},
+		{
+			"uid": "5389c209-b33d-4e7d-87b3-5957d5629ad7",
+			"name": "transferservice",
+			"description": "transferservice"
+		},
+		{
+			"uid": "86466122-db44-42fa-b334-9bac2bf7ebf7",
+			"name": "blockingcode",
+			"description": "blockingcode"
+		},
+		{
+			"uid": "4e9c59f9-cb84-44bf-b30a-194b9be64f2c",
+			"name": "snapshotdate",
+			"description": "snapshotdate"
+		}
+	],
+	"physicalEntity": "8b6d7895-9028-41a4-9f13-31cbce276ad8",
+	"version": "1.0.0"
+}
