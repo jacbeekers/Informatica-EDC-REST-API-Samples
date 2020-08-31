@@ -1,0 +1,18 @@
+/Users/jacbeekers/gitrepos/Informatica-EDC-REST-API-Samples/python/venv/bin/python /Users/jacbeekers/gitrepos/Informatica-EDC-REST-API-Samples/python/generate_uuids.py
+092a0bda-b4f9-4440-989f-8bd6e056b72b
+4f52baec-bc37-46df-9ce3-825579930668
+fae62782-c95e-491d-952f-65b1a9580031
+4c22cab0-12e0-4522-9872-f52603672327
+a415e48a-611b-470e-9b77-2562d6fa23a0
+232fb8c5-7695-44a6-b43c-fe9bdcb33954
+3a94312f-4f0c-44e2-b2cd-839f9dc5b711
+6722f377-5ba9-43de-a8fc-32c669c14ddb
+2911482e-3e4e-45f3-bb8a-e5dd10f6e464
+128abb56-3077-4837-8a8a-de14d257664b
+fe5f0a60-020e-4581-8ea0-c7e08efc0d57
+9ea6337e-b224-4c06-9364-3b9ac874df38
+dbd102e5-d5b0-437c-a5bc-00491d4ece40
+9f169d5f-ec56-4fcc-8ef0-8ad26b1f14fa
+91b934ed-6dcf-4bf5-a734-28d14db5ec71
+
+

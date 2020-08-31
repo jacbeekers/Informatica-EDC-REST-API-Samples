@@ -1,6 +1,6 @@
 {
   "meta": "physical_attribute",
-  "meta_version": "0.2",
+  "meta_version": "0.2.0",
   "attribute_list": [
     {
       "uid": "38f6eecb-cc1b-4224-ac4a-7f982703f328",
@@ -88,6 +88,6 @@
       "description": "blockingcode"
     }
   ],
-  "physicalEntity": "1137faba-24d3-4e5d-9d28-a0d8fcddacb5",
+  "physical_entity": "1137faba-24d3-4e5d-9d28-a0d8fcddacb5",
   "version": "1.0.0"
 }

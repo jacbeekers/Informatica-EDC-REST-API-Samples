@@ -1,6 +1,6 @@
 {
 	"meta" : "physical_attribute",
-	"meta_version": "0.2",
+	"meta_version": "0.2.0",
 	"attribute_list": [
 		{
 			"uid": "e5732433-da86-4b44-b0bc-df063cf5e7d2",
@@ -93,6 +93,6 @@
 			"description": "snapshotdate"
 		}
 	],
-	"physicalEntity": "8b6d7895-9028-41a4-9f13-31cbce276ad8",
+	"physical_entity": "8b6d7895-9028-41a4-9f13-31cbce276ad8",
 	"version": "1.0.0"
 }

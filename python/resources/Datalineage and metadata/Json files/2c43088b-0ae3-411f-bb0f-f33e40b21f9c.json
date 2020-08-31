@@ -2,6 +2,7 @@
   "meta": "task",
   "meta_version": "0.2.0",
   "task": {
+    "uid": "3caf1c2b-d705-4850-ac21-db057946f01b",
     "name": "sample",
     "type": "orchestrator.providers.optimus.config.Job",
     "task_type": "python",
