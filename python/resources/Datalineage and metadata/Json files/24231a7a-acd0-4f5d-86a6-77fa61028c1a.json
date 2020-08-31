@@ -1,5 +1,6 @@
 {
     "meta": "dag",
+    "meta_version": "0.2.0",
     "dag_name": "ETL process",
     "schedule_interval": "* * * * * *",
     "tasks": [

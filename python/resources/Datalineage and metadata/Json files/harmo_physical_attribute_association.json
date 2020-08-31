@@ -1,5 +1,6 @@
 {
-  "meta": "physical_attribute_assocation",
+  "meta": "physical_attribute_association",
+  "meta_version": "0.2.0",
   "uid": "7c5585fc-5691-45c3-bd2f-42d9acded9d4",
   "name": "",
   "version": "1.0.0",

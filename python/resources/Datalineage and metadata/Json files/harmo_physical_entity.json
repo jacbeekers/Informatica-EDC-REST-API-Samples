@@ -1,5 +1,6 @@
 {
 	"meta": "physical_entity",
+	"meta_version": "0.2.0",
 	"entity_type": "file",
 	"name": "HAR_CONTRACT_HEADER",
 	"description": "har_contract_header",

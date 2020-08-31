@@ -1,5 +1,6 @@
 {
   "meta": "physical_entity_association",
+  "meta_version": "0.2.0",
   "uid": "d9a474f7-8924-42ed-be2e-fc6779ff3363",
   "name": "pc_contract_header to har_contract_header",
   "job": "2c43088b-0ae3-411f-bb0f-f33e40b21f9c", 

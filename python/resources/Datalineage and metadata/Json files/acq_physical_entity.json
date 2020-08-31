@@ -1,5 +1,6 @@
 {
 	"meta": "physical_entity",
+	"meta_version": "0.2.0",
 	"entity_type": "file",
 	"name": "PC_CONTRACT_HEADER",
 	"description": "pc_contract_header",
