@@ -2,8 +2,9 @@
   "meta": "task",
   "meta_version": "0.2.0",
   "task": {
-    "uid": "cdd9a120-cb26-4862-bead-111ae65ab548",
+    "uid": "a415e48a-611b-470e-9b77-2562d6fa23a0",
     "name": "ETL process",
     "type": "orchestrator.config.tasks.Dummy"
-  }
+  },
+  "version": "1.0.0"
 }
