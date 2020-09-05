@@ -1,13 +1,12 @@
 """
 create multiple dbms resources - using an input template
 """
-import edcutils
 import os
 
 import argparse
 import sys
 import requests
-from edcSessionHelper import EDCSession
+from edc_utilities.edcSessionHelper import EDCSession
 import urllib3
 
 

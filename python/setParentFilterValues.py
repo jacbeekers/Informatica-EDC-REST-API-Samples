@@ -18,13 +18,11 @@ import requests
 import time
 import sys
 import urllib3
-import csv
 import argparse
-import os
 import re
 import json
 #from pathlib import PurePath
-from edcSessionHelper import EDCSession
+from edc_utilities.edcSessionHelper import EDCSession
 
 # global var declaration (with type hinting)
 #edcSession: EDCSession = None

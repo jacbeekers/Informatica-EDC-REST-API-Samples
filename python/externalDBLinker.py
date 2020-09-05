@@ -9,19 +9,14 @@ or
 options include to create links directly (via API) - via -i switch (or --edcImport)
 
 """
-import requests
 import json
-from requests.auth import HTTPBasicAuth
 import csv
-import platform
-import edcutils
+from edc_utilities import edcutils, edcSessionHelper
 import time
 import sys
 import argparse
-import edcSessionHelper
 import urllib3
 import os
-from pathlib import Path
 
 urllib3.disable_warnings()
 
@@ -361,7 +356,6 @@ def main():
     outputFile = args.outDir + "/" + args.csv_file_name
     fullpath = os.path.abspath(outputFile)
     fCSVFile = open(outputFile, "w", newline="", encoding="utf-8")
-    from pathlib import Path
 
     print("custom lineage file initialized. " + outputFile + " RELATIVE=" +fullpath)
     colWriter = csv.writer(fCSVFile)

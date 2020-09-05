@@ -22,7 +22,7 @@ import csv
 import argparse
 import os
 from pathlib import PurePath
-from edcSessionHelper import EDCSession
+from edc_utilities.edcSessionHelper import EDCSession
 
 # global var declaration (with type hinting)
 edcSession: EDCSession = None

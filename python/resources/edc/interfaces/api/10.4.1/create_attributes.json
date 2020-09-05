@@ -1,0 +1,26 @@
+{
+  "attributes": [
+    {
+      "analyzer": "string",
+      "boost": "string",
+      "classes": [
+        "string"
+      ],
+      "data": "boolean",
+      "dataType": "string",
+      "deprecated": "boolean",
+      "derived": "boolean",
+      "description": "string",
+      "facetable": "boolean",
+      "fuzzy": "boolean",
+      "label": "string",
+      "multivalued": "boolen",
+      "name": "string",
+      "searchable": "boolean",
+      "sortable": "boolean",
+      "suggestable": "boolean",
+      "visible": "boolean"
+    }
+  ],
+  "packageName": "string"
+}

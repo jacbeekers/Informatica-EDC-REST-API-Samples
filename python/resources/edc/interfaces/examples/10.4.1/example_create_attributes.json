@@ -1,0 +1,26 @@
+{
+  "attributes": [
+    {
+      "analyzer": "TEXT_GENERAL",
+      "boost": "MEDIUM",
+      "classes": [
+        "core.IClass"
+      ],
+      "data": false,
+      "dataType": "core.String",
+      "deprecated": false,
+      "derived": false,
+      "description": "string",
+      "facetable": false,
+      "fuzzy": true,
+      "label": "the label",
+      "multivalued": false,
+      "name": "Custom_attribute_through_Rest_API_From_Swagger",
+      "searchable": true,
+      "sortable": false,
+      "suggestable": true,
+      "visible": true
+    }
+  ],
+  "packageName": "string"
+}

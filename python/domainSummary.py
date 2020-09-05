@@ -28,7 +28,7 @@ import requests
 import urllib3
 from openpyxl import Workbook
 
-from edcSessionHelper import EDCSession
+from edc_utilities.edcSessionHelper import EDCSession
 
 urllib3.disable_warnings()
 

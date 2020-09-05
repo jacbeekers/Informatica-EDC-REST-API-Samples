@@ -6,20 +6,13 @@ Note:  this script is not fully tested.  it is a quick example of how you could 
     - execute relationships api endpoint - for all view columns - for upstream core.DirectionalDataFlow linked objects (depth=1)
     - dump the links to .json and .csv for analysis
 """
-import requests
 import json
-from requests.auth import HTTPBasicAuth
 import csv
-import platform
-import edcutils
+from edc_utilities import edcutils, edcSessionHelper
 import time
-import sys
 import argparse
-import edcSessionHelper
 import urllib3
 import os
-from pathlib import Path
-import dbSchemaReplicationLineage
 
 urllib3.disable_warnings()
 
@@ -99,7 +92,6 @@ def main():
     outputFile = args.outDir + "/" + args.csv_file_name
     fullpath = os.path.abspath(outputFile)
     fCSVFile = open(outputFile, "w", newline="", encoding="utf-8")
-    from pathlib import Path
 
     print("custom lineage file initialized. " + outputFile + " RELATIVE=" +fullpath)
     colWriter = csv.writer(fCSVFile)

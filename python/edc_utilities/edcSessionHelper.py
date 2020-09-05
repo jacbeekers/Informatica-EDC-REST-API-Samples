@@ -49,6 +49,7 @@ class EDCSession:
         self.argparser = argparse.ArgumentParser(add_help=False)
         self.__setup_standard_cmdargs__()
         self.edcversion = 0
+        self.timeout = 10
 
     def __setup_standard_cmdargs__(self):
         # check for args overriding the env vars
@@ -245,7 +246,7 @@ class EDCSession:
         try:
             url = urljoin(self.baseUrl, "access/2/catalog/data/productInformation")
             # url = self.baseUrl + "access/2/catalog/data/productInformation"
-            resp = self.session.get(url, timeout=3)
+            resp = self.session.get(url, timeout=self.timeout)
             print(f"\tapi status code={resp.status_code}")
             if resp.status_code == 200:
                 # valid and 10.4+, get the actual version

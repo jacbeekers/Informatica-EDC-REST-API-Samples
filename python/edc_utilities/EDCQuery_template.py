@@ -1,4 +1,4 @@
-'''
+"""
 Created on Jul 16, 2018
 
 @author: dwrigley
@@ -7,23 +7,22 @@ This template can be copied & used to query the catalog
 and process each item returned individually (in processAnItem)
 it handles the paging model (see pageSize variable)
 
-'''
+"""
 
 import time
 
-import edcSessionHelper
-import edcutils
+from edc_utilities import edcutils, edcSessionHelper
 
 # set edc helper session + variables (easy/re-usable connection to edc api)
 edcHelper = edcSessionHelper.EDCSession()
 
 
-def process_item(an_item, itemCount):
-    '''
+def process_item(an_item, item_count):
+    """
     put your code here - that does something with the item
     for this example, just print the it and name
     @note python 2.7 does not allow us to specify the parameter type...
-    '''
+    """
     item_id = an_item["id"]
     item_name = edcutils.get_fact_value(an_item, "core.name", "value")
     provider_id = edcutils.get_fact_value(an_item, "core.name", "providerId")
@@ -55,6 +54,7 @@ def main():
     edc_resource_name = "demoSource"
 
     query = " core.allclassTypes:( \
+            com.infa.ldm.relational.Table  \
             com.infa.ldm.relational.Column  \
             com.infa.ldm.relational.ViewColumn  \
             com.infa.ldm.file.delimited.DelimitedField  \
@@ -104,7 +104,7 @@ def main():
 
         for foundItem in result_json["items"]:
             itemCount += 1
-            process_item(an_item=foundItem, itemCount=itemCount)
+            process_item(an_item=foundItem, item_count=itemCount)
 
         # end of page processing
         print("\tpage processed - %s seconds ---" % (time.time() - page_time))

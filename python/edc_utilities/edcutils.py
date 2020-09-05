@@ -6,11 +6,11 @@ utility functions for processing catalog objects
 @author: dwrigley
 """
 
+import json
+import os
 
 import requests
-import json
 from requests.auth import HTTPBasicAuth
-import os
 
 
 def get_fact_value(item, attribute_name, json_property):
@@ -249,7 +249,7 @@ def uploadResourceFileUsingSession(url, session, resourceName, fileName, fullPat
     )
     apiURL = url + "/access/1/catalog/resources/" + resourceName + "/files"
     print("\turl=" + apiURL)
-     # header = {"accept": "*/*", }
+    # header = {"accept": "*/*", }
     params = {"scannerid": scannerId, "filename": fileName, "optionid": "File"}
     print("\t" + str(params))
     #     files = {'file': fullPath}
@@ -281,7 +281,6 @@ def uploadResourceFileUsingSession(url, session, resourceName, fileName, fullPat
         print("\t" + str(uploadResp))
         print("\t" + str(uploadResp.text))
         return uploadResp.status_code
-
 
 
 def uploadResourceFile(url, user, pWd, resourceName, fileName, fullPath, scannerId):
@@ -405,17 +404,18 @@ def executeResourceLoad(url, user, pWd, resourceName):
         print("\t" + str(uploadResp.text))
         return uploadResp.status_code, None
 
+
 # start
 
 def createOrUpdateAndExecuteResourceUsingSession(
-    url,
-    session,
-    resourceName,
-    templateFileName,
-    fileName,
-    inputFileFullPath,
-    waitForComplete,
-    scannerId,
+        url,
+        session,
+        resourceName,
+        templateFileName,
+        fileName,
+        inputFileFullPath,
+        waitForComplete,
+        scannerId,
 ):
     """
     create or update resource_name  (new way with sessions)
@@ -556,22 +556,19 @@ def createOrUpdateAndExecuteResourceUsingSession(
         )
 
 
-
-
 # end
 
 
-
 def createOrUpdateAndExecuteResource(
-    url,
-    user,
-    pwd,
-    resourceName,
-    templateFileName,
-    fileName,
-    inputFileFullPath,
-    waitForComplete,
-    scannerId,
+        url,
+        user,
+        pwd,
+        resourceName,
+        templateFileName,
+        fileName,
+        inputFileFullPath,
+        waitForComplete,
+        scannerId,
 ):
     """
     create or update resource_name   (note: old way - consider moving to sessions (better for id/pwd/ssl validation))

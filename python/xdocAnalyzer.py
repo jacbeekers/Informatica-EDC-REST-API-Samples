@@ -16,7 +16,7 @@ import os
 import requests
 import sys
 import argparse
-import edcSessionHelper
+from edc_utilities import edcSessionHelper
 
 edcHelper = edcSessionHelper.EDCSession()
 

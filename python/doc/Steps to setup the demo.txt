@@ -59,6 +59,12 @@ Informatica Catalog Admin
 	demoTarget - do not run Data Domain Discovery
 
 
+=========
+Excellent example on custom models and lineage:
+https://network.informatica.com/docs/DOC-18662
+When importing the custom model, an error may appear "Content not allowed in prolog". This error occurred, for me, using Safari as well as Chrome on MacOS. Using Chrome on Windows worked fine.
+
+
 Info
 ====
 To get the object UID use:
@@ -280,8 +286,15 @@ includeSrcLinks=false
 associations=com.infa.ldm.entity.collaboration.CollaborationCommentAssociation
 
 =========
-FROM 
+FROM
+https://network.informatica.com/thread/88028
+Get all the asset types from EDC using API in use and their count
+url: https://infaserveril26zi7vnj4uo.westeurope.cloudapp.azure.com:9085/access/2/catalog/data/search?q=*&facet=true&defaultFacets=false&facetId=core.classType&highlight=false&offset=0&pageSize=1
+output: examples/allclasses_in_use_and counts_output.json
 
+To get all classes from all models:
+url: https://infaserveril26zi7vnj4uo.westeurope.cloudapp.azure.com:9085/access/2/catalog/models/classes
+output: examples/allclasses_output.json
 
 
 =========
@@ -289,4 +302,6 @@ FROM
 https://docs.github.com/en/github/creating-cloning-and-archiving-repositories/duplicating-a-repository
 
 duplicated azure-sdk-for-python
+
+
 

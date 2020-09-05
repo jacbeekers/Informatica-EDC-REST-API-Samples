@@ -13,7 +13,7 @@ import time
 import sys
 import urllib3
 import csv
-import edcSessionHelper
+from edc_utilities import edcSessionHelper
 import argparse
 import os
 
@@ -170,7 +170,7 @@ def writeSimilarityResults(resourceName, theWriter, totalToExtract):
     # pageSize = 250
 
     while offset < total:
-        # itemCount = 0
+        # item_count = 0
         itemsWithSim = 0
         simLinks = 0
         page += 1

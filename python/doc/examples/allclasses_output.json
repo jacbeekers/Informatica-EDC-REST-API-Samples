@@ -1,0 +1,360 @@
+{
+  "metadata": {
+    "totalCount": 1301
+  },
+  "items": [
+    {
+      "id": "com.infa.ldm.extended.mongodbnosqldatabase.GroupItem",
+      "href": "/2/catalog/models/classes/com~2e~infa~2e~ldm~2e~extended~2e~mongodbnosqldatabase~2e~GroupItem",
+      "name": "Group Item",
+      "boost": "LOW",
+      "label": "Group Item",
+      "description": "",
+      "firstClass": false,
+      "searched": true,
+      "indexed": true,
+      "superClasses": [],
+      "classTypeTags": []
+    },
+    {
+      "id": "com.infa.adapter.snowflake.FlatRecord_view",
+      "href": "/2/catalog/models/classes/com~2e~infa~2e~adapter~2e~snowflake~2e~FlatRecord_view",
+      "name": "View",
+      "boost": "LOW",
+      "label": "View",
+      "description": "",
+      "firstClass": true,
+      "searched": true,
+      "indexed": true,
+      "superClasses": [
+        {
+          "id": "core.DataSet",
+          "readOnly": true,
+          "href": "/2/catalog/models/classes/core~2e~DataSet",
+          "name": "Data Object"
+        }
+      ],
+      "viewConfiguration": {
+        "associationConfigs": {
+          "core.DataSetDataFlow": {
+            "name": "External Dataset",
+            "classTypes": {
+              "com.infa.adapter.snowflake.FlatRecord_table": "Tables",
+              "com.infa.adapter.snowflake.FlatRecord_view": "Views"
+            }
+          },
+          "core.PkFkRelatedDataSets": {
+            "name": "Tables",
+            "incomingName": "Foriegn Key",
+            "outgoingName": "Primary Key"
+          }
+        }
+      },
+      "classTypeTags": []
+    },
+    {
+      "id": "com.infa.ldm.mstr.ProjectElement",
+      "href": "/2/catalog/models/classes/com~2e~infa~2e~ldm~2e~mstr~2e~ProjectElement",
+      "name": "Project Element",
+      "boost": "LOW",
+      "label": "Project Element",
+      "description": "",
+      "firstClass": false,
+      "searched": true,
+      "indexed": true,
+      "superClasses": [],
+      "classTypeTags": []
+    },
+    {
+      "id": "com.infa.ldm.extended.qlikview.Tables",
+      "href": "/2/catalog/models/classes/com~2e~infa~2e~ldm~2e~extended~2e~qlikview~2e~Tables",
+      "name": "Tables",
+      "boost": "LOW",
+      "label": "Tables",
+      "description": "",
+      "firstClass": false,
+      "searched": true,
+      "indexed": true,
+      "superClasses": [],
+      "classTypeTags": []
+    },
+    {
+      "id": "com.infa.ldm.mstr.Metric257",
+      "href": "/2/catalog/models/classes/com~2e~infa~2e~ldm~2e~mstr~2e~Metric257",
+      "name": "(Document) Metric",
+      "boost": "LOW",
+      "label": "(Document) Metric",
+      "description": "MicroStrategy (Document) Metric",
+      "firstClass": false,
+      "searched": true,
+      "indexed": true,
+      "superClasses": [],
+      "classTypeTags": []
+    },
+    {
+      "id": "com.infa.ldm.mstr.Metric256",
+      "href": "/2/catalog/models/classes/com~2e~infa~2e~ldm~2e~mstr~2e~Metric256",
+      "name": "(Model) Metric",
+      "boost": "LOW",
+      "label": "(Model) Metric",
+      "description": "MicroStrategy (Model) Metric",
+      "firstClass": false,
+      "searched": true,
+      "indexed": true,
+      "superClasses": [
+        {
+          "id": "core.DataSet",
+          "readOnly": true,
+          "href": "/2/catalog/models/classes/core~2e~DataSet",
+          "name": "Data Object"
+        }
+      ],
+      "classTypeTags": []
+    },
+    {
+      "id": "com.infa.ldm.cognos.ReportFieldMeasureBody",
+      "href": "/2/catalog/models/classes/com~2e~infa~2e~ldm~2e~cognos~2e~ReportFieldMeasureBody",
+      "name": "ReportField Measure Body",
+      "boost": "LOW",
+      "label": "ReportField Measure Body",
+      "description": "",
+      "firstClass": false,
+      "searched": true,
+      "indexed": true,
+      "superClasses": [
+        {
+          "id": "core.DataElement",
+          "readOnly": true,
+          "href": "/2/catalog/models/classes/core~2e~DataElement",
+          "name": "DataElement"
+        }
+      ],
+      "classTypeTags": []
+    },
+    {
+      "id": "com.infa.ldm.relational.CandidateTable",
+      "href": "/2/catalog/models/classes/com~2e~infa~2e~ldm~2e~relational~2e~CandidateTable",
+      "name": "Candidate Table",
+      "boost": "LOW",
+      "label": "Candidate Table",
+      "description": "",
+      "firstClass": true,
+      "searched": true,
+      "indexed": true,
+      "superClasses": [],
+      "classTypeTags": []
+    },
+    {
+      "id": "com.infa.ldm.mstr.Metric255",
+      "href": "/2/catalog/models/classes/com~2e~infa~2e~ldm~2e~mstr~2e~Metric255",
+      "name": "(Project) Metric",
+      "boost": "LOW",
+      "label": "(Project) Metric",
+      "description": "MicroStrategy (Project) Metric",
+      "firstClass": false,
+      "searched": true,
+      "indexed": true,
+      "superClasses": [
+        {
+          "id": "core.DataSet",
+          "readOnly": true,
+          "href": "/2/catalog/models/classes/core~2e~DataSet",
+          "name": "Data Object"
+        }
+      ],
+      "classTypeTags": []
+    },
+    {
+      "id": "com.infa.ldm.mstr.Metric254",
+      "href": "/2/catalog/models/classes/com~2e~infa~2e~ldm~2e~mstr~2e~Metric254",
+      "name": "(Report) Metric",
+      "boost": "LOW",
+      "label": "(Report) Metric",
+      "description": "MicroStrategy (Report) Metric",
+      "firstClass": false,
+      "searched": true,
+      "indexed": true,
+      "superClasses": [
+        {
+          "id": "core.DataElement",
+          "readOnly": true,
+          "href": "/2/catalog/models/classes/core~2e~DataElement",
+          "name": "DataElement"
+        }
+      ],
+      "classTypeTags": []
+    },
+    {
+      "id": "com.infa.ldm.mstr.Metric259",
+      "href": "/2/catalog/models/classes/com~2e~infa~2e~ldm~2e~mstr~2e~Metric259",
+      "name": "(Intelligent Cube) Metric",
+      "boost": "LOW",
+      "label": "(Intelligent Cube) Metric",
+      "description": "MicroStrategy (Intelligent Cube) Metric",
+      "firstClass": false,
+      "searched": true,
+      "indexed": true,
+      "superClasses": [],
+      "classTypeTags": []
+    },
+    {
+      "id": "com.infa.ldm.cognos.ModelConnection",
+      "href": "/2/catalog/models/classes/com~2e~infa~2e~ldm~2e~cognos~2e~ModelConnection",
+      "name": "Model Connection",
+      "boost": "LOW",
+      "label": "Model Connection",
+      "description": "",
+      "firstClass": false,
+      "searched": true,
+      "indexed": true,
+      "superClasses": [],
+      "classTypeTags": []
+    },
+    {
+      "id": "com.infa.ldm.extended.microsoftsqlserveranalysisandreportingservices.Source",
+      "href": "/2/catalog/models/classes/com~2e~infa~2e~ldm~2e~extended~2e~microsoftsqlserveranalysisandreportingservices~2e~Source",
+      "name": "Source",
+      "boost": "LOW",
+      "label": "Source",
+      "description": "",
+      "firstClass": false,
+      "searched": true,
+      "indexed": true,
+      "superClasses": [],
+      "classTypeTags": []
+    },
+    {
+      "id": "com.infa.ldm.erwin.ModelSource",
+      "href": "/2/catalog/models/classes/com~2e~infa~2e~ldm~2e~erwin~2e~ModelSource",
+      "name": "Model Source",
+      "boost": "LOW",
+      "label": "Model Source",
+      "description": "",
+      "firstClass": true,
+      "searched": true,
+      "indexed": true,
+      "superClasses": [
+        {
+          "id": "com.infa.ldm.erwin.IErwin",
+          "readOnly": true,
+          "href": "/2/catalog/models/classes/com~2e~infa~2e~ldm~2e~erwin~2e~IErwin",
+          "name": "IErwin"
+        }
+      ],
+      "classTypeTags": []
+    },
+    {
+      "id": "com.infa.ldm.etlcore.ExecutionUnit",
+      "href": "/2/catalog/models/classes/com~2e~infa~2e~ldm~2e~etlcore~2e~ExecutionUnit",
+      "name": "ExecutionUnit",
+      "boost": "LOW",
+      "label": "ExecutionUnit",
+      "description": "Execution Unit represents a workflow which executes the mapping",
+      "firstClass": true,
+      "searched": false,
+      "indexed": false,
+      "superClasses": [
+        {
+          "id": "core.DataSet",
+          "readOnly": true,
+          "href": "/2/catalog/models/classes/core~2e~DataSet",
+          "name": "Data Object"
+        }
+      ],
+      "classTypeTags": []
+    },
+    {
+      "id": "com.infa.ldm.extended.microsoftsqlserveranalysisandreportingservices.ReportContent",
+      "href": "/2/catalog/models/classes/com~2e~infa~2e~ldm~2e~extended~2e~microsoftsqlserveranalysisandreportingservices~2e~ReportContent",
+      "name": "Report Content",
+      "boost": "LOW",
+      "label": "Report Content",
+      "description": "",
+      "firstClass": true,
+      "searched": true,
+      "indexed": true,
+      "superClasses": [
+        {
+          "id": "core.DataSource",
+          "readOnly": true,
+          "href": "/2/catalog/models/classes/core~2e~DataSource",
+          "name": "DataSource"
+        }
+      ],
+      "classTypeTags": []
+    },
+    {
+      "id": "com.infa.ldm.etl.pc.ReusableTransactionControl",
+      "href": "/2/catalog/models/classes/com~2e~infa~2e~ldm~2e~etl~2e~pc~2e~ReusableTransactionControl",
+      "name": "Reusable Transaction Control",
+      "boost": "LOW",
+      "label": "Reusable Transaction Control",
+      "description": "",
+      "firstClass": false,
+      "searched": false,
+      "indexed": false,
+      "superClasses": [],
+      "classTypeTags": []
+    },
+    {
+      "id": "com.infa.ldm.extended.apachehadoophbasenosqldatabase.Database",
+      "href": "/2/catalog/models/classes/com~2e~infa~2e~ldm~2e~extended~2e~apachehadoophbasenosqldatabase~2e~Database",
+      "name": "Database",
+      "boost": "LOW",
+      "label": "Database",
+      "description": "",
+      "firstClass": true,
+      "searched": true,
+      "indexed": true,
+      "superClasses": [
+        {
+          "id": "core.DataSource",
+          "readOnly": true,
+          "href": "/2/catalog/models/classes/core~2e~DataSource",
+          "name": "DataSource"
+        }
+      ],
+      "classTypeTags": []
+    },
+    {
+      "id": "com.infa.ldm.businessobject.ParameterField",
+      "href": "/2/catalog/models/classes/com~2e~infa~2e~ldm~2e~businessobject~2e~ParameterField",
+      "name": "Parameter Field",
+      "boost": "LOW",
+      "label": "Parameter Field",
+      "description": "",
+      "firstClass": false,
+      "searched": true,
+      "indexed": true,
+      "superClasses": [
+        {
+          "id": "core.DataElement",
+          "readOnly": true,
+          "href": "/2/catalog/models/classes/core~2e~DataElement",
+          "name": "DataElement"
+        }
+      ],
+      "classTypeTags": []
+    },
+    {
+      "id": "com.infa.ldm.erwin.SubjectArea",
+      "href": "/2/catalog/models/classes/com~2e~infa~2e~ldm~2e~erwin~2e~SubjectArea",
+      "name": "Subject Area",
+      "boost": "LOW",
+      "label": "Subject Area",
+      "description": "",
+      "firstClass": true,
+      "searched": true,
+      "indexed": true,
+      "superClasses": [
+        {
+          "id": "com.infa.ldm.erwin.IErwin",
+          "readOnly": true,
+          "href": "/2/catalog/models/classes/com~2e~infa~2e~ldm~2e~erwin~2e~IErwin",
+          "name": "IErwin"
+        }
+      ],
+      "classTypeTags": []
+    }
+  ]
+}

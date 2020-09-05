@@ -8,7 +8,7 @@ import base64
 import urllib3
 import pathlib
 
-from edcSessionHelper import EDCSession
+from edc_utilities.edcSessionHelper import EDCSession
 
 urllib3.disable_warnings()
 
@@ -48,16 +48,16 @@ def main():
         print("\nor - create a .env file with those settings.")
         print("\tNote:  if you create a file named '.env' - it will be automatically used by other scripts, or you can over-ride with the -v setting")
 
-        if not pathlib.Path(".env").is_file():
+        if not pathlib.Path("../.env").is_file():
             yes_or_not = input("\na .env file in the current folder does not exist, should i create it? (y or n)?:" )
             if yes_or_not.lower() == 'y':
                 print('creating .env.....')
-                write_env_file(".env", catalog_url, b64_auth_str)
+                write_env_file("../.env", catalog_url, b64_auth_str)
         else:
             yes_or_not = input("\na .env file already exists, would you like to overwrite it with these settings?: Y or N :")
             if yes_or_not.lower() == 'y':
                 print('overwriting .env.....')
-                write_env_file(".env", catalog_url, b64_auth_str)
+                write_env_file("../.env", catalog_url, b64_auth_str)
             else:
                 yes_or_not = input("\na create/overwrite a different env file (suggest .env_<name>?: Y or N :")
                 if yes_or_not.lower() == 'y':

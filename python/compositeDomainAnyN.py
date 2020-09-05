@@ -28,7 +28,7 @@ import sys
 import urllib3
 from itertools import combinations
 import argparse
-from edcSessionHelper import EDCSession
+from edc_utilities.edcSessionHelper import EDCSession
 import json
 
 # global var declaration (with type hinting)

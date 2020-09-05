@@ -1,0 +1,123 @@
+{
+  "metadata": {
+    "totalCount": 171
+  },
+  "appliedFilters": [],
+  "facetResults": [
+    {
+      "facetHref": "/2/catalog/models/facets/fieldFacets/core~2e~classType",
+      "facetId": "core.classType",
+      "facetType": "FieldFacet",
+      "groupLabel": "Asset Type",
+      "buckets": [
+        {
+          "fq": "{!tag=all_class_type}core.allclassTypes:\"com.infa.ldm.profiling.DataDomain\"",
+          "value": "com.infa.ldm.profiling.DataDomain",
+          "count": 127
+        },
+        {
+          "fq": "{!tag=all_class_type}core.allclassTypes:\"com.infa.ldm.relational.Column\"",
+          "value": "com.infa.ldm.relational.Column",
+          "count": 16
+        },
+        {
+          "fq": "{!tag=all_class_type}core.allclassTypes:\"core.DataElement\"",
+          "value": "core.DataElement",
+          "count": 16
+        },
+        {
+          "fq": "{!tag=all_class_type}core.allclassTypes:\"com.infa.ldm.profiling.DataDomainGroup\"",
+          "value": "com.infa.ldm.profiling.DataDomainGroup",
+          "count": 11
+        },
+        {
+          "fq": "{!tag=all_class_type}core.allclassTypes:\"core.Resource\"",
+          "value": "core.Resource",
+          "count": 9
+        },
+        {
+          "fq": "{!tag=all_class_type}core.allclassTypes:\"core.DataSet\"",
+          "value": "core.DataSet",
+          "count": 4
+        },
+        {
+          "fq": "{!tag=all_class_type}core.allclassTypes:\"core.DataSource\"",
+          "value": "core.DataSource",
+          "count": 4
+        },
+        {
+          "fq": "{!tag=all_class_type}core.allclassTypes:\"com.infa.ldm.constraint.PrimaryKey\"",
+          "value": "com.infa.ldm.constraint.PrimaryKey",
+          "count": 2
+        },
+        {
+          "fq": "{!tag=all_class_type}core.allclassTypes:\"com.infa.ldm.relational.Database\"",
+          "value": "com.infa.ldm.relational.Database",
+          "count": 2
+        },
+        {
+          "fq": "{!tag=all_class_type}core.allclassTypes:\"com.infa.ldm.relational.Schema\"",
+          "value": "com.infa.ldm.relational.Schema",
+          "count": 2
+        },
+        {
+          "fq": "{!tag=all_class_type}core.allclassTypes:\"com.infa.ldm.relational.Table\"",
+          "value": "com.infa.ldm.relational.Table",
+          "count": 2
+        }
+      ]
+    }
+  ],
+  "hits": [
+    {
+      "id": "DataDomain://CartaCredito",
+      "href": "/2/catalog/data/objects/DataDomain~3a~~2f~~2f~CartaCredito",
+      "nativeId": 649352,
+      "values": [
+        {
+          "attributeId": "core.description",
+          "label": "description",
+          "value": "Validates if the input matches credit card number.",
+          "highlights": []
+        },
+        {
+          "attributeId": "core.lastModified",
+          "label": "Last Modified",
+          "value": "2020-08-10T14:09:53.239Z",
+          "highlights": []
+        },
+        {
+          "attributeId": "com.infa.ldm.profiling.isDBE",
+          "label": "Is Domain By Example",
+          "value": "false",
+          "highlights": []
+        },
+        {
+          "attributeId": "core.resourceName",
+          "label": "Resource Name",
+          "value": "DataDomain",
+          "highlights": []
+        },
+        {
+          "attributeId": "core.allclassTypes",
+          "label": "All Class Types",
+          "value": "com.infa.ldm.profiling.DataDomain",
+          "highlights": []
+        },
+        {
+          "attributeId": "core.classType",
+          "label": "classType",
+          "value": "com.infa.ldm.profiling.DataDomain",
+          "highlights": []
+        },
+        {
+          "attributeId": "core.name",
+          "label": "name",
+          "value": "CartaCredito",
+          "highlights": []
+        }
+      ],
+      "subHits": []
+    }
+  ]
+}
