@@ -1,9 +1,9 @@
 import glob
 import json
 
+from metadata_utilities import generic_settings
 from metadata_utilities import messages
 from metadata_utilities import mu_logging
-from metadata_utilities import generic_settings
 
 
 class Generic:
@@ -27,7 +27,7 @@ class Generic:
         module = "find_json"
         self.mu_log.log(self.mu_log.DEBUG, "target_schema_type: " + target_schema_type, module)
         self.mu_log.log(self.mu_log.DEBUG, "Looking for key >" + property + "< that contains uuid >"
-            + source_uuid + "<", module)
+                        + source_uuid + "<", module)
         found_meta_type = False
         found_uuid_count = 0
         directory = self.settings.json_directory
@@ -53,11 +53,11 @@ class Generic:
                         if the_property_value == source_uuid:
                             self.mu_log.log(self.mu_log.DEBUG,
                                             "file contains uuid >" + source_uuid + "< in property >" + property
-                                            +"<", module)
+                                            + "<", module)
                             target_json_file = current_json_file
                             self.attribute_list = data["attribute_list"]
                             self.mu_log.log(self.mu_log.VERBOSE, "attribute list is >" + str(self.attribute_list) + "<"
-                                            ,module)
+                                            , module)
                             found_uuid_count += 1
                         else:
                             self.mu_log.log(self.mu_log.DEBUG, "file does not contain requested uuid", module)

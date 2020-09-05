@@ -1,7 +1,8 @@
 import logging
+from datetime import datetime
 
 from metadata_utilities import generic_settings
-from datetime import datetime
+
 
 class MULogging:
     code_version = "0.1.0"
@@ -61,7 +62,7 @@ class MULogging:
             self.log_level = self.DEBUG
             self.logging_log_level = logging.DEBUG
 
-    def log(self, level=DEBUG, msg="no_message", method = "undetermined"):
+    def log(self, level=DEBUG, msg="no_message", method="undetermined"):
         if level <= self.log_level:
             message = method + " - " + msg
             if level == self.FATAL:

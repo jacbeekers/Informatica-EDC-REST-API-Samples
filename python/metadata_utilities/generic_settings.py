@@ -37,4 +37,3 @@ class GenericSettings:
             self.log_filename = data["log_filename"]
             self.log_filename_prefix = data["log_filename_prefix"]
             self.log_level = data["log_level"]
-

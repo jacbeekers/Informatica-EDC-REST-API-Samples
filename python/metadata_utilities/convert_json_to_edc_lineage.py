@@ -110,7 +110,7 @@ class ConvertJSONtoEDCLineage:
         if json_result["code"] != "OK":
             overall_result = json_result
         self.mu_log.log(self.mu_log.DEBUG, "json_payload lineage creation completed with >" + json_result['code']
-            + "<", module)
+                        + "<", module)
         # Send lineage info to metadata target
         send_result = self.send_metadata()
         self.mu_log.log(self.mu_log.DEBUG, "lineage creation completed with >" + send_result['code'] + "<", module)
@@ -158,7 +158,8 @@ class ConvertJSONtoEDCLineage:
     def main(self):
         module = "main"
         process_result = self.process_files()
-        self.mu_log.log(self.mu_log.INFO, "Result: " + process_result["code"] + " - " + process_result["message"], module)
+        self.mu_log.log(self.mu_log.INFO, "Result: " + process_result["code"] + " - " + process_result["message"],
+                        module)
 
 
 if __name__ == "__main__":

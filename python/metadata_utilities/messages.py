@@ -31,7 +31,8 @@ message = {
     },
     "undetermined": {
         "code": "MU-GEN-004"
-        , "message": "Undetermined result. This should not happen. Please contact the development team and mention code 'MU-GEN-004'."
+        ,
+        "message": "Undetermined result. This should not happen. Please contact the development team and mention code 'MU-GEN-004'."
         , "level": "ERROR"
     },
     "CONV_GROUP": {

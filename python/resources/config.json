@@ -4,11 +4,15 @@
   "json_directory": "resources/Datalineage and metadata/JSON files/",
   "output_directory": "out/",
   "target": "local",
-  "other_targets": ["azure_blob"],
+  "other_targets": [
+    "azure_blob"
+  ],
   "metadata_store": "edc",
-  "other_metadata_stores": ["metadata_lake"],
+  "other_metadata_stores": [
+    "metadata_lake"
+  ],
   "connectivity_config": "edc_connectivity.json",
-  "log_directory" : "out/",
+  "log_directory": "out/",
   "log_filename": "metadata_utilities.log",
   "log_filename_prefix": "{{timestamp}}",
   "log_level": "DEBUG"
