@@ -1,0 +1,24 @@
+{
+  "providerId": "enrichment",
+  "modifiedBy": "Administrator",
+  "updates": [
+    {
+      "newSourceLinks": [
+        {
+          "objectId": "demoSource://demosource/dbo/tblMetaDemo/ActiveFrom",
+          "properties": [
+            {
+              "attrUuid": "core.targetAttribute",
+              "value": "core.DirectionalDataFlow"
+            }
+          ],
+          "associationId": "core.DirectionalDataFlow"
+        }
+      ],
+      "deleteFacts": [],
+      "newFacts": [],
+      "deleteSourceLinks": [],
+      "id": "demoTarget://demotarget/dbo/tblMetaDemo/ActiveFrom"
+    }
+  ]
+}

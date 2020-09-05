@@ -1,0 +1,24 @@
+{
+  "providerId": "enrichment",
+  "modifiedBy": "Administrator",
+  "updates": [
+    {
+      "newSourceLinks": [
+        {
+          "objectId": "demoSource://demosource/dbo",
+          "properties": [
+            {
+              "attrUuid": "core.targetAttribute",
+              "value": "core.DataSetDataFlow"
+            }
+          ],
+          "associationId": "core.DataSetDataFlow"
+        }
+      ],
+      "deleteFacts": [],
+      "newFacts": [],
+      "deleteSourceLinks": [],
+      "id": "demoTarget://demotarget/dbo"
+    }
+  ]
+}

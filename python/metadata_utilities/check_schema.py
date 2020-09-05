@@ -47,7 +47,7 @@ class CheckSchema:
                 return messages.message["json_parse_error"]["code"]
         if self.meta_version == generic.Generic().version:
             print("file meta version matches expected schema version")
-            schema_directory = generic.Generic().schema_folder
+            schema_directory = generic.Generic().schema_directory
             self.schema_file = schema_directory + self.meta_type + ".json"
             with open(self.schema_file) as f:
                 schema = json.load(f)
