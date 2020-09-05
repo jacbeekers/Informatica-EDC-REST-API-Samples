@@ -19,6 +19,9 @@ __pycache__/
 #temp
 temp/
 
+#output directory
+out/
+
 #data
 *.csv
 *.xlsx
