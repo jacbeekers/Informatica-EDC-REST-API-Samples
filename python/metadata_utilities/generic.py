@@ -2,141 +2,121 @@ import glob
 import json
 
 from metadata_utilities import messages
+from metadata_utilities import mu_logging
+from metadata_utilities import generic_settings
 
 
 class Generic:
     """
     Some generic utilities, e.g. reading the config.json
     """
-    version = "0.1.0"
+    code_version = "0.1.0"
     metaschema_version = "0.0.0"
+    mu_log = mu_logging.MULogging()
+    settings = generic_settings.GenericSettings()
+    json_file = settings.json_file
 
     def __init__(self):
-        # config.json settings
-        self.json_file = "resources/config.json"
-        self.base_schema_folder = "unknown"
-        self.version = "unknown"
-        self.schema_directory = "unknown"
-        self.json_directory = "unknown"
-        self.target = "unknown"
-        self.output_directory = "unknown"
-        self.metadata_store = "unknown"
-        self.log_directory = "unknown"
-        self.log_filename = "unknown"
-        self.log_filename_prefix = "unknown"
-        self.log_level = "DEBUG"
-        self.get_config()
-        # not from config.json:
         self.attribute_list = []
-
-    def get_config(self):
-        with open(self.json_file) as config:
-            data = json.load(config)
-            self.version = data["meta_version"]
-            self.base_schema_folder = data["schema_directory"]
-            self.schema_directory = self.base_schema_folder + self.version + "/"
-            self.json_directory = data["json_directory"]
-            self.target = data["target"]
-            self.output_directory = data["output_directory"]
-            self.metadata_store = data["metadata_store"]
-            self.log_directory = data["log_directory"]
-            self.log_filename = data["log_filename"]
-            self.log_filename_prefix = data["log_filename_prefix"]
-            self.log_level = data["log_level"]
 
     def find_json(self, source_uuid, target_schema_type, property):
         """
         find the JSON file that has the source_uuid in the value of the property.
         The JSON schema of the file must be 'target_schema_type'.
         """
-        print("target_schema_type: " + target_schema_type)
-        print(f"Looking for key {property} that contains uuid {source_uuid}")
+        module = "find_json"
+        self.mu_log.log(self.mu_log.DEBUG, "target_schema_type: " + target_schema_type, module)
+        self.mu_log.log(self.mu_log.DEBUG, "Looking for key >" + property + "< that contains uuid >"
+            + source_uuid + "<", module)
         found_meta_type = False
         found_uuid_count = 0
-        directory = self.json_directory
+        directory = self.settings.json_directory
         file_result = messages.message["not_found"]
         overall_result = messages.message["not_found"]
         # Walk through json directory and check all json files
         for file in glob.glob(directory + "*.json"):
             current_json_file = file
-            print(f"\tchecking {current_json_file}")
+            self.mu_log.log(self.mu_log.DEBUG, "checking >" + current_json_file + "<", module)
             file_result = messages.message["not_found"]
             with open(current_json_file) as f:
                 data = json.load(f)
                 meta_type = data["meta"]
                 meta_version = data["meta_version"]
-                print(f"\t\tfile states it adheres to schema {meta_type} in version {meta_version}")
+                self.mu_log.log(self.mu_log.DEBUG,
+                                "file states it adheres to schema " + meta_type + "<, version >"
+                                + meta_version + "<", module)
                 if meta_type == target_schema_type:
-                    print("\t\tcurrent metadata_type matches target_schema_type")
+                    self.mu_log.log(self.mu_log.DEBUG, "current metadata_type matches target_schema_type", module)
                     found_meta_type = True
                     try:
                         the_property_value = data[property]
                         if the_property_value == source_uuid:
-                            print(f"\t\tfile contains uuid {source_uuid} in property {property}")
+                            self.mu_log.log(self.mu_log.DEBUG,
+                                            "file contains uuid >" + source_uuid + "< in property >" + property
+                                            +"<", module)
                             target_json_file = current_json_file
                             self.attribute_list = data["attribute_list"]
-                            print(f"\t\tattribute list is: {self.attribute_list}")
+                            self.mu_log.log(self.mu_log.VERBOSE, "attribute list is >" + str(self.attribute_list) + "<"
+                                            ,module)
                             found_uuid_count += 1
                         else:
-                            print(f"\t\tfile does not contain requested uuid")
+                            self.mu_log.log(self.mu_log.DEBUG, "file does not contain requested uuid", module)
                     except KeyError as e:
-                        print(f"\t\tproperty {property} and/or property 'attribute_list' do not exist in file {current_json_file}")
+                        self.mu_log.log(self.mu_log.DEBUG,
+                                        "property " + property + " and/or property 'attribute_list' do not exist in file >"
+                                        + current_json_file + "<", module)
                         file_result = messages.message["json_key_error"]
                 else:
-                    print("\t\tthis is not the file we are looking for (schema_types do not match)")
+                    self.mu_log.log(self.mu_log.DEBUG,
+                                    "this is not the file we are looking for (schema_types do not match)", module)
                     file_result = messages.message["not_found"]
 
         if found_meta_type:
-            print(f"found schema_type in {target_json_file}")
+            self.mu_log.log(self.mu_log.DEBUG, "found schema_type in >" + target_json_file + "<", module)
             if found_uuid_count == 1:
-                print(f"uuid {source_uuid} has been found {found_uuid_count} time")
+                self.mu_log.log(self.mu_log.DEBUG, "uuid >" + source_uuid + "< has been found " + str(found_uuid_count)
+                                + " time", module)
                 overall_result = messages.message["ok"]
             elif found_uuid_count > 1:
-                print(
-                    f"uuid has been found {found_uuid_count} times, i.e. in multiple files of type {target_schema_type}. This is not allowed.")
+                self.mu_log.log(self.mu_log.DEBUG,
+                                "uuid has been found " + str(found_uuid_count)
+                                + " times, i.e. in multiple files of type {target_schema_type}. This is not allowed."
+                                , module)
                 overall_result = messages.message["json_multiple_uuids_found"]
             else:
-                print(f"uuid {source_uuid} could not be found")
+                self.mu_log.log(self.mu_log.DEBUG, "uuid >" + source_uuid + "< could not be found", module)
                 overall_result = messages.message["json_uuid_not_found"]
         else:
-            print(f"no JSON with target_schema_type {target_schema_type}")
+            self.mu_log.log(self.mu_log.DEBUG, "no JSON with target_schema_type >" + target_schema_type + "<", module)
             overall_result = file_result
 
         return overall_result
 
     def write_local_file(self, filename, to_write):
         # local file system
+        module = "write_local_file"
         file_result = messages.message["ok"]
-        path = self.output_directory + filename
-        print(f"writing >{to_write}< to file >{path}<...")
+        path = self.settings.output_directory + filename
+        self.mu_log.log(self.mu_log.VERBOSE, "writing >" + to_write + "< to file >" + path + "<...", module)
         try:
             with open(path, "w") as f:
                 f.write(to_write)
-            print("write completed")
+            self.mu_log.log(self.mu_log.DEBUG, "write completed", module)
         except OSError as e:
-            print("OS error ({0}): {1}".format(e.errno, e.strerror))
+            self.mu_log.log(self.mu_log.DEBUG, "OS error: " + e.errno + " - " + e.strerror, module)
             file_result = messages.message["os_error"]
         return file_result
 
     def convert_list_into_string(self, list):
-        print(list)
         concatenated = ""
         nr_cols = 0
         for item in list:
-            # print(item)
+            # self.mu_log.log(self.mu_log.DEBUG, item)
             for attribute in ["name"]:
-                # print(item[attribute])
+                # self.mu_log.log(self.mu_log.DEBUG, item[attribute])
                 nr_cols += 1
                 if nr_cols == 1:
                     concatenated = item[attribute]
                 else:
                     concatenated += "," + item[attribute]
         return concatenated
-
-    def main(self):
-        return messages.message["not_implemented"]
-
-
-if __name__ == "__main__":
-    result = Generic().main()
-    print(result["code"] + ": " + result["message"])
