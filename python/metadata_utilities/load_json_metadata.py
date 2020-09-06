@@ -4,8 +4,8 @@ import json
 from metadata_utilities import check_schema
 from metadata_utilities import generic_settings, generic
 from metadata_utilities import messages
-from metadata_utilities import mu_logging
-
+from metadata_utilities import mu_logging, json_file_utilities
+from edc_utilities import edc_lineage
 
 class ConvertJSONtoEDCLineage:
     """
@@ -23,6 +23,9 @@ class ConvertJSONtoEDCLineage:
         self.target = self.settings.target
         self.overall_result = messages.message["undetermined"]
         self.mu_log = mu_logging.MULogging()
+        self.edc_lineage = edc_lineage.EDCLineage()
+        self.json_file_utilities = json_file_utilities.JSONFileUtilities()
+        self.data = ""
 
     def generate_file_structure(self):
         """
@@ -34,7 +37,7 @@ class ConvertJSONtoEDCLineage:
             data = json.load(entity)
         if data["entity_type"] == "file":
             filename = data["name"]
-            self.mu_log.log(self.mu_log.DEBUG, "entity type = file. Generating metafile for " + filename)
+            self.mu_log.log(self.mu_log.DEBUG, "entity type = file. Generating metafile for " + filename, module)
             entity_uuid = data["uid"]
             # find the entity_uuid in the property physical_entity of a physical_attribute file
             file_result = self.generic.find_json(entity_uuid, "physical_attribute", "physical_entity")
@@ -72,9 +75,11 @@ class ConvertJSONtoEDCLineage:
         directory = self.settings.json_directory
         for file in glob.glob(directory + "*.json"):
             self.json_file = file
+            self.mu_log.log(self.mu_log.DEBUG, "JSON file is: " + self.json_file,module)
+            self.data = self.json_file_utilities.get_json(self.json_file)
             file_result = messages.message["ok"]
             check = check_schema.CheckSchema()
-            check_result = check.check_schema(self.json_file)
+            check_result = check.check_schema(self.data)
             if check_result == "OK":
                 self.mu_log.log(self.mu_log.DEBUG, "schema check returned OK", module)
                 self.meta_type = check.meta_type
@@ -82,7 +87,8 @@ class ConvertJSONtoEDCLineage:
                     file_result = self.generate_file_structure()
                 elif self.meta_type in ("physical_attribute_association", "physical_entity_association"):
                     file_result = self.process_lineage_request()
-                    self.mu_log.log(self.mu_log.DEBUG, f"lineage processing completed with code {file_result['code']}"
+                    self.mu_log.log(self.mu_log.DEBUG, "lineage processing completed with code >"
+                                    + file_result['code'] + "<"
                                     , module)
                 else:
                     self.mu_log.log(self.mu_log.DEBUG,
@@ -101,36 +107,25 @@ class ConvertJSONtoEDCLineage:
         # Generate the lineage file. May not be needed when using an API
         module = "process_lineage_request"
         overall_result = messages.message["undetermined"]
-        csv_result = self.generate_lineage("csv")
+        csv_result = self.edc_lineage.generate_lineage("csv", self.meta_type, self.data)
         self.mu_log.log(self.mu_log.DEBUG, "csv lineage creation completed with >" + csv_result['code']
                         + "<", module)
         if csv_result["code"] != "OK":
             overall_result = csv_result
-        json_result = self.generate_lineage("json_payload")
-        if json_result["code"] != "OK":
+        json_result = self.edc_lineage.generate_lineage("json_payload", self.meta_type, self.data)
+        if json_result["code"] == "OK":
+            # Send lineage info to metadata target
+            send_result = self.send_metadata()
+            self.mu_log.log(self.mu_log.DEBUG, "lineage creation completed with >" + send_result['code'] + "<", module)
+            if send_result["code"] != "OK":
+                overall_result = send_result
+        else:
             overall_result = json_result
-        self.mu_log.log(self.mu_log.DEBUG, "json_payload lineage creation completed with >" + json_result['code']
+            self.mu_log.log(self.mu_log.ERROR, "json_payload lineage creation completed with >" + json_result['code']
                         + "<", module)
-        # Send lineage info to metadata target
-        send_result = self.send_metadata()
-        self.mu_log.log(self.mu_log.DEBUG, "lineage creation completed with >" + send_result['code'] + "<", module)
-        if send_result["code"] != "OK":
-            overall_result = send_result
 
         return overall_result
 
-    def generate_lineage(self, type):
-        module = "generate_lineage"
-        self.mu_log.log(self.mu_log.DEBUG, "generating lineage for " + type, module)
-
-        lineage_result = messages.message["not_implemented"]
-        return lineage_result
-
-    def build_api_load(self, metadata_type):
-        module = "build_api_load"
-        #        self.api_load =
-        build_result = messages.message["not_implemented"]
-        return build_result
 
     def send_metadata(self):
         module = "send_metadata"
@@ -138,17 +133,13 @@ class ConvertJSONtoEDCLineage:
         self.mu_log.log(self.mu_log.DEBUG, "sending lineage info to " + target, module)
 
         if target == "edc":
-            send_result = self.send_metadata_to_edc()
+            send_result = self.edc_lineage.send_metadata_to_edc()
         elif target == "metadata_lake":
             send_result = self.send_metadata_to_metadata_lake()
         else:
             self.mu_log.log(self.mu_log.DEBUG, "unknown metadata target type: " + target, module)
             send_result = messages.message["unknown_metadata_target"]
 
-        return send_result
-
-    def send_metadata_to_edc(self):
-        send_result = messages.message["not_implemented"]
         return send_result
 
     def send_metadata_to_metadata_lake(self):

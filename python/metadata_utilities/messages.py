@@ -56,44 +56,59 @@ message = {
         , "level": "FATAL"
     },
     "json_parse_error": {
-        "code": "MU-CONV-002"
+        "code": "MU-CONV-004"
         , "message": "JSON parsing error"
         , "level": "FATAL"
     },
     "not_lineage": {
-        "code": "MU-CONV-003"
+        "code": "MU-CONV-005"
         , "message": "JSON file is not meant for lineage and will be ignored"
         , "level": "WARNING"
     },
     "incorrect_meta_version": {
-        "code": "MU-CONV-004"
+        "code": "MU-CONV-006"
         , "message": "JSON file meta-version does not match expected meta-version"
         , "level": "ERROR"
     },
     "jsonschema_validation_error": {
-        "code": "MU-CONV-005"
+        "code": "MU-CONV-007"
         , "message": "JSON validation error against its schema"
         , "level": "ERROR"
     },
     "json_multiple_uuids_found": {
-        "code": "MU-CONV-006"
+        "code": "MU-CONV-008"
         , "message": "Multiple UUIDs found, which is not allowed"
         , "level": "ERROR"
     },
     "json_uuid_not_found": {
-        "code": "MU-CONV-007"
+        "code": "MU-CONV-009"
         , "message": "UUID could not be found"
         , "level": "ERROR"
     },
     "unknown_metadata_target": {
-        "code": "MU-CONV-008"
-        , "message": "Unknown metadata target type."
+        "code": "MU-CONV-010"
+        , "message": "Unknown metadata target type"
+        , "level": "ERROR"
+    },
+    "invalid_lineage_output_type": {
+        "code": "MU-CONV-011"
+        , "message": "Invalid lineage output type specified"
+        , "level": "ERROR"
+    },
+    "json_key_error": {
+        "code": "MU-CONV-012"
+        , "message": "JSON key could not be found in JSON file"
         , "level": "ERROR"
     },
     "EDC_GROUP": {
         "code": "EDC"
         , "message": "Group for warnings and errors related to Informatica EDC interfacing"
         , "level:": "INFO"
+    },
+    "edc_error": {
+        "code": "MU-EDC-001"
+        , "message": "EDC reported an error (see above for more info)"
+        , "level": "ERROR"
     },
     "MDL_GROUP": {
         "code": "MDL"

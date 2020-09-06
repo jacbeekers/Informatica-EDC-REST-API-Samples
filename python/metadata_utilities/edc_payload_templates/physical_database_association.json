@@ -5,20 +5,20 @@
     {
       "newSourceLinks": [
         {
-          "objectId": "demoSource://demosource/dbo/tblMetaDemo/ActiveFrom",
+          "objectId": "{{ source_object_id }}",
           "properties": [
             {
               "attrUuid": "core.targetAttribute",
-              "value": "core.DirectionalDataFlow"
+              "value": "core.DataSetDataFlow"
             }
           ],
-          "associationId": "core.DirectionalDataFlow"
+          "associationId": "core.DataSetDataFlow"
         }
       ],
       "deleteFacts": [],
       "newFacts": [],
       "deleteSourceLinks": [],
-      "id": "demoTarget://demotarget/dbo/tblMetaDemo/ActiveFrom"
+      "id": "{{ target_object_id }}"
     }
   ]
 }

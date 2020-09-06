@@ -15,5 +15,6 @@
   "log_directory": "out/",
   "log_filename": "metadata_utilities.log",
   "log_filename_prefix": "{{timestamp}}",
-  "log_level": "DEBUG"
+  "log_level": "VERBOSE",
+  "jinja_config": "jinja_config.json"
 }

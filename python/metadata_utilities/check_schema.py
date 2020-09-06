@@ -15,41 +15,41 @@ class CheckSchema:
 
     def __init__(self):
         self.json_file = "not provided"
+        self.json_data = ""
         self.meta_type = "unknown"
         self.meta_version = "unknown"
         self.schema_file = "unknown"
         self.mu_log = mu_logging.MULogging()
 
-    def check_schema(self, json_file):
-        module = "check_schema"
-        self.mu_log.log(self.mu_log.DEBUG, "expected meta_version is >" + self.metaschema_version + "<", module)
-        self.json_file = json_file
+    def check_schema(self, data):
         """
         Checks the JSON to determine which JSON schema is used and which version
         """
+        module = "check_schema"
+        self.mu_log.log(self.mu_log.DEBUG, "expected meta_version is >" + self.metaschema_version + "<", module)
+        self.json_data = data
 
-        with open(self.json_file) as f:
-            data = json.load(f)
-            try:
-                self.meta_type = data["meta"]
-                self.meta_version = data["meta_version"]
-                self.mu_log.log(self.mu_log.DEBUG
-                                , "schema of file >" + json_file + "< is >" + self.meta_type + "<, version >"
-                                + self.meta_version + "<", module)
-            except KeyError as e:
-                self.mu_log.log(self.mu_log.DEBUG,
-                                "Key error. meta and meta_version must be in JSON file. That is not the case with "
-                                + self.json_file, module)
-                return messages.message["meta_error"]["code"]
-            except jsonschema.exceptions.SchemaError as e:
-                self.mu_log.log(self.mu_log.FATAL, "Schema error: " + e.message, module)
-                return messages.message["json_schema_error"]["code"]
-            except jsonschema.exceptions.ValidationError as e:
-                self.mu_log.log(self.mu_log.FATAL, "Validation error: " + e.message, module)
-                return messages.message["json_validation_error"]["code"]
-            except json.decoder.JSONDecodeError as e:
-                self.mu_log.log(self.mu_log.FATAL, "Error parsing JSON:" + e.msg, module)
-                return messages.message["json_parse_error"]["code"]
+        try:
+            self.meta_type = data["meta"]
+            self.meta_version = data["meta_version"]
+            self.mu_log.log(self.mu_log.DEBUG
+                            , "schema is >" + self.meta_type + "<, version >"
+                            + self.meta_version + "<", module)
+        except KeyError as e:
+            self.mu_log.log(self.mu_log.DEBUG,
+                            "Key error. meta and meta_version must be in JSON file. That is not the case with "
+                            + self.json_file, module)
+            return messages.message["meta_error"]["code"]
+        except jsonschema.exceptions.SchemaError as e:
+            self.mu_log.log(self.mu_log.FATAL, "Schema error: " + e.message, module)
+            return messages.message["json_schema_error"]["code"]
+        except jsonschema.exceptions.ValidationError as e:
+            self.mu_log.log(self.mu_log.FATAL, "Validation error: " + e.message, module)
+            return messages.message["json_validation_error"]["code"]
+        except json.decoder.JSONDecodeError as e:
+            self.mu_log.log(self.mu_log.FATAL, "Error parsing JSON:" + e.msg, module)
+            return messages.message["json_parse_error"]["code"]
+
         if self.meta_version == generic_settings.GenericSettings().meta_version:
             self.mu_log.log(self.mu_log.INFO, "file meta version matches expected schema version", module)
             schema_directory = generic_settings.GenericSettings().schema_directory

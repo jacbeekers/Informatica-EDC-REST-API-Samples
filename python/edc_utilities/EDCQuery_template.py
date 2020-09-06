@@ -16,7 +16,6 @@ from edc_utilities import edcutils, edcSessionHelper
 # set edc helper session + variables (easy/re-usable connection to edc api)
 edcHelper = edcSessionHelper.EDCSession()
 
-
 def process_item(an_item, item_count):
     """
     put your code here - that does something with the item
