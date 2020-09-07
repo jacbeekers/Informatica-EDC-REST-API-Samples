@@ -11,10 +11,13 @@
   "other_metadata_stores": [
     "metadata_lake"
   ],
-  "connectivity_config": "edc_connectivity.json",
+  "edc_config": "resources/edc_config.json",
+  "edc_secrets": "resources/edc_connectivity.secrets",
+  "jinja_config": "resources/jinja_config.json",
+  "azure_monitor_config": "resources/azure_monitor.secrets",
+  "azure_monitor_requests": "True",
   "log_directory": "out/",
   "log_filename": "metadata_utilities.log",
   "log_filename_prefix": "{{timestamp}}",
-  "log_level": "VERBOSE",
-  "jinja_config": "jinja_config.json"
+  "log_level": "VERBOSE"
 }

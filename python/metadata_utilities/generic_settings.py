@@ -21,6 +21,14 @@ class GenericSettings:
         self.log_filename = "unknown"
         self.log_filename_prefix = "unknown"
         self.log_level = "DEBUG"
+        self.edc_config = "unknown"
+        self.edc_config_data = "{}"
+        self.edc_url = "http://localhost:8888"
+        self.edc_secrets = "unknown"
+        self.jinja_config = "unknown"
+        self.azure_monitor_config = "unknown"
+        self.azure_monitor_requests = "False"
+        self.instrumentation_key = "unknown"
         self.get_config()
 
     def get_config(self):
@@ -37,3 +45,35 @@ class GenericSettings:
             self.log_filename = data["log_filename"]
             self.log_filename_prefix = data["log_filename_prefix"]
             self.log_level = data["log_level"]
+            if "edc_config" in data:
+                self.edc_config = data["edc_config"]
+            if "edc_secrets" in data:
+                self.edc_secrets = data["edc_secrets"]
+            if "jinja_config" in data:
+                self.jinja_config = data["jinja_config"]
+            if "azure_monitor_config" in data:
+                self.azure_monitor_config = data["azure_monitor_config"]
+            if "azure_monitor_requests" in data:
+                if data["azure_monitor_requests"] == "True":
+                    self.azure_monitor_requests = True
+                elif data["azure_monitor_requests"] == "False":
+                    self.azure_monitor_requests = False
+                else:
+                    print("Incorrect config value >" + data["azure_monitor_requests"]
+                          + "< for azure_monitor_requests. Must be True or False")
+                    self.azure_monitor_requests = False
+
+        if self.edc_config != "unknown":
+            with open(self.edc_config) as edc:
+                self.edc_config_data = json.load(edc)
+
+        if self.edc_secrets != "unknown":
+            with open(self.edc_secrets) as edc:
+                data = json.load(edc)
+                self.edc_url = data["edc_url"]
+
+        if self.azure_monitor_config != "unknown":
+            with open(self.azure_monitor_config) as az_monitor:
+                data = json.load(az_monitor)
+                if "instrumentation_key" in data:
+                    self.instrumentation_key = data["instrumentation_key"]

@@ -6,3 +6,7 @@ jinja2
 
 # unit tests
 nose
+
+# logging to Azure Monitor
+opencensus-ext-azure
+opencensus-ext-requests

@@ -1,6 +1,8 @@
 import logging
 from datetime import datetime
 
+from opencensus.ext.azure.log_exporter import AzureLogHandler
+
 from metadata_utilities import generic_settings
 
 
@@ -33,10 +35,14 @@ class MULogging:
     # add the handlers to the logger
     logger.addHandler(fh)
     logger.addHandler(ch)
+    # add azure monitor if configured
+    if generic.instrumentation_key != "unknown":
+        logger.addHandler(AzureLogHandler(connection_string="InstrumentationKey=" + generic.instrumentation_key))
 
     def __init__(self):
         self.determine_log_level(self.generic.log_level)
         self.logger.setLevel(self.logging_log_level)
+        self.area = None
 
     def determine_log_level(self, configured_log_level):
         if configured_log_level == "VERBOSE":
@@ -62,18 +68,26 @@ class MULogging:
             self.log_level = self.DEBUG
             self.logging_log_level = logging.DEBUG
 
-    def log(self, level=DEBUG, msg="no_message", method="undetermined"):
+    def log(self, level=DEBUG, msg="no_message", method="undetermined", extra=None):
         if level <= self.log_level:
-            message = method + " - " + msg
-            if level == self.FATAL:
-                self.logger.critical(message)
-            elif level == self.ERROR:
-                self.logger.error(message)
-            elif level == self.WARNING:
-                self.logger.warning(message)
-            elif level == self.INFO:
-                self.logger.info(message)
-            elif level == self.DEBUG:
-                self.logger.debug(message)
+            if extra is None:
+                properties = {"custom_dimensions": { "process": __name__, "code_version": self.code_version}}
             else:
-                self.logger.debug(message)
+                properties = {"custom_dimensions": extra}
+            message = ""
+            if self.area is None:
+                message += method + " - " + msg
+            else:
+                message = method + " - " + self.area + " - " + msg
+            if level == self.FATAL:
+                self.logger.critical(message, extra=properties)
+            elif level == self.ERROR:
+                self.logger.error(message, extra=properties)
+            elif level == self.WARNING:
+                self.logger.warning(message, extra=properties)
+            elif level == self.INFO:
+                self.logger.info(message, extra=properties)
+            elif level == self.DEBUG:
+                self.logger.debug(message, extra=properties)
+            else:
+                self.logger.debug(message, extra=properties)

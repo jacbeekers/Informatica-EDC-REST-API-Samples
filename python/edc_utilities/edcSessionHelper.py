@@ -271,7 +271,7 @@ class EDCSession:
                 print(f"error connecting {resp.json()}")
             return resp.status_code, resp.json()
         except requests.exceptions.RequestException as e:
-            print("Error connecting to : " + url)
-            print(e)
+            print("Error connecting to : " + self.session.baseUrl)
+            print(e.strerror)
             # exit if we can't connect
             return 0, None

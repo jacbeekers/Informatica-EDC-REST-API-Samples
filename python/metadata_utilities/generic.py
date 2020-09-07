@@ -51,24 +51,9 @@ class Generic:
                                 + meta_version + "<", module)
                 if meta_type == target_schema_type:
                     self.mu_log.log(self.mu_log.DEBUG, log_prefix + "meta_type matches", module)
-                    if "attribute_list" in self.data:
-                        self.mu_log.log(self.mu_log.VERBOSE, log_prefix + "JSON file contains attribute_list", module)
-                        i = -1
-                        for attribute in self.data["attribute_list"]:
-                            i += 1
-                            self.mu_log.log(self.mu_log.VERBOSE, log_prefix + "checking uuid >" + attribute["uid"] + "<", module)
-                            if attribute["uid"] == source_uuid:
-                                self.mu_log.log(self.mu_log.DEBUG, log_prefix + "current uuid >" + attribute["uid"]
-                                                + "< matches source_uuid", module)
-                                found_meta_type = True
-                                found_uuid_count += 1
-                                self.found_data = self.data
-                                self.index = i
-                                break
-                            else:
-                                self.mu_log.log(self.mu_log.VERBOSE, log_prefix + "this is not the UUID we are looking for", module)
-                    else:
-                        self.mu_log.log(self.mu_log.DEBUG, log_prefix + "current metadata_type matches target_schema_type", module)
+                    if property in self.data:
+                        self.mu_log.log(self.mu_log.DEBUG, log_prefix
+                                        + "current metadata_type matches target_schema_type", module)
                         found_meta_type = True
                         try:
                             the_property_value = self.data[property]
@@ -87,12 +72,36 @@ class Generic:
                                 except KeyError as e:
                                     self.attribute_list = []
                             else:
-                                self.mu_log.log(self.mu_log.DEBUG, log_prefix + "file does not contain requested uuid", module)
+                                self.mu_log.log(self.mu_log.DEBUG, log_prefix + "file does not contain requested uuid",
+                                                module)
                         except KeyError as e:
                             self.mu_log.log(self.mu_log.DEBUG, log_prefix +
                                             "property >" + property + "< does not exist in file >"
                                             + current_json_file + "<", module)
                             file_result = messages.message["json_key_error"]
+                    else:
+                        if "attribute_list" in self.data:
+                            self.mu_log.log(self.mu_log.VERBOSE, log_prefix + "JSON file contains attribute_list", module)
+                            i = -1
+                            for attribute in self.data["attribute_list"]:
+                                i += 1
+                                self.mu_log.log(self.mu_log.VERBOSE, log_prefix
+                                                + "checking uid >"
+                                                + attribute["uid"]
+                                                + "<", module)
+                                if attribute["uid"] == source_uuid:
+                                    self.mu_log.log(self.mu_log.DEBUG, log_prefix + "current uuid >" + attribute["uid"]
+                                                    + "< matches source_uuid", module)
+                                    found_meta_type = True
+                                    found_uuid_count += 1
+                                    self.found_data = self.data
+                                    self.index = i
+                                    break
+                                else:
+                                    self.mu_log.log(self.mu_log.VERBOSE, log_prefix
+                                                    + "this is not the UUID we are looking for", module)
+                        else:
+                            self.mu_log.log(self.mu_log.DEBUG, "property and attribute_list are not in the file", module)
                 else:
                     self.mu_log.log(self.mu_log.DEBUG, log_prefix +
                                     "this is not the file we are looking for (schema_types do not match)", module)
@@ -132,7 +141,7 @@ class Generic:
                 f.write(to_write)
             self.mu_log.log(self.mu_log.DEBUG, "write completed", module)
         except OSError as e:
-            self.mu_log.log(self.mu_log.DEBUG, "OS error: " + str(e.errno) + " - " + e.strerror, module)
+            self.mu_log.log(self.mu_log.ERROR, "OS error: " + str(e.errno) + " - " + e.strerror, module)
             file_result = messages.message["os_error"]
         return file_result
 
