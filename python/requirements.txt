@@ -3,3 +3,6 @@ openpyxl
 python-dotenv
 urllib3
 jinja2
+
+# unit tests
+nose

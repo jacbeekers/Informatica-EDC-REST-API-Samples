@@ -23,14 +23,14 @@ class Generic:
         self.found_data = "{}"
         self.index = -1
 
-    def find_json(self, source_uuid, target_schema_type, property):
+    def find_json(self, source_uuid, target_schema_type, property, log_prefix = ""):
         """
         find the JSON file that has the source_uuid in the value of the property.
         The JSON schema of the file must be 'target_schema_type'.
         """
         module = "find_json"
-        self.mu_log.log(self.mu_log.DEBUG, "target_schema_type: " + target_schema_type, module)
-        self.mu_log.log(self.mu_log.DEBUG, "Looking for key >" + property + "< that contains uuid >"
+        self.mu_log.log(self.mu_log.DEBUG, log_prefix + "target_schema_type: " + target_schema_type, module)
+        self.mu_log.log(self.mu_log.DEBUG, log_prefix + "Looking for key >" + property + "< that contains uuid >"
                         + source_uuid + "<", module)
         found_meta_type = False
         found_uuid_count = 0
@@ -40,25 +40,25 @@ class Generic:
         # Walk through json directory and check all json files
         for file in glob.glob(directory + "*.json"):
             current_json_file = file
-            self.mu_log.log(self.mu_log.DEBUG, "checking >" + current_json_file + "<", module)
+            self.mu_log.log(self.mu_log.DEBUG, log_prefix + "checking >" + current_json_file + "<", module)
             file_result = messages.message["not_found"]
             with open(current_json_file) as f:
                 self.data = json.load(f)
                 meta_type = self.data["meta"]
                 meta_version = self.data["meta_version"]
-                self.mu_log.log(self.mu_log.DEBUG,
+                self.mu_log.log(self.mu_log.DEBUG, log_prefix +
                                 "file states it adheres to schema >" + meta_type + "<, version >"
                                 + meta_version + "<", module)
                 if meta_type == target_schema_type:
-                    self.mu_log.log(self.mu_log.DEBUG, "meta_type matches", module)
+                    self.mu_log.log(self.mu_log.DEBUG, log_prefix + "meta_type matches", module)
                     if "attribute_list" in self.data:
-                        self.mu_log.log(self.mu_log.VERBOSE, "JSON file contains attribute_list", module)
+                        self.mu_log.log(self.mu_log.VERBOSE, log_prefix + "JSON file contains attribute_list", module)
                         i = -1
                         for attribute in self.data["attribute_list"]:
                             i += 1
-                            self.mu_log.log(self.mu_log.VERBOSE, "checking uuid >" + attribute["uid"] + "<", module)
+                            self.mu_log.log(self.mu_log.VERBOSE, log_prefix + "checking uuid >" + attribute["uid"] + "<", module)
                             if attribute["uid"] == source_uuid:
-                                self.mu_log.log(self.mu_log.DEBUG, "current uuid >" + attribute["uid"]
+                                self.mu_log.log(self.mu_log.DEBUG, log_prefix + "current uuid >" + attribute["uid"]
                                                 + "< matches source_uuid", module)
                                 found_meta_type = True
                                 found_uuid_count += 1
@@ -66,14 +66,14 @@ class Generic:
                                 self.index = i
                                 break
                             else:
-                                self.mu_log.log(self.mu_log.VERBOSE, "this is not the UUID we are looking for", module)
+                                self.mu_log.log(self.mu_log.VERBOSE, log_prefix + "this is not the UUID we are looking for", module)
                     else:
-                        self.mu_log.log(self.mu_log.DEBUG, "current metadata_type matches target_schema_type", module)
+                        self.mu_log.log(self.mu_log.DEBUG, log_prefix + "current metadata_type matches target_schema_type", module)
                         found_meta_type = True
                         try:
                             the_property_value = self.data[property]
                             if the_property_value == source_uuid:
-                                self.mu_log.log(self.mu_log.DEBUG,
+                                self.mu_log.log(self.mu_log.DEBUG, log_prefix +
                                                 "file contains uuid >" + source_uuid + "< in property >" + property
                                                 + "<", module)
                                 self.json_file = current_json_file
@@ -81,39 +81,42 @@ class Generic:
                                 found_uuid_count += 1
                                 try:
                                     self.attribute_list = self.data["attribute_list"]
-                                    self.mu_log.log(self.mu_log.VERBOSE, "attribute list is >" + str(self.attribute_list) + "<"
-                                                , module)
+                                    self.mu_log.log(self.mu_log.VERBOSE, log_prefix
+                                                    + "attribute list is >" + str(self.attribute_list) + "<"
+                                                    , module)
                                 except KeyError as e:
                                     self.attribute_list = []
                             else:
-                                self.mu_log.log(self.mu_log.DEBUG, "file does not contain requested uuid", module)
+                                self.mu_log.log(self.mu_log.DEBUG, log_prefix + "file does not contain requested uuid", module)
                         except KeyError as e:
-                            self.mu_log.log(self.mu_log.DEBUG,
+                            self.mu_log.log(self.mu_log.DEBUG, log_prefix +
                                             "property >" + property + "< does not exist in file >"
                                             + current_json_file + "<", module)
                             file_result = messages.message["json_key_error"]
                 else:
-                    self.mu_log.log(self.mu_log.DEBUG,
+                    self.mu_log.log(self.mu_log.DEBUG, log_prefix +
                                     "this is not the file we are looking for (schema_types do not match)", module)
                     file_result = messages.message["not_found"]
 
         if found_meta_type:
-            self.mu_log.log(self.mu_log.DEBUG, "found schema_type in >" + self.json_file + "<", module)
+            self.mu_log.log(self.mu_log.DEBUG, log_prefix + "found schema_type in >" + self.json_file + "<", module)
             if found_uuid_count == 1:
-                self.mu_log.log(self.mu_log.DEBUG, "uuid >" + source_uuid + "< has been found " + str(found_uuid_count)
+                self.mu_log.log(self.mu_log.DEBUG, log_prefix
+                                + "uuid >" + source_uuid + "< has been found " + str(found_uuid_count)
                                 + " time", module)
                 overall_result = messages.message["ok"]
             elif found_uuid_count > 1:
-                self.mu_log.log(self.mu_log.DEBUG,
+                self.mu_log.log(self.mu_log.DEBUG, log_prefix +
                                 "uuid has been found " + str(found_uuid_count)
                                 + " times, i.e. in multiple files of type {target_schema_type}. This is not allowed."
                                 , module)
                 overall_result = messages.message["json_multiple_uuids_found"]
             else:
-                self.mu_log.log(self.mu_log.DEBUG, "uuid >" + source_uuid + "< could not be found", module)
+                self.mu_log.log(self.mu_log.DEBUG, log_prefix + "uuid >" + source_uuid + "< could not be found", module)
                 overall_result = messages.message["json_uuid_not_found"]
         else:
-            self.mu_log.log(self.mu_log.DEBUG, "no JSON with target_schema_type >" + target_schema_type + "<", module)
+            self.mu_log.log(self.mu_log.DEBUG, log_prefix
+                            + "no JSON with target_schema_type >" + target_schema_type + "<", module)
             overall_result = file_result
 
         return overall_result

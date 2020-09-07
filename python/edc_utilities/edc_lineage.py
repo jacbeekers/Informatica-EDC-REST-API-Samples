@@ -129,6 +129,7 @@ class EDCLineage:
             source_target_list = []
             transformation = source_target["transformation"]
             to_attribute_uuid = transformation["to"]
+            self.mu_log.log(self.mu_log.DEBUG, "processing to_attribute_uuid: " + to_attribute_uuid, module)
             find_result = self.generic.find_json(to_attribute_uuid, "physical_attribute", "uid")
             if find_result["code"] != "OK":
                 self.mu_log.log(self.mu_log.ERROR,
@@ -139,7 +140,8 @@ class EDCLineage:
 
             to_attribute_data = self.generic.found_data
             to_attribute_index = self.generic.index
-
+            to_attribute_name = to_attribute_data["attribute_list"][to_attribute_index]["name"]
+            self.mu_log.log(self.mu_log.DEBUG, "to_attribute_name is: " + to_attribute_name, module)
             to_entity_uuid = to_attribute_data["physical_entity"]
             find_result = self.generic.find_json(to_entity_uuid, "physical_entity", "uid")
             if find_result["code"] != "OK":
@@ -151,25 +153,29 @@ class EDCLineage:
 
             to_entity_data = self.generic.found_data
             to_entity_name = to_entity_data["name"]
-            to_attribute = "test_localfs://FileServer/tmp/files/" + to_entity_name + "/" \
-                          + to_attribute_data["attribute_list"][to_attribute_index]["name"]
-            self.mu_log.log(self.mu_log.DEBUG, "attribute name is >" + to_attribute + "<", module)
+            to_attribute = "test_localfs://FileServer/tmp/files/" + to_entity_name + "/" + to_attribute_name
+            self.mu_log.log(self.mu_log.DEBUG, "attribute id in EDC is >" + to_attribute + "<", module)
 
             from_attribute_list = transformation["from"]
             self.mu_log.log(self.mu_log.DEBUG, "from attribute(s) >" + str(from_attribute_list) + "< to >"
                             + to_attribute + "<", module)
 
-            self.mu_log.log(self.mu_log.DEBUG, "number of entries in attribute list: " + str(len(from_attribute_list)))
+            self.mu_log.log(self.mu_log.DEBUG, "number of entries in attribute list: " + str(len(from_attribute_list)),
+                            module)
             if len(from_attribute_list) == 0:
-                new_entry = template_new_source_links.render(source_object_id=to_attribute, data_flow="core.DirectionalDataFlow")
+                new_entry = template_new_source_links.render(source_object_id=to_attribute,
+                                                             data_flow="core.DirectionalDataFlow")
                 self.mu_log.log(self.mu_log.VERBOSE, "new entry: " + new_entry, module)
                 source_target_list.append(new_entry)
 
+            i = 0
             for attribute in from_attribute_list:
-                self.mu_log.log(self.mu_log.VERBOSE, "current attribute: " + attribute)
-                find_result = self.generic.find_json(attribute, "physical_attribute", "uid")
+                i += 1
+                nr = str(i).zfill(3) + ": "
+                self.mu_log.log(self.mu_log.VERBOSE, nr + "current attribute: " + attribute, module)
+                find_result = self.generic.find_json(attribute, "physical_attribute", "uid", log_prefix=nr)
                 if find_result["code"] != "OK":
-                    self.mu_log.log(self.mu_log.ERROR,
+                    self.mu_log.log(self.mu_log.ERROR, nr +
                                     "The attribute association contains a source UUID that could not be found in any attribute JSON file."
                                     , module)
                     build_result = messages.message["json_uuid_not_found"]
@@ -180,7 +186,7 @@ class EDCLineage:
 
                 find_result = self.generic.find_json(attribute_data["physical_entity"], "physical_entity", "uid")
                 if find_result["code"] != "OK":
-                    self.mu_log.log(self.mu_log.ERROR,
+                    self.mu_log.log(self.mu_log.ERROR, nr +
                                     "The attribute association contains a physical entity UUID that could not be found in any entity JSON file."
                                     , module)
                     build_result = messages.message["json_uuid_not_found"]
@@ -189,11 +195,11 @@ class EDCLineage:
                 entity_data = self.generic.found_data
                 source_name = "test_localfs://FileServer/tmp/files/" + entity_data["name"] + "/" \
                               + attribute_data["attribute_list"][attribute_index]["name"]
-                self.mu_log.log(self.mu_log.DEBUG, "attribute name is >" + str(source_name) + "<", module)
+                self.mu_log.log(self.mu_log.DEBUG, nr + "attribute name is >" + str(source_name) + "<", module)
 
                 new_entry = template_new_source_links.render(source_object_id=source_name,
                                                              data_flow="core.DirectionalDataFlow")
-                self.mu_log.log(self.mu_log.VERBOSE, "new entry: " + new_entry, module)
+                self.mu_log.log(self.mu_log.VERBOSE, nr + "new entry: " + new_entry, module)
                 source_target_list.append(new_entry)
 
             the_source_targets = ",".join(source_target_list)
@@ -222,7 +228,7 @@ class EDCLineage:
         status = response.status_code
         if status != 200:
             # some error - e.g. catalog not running, or bad credentials
-            self.mu_log.log(self.mu_log.ERROR, "Error from EDC: " + str(status) + str(response.json()))
+            self.mu_log.log(self.mu_log.ERROR, "Error from EDC: " + str(status) + str(response))
             send_result = messages.message["edc_error"]
         else:
             result_json = response.json()

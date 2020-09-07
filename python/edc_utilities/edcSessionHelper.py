@@ -115,19 +115,6 @@ class EDCSession:
 
         print("\treading common env/env file/cmd settings")
 
-        if "INFA_EDC_URL" in os.environ:
-            self.baseUrl = os.environ["INFA_EDC_URL"]
-            print("\t\tusing EDC URL=" + self.baseUrl + " from INFA_EDC_URL env var")
-
-        if "INFA_EDC_AUTH" in os.environ:
-            print("\t\tusing INFA_EDC_AUTH from environment")
-            auth = os.environ["INFA_EDC_AUTH"]
-            # print(f"value = {auth}")
-
-        if "INFA_EDC_SSL_PEM" in os.environ:
-            verify = os.environ["INFA_EDC_SSL_PEM"]
-            print("\t\tusing ssl certificate from env var INFA_EDC_SSL_PEM=" + verify)
-
         args, unknown = self.argparser.parse_known_args()
         if args.envfile is not None:
             # check if the file exists
@@ -144,24 +131,38 @@ class EDCSession:
                 )
                 # check the settings from the .env file
                 # print(os.getenv("INFA_EDC_URL"))
-                edcurl = os.getenv("INFA_EDC_URL")
-                print(f"\t\tread edc url from {args.envfile} value={edcurl}")
-                if edcurl is not None and edcurl != self.baseUrl:
-                    print(f"\t\treplacing edc url with value from {args.envfile}")
-                    self.baseUrl = edcurl
+                if self.baseUrl is None:
+                    edcurl = os.getenv("INFA_EDC_URL")
+                    print(f"\t\tread edc url from {args.envfile} value={edcurl}")
+                    if edcurl is not None and edcurl != self.baseUrl:
+                        print(f"\t\treplacing edc url with value from {args.envfile}")
+                        self.baseUrl = edcurl
 
-                edcauth = os.environ["INFA_EDC_AUTH"]
-                # print(f"read edc auth from {args.envfile} value={edcauth}")
-                if edcauth is not None and edcauth != auth:
-                    print(
-                        f"\t\treplacing edc auth with INFA_EDC_AUTH value "
-                        "from {args.envfile}"
-                    )
-                    auth = edcauth
+                if auth is None:
+                    edcauth = os.environ["INFA_EDC_AUTH"]
+                    # print(f"read edc auth from {args.envfile} value={edcauth}")
+                    if edcauth is not None and edcauth != auth:
+                        print(
+                            f"\t\treplacing edc auth with INFA_EDC_AUTH value "
+                            "from {args.envfile}"
+                        )
+                        auth = edcauth
             else:
                 print("isfile False")
         else:
             print("env file not found??")
+        if "CUSTOM_INFA_EDC_URL" in os.environ:
+            self.baseUrl = os.environ["CUSTOM_INFA_EDC_URL"]
+            print("\t\tusing EDC_URL=" + self.baseUrl + " from INFA_EDC_URL environment variable")
+
+        if "CUSTOM_INFA_EDC_AUTH" in os.environ:
+            print("\t\tusing INFA_EDC_AUTH from environment")
+            auth = os.environ["CUSTOM_INFA_EDC_AUTH"]
+            # print(f"value = {auth}")
+
+        if "INFA_EDC_SSL_PEM" in os.environ:
+            verify = os.environ["INFA_EDC_SSL_PEM"]
+            print("\t\tusing ssl certificate from env var INFA_EDC_SSL_PEM=" + verify)
 
         # check the catalog url & user command-line
         if args.edcurl is not None:
