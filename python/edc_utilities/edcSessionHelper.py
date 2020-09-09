@@ -137,7 +137,7 @@ class EDCSession:
                     if edcurl is not None and edcurl != self.baseUrl:
                         print(f"\t\treplacing edc url with value from {args.envfile}")
                         self.baseUrl = edcurl
-
+                print("EDCUrl: " + self.baseUrl)
                 if auth is None:
                     edcauth = os.environ["INFA_EDC_AUTH"]
                     # print(f"read edc auth from {args.envfile} value={edcauth}")

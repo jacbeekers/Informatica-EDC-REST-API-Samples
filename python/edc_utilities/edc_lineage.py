@@ -29,7 +29,7 @@ class EDCLineage:
         self.generic = generic.Generic()
         self.edc_helper = edcSessionHelper.EDCSession()
         # TODO: Get info from jinja_config mentioned in config.json
-        self.application = "metadata_utilities"
+        self.application = "edc_utilities"
         self.templates = "edc_payload_templates"
         self.environment = jinja2.Environment(loader=jinja2.PackageLoader(self.application, self.templates))
         self.environment.filters["jsonify"] = json.dumps

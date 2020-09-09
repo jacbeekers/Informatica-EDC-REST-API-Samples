@@ -304,4 +304,29 @@ https://docs.github.com/en/github/creating-cloning-and-archiving-repositories/du
 duplicated azure-sdk-for-python
 
 
+========
+Import csv for custom etl
+curl -X POST "https://infaserveril26zi7vnj4uo.westeurope.cloudapp.azure.com:9085/access/2/catalog/jobs/objectImports" -H "accept: application/json" -H "Content-Type: multipart/form-data" -F "file=@objects_Agg.csv;type=text/csv" -F "packages=org.demo.custom.etl001.Mapping,org.demo.custom.etl001.Transformation,org.demo.custom.etl001.Group,org.demo.custom.etl001.Field" -F "emailId=beekersjac@gmail.com"
+
+Tryout for default objects:
+curl -X POST "https://infaserveril26zi7vnj4uo.westeurope.cloudapp.azure.com:9085/access/2/catalog/jobs/objectImports" -H "accept: application/json" -H "Content-Type: multipart/form-data" -F "file=@optimus_objects.csv;type=text/csv" -F "packages=com.infa.ldm.etlcore.Mapping,com.infa.ldm.etlcore.Transformation,com.infa.ldm.etlcore.Group,com.infa.ldm.etlcore.Field" -F "emailId=beekersjac@gmail.com"
+
+response body:
+{
+  "jobId": "objectImports_94af98f8082c893bd944ce014d2e23e5",
+  "createdTime": 0,
+  "startTime": 0,
+  "logHref": "/2/catalog/jobs/objectImports_94af98f8082c893bd944ce014d2e23e5/logs/zip",
+  "configHref": "/2/catalog/jobs/objectImports/objectImports_94af98f8082c893bd944ce014d2e23e5",
+  "status": "SUBMITTED"
+}
+
+another tryout
+com.infa.ldm.etl.pc.Mapping,com.infa.ldm.etl.pc.CustomTransformation,com.infa.ldm.etl.pc.Group,com.infa.ldm.etl.pc.Field
+
+
+=====
+create a resource, offline model: PowerCenter
+curl -X POST "https://infaserveril26zi7vnj4uo.westeurope.cloudapp.azure.com:9085/access/1/catalog/resources" -H "accept: application/json" -H "from: Jac" -H "securityDomain: Native" -H "isAdministrator: true" -H "Content-Type: application/json" -d "{ \"createdBy\": \"Jac.\", \"createdTime\": 0, \"modifiedBy\": \"Jac.\", \"modifiedTime\": 0, \"resourceIdentifier\": { \"description\": \"Dummy for EDC\", \"resourceName\": \"rs_demo_offline\", \"resourceTypeId\": \"PowerCenter\", \"resourceTypeName\": \"PowerCenter\", \"resourceTypeVersion\": \"\" }, \"scannerConfigurations\": [ { \"configOptions\": [ { \"optionId\": \"ScannerExecutionMode\", \"optionValues\": [ \"offline\" ] }, { \"optionId\": \"Informatica Security Domain\", \"optionValues\": [ \"Native\" ] }, { \"optionId\": \"PowerCenter Code Page\", \"optionValues\": [ \"ISO 8859-1 Western European\" ] }, { \"optionId\": \"Gateway Host Name or Address\", \"optionValues\": [ \"localhost\" ] }, { \"optionId\": \"Gateway Port Number\", \"optionValues\": [ \"12340\" ] }, { \"optionId\": \"Repository Name\", \"optionValues\": [ \"RepositoryName\" ] }, { \"optionId\": \"Repository User Name\", \"optionValues\": [ \"RepositoryUserName\" ] }, { \"optionId\": \"Repository User Password\", \"optionValues\": [ \"RepositoryUserPassword\" ] }, { \"optionId\": \"PowerCenter Version\", \"optionValues\": [ \"10.4.1\" ] }, { \"optionId\": \"AutoAssignConnections\", \"optionValues\": [ \"false\" ] }, { \"optionId\": \"DetailedLineage\", \"optionValues\": [ \"true\" ] }, { \"optionId\": \"Parameter File\", \"optionValues\": [ \"ParameterFile.zip\" ] }, { \"optionId\": \"Repository subset\", \"optionValues\": [ \"'FolderName1'/*/*\", \"'FolderName2'/*/*\", \"'FolderName3'/*/*\" ] }, { \"optionId\": \"Memory\", \"optionValues\": [ \"Low\" ] } ], \"enabled\": true, \"scanner\": { \"providerTypeId\": \"CORE\", \"providerTypeName\": \"Metadata Load\", \"scannerId\": \"PowerCenterScanner\" } } ]}"
+
 

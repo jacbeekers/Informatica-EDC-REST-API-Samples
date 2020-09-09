@@ -1,0 +1,110 @@
+{
+  "createdBy": "Jac.",
+  "createdTime": 0,
+  "modifiedBy": "Jac.",
+  "modifiedTime": 0,
+  "resourceIdentifier": {
+    "description": "Dummy for EDC",
+    "resourceName": "rs_demo_offline",
+    "resourceTypeId": "PowerCenter",
+    "resourceTypeName": "PowerCenter",
+    "resourceTypeVersion": ""
+  },
+  "scannerConfigurations": [
+    {
+      "configOptions": [
+        {
+          "optionId": "ScannerExecutionMode",
+          "optionValues": [
+            "offline"
+          ]
+        },
+        {
+          "optionId": "Informatica Security Domain",
+          "optionValues": [
+            "Native"
+          ]
+        },
+        {
+          "optionId": "PowerCenter Code Page",
+          "optionValues": [
+            "ISO 8859-1 Western European"
+          ]
+        },
+        {
+          "optionId": "Gateway Host Name or Address",
+          "optionValues": [
+            "localhost"
+          ]
+        },
+        {
+          "optionId": "Gateway Port Number",
+          "optionValues": [
+            "12340"
+          ]
+        },
+        {
+          "optionId": "Repository Name",
+          "optionValues": [
+            "RepositoryName"
+          ]
+        },
+        {
+          "optionId": "Repository User Name",
+          "optionValues": [
+            "RepositoryUserName"
+          ]
+        },
+        {
+          "optionId": "Repository User Password",
+          "optionValues": [
+            "RepositoryUserPassword"
+          ]
+        },
+        {
+          "optionId": "PowerCenter Version",
+          "optionValues": [
+            "10.4.1"
+          ]
+        },
+        {
+          "optionId": "AutoAssignConnections",
+          "optionValues": [
+            "false"
+          ]
+        },
+        {
+          "optionId": "DetailedLineage",
+          "optionValues": [
+            "true"          ]
+        },
+        {
+          "optionId": "Parameter File",
+          "optionValues": [
+            "ParameterFile.zip"
+          ]
+        },
+        {
+          "optionId": "Repository subset",
+          "optionValues": [
+            "'FolderName1'/*/*",
+            "'FolderName2'/*/*",
+            "'FolderName3'/*/*"
+          ]
+        },
+        {
+          "optionId": "Memory",
+          "optionValues": [
+            "Low"
+          ]
+        }
+ ],
+      "enabled": true,
+      "scanner": {
+        "providerTypeId": "CORE",
+        "providerTypeName": "Metadata Load",
+        "scannerId": "PowerCenterScanner"
+      }
+ }
+ ]
+}

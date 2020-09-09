@@ -353,7 +353,7 @@ def executeResourceLoadUsingSession(url, session, resourceName):
     print("\turl=" + apiURL)
     header = {"accept": "application/json", "Content-Type": "application/json"}
     print("\t" + str(header))
-    params = {"resource_name": resourceName}
+    params = {"resourceName": resourceName}
     print("\t" + str(params))
     uploadResp = session.post(apiURL, data=json.dumps(params), headers=header)
     print("\tresponse=" + str(uploadResp.status_code))
@@ -473,13 +473,13 @@ def createOrUpdateAndExecuteResourceUsingSession(
             if isResChanged:
                 # save the resource def
                 print("saving resource def...")
-                updRc = updateResourceDefUsingSession(url, session, resourceName, rj)
-                print(updRc)
-                if updRc == 200:
-                    print("update succeeded")
-                else:
-                    print("update failed")
-                    print("resource could be out of sync - load might fail")
+            #                updRc = updateResourceDefUsingSession(url, session, resourceName, rj)
+            #                print(updRc)
+            #                if updRc == 200:
+            #                    print("update succeeded")
+            #                else:
+            #                    print("update failed")
+            #                    print("resource could be out of sync - load might fail")
             else:
                 print("\tno changes to resource def...")
 
