@@ -25,11 +25,11 @@ Note: this is syncronyous version - not async
 """
 import argparse
 import os
-import base64
-import getpass
-import requests
-from urllib.parse import urljoin
 import warnings
+from urllib.parse import urljoin
+
+import requests
+
 warnings.filterwarnings('ignore', message='Unverified HTTPS request')
 
 # from pathlib import Path
@@ -173,31 +173,17 @@ class EDCSession:
         if self.baseUrl is None:
             # nothing entered anywyere for the base url
             print(f"edc url not specified in ENV var or command-line parameter")
-            self.baseUrl = input("Enter catalog URL: http(s)://server:port :")
 
         # user credential stored in auth
         if args.auth is not None:
             print(f"\t\tover-riding auth setting from command-line..{args.auth}")
             auth = args.auth
 
-        # if no auth passed at all env/.env/cmd-line - -u over-rides auth
-        if args.user is not None:
-            p = getpass.getpass(
-                prompt="\nenter the password for user=" + args.user + ":"
-            )
-            b64_auth_str = base64.b64encode(bytes(f"{args.user}:{p}", "utf-8"))
-            auth = f'Basic {b64_auth_str.decode("utf-8")}'
-
         # if there is still no auth - then prompt for id and pwd
         if auth is None:
             print(
                 f"no credentials in ENV var/.env file/command-line - "
-                "prompting for id/pwd"
             )
-            args.user = input("\tuser id: ")
-            p = getpass.getpass(prompt="\tpassword for user=" + args.user + ": ")
-            b64_auth_str = base64.b64encode(bytes(f"{args.user}:{p}", "utf-8"))
-            auth = f'Basic {b64_auth_str.decode("utf-8")}'
 
         if args.sslcert is not None:
             if args.sslcert == "False":
@@ -209,7 +195,7 @@ class EDCSession:
             # prompt the user for the catalog ui
 
             print(
-                "\t\tno catalog url passed, either as env varirable or with "
+                "\t\tno catalog url passed, either as env variable or with "
                 "-c/--edcurl parameter - exiting"
             )
 
@@ -275,3 +261,11 @@ class EDCSession:
             print(e.strerror)
             # exit if we can't connect
             return 0, None
+
+    def main(self):
+        print("Main should not be called for edcSessionHelper...")
+        return 1
+    
+
+if __name__ == "__main__":
+    result = EDCSession().main()
