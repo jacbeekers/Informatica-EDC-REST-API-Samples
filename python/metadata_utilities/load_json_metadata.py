@@ -99,6 +99,8 @@ class ConvertJSONtoEDCLineage:
                 if self.meta_type == "physical_entity":
                     file_result = self.generate_file_structure()
                 elif self.meta_type in ("physical_attribute_association", "physical_entity_association"):
+                    if self.meta_type == "physical_attribute_association":
+                        self.generate_transformations()
                     file_result = self.process_lineage_request()
                     self.mu_log.log(self.mu_log.DEBUG, "lineage processing completed with code >"
                                     + file_result['code'] + "<"
@@ -116,6 +118,15 @@ class ConvertJSONtoEDCLineage:
                 self.mu_log.log(self.mu_log.DEBUG, "schema check failed.", module)
             self.mu_log.log(self.mu_log.INFO, "=== END ============================================", module)
         return self.overall_result
+
+    def generate_transformations(self):
+        """
+        generate a transformation file for each encountered transformation in the attribute_association json
+        """
+        module = "generate_transformations"
+        overall_result = messages.message["undetermined"]
+
+        return overall_result
 
     def process_lineage_request(self):
         # Generate the lineage file or payload

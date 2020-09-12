@@ -1,0 +1,12 @@
+{
+	"meta": "physical_entity",
+	"meta_version": "0.3.0",
+	"entity_type": "file",
+	"name": "PC_CONTRACT_HEADER",
+	"description": "pc_contract_header",
+	"uid": "1137faba-24d3-4e5d-9d28-a0d8fcddacb5",
+	"LoGSID": "1",
+	"OARID": "AAB.SYS.1520",
+	"location": "landing_zone",
+	"version": "1.0.0"
+}

@@ -6,7 +6,7 @@ import jsonschema
 
 
 class ValidateSchema():
-    default_version = "0.2.0"
+    default_version = "0.3.0"
     default_schema_directory = "metadata/schemas/interface/" + default_version + "/"
     default_schema = "physical_entity"
     default_resource_directory = "metadata/resources/"
@@ -50,14 +50,14 @@ class ValidateSchema():
 
 if __name__ == '__main__':
 
-    directory = "resources/Datalineage and metadata/JSON files/"
+    directory = "resources/Datalineage and metadata/JSON files/0.3.0/"
     for file in glob.glob(directory + "*.json"):
         with open(file) as f:
             the_schema = json.load(f)
             try:
                 meta_type = the_schema["meta"]
-                meta_verson = the_schema["meta_version"]
-                print("schema is " + meta_type + " version " + meta_verson)
+                meta_version = the_schema["meta_version"]
+                print("schema is " + meta_type + " version " + meta_version)
             except KeyError as e:
                 print("Key error. meta and meta_version must be in JSON file. That is not the case with " + file)
             except jsonschema.exceptions.SchemaError as e:
@@ -67,12 +67,13 @@ if __name__ == '__main__':
             except json.decoder.JSONDecodeError as e:
                 print("Error parsing JSON:", e.msg)
 
-        result, schema = ValidateSchema(schema_directory="metadata-registry-interface-specifications/metadata/schemas/interface/"
-                                        , resource_directory="."
-                                        , filename=file
-                                        , schema=meta_type
-                                        , version=meta_verson
-                                        ).validate()
+        result, schema = ValidateSchema(
+            schema_directory="metadata-registry-interface-specifications/metadata/schemas/interface/"
+            , resource_directory="."
+            , filename=file
+            , schema=meta_type
+            , version=meta_version
+        ).validate()
         name = os.path.basename(file)
         if result:
             type = os.path.basename(schema)

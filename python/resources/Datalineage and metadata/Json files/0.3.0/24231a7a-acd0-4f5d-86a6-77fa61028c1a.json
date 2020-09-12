@@ -1,0 +1,19 @@
+{
+    "meta": "dag",
+    "meta_version": "0.3.0",
+    "dag_name": "ETL process",
+    "uid": "092a0bda-b4f9-4440-989f-8bd6e056b72b",
+    "version": "1.0.0",
+    "schedule_interval": "* * * * * *",
+    "tasks": [
+        {
+            "uid": "0c19eae3-c567-41cd-82ed-2c065927dd24",
+            "downstream": [
+                {
+                    "uid": "a415e48a-611b-470e-9b77-2562d6fa23a0"
+                }
+            ],
+            "upstream": []
+        }
+    ]
+}
