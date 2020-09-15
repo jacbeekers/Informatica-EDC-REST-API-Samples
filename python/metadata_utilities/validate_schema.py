@@ -50,7 +50,7 @@ class ValidateSchema():
 
 if __name__ == '__main__':
 
-    directory = "resources/Datalineage and metadata/JSON files/0.3.0/"
+    directory = "resources/datalineage/JSON files/0.3.0/"
     for file in glob.glob(directory + "*.json"):
         with open(file) as f:
             the_schema = json.load(f)
