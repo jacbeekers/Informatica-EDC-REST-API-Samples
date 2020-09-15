@@ -96,19 +96,7 @@ class ConvertJSONtoEDCLineage:
             if check_result == "OK":
                 self.mu_log.log(self.mu_log.DEBUG, "schema check returned OK", module)
                 self.meta_type = check.meta_type
-                if self.meta_type == "physical_entity":
-                    file_result = self.generate_file_structure()
-                elif self.meta_type in ("physical_attribute_association", "physical_entity_association"):
-                    if self.meta_type == "physical_attribute_association":
-                        self.generate_transformations()
-                    file_result = self.process_lineage_request()
-                    self.mu_log.log(self.mu_log.DEBUG, "lineage processing completed with code >"
-                                    + file_result['code'] + "<"
-                                    , module)
-                else:
-                    self.mu_log.log(self.mu_log.DEBUG,
-                                    "file is not a physical entity or an association. Nothing to do with it."
-                                    , module)
+                file_result = self.process_physical_entity_and_attribute()
                 if file_result["code"] == "OK":
                     self.mu_log.log(self.mu_log.DEBUG, "file processed successfully", module)
                 else:
@@ -119,12 +107,57 @@ class ConvertJSONtoEDCLineage:
             self.mu_log.log(self.mu_log.INFO, "=== END ============================================", module)
         return self.overall_result
 
+    def process_physical_entity_and_attribute(self):
+        """
+        Generate metadata files to be parsed by EDC
+        """
+        file_result = messages.message["ok"]
+        module = "process_physical_entity_and_attribute"
+
+        if self.meta_type not in ("physical_entity", "physical_entity_association", "physical_attribute_association"):
+            self.mu_log.log(self.mu_log.DEBUG,
+                            "file is not a physical entity or an association. File ignored."
+                            , module)
+            return file_result
+
+        if self.meta_type == "physical_entity":
+            file_result = self.generate_file_structure()
+            return file_result
+
+        if self.meta_type == "physical_attribute_association":
+            file_result = self.generate_transformations()
+            self.mu_log.log(self.mu_log.DEBUG, "The generation of transformation files returned >"
+                            + file_result['code'] + "<"
+                            , module)
+
+        if self.meta_type in ("physical_attribute_association", "physical_entity_association"):
+            file_result = self.process_lineage_request()
+            self.mu_log.log(self.mu_log.DEBUG, "lineage processing completed with code >"
+                            + file_result['code'] + "<"
+                            , module)
+        return file_result
+
     def generate_transformations(self):
         """
         generate a transformation file for each encountered transformation in the attribute_association json
         """
         module = "generate_transformations"
         overall_result = messages.message["undetermined"]
+        if not "source_target_attribute_links" in self.data:
+            self.mu_log.log(self.mu_log.DEBUG, "did not find source_target_attribute_links. Transformation processing suppressed.", module)
+            return messages.message["ok"]
+
+        self.mu_log.log(self.mu_log.DEBUG, "found source_target_attribute_links", module)
+        for link in self.data["source_target_attribute_links"]:
+            self.mu_log.log(self.mu_log.DEBUG, "found transformation >" + link["transformation"]["uid"] + "<")
+            source_attributes = link["transformation"]["from"]
+            self.mu_log.log(self.mu_log.DEBUG, "# source attributes: " + str(len(source_attributes)))
+            for source_attribute in source_attributes:
+                self.mu_log.log(self.mu_log.VERBOSE, "source attribute: " + source_attribute)
+            self.mu_log.log(self.mu_log.DEBUG, "target attribute: " + link["transformation"]["to"])
+            self.mu_log.log(self.mu_log.VERBOSE, "description: " + link["description"])
+            self.mu_log.log(self.mu_log.VERBOSE, "formula: " + link["formula"])
+
 
         return overall_result
 
