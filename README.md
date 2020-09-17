@@ -11,13 +11,21 @@ Getting Started
 
 ## More into on the metadata_utilities
 [Dependency Graph]()
-[Documentation]()
-[Usage]()
+
+[Documentation](python/metadata_utilities/docs/markdown/metadata_utilities/index.md)
+
+[Documentation as html](python/metadata_utilities/docs/html/metadata_utilities/index.html)
+
+[Usage](python/metadata_utilities/usage.md)
 
 
 ## More info on the edc_utilities
 (these are used by the metadata_utilities)
 [Dependency Graph](python/edc_utilities/docs/edc_utilities.svg)
-[Documentation]()
-[Usage]()
+
+[Documentation](python/edc_utilities/docs/markdown/edc_utilities/index.md)
+
+[Documentation as html](python/edc_utilities/docs/html/edc_utilities/index.html)
+
+[Usage](python/edc_utilities/usage.md)
 
