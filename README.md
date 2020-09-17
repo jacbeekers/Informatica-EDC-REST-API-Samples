@@ -10,7 +10,7 @@ Getting Started
 * Clone this repository
 
 ## More into on the metadata_utilities
-[Dependency Graph]()
+[Dependency Graph](python/metadata_utilities/docs/metadata_utilities.svg)
 
 [Documentation](python/metadata_utilities/docs/markdown/metadata_utilities/index.md)
 
