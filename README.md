@@ -30,3 +30,6 @@ Getting Started
 
 [Usage](python/edc_utilities/usage.md)
 
+## Package on PyPI
+
+[Version 0.2.1 on PyPI](https://pypi.org/project/informatica-edc-rest-api-samples/)
