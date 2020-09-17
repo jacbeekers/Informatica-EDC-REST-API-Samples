@@ -21,6 +21,7 @@ Getting Started
 
 ## More info on the edc_utilities
 (these are used by the metadata_utilities)
+
 [Dependency Graph](python/edc_utilities/docs/edc_utilities.svg)
 
 [Documentation](python/edc_utilities/docs/markdown/edc_utilities/index.md)
