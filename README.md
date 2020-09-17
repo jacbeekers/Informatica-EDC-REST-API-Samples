@@ -8,5 +8,16 @@ Getting Started
 ---------------
 
 * Clone this repository
-* Try the sample against Informatica Enterprise Data Catalog
+
+## More into on the metadata_utilities
+[Dependency Graph]()
+[Documentation]()
+[Usage]()
+
+
+## More info on the edc_utilities
+(these are used by the metadata_utilities)
+[Dependency Graph](python/edc_utilities/docs/edc_utilities.svg)
+[Documentation]()
+[Usage]()
 
