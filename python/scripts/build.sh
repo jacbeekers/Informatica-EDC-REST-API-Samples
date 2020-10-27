@@ -28,9 +28,9 @@ fi
 if [ $rc -eq 0 ] ; then
    echo "Updating version number for git..."
    if [ -f temp/_tmp_version.tmp ] ; then
-      cp -p temp/_tmp_version.tmp plugins/__init__.py
-      git add plugins/__init__.py
-      git commit -m "$(cat plugins/__init__.py) now on test.pypi"
+      cp -p temp/_tmp_version.tmp resources/version.py
+      git add resources/version.py
+      git commit -m "$(cat resources/version.py) now on test.pypi"
       #git push
    else
       echo "new version file not found. version number not changed in git."
