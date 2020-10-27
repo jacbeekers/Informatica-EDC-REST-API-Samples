@@ -7,7 +7,7 @@ from metadata_utilities import generic_settings
 
 
 class MULogging:
-    code_version = "0.1.0"
+    code_version = "0.1.1"
     VERBOSE = 6
     DEBUG = 5
     INFO = 4
@@ -19,8 +19,8 @@ class MULogging:
     logger = logging.getLogger("metadata_utilities")
     logging_log_level = logging.DEBUG
     log_level = DEBUG
-    right_now = datetime.now().isoformat(timespec="microseconds")
-    # add prefix. Allow for limited numer of functions
+    right_now = datetime.now().isoformat(timespec="microseconds").replace(":","-")
+    # add prefix. Allow for limited number of functions
     if generic.log_filename_prefix == "{{timestamp}}":
         log_path = generic.log_directory + right_now + "-" + generic.log_filename
     else:
