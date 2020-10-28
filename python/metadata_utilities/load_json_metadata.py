@@ -13,7 +13,7 @@ class ConvertJSONtoEDCLineage:
     """
     Converts JSON file to a JSON payload that can be send to Informatica EDC using its APIs
     """
-    code_version = "0.2.0"
+    code_version = "0.2.2"
 
     def __init__(self):
         self.json_file = "not provided"
@@ -23,7 +23,7 @@ class ConvertJSONtoEDCLineage:
         self.generic = generic.Generic()
         self.json_directory = self.settings.json_directory
         self.target = self.settings.target
-        self.overall_result = messages.message["undetermined"]
+        self.overall_result = messages.message["ok"]
         self.mu_log = mu_logging.MULogging()
         # For Azure Monitor
         self.mu_log.code_version = self.code_version
@@ -93,7 +93,7 @@ class ConvertJSONtoEDCLineage:
             check = check_schema.CheckSchema()
             check.mu_log.area = base_filename
             check_result = check.check_schema(self.data)
-            if check_result == "OK":
+            if check_result["code"] == "OK":
                 self.mu_log.log(self.mu_log.DEBUG, "schema check returned OK", module)
                 self.meta_type = check.meta_type
                 file_result = self.process_physical_entity_and_attribute()
@@ -102,8 +102,9 @@ class ConvertJSONtoEDCLineage:
                 else:
                     self.overall_result = file_result
             else:
-                self.overall_result = file_result
-                self.mu_log.log(self.mu_log.DEBUG, "schema check failed.", module)
+                self.overall_result = check_result
+                self.mu_log.log(self.mu_log.DEBUG, "schema check failed with: " + check_result["code"] + " - "
+                                + check_result["message"], module)
             self.mu_log.log(self.mu_log.INFO, "=== END ============================================", module)
         return self.overall_result
 
@@ -144,7 +145,8 @@ class ConvertJSONtoEDCLineage:
         module = "generate_transformations"
         overall_result = messages.message["undetermined"]
         if not "source_target_attribute_links" in self.data:
-            self.mu_log.log(self.mu_log.DEBUG, "did not find source_target_attribute_links. Transformation processing suppressed.", module)
+            self.mu_log.log(self.mu_log.DEBUG,
+                            "did not find source_target_attribute_links. Transformation processing suppressed.", module)
             return messages.message["ok"]
 
         self.mu_log.log(self.mu_log.DEBUG, "found source_target_attribute_links", module)
@@ -157,7 +159,6 @@ class ConvertJSONtoEDCLineage:
             self.mu_log.log(self.mu_log.DEBUG, "target attribute: " + link["transformation"]["to"])
             self.mu_log.log(self.mu_log.VERBOSE, "description: " + link["description"])
             self.mu_log.log(self.mu_log.VERBOSE, "formula: " + link["formula"])
-
 
         return overall_result
 

@@ -9,7 +9,7 @@ class CheckSchema:
     """
     Checks the JSON schema of a given JSON file
     """
-    code_version = "0.1.0"
+    code_version = "0.2.0"
     # TODO: Get the info from the file and check if that schema version exists
     metaschema_version = generic_settings.GenericSettings().meta_version
 
@@ -39,16 +39,16 @@ class CheckSchema:
             self.mu_log.log(self.mu_log.DEBUG,
                             "Key error. meta and meta_version must be in JSON file. That is not the case with "
                             + self.json_file, module)
-            return messages.message["meta_error"]["code"]
+            return messages.message["meta_error"]
         except jsonschema.exceptions.SchemaError as e:
             self.mu_log.log(self.mu_log.FATAL, "Schema error: " + e.message, module)
-            return messages.message["json_schema_error"]["code"]
+            return messages.message["json_schema_error"]
         except jsonschema.exceptions.ValidationError as e:
             self.mu_log.log(self.mu_log.FATAL, "Validation error: " + e.message, module)
-            return messages.message["json_validation_error"]["code"]
+            return messages.message["json_validation_error"]
         except json.decoder.JSONDecodeError as e:
             self.mu_log.log(self.mu_log.FATAL, "Error parsing JSON:" + e.msg, module)
-            return messages.message["json_parse_error"]["code"]
+            return messages.message["json_parse_error"]
 
         if self.meta_version == generic_settings.GenericSettings().meta_version:
             self.mu_log.log(self.mu_log.INFO, "file meta version matches expected schema version", module)
@@ -61,12 +61,12 @@ class CheckSchema:
                     self.mu_log.log(self.mu_log.INFO, "JSON file validated successfully against schema", module)
                 except jsonschema.exceptions.SchemaError as e:
                     self.mu_log.log(self.mu_log.FATAL, "A schema error occurred during validation", module)
-                    return messages.message["jsonschema_validation_error"]["code"]
+                    return messages.message["jsonschema_validation_error"]
                 except jsonschema.exceptions.ValidationError as e:
                     self.mu_log.log(self.mu_log.ERROR, "A validation error occurred", module)
-                    return messages.message["jsonschema_validation_error"]["code"]
+                    return messages.message["jsonschema_validation_error"]
         else:
             self.mu_log.log(self.mu_log.DEBUG, "File meta version does not match expected schema version", module)
-            return messages.message["incorrect_meta_version"]["code"]
+            return messages.message["incorrect_meta_version"]
 
-        return messages.message["ok"]["code"]
+        return messages.message["ok"]

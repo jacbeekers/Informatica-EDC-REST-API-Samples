@@ -254,12 +254,13 @@ class EDCLineage:
         self.edc_helper.initUrlAndSessionFromEDCSettings()
 
         url = self.edc_helper.baseUrl + "/access/1/catalog/data/objects"
+        self.mu_log.log(self.mu_log.VERBOSE, "Used URL >" + url + "<.", module)
         head = {'Content-Type': 'application/json'}
         response = self.edc_helper.session.patch(url, self.payload, timeout=20, headers=head)
         status = response.status_code
         if status != 200:
             # some error - e.g. catalog not running, or bad credentials
-            self.mu_log.log(self.mu_log.ERROR, "Error from EDC: " + str(status) + str(response))
+            self.mu_log.log(self.mu_log.ERROR, "Error from EDC: " + str(status) + ": " + str(response), module)
             send_result = messages.message["edc_error"]
         else:
             result_json = response.json()
