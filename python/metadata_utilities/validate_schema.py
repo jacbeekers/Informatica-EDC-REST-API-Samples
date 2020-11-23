@@ -6,7 +6,7 @@ import jsonschema
 
 
 class ValidateSchema():
-    default_version = "0.3.0"
+    default_version = "0.2.0"
     default_schema_directory = "metadata/schemas/interface/" + default_version + "/"
     default_schema = "physical_entity"
     default_resource_directory = "metadata/resources/"
@@ -24,7 +24,8 @@ class ValidateSchema():
         self.against_schema = self.schema_directory + self.version + "/" + self.schema
         self.resource_directory = resource_directory + "/"
         self.filename = filename
-        self.verify_file = self.resource_directory + self.filename
+        self.verify_file = self.filename
+        # self.verify_file = self.resource_directory + self.filename
 
     def validate(self):
 
@@ -50,8 +51,9 @@ class ValidateSchema():
 
 if __name__ == '__main__':
 
-    directory = "resources/datalineage/JSON files/0.3.0/"
-    for file in glob.glob(directory + "*.json"):
+    json_directory = "."
+    print("JSON directory is: " + json_directory)
+    for file in glob.glob(json_directory + "*.json"):
         with open(file) as f:
             the_schema = json.load(f)
             try:
@@ -69,7 +71,7 @@ if __name__ == '__main__':
 
         result, schema = ValidateSchema(
             schema_directory="metadata-registry-interface-specifications/metadata/schemas/interface/"
-            , resource_directory="."
+            , resource_directory=json_directory
             , filename=file
             , schema=meta_type
             , version=meta_version
