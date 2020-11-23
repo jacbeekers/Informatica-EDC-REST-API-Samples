@@ -51,7 +51,7 @@ class ValidateSchema():
 
 if __name__ == '__main__':
 
-    json_directory = "."
+    json_directory = "resources/datalineage/input/"
     print("JSON directory is: " + json_directory)
     for file in glob.glob(json_directory + "*.json"):
         with open(file) as f:
