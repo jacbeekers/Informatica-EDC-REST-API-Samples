@@ -32,4 +32,4 @@ Getting Started
 
 ## Package on PyPI
 
-[Version 0.2.1 on PyPI](https://pypi.org/project/informatica-edc-rest-api-samples/)
+[We are on PyPI](https://pypi.org/project/informatica-edc-rest-api-samples/)
