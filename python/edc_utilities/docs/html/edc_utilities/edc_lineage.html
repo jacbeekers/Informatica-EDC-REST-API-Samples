@@ -282,12 +282,13 @@ class EDCLineage:
         self.edc_helper.initUrlAndSessionFromEDCSettings()
 
         url = self.edc_helper.baseUrl + &#34;/access/1/catalog/data/objects&#34;
+        self.mu_log.log(self.mu_log.VERBOSE, &#34;Used URL &gt;&#34; + url + &#34;&lt;.&#34;, module)
         head = {&#39;Content-Type&#39;: &#39;application/json&#39;}
         response = self.edc_helper.session.patch(url, self.payload, timeout=20, headers=head)
         status = response.status_code
         if status != 200:
             # some error - e.g. catalog not running, or bad credentials
-            self.mu_log.log(self.mu_log.ERROR, &#34;Error from EDC: &#34; + str(status) + str(response))
+            self.mu_log.log(self.mu_log.ERROR, &#34;Error from EDC: &#34; + str(status) + &#34;: &#34; + str(response), module)
             send_result = messages.message[&#34;edc_error&#34;]
         else:
             result_json = response.json()
@@ -590,12 +591,13 @@ if __name__ == &#34;__main__&#34;:
         self.edc_helper.initUrlAndSessionFromEDCSettings()
 
         url = self.edc_helper.baseUrl + &#34;/access/1/catalog/data/objects&#34;
+        self.mu_log.log(self.mu_log.VERBOSE, &#34;Used URL &gt;&#34; + url + &#34;&lt;.&#34;, module)
         head = {&#39;Content-Type&#39;: &#39;application/json&#39;}
         response = self.edc_helper.session.patch(url, self.payload, timeout=20, headers=head)
         status = response.status_code
         if status != 200:
             # some error - e.g. catalog not running, or bad credentials
-            self.mu_log.log(self.mu_log.ERROR, &#34;Error from EDC: &#34; + str(status) + str(response))
+            self.mu_log.log(self.mu_log.ERROR, &#34;Error from EDC: &#34; + str(status) + &#34;: &#34; + str(response), module)
             send_result = messages.message[&#34;edc_error&#34;]
         else:
             result_json = response.json()
@@ -886,12 +888,13 @@ if __name__ == &#34;__main__&#34;:
     self.edc_helper.initUrlAndSessionFromEDCSettings()
 
     url = self.edc_helper.baseUrl + &#34;/access/1/catalog/data/objects&#34;
+    self.mu_log.log(self.mu_log.VERBOSE, &#34;Used URL &gt;&#34; + url + &#34;&lt;.&#34;, module)
     head = {&#39;Content-Type&#39;: &#39;application/json&#39;}
     response = self.edc_helper.session.patch(url, self.payload, timeout=20, headers=head)
     status = response.status_code
     if status != 200:
         # some error - e.g. catalog not running, or bad credentials
-        self.mu_log.log(self.mu_log.ERROR, &#34;Error from EDC: &#34; + str(status) + str(response))
+        self.mu_log.log(self.mu_log.ERROR, &#34;Error from EDC: &#34; + str(status) + &#34;: &#34; + str(response), module)
         send_result = messages.message[&#34;edc_error&#34;]
     else:
         result_json = response.json()

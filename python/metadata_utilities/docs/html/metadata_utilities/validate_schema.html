@@ -31,6 +31,8 @@ import json
 import os
 
 import jsonschema
+from metadata_utilities import generic_settings, generic
+from metadata_utilities import messages
 
 
 class ValidateSchema():
@@ -52,7 +54,8 @@ class ValidateSchema():
         self.against_schema = self.schema_directory + self.version + &#34;/&#34; + self.schema
         self.resource_directory = resource_directory + &#34;/&#34;
         self.filename = filename
-        self.verify_file = self.resource_directory + self.filename
+        self.verify_file = self.filename
+        # self.verify_file = self.resource_directory + self.filename
 
     def validate(self):
 
@@ -78,35 +81,66 @@ class ValidateSchema():
 
 if __name__ == &#39;__main__&#39;:
 
-    directory = &#34;resources/Datalineage and metadata/JSON files/&#34;
-    for file in glob.glob(directory + &#34;*.json&#34;):
+    json_file = &#34;not provided&#34;
+    meta_type = &#34;unknown&#34;
+    result = messages.message[&#34;undetermined&#34;]
+    settings = generic_settings.GenericSettings()
+    generic = generic.Generic()
+    json_directory = settings.json_directory
+    target = settings.target
+    data = &#34;&#34;
+
+    number_of_files = 0
+    number_of_errors = 0
+
+    # json_directory = &#34;resources/datalineage/input/&#34;
+    print(&#34;JSON directory is: &#34; + json_directory)
+
+    for file in glob.glob(json_directory + &#34;*.json&#34;):
+        number_of_files += 1
         with open(file) as f:
             the_schema = json.load(f)
             try:
                 meta_type = the_schema[&#34;meta&#34;]
-                meta_verson = the_schema[&#34;meta_version&#34;]
-                print(&#34;schema is &#34; + meta_type + &#34; version &#34; + meta_verson)
+                meta_version = the_schema[&#34;meta_version&#34;]
+                print(&#34;schema is &#34; + meta_type + &#34; version &#34; + meta_version)
             except KeyError as e:
                 print(&#34;Key error. meta and meta_version must be in JSON file. That is not the case with &#34; + file)
+                number_of_errors += 1
             except jsonschema.exceptions.SchemaError as e:
                 print(&#34;Schema error: &#34;, e.message)
+                number_of_errors += 1
             except jsonschema.exceptions.ValidationError as e:
                 print(&#34;Validation error: &#34;, e.message)
+                number_of_errors += 1
             except json.decoder.JSONDecodeError as e:
                 print(&#34;Error parsing JSON:&#34;, e.msg)
+                number_of_errors += 1
 
-        result, schema = ValidateSchema(schema_directory=&#34;metadata-registry-interface-specifications/metadata/schemas/interface/&#34;
-                                        , resource_directory=&#34;.&#34;
-                                        , filename=file
-                                        , schema=meta_type
-                                        , version=meta_verson
-                                        ).validate()
+        result, schema = ValidateSchema(
+            schema_directory=&#34;metadata-registry-interface-specifications/metadata/schemas/interface/&#34;
+            , resource_directory=json_directory
+            , filename=file
+            , schema=meta_type
+            , version=meta_version
+        ).validate()
         name = os.path.basename(file)
         if result:
             type = os.path.basename(schema)
             print(f&#34;VALID: File {name} is a valid {schema}&#34;)
         else:
-            print(f&#34;INVALID: File {name} does not comply with any schema&#34;)</code></pre>
+            print(f&#34;INVALID: File {name} does not comply with any schema&#34;)
+            number_of_errors += 1
+
+    if number_of_files == 0:
+        print(&#34;No JSON files found in provided JSON directory&#34;)
+        exit(1)
+    else:
+        print(&#34;Verified &gt;&#34;, number_of_files, &#34;&lt; JSON files. Number of errors: &#34;, number_of_errors )
+        if number_of_errors &gt; 0:
+            exit(2)
+        else:
+            exit(0)</code></pre>
 </details>
 </section>
 <section>
@@ -147,7 +181,8 @@ if __name__ == &#39;__main__&#39;:
         self.against_schema = self.schema_directory + self.version + &#34;/&#34; + self.schema
         self.resource_directory = resource_directory + &#34;/&#34;
         self.filename = filename
-        self.verify_file = self.resource_directory + self.filename
+        self.verify_file = self.filename
+        # self.verify_file = self.resource_directory + self.filename
 
     def validate(self):
 

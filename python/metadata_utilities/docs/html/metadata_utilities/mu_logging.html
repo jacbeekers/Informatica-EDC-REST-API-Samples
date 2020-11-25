@@ -35,7 +35,7 @@ from metadata_utilities import generic_settings
 
 
 class MULogging:
-    code_version = &#34;0.1.0&#34;
+    code_version = &#34;0.1.2&#34;
     VERBOSE = 6
     DEBUG = 5
     INFO = 4
@@ -47,8 +47,8 @@ class MULogging:
     logger = logging.getLogger(&#34;metadata_utilities&#34;)
     logging_log_level = logging.DEBUG
     log_level = DEBUG
-    right_now = datetime.now().isoformat(timespec=&#34;microseconds&#34;)
-    # add prefix. Allow for limited numer of functions
+    right_now = datetime.now().isoformat(timespec=&#34;microseconds&#34;).replace(&#34;:&#34;,&#34;-&#34;)
+    # add prefix. Allow for limited number of functions
     if generic.log_filename_prefix == &#34;{{timestamp}}&#34;:
         log_path = generic.log_directory + right_now + &#34;-&#34; + generic.log_filename
     else:
@@ -64,7 +64,7 @@ class MULogging:
     logger.addHandler(fh)
     logger.addHandler(ch)
     # add azure monitor if configured
-    if generic.instrumentation_key != &#34;unknown&#34;:
+    if generic.instrumentation_key != &#34;unknown&#34; and generic.azure_monitor_requests == &#34;True&#34;:
         logger.addHandler(AzureLogHandler(connection_string=&#34;InstrumentationKey=&#34; + generic.instrumentation_key))
 
     def __init__(self):
@@ -140,7 +140,7 @@ class MULogging:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class MULogging:
-    code_version = &#34;0.1.0&#34;
+    code_version = &#34;0.1.2&#34;
     VERBOSE = 6
     DEBUG = 5
     INFO = 4
@@ -152,8 +152,8 @@ class MULogging:
     logger = logging.getLogger(&#34;metadata_utilities&#34;)
     logging_log_level = logging.DEBUG
     log_level = DEBUG
-    right_now = datetime.now().isoformat(timespec=&#34;microseconds&#34;)
-    # add prefix. Allow for limited numer of functions
+    right_now = datetime.now().isoformat(timespec=&#34;microseconds&#34;).replace(&#34;:&#34;,&#34;-&#34;)
+    # add prefix. Allow for limited number of functions
     if generic.log_filename_prefix == &#34;{{timestamp}}&#34;:
         log_path = generic.log_directory + right_now + &#34;-&#34; + generic.log_filename
     else:
@@ -169,7 +169,7 @@ class MULogging:
     logger.addHandler(fh)
     logger.addHandler(ch)
     # add azure monitor if configured
-    if generic.instrumentation_key != &#34;unknown&#34;:
+    if generic.instrumentation_key != &#34;unknown&#34; and generic.azure_monitor_requests == &#34;True&#34;:
         logger.addHandler(AzureLogHandler(connection_string=&#34;InstrumentationKey=&#34; + generic.instrumentation_key))
 
     def __init__(self):

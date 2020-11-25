@@ -20,6 +20,9 @@ Classes
     `generate_file_structure(self)`
     :   Generate the metadata file for the data. The result is a file with only a header. No real data is needed.
 
+    `generate_transformations(self)`
+    :   generate a transformation file for each encountered transformation in the attribute_association json
+
     `main(self)`
     :
 
@@ -30,6 +33,9 @@ Classes
 
     `process_lineage_request(self)`
     :
+
+    `process_physical_entity_and_attribute(self)`
+    :   Generate metadata files to be parsed by EDC
 
     `send_metadata(self)`
     :

@@ -41,7 +41,7 @@ class ConvertJSONtoEDCLineage:
     &#34;&#34;&#34;
     Converts JSON file to a JSON payload that can be send to Informatica EDC using its APIs
     &#34;&#34;&#34;
-    code_version = &#34;0.2.0&#34;
+    code_version = &#34;0.2.2&#34;
 
     def __init__(self):
         self.json_file = &#34;not provided&#34;
@@ -51,7 +51,7 @@ class ConvertJSONtoEDCLineage:
         self.generic = generic.Generic()
         self.json_directory = self.settings.json_directory
         self.target = self.settings.target
-        self.overall_result = messages.message[&#34;undetermined&#34;]
+        self.overall_result = messages.message[&#34;ok&#34;]
         self.mu_log = mu_logging.MULogging()
         # For Azure Monitor
         self.mu_log.code_version = self.code_version
@@ -121,29 +121,74 @@ class ConvertJSONtoEDCLineage:
             check = check_schema.CheckSchema()
             check.mu_log.area = base_filename
             check_result = check.check_schema(self.data)
-            if check_result == &#34;OK&#34;:
+            if check_result[&#34;code&#34;] == &#34;OK&#34;:
                 self.mu_log.log(self.mu_log.DEBUG, &#34;schema check returned OK&#34;, module)
                 self.meta_type = check.meta_type
-                if self.meta_type == &#34;physical_entity&#34;:
-                    file_result = self.generate_file_structure()
-                elif self.meta_type in (&#34;physical_attribute_association&#34;, &#34;physical_entity_association&#34;):
-                    file_result = self.process_lineage_request()
-                    self.mu_log.log(self.mu_log.DEBUG, &#34;lineage processing completed with code &gt;&#34;
-                                    + file_result[&#39;code&#39;] + &#34;&lt;&#34;
-                                    , module)
-                else:
-                    self.mu_log.log(self.mu_log.DEBUG,
-                                    &#34;file is not a physical entity or an association. Nothing to do with it.&#34;
-                                    , module)
+                file_result = self.process_physical_entity_and_attribute()
                 if file_result[&#34;code&#34;] == &#34;OK&#34;:
                     self.mu_log.log(self.mu_log.DEBUG, &#34;file processed successfully&#34;, module)
                 else:
                     self.overall_result = file_result
             else:
-                self.overall_result = file_result
-                self.mu_log.log(self.mu_log.DEBUG, &#34;schema check failed.&#34;, module)
+                self.overall_result = check_result
+                self.mu_log.log(self.mu_log.DEBUG, &#34;schema check failed with: &#34; + check_result[&#34;code&#34;] + &#34; - &#34;
+                                + check_result[&#34;message&#34;], module)
             self.mu_log.log(self.mu_log.INFO, &#34;=== END ============================================&#34;, module)
         return self.overall_result
+
+    def process_physical_entity_and_attribute(self):
+        &#34;&#34;&#34;
+        Generate metadata files to be parsed by EDC
+        &#34;&#34;&#34;
+        file_result = messages.message[&#34;ok&#34;]
+        module = &#34;process_physical_entity_and_attribute&#34;
+
+        if self.meta_type not in (&#34;physical_entity&#34;, &#34;physical_entity_association&#34;, &#34;physical_attribute_association&#34;):
+            self.mu_log.log(self.mu_log.DEBUG,
+                            &#34;file is not a physical entity or an association. File ignored.&#34;
+                            , module)
+            return file_result
+
+        if self.meta_type == &#34;physical_entity&#34;:
+            file_result = self.generate_file_structure()
+            return file_result
+
+        if self.meta_type == &#34;physical_attribute_association&#34;:
+            file_result = self.generate_transformations()
+            self.mu_log.log(self.mu_log.DEBUG, &#34;The generation of transformation files returned &gt;&#34;
+                            + file_result[&#39;code&#39;] + &#34;&lt;&#34;
+                            , module)
+
+        if self.meta_type in (&#34;physical_attribute_association&#34;, &#34;physical_entity_association&#34;):
+            file_result = self.process_lineage_request()
+            self.mu_log.log(self.mu_log.DEBUG, &#34;lineage processing completed with code &gt;&#34;
+                            + file_result[&#39;code&#39;] + &#34;&lt;&#34;
+                            , module)
+        return file_result
+
+    def generate_transformations(self):
+        &#34;&#34;&#34;
+        generate a transformation file for each encountered transformation in the attribute_association json
+        &#34;&#34;&#34;
+        module = &#34;generate_transformations&#34;
+        overall_result = messages.message[&#34;undetermined&#34;]
+        if not &#34;source_target_attribute_links&#34; in self.data:
+            self.mu_log.log(self.mu_log.DEBUG,
+                            &#34;did not find source_target_attribute_links. Transformation processing suppressed.&#34;, module)
+            return messages.message[&#34;ok&#34;]
+
+        self.mu_log.log(self.mu_log.DEBUG, &#34;found source_target_attribute_links&#34;, module)
+        for link in self.data[&#34;source_target_attribute_links&#34;]:
+            self.mu_log.log(self.mu_log.DEBUG, &#34;found transformation &gt;&#34; + link[&#34;transformation&#34;][&#34;uid&#34;] + &#34;&lt;&#34;)
+            source_attributes = link[&#34;transformation&#34;][&#34;from&#34;]
+            self.mu_log.log(self.mu_log.DEBUG, &#34;# source attributes: &#34; + str(len(source_attributes)))
+            for source_attribute in source_attributes:
+                self.mu_log.log(self.mu_log.VERBOSE, &#34;source attribute: &#34; + source_attribute)
+            self.mu_log.log(self.mu_log.DEBUG, &#34;target attribute: &#34; + link[&#34;transformation&#34;][&#34;to&#34;])
+            self.mu_log.log(self.mu_log.VERBOSE, &#34;description: &#34; + link[&#34;description&#34;])
+            self.mu_log.log(self.mu_log.VERBOSE, &#34;formula: &#34; + link[&#34;formula&#34;])
+
+        return overall_result
 
     def process_lineage_request(self):
         # Generate the lineage file or payload
@@ -220,7 +265,7 @@ if __name__ == &#34;__main__&#34;:
     &#34;&#34;&#34;
     Converts JSON file to a JSON payload that can be send to Informatica EDC using its APIs
     &#34;&#34;&#34;
-    code_version = &#34;0.2.0&#34;
+    code_version = &#34;0.2.2&#34;
 
     def __init__(self):
         self.json_file = &#34;not provided&#34;
@@ -230,7 +275,7 @@ if __name__ == &#34;__main__&#34;:
         self.generic = generic.Generic()
         self.json_directory = self.settings.json_directory
         self.target = self.settings.target
-        self.overall_result = messages.message[&#34;undetermined&#34;]
+        self.overall_result = messages.message[&#34;ok&#34;]
         self.mu_log = mu_logging.MULogging()
         # For Azure Monitor
         self.mu_log.code_version = self.code_version
@@ -300,29 +345,74 @@ if __name__ == &#34;__main__&#34;:
             check = check_schema.CheckSchema()
             check.mu_log.area = base_filename
             check_result = check.check_schema(self.data)
-            if check_result == &#34;OK&#34;:
+            if check_result[&#34;code&#34;] == &#34;OK&#34;:
                 self.mu_log.log(self.mu_log.DEBUG, &#34;schema check returned OK&#34;, module)
                 self.meta_type = check.meta_type
-                if self.meta_type == &#34;physical_entity&#34;:
-                    file_result = self.generate_file_structure()
-                elif self.meta_type in (&#34;physical_attribute_association&#34;, &#34;physical_entity_association&#34;):
-                    file_result = self.process_lineage_request()
-                    self.mu_log.log(self.mu_log.DEBUG, &#34;lineage processing completed with code &gt;&#34;
-                                    + file_result[&#39;code&#39;] + &#34;&lt;&#34;
-                                    , module)
-                else:
-                    self.mu_log.log(self.mu_log.DEBUG,
-                                    &#34;file is not a physical entity or an association. Nothing to do with it.&#34;
-                                    , module)
+                file_result = self.process_physical_entity_and_attribute()
                 if file_result[&#34;code&#34;] == &#34;OK&#34;:
                     self.mu_log.log(self.mu_log.DEBUG, &#34;file processed successfully&#34;, module)
                 else:
                     self.overall_result = file_result
             else:
-                self.overall_result = file_result
-                self.mu_log.log(self.mu_log.DEBUG, &#34;schema check failed.&#34;, module)
+                self.overall_result = check_result
+                self.mu_log.log(self.mu_log.DEBUG, &#34;schema check failed with: &#34; + check_result[&#34;code&#34;] + &#34; - &#34;
+                                + check_result[&#34;message&#34;], module)
             self.mu_log.log(self.mu_log.INFO, &#34;=== END ============================================&#34;, module)
         return self.overall_result
+
+    def process_physical_entity_and_attribute(self):
+        &#34;&#34;&#34;
+        Generate metadata files to be parsed by EDC
+        &#34;&#34;&#34;
+        file_result = messages.message[&#34;ok&#34;]
+        module = &#34;process_physical_entity_and_attribute&#34;
+
+        if self.meta_type not in (&#34;physical_entity&#34;, &#34;physical_entity_association&#34;, &#34;physical_attribute_association&#34;):
+            self.mu_log.log(self.mu_log.DEBUG,
+                            &#34;file is not a physical entity or an association. File ignored.&#34;
+                            , module)
+            return file_result
+
+        if self.meta_type == &#34;physical_entity&#34;:
+            file_result = self.generate_file_structure()
+            return file_result
+
+        if self.meta_type == &#34;physical_attribute_association&#34;:
+            file_result = self.generate_transformations()
+            self.mu_log.log(self.mu_log.DEBUG, &#34;The generation of transformation files returned &gt;&#34;
+                            + file_result[&#39;code&#39;] + &#34;&lt;&#34;
+                            , module)
+
+        if self.meta_type in (&#34;physical_attribute_association&#34;, &#34;physical_entity_association&#34;):
+            file_result = self.process_lineage_request()
+            self.mu_log.log(self.mu_log.DEBUG, &#34;lineage processing completed with code &gt;&#34;
+                            + file_result[&#39;code&#39;] + &#34;&lt;&#34;
+                            , module)
+        return file_result
+
+    def generate_transformations(self):
+        &#34;&#34;&#34;
+        generate a transformation file for each encountered transformation in the attribute_association json
+        &#34;&#34;&#34;
+        module = &#34;generate_transformations&#34;
+        overall_result = messages.message[&#34;undetermined&#34;]
+        if not &#34;source_target_attribute_links&#34; in self.data:
+            self.mu_log.log(self.mu_log.DEBUG,
+                            &#34;did not find source_target_attribute_links. Transformation processing suppressed.&#34;, module)
+            return messages.message[&#34;ok&#34;]
+
+        self.mu_log.log(self.mu_log.DEBUG, &#34;found source_target_attribute_links&#34;, module)
+        for link in self.data[&#34;source_target_attribute_links&#34;]:
+            self.mu_log.log(self.mu_log.DEBUG, &#34;found transformation &gt;&#34; + link[&#34;transformation&#34;][&#34;uid&#34;] + &#34;&lt;&#34;)
+            source_attributes = link[&#34;transformation&#34;][&#34;from&#34;]
+            self.mu_log.log(self.mu_log.DEBUG, &#34;# source attributes: &#34; + str(len(source_attributes)))
+            for source_attribute in source_attributes:
+                self.mu_log.log(self.mu_log.VERBOSE, &#34;source attribute: &#34; + source_attribute)
+            self.mu_log.log(self.mu_log.DEBUG, &#34;target attribute: &#34; + link[&#34;transformation&#34;][&#34;to&#34;])
+            self.mu_log.log(self.mu_log.VERBOSE, &#34;description: &#34; + link[&#34;description&#34;])
+            self.mu_log.log(self.mu_log.VERBOSE, &#34;formula: &#34; + link[&#34;formula&#34;])
+
+        return overall_result
 
     def process_lineage_request(self):
         # Generate the lineage file or payload
@@ -442,6 +532,40 @@ if __name__ == &#34;__main__&#34;:
     return file_result</code></pre>
 </details>
 </dd>
+<dt id="metadata_utilities.load_json_metadata.ConvertJSONtoEDCLineage.generate_transformations"><code class="name flex">
+<span>def <span class="ident">generate_transformations</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>generate a transformation file for each encountered transformation in the attribute_association json</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def generate_transformations(self):
+    &#34;&#34;&#34;
+    generate a transformation file for each encountered transformation in the attribute_association json
+    &#34;&#34;&#34;
+    module = &#34;generate_transformations&#34;
+    overall_result = messages.message[&#34;undetermined&#34;]
+    if not &#34;source_target_attribute_links&#34; in self.data:
+        self.mu_log.log(self.mu_log.DEBUG,
+                        &#34;did not find source_target_attribute_links. Transformation processing suppressed.&#34;, module)
+        return messages.message[&#34;ok&#34;]
+
+    self.mu_log.log(self.mu_log.DEBUG, &#34;found source_target_attribute_links&#34;, module)
+    for link in self.data[&#34;source_target_attribute_links&#34;]:
+        self.mu_log.log(self.mu_log.DEBUG, &#34;found transformation &gt;&#34; + link[&#34;transformation&#34;][&#34;uid&#34;] + &#34;&lt;&#34;)
+        source_attributes = link[&#34;transformation&#34;][&#34;from&#34;]
+        self.mu_log.log(self.mu_log.DEBUG, &#34;# source attributes: &#34; + str(len(source_attributes)))
+        for source_attribute in source_attributes:
+            self.mu_log.log(self.mu_log.VERBOSE, &#34;source attribute: &#34; + source_attribute)
+        self.mu_log.log(self.mu_log.DEBUG, &#34;target attribute: &#34; + link[&#34;transformation&#34;][&#34;to&#34;])
+        self.mu_log.log(self.mu_log.VERBOSE, &#34;description: &#34; + link[&#34;description&#34;])
+        self.mu_log.log(self.mu_log.VERBOSE, &#34;formula: &#34; + link[&#34;formula&#34;])
+
+    return overall_result</code></pre>
+</details>
+</dd>
 <dt id="metadata_utilities.load_json_metadata.ConvertJSONtoEDCLineage.main"><code class="name flex">
 <span>def <span class="ident">main</span></span>(<span>self)</span>
 </code></dt>
@@ -491,27 +615,18 @@ For each file: Validate its schema and generate the metadata definition file or 
         check = check_schema.CheckSchema()
         check.mu_log.area = base_filename
         check_result = check.check_schema(self.data)
-        if check_result == &#34;OK&#34;:
+        if check_result[&#34;code&#34;] == &#34;OK&#34;:
             self.mu_log.log(self.mu_log.DEBUG, &#34;schema check returned OK&#34;, module)
             self.meta_type = check.meta_type
-            if self.meta_type == &#34;physical_entity&#34;:
-                file_result = self.generate_file_structure()
-            elif self.meta_type in (&#34;physical_attribute_association&#34;, &#34;physical_entity_association&#34;):
-                file_result = self.process_lineage_request()
-                self.mu_log.log(self.mu_log.DEBUG, &#34;lineage processing completed with code &gt;&#34;
-                                + file_result[&#39;code&#39;] + &#34;&lt;&#34;
-                                , module)
-            else:
-                self.mu_log.log(self.mu_log.DEBUG,
-                                &#34;file is not a physical entity or an association. Nothing to do with it.&#34;
-                                , module)
+            file_result = self.process_physical_entity_and_attribute()
             if file_result[&#34;code&#34;] == &#34;OK&#34;:
                 self.mu_log.log(self.mu_log.DEBUG, &#34;file processed successfully&#34;, module)
             else:
                 self.overall_result = file_result
         else:
-            self.overall_result = file_result
-            self.mu_log.log(self.mu_log.DEBUG, &#34;schema check failed.&#34;, module)
+            self.overall_result = check_result
+            self.mu_log.log(self.mu_log.DEBUG, &#34;schema check failed with: &#34; + check_result[&#34;code&#34;] + &#34; - &#34;
+                            + check_result[&#34;message&#34;], module)
         self.mu_log.log(self.mu_log.INFO, &#34;=== END ============================================&#34;, module)
     return self.overall_result</code></pre>
 </details>
@@ -546,6 +661,46 @@ For each file: Validate its schema and generate the metadata definition file or 
                         + &#34;&lt;&#34;, module)
 
     return overall_result</code></pre>
+</details>
+</dd>
+<dt id="metadata_utilities.load_json_metadata.ConvertJSONtoEDCLineage.process_physical_entity_and_attribute"><code class="name flex">
+<span>def <span class="ident">process_physical_entity_and_attribute</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Generate metadata files to be parsed by EDC</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def process_physical_entity_and_attribute(self):
+    &#34;&#34;&#34;
+    Generate metadata files to be parsed by EDC
+    &#34;&#34;&#34;
+    file_result = messages.message[&#34;ok&#34;]
+    module = &#34;process_physical_entity_and_attribute&#34;
+
+    if self.meta_type not in (&#34;physical_entity&#34;, &#34;physical_entity_association&#34;, &#34;physical_attribute_association&#34;):
+        self.mu_log.log(self.mu_log.DEBUG,
+                        &#34;file is not a physical entity or an association. File ignored.&#34;
+                        , module)
+        return file_result
+
+    if self.meta_type == &#34;physical_entity&#34;:
+        file_result = self.generate_file_structure()
+        return file_result
+
+    if self.meta_type == &#34;physical_attribute_association&#34;:
+        file_result = self.generate_transformations()
+        self.mu_log.log(self.mu_log.DEBUG, &#34;The generation of transformation files returned &gt;&#34;
+                        + file_result[&#39;code&#39;] + &#34;&lt;&#34;
+                        , module)
+
+    if self.meta_type in (&#34;physical_attribute_association&#34;, &#34;physical_entity_association&#34;):
+        file_result = self.process_lineage_request()
+        self.mu_log.log(self.mu_log.DEBUG, &#34;lineage processing completed with code &gt;&#34;
+                        + file_result[&#39;code&#39;] + &#34;&lt;&#34;
+                        , module)
+    return file_result</code></pre>
 </details>
 </dd>
 <dt id="metadata_utilities.load_json_metadata.ConvertJSONtoEDCLineage.send_metadata"><code class="name flex">
@@ -611,9 +766,11 @@ For each file: Validate its schema and generate the metadata definition file or 
 <li><code><a title="metadata_utilities.load_json_metadata.ConvertJSONtoEDCLineage.code_version" href="#metadata_utilities.load_json_metadata.ConvertJSONtoEDCLineage.code_version">code_version</a></code></li>
 <li><code><a title="metadata_utilities.load_json_metadata.ConvertJSONtoEDCLineage.create_metafile" href="#metadata_utilities.load_json_metadata.ConvertJSONtoEDCLineage.create_metafile">create_metafile</a></code></li>
 <li><code><a title="metadata_utilities.load_json_metadata.ConvertJSONtoEDCLineage.generate_file_structure" href="#metadata_utilities.load_json_metadata.ConvertJSONtoEDCLineage.generate_file_structure">generate_file_structure</a></code></li>
+<li><code><a title="metadata_utilities.load_json_metadata.ConvertJSONtoEDCLineage.generate_transformations" href="#metadata_utilities.load_json_metadata.ConvertJSONtoEDCLineage.generate_transformations">generate_transformations</a></code></li>
 <li><code><a title="metadata_utilities.load_json_metadata.ConvertJSONtoEDCLineage.main" href="#metadata_utilities.load_json_metadata.ConvertJSONtoEDCLineage.main">main</a></code></li>
 <li><code><a title="metadata_utilities.load_json_metadata.ConvertJSONtoEDCLineage.process_files" href="#metadata_utilities.load_json_metadata.ConvertJSONtoEDCLineage.process_files">process_files</a></code></li>
 <li><code><a title="metadata_utilities.load_json_metadata.ConvertJSONtoEDCLineage.process_lineage_request" href="#metadata_utilities.load_json_metadata.ConvertJSONtoEDCLineage.process_lineage_request">process_lineage_request</a></code></li>
+<li><code><a title="metadata_utilities.load_json_metadata.ConvertJSONtoEDCLineage.process_physical_entity_and_attribute" href="#metadata_utilities.load_json_metadata.ConvertJSONtoEDCLineage.process_physical_entity_and_attribute">process_physical_entity_and_attribute</a></code></li>
 <li><code><a title="metadata_utilities.load_json_metadata.ConvertJSONtoEDCLineage.send_metadata" href="#metadata_utilities.load_json_metadata.ConvertJSONtoEDCLineage.send_metadata">send_metadata</a></code></li>
 <li><code><a title="metadata_utilities.load_json_metadata.ConvertJSONtoEDCLineage.send_metadata_to_metadata_lake" href="#metadata_utilities.load_json_metadata.ConvertJSONtoEDCLineage.send_metadata_to_metadata_lake">send_metadata_to_metadata_lake</a></code></li>
 </ul>
