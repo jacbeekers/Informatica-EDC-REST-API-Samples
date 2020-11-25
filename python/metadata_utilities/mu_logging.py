@@ -7,7 +7,7 @@ from metadata_utilities import generic_settings
 
 
 class MULogging:
-    code_version = "0.1.1"
+    code_version = "0.1.2"
     VERBOSE = 6
     DEBUG = 5
     INFO = 4
@@ -36,7 +36,7 @@ class MULogging:
     logger.addHandler(fh)
     logger.addHandler(ch)
     # add azure monitor if configured
-    if generic.instrumentation_key != "unknown":
+    if generic.instrumentation_key != "unknown" and generic.azure_monitor_requests == "True":
         logger.addHandler(AzureLogHandler(connection_string="InstrumentationKey=" + generic.instrumentation_key))
 
     def __init__(self):

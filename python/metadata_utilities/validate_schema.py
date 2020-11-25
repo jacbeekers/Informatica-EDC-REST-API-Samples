@@ -3,6 +3,8 @@ import json
 import os
 
 import jsonschema
+from metadata_utilities import generic_settings, generic
+from metadata_utilities import messages
 
 
 class ValidateSchema():
@@ -51,9 +53,23 @@ class ValidateSchema():
 
 if __name__ == '__main__':
 
-    json_directory = "resources/datalineage/input/"
+    json_file = "not provided"
+    meta_type = "unknown"
+    result = messages.message["undetermined"]
+    settings = generic_settings.GenericSettings()
+    generic = generic.Generic()
+    json_directory = settings.json_directory
+    target = settings.target
+    data = ""
+
+    number_of_files = 0
+    number_of_errors = 0
+
+    # json_directory = "resources/datalineage/input/"
     print("JSON directory is: " + json_directory)
+
     for file in glob.glob(json_directory + "*.json"):
+        number_of_files += 1
         with open(file) as f:
             the_schema = json.load(f)
             try:
@@ -62,12 +78,16 @@ if __name__ == '__main__':
                 print("schema is " + meta_type + " version " + meta_version)
             except KeyError as e:
                 print("Key error. meta and meta_version must be in JSON file. That is not the case with " + file)
+                number_of_errors += 1
             except jsonschema.exceptions.SchemaError as e:
                 print("Schema error: ", e.message)
+                number_of_errors += 1
             except jsonschema.exceptions.ValidationError as e:
                 print("Validation error: ", e.message)
+                number_of_errors += 1
             except json.decoder.JSONDecodeError as e:
                 print("Error parsing JSON:", e.msg)
+                number_of_errors += 1
 
         result, schema = ValidateSchema(
             schema_directory="metadata-registry-interface-specifications/metadata/schemas/interface/"
@@ -82,3 +102,14 @@ if __name__ == '__main__':
             print(f"VALID: File {name} is a valid {schema}")
         else:
             print(f"INVALID: File {name} does not comply with any schema")
+            number_of_errors += 1
+
+    if number_of_files == 0:
+        print("No JSON files found in provided JSON directory")
+        exit(1)
+    else:
+        print("Verified >", number_of_files, "< JSON files. Number of errors: ", number_of_errors )
+        if number_of_errors > 0:
+            exit(2)
+        else:
+            exit(0)

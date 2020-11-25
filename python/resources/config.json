@@ -1,7 +1,7 @@
 {
   "meta_version": "0.2.0",
   "schema_directory": "metadata-registry-interface-specifications/metadata/schemas/interface/",
-  "json_directory": "resources/datalineage/input/",
+  "json_directory": "resources/datalineage/input_with_errors/",
   "output_directory": "out/",
   "target": "local",
   "other_targets": [
@@ -15,7 +15,7 @@
   "edc_secrets": "resources/edc_connectivity.secrets",
   "jinja_config": "resources/jinja_config.json",
   "azure_monitor_config": "resources/azure_monitor.secrets",
-  "azure_monitor_requests": "True",
+  "azure_monitor_requests": "False",
   "log_directory": "out/",
   "log_filename": "metadata_utilities.log",
   "log_filename_prefix": "{{timestamp}}",
