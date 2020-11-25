@@ -110,6 +110,11 @@ message = {
         , "message": "EDC reported an error (see above for more info)"
         , "level": "ERROR"
     },
+    "invalid_api_response": {
+        "code" : "MU-EDC-002"
+        , "message": "EDC API did not return a JSON object"
+        , "level": "ERROR"
+    },
     "MDL_GROUP": {
         "code": "MDL"
         , "message": "Group for warnings and errors related to the Metadata Lake"

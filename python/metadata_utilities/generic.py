@@ -44,6 +44,13 @@ class Generic:
             file_result = messages.message["not_found"]
             with open(current_json_file) as f:
                 self.data = json.load(f)
+                if "meta" not in self.data or "meta_version" not in self.data:
+                    self.mu_log.log(self.mu_log.ERROR, log_prefix +
+                                    "the keys 'meta' and 'meta_version' are required, but not found in" + current_json_file
+                                    , module)
+                    file_result = messages.message["meta_error"]
+                    continue
+
                 meta_type = self.data["meta"]
                 meta_version = self.data["meta_version"]
                 self.mu_log.log(self.mu_log.DEBUG, log_prefix +

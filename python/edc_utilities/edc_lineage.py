@@ -263,9 +263,13 @@ class EDCLineage:
             self.mu_log.log(self.mu_log.ERROR, "Error from EDC: " + str(status) + ": " + str(response), module)
             send_result = messages.message["edc_error"]
         else:
-            result_json = response.json()
-            self.mu_log.log(self.mu_log.INFO, "EDC returned: " + str(result_json), module)
-            send_result = messages.message["ok"]
+            try:
+                result_json = response.json()
+                self.mu_log.log(self.mu_log.INFO, "EDC returned: " + str(result_json), module)
+                send_result = messages.message["ok"]
+            except ValueError:
+                self.mu_log.log(self.mu_log.ERROR, "EDC API did not return a JSON payload")
+                send_result = messages.message["invalid_api_response"]
 
         run_time = time.time() - start_time
         self.mu_log.log(self.mu_log.DEBUG,

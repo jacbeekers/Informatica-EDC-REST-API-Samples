@@ -213,3 +213,7 @@ class ConvertJSONtoEDCLineage:
 
 if __name__ == "__main__":
     result = ConvertJSONtoEDCLineage().main()
+    if result["code"] != "ok":
+        exit(1)
+    else:
+        exit(0)
