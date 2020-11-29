@@ -19,6 +19,7 @@ __pycache__/
 
 #temp
 temp/
+tmp/
 
 #output directory
 out/
