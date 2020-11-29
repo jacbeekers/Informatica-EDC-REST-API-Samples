@@ -83,11 +83,13 @@ class ConvertJSONtoEDCLineage:
         self.mu_log.log(self.mu_log.INFO, "===============================================", module)
         self.mu_log.log(self.mu_log.INFO, "Processing JSON files in directory " + directory, module)
         self.mu_log.log(self.mu_log.INFO, "===============================================", module)
+        number_of_files = 0
         for file in glob.glob(directory + "*.json"):
+            number_of_files += 1
             self.json_file = file
             base_filename = os.path.splitext(os.path.basename(self.json_file))[0]
             self.mu_log.area = base_filename
-            self.mu_log.log(self.mu_log.INFO, "JSON file is: " + self.json_file, module)
+            self.mu_log.log(self.mu_log.INFO, "#" + str(number_of_files) + " JSON file is: " + self.json_file, module)
             self.data = self.json_file_utilities.get_json(self.json_file)
             file_result = messages.message["ok"]
             check = check_schema.CheckSchema()
@@ -106,6 +108,7 @@ class ConvertJSONtoEDCLineage:
                 self.mu_log.log(self.mu_log.DEBUG, "schema check failed with: " + check_result["code"] + " - "
                                 + check_result["message"], module)
             self.mu_log.log(self.mu_log.INFO, "=== END ============================================", module)
+        self.mu_log.log(self.mu_log.INFO, "Number of JSON files processed: " + str(number_of_files))
         return self.overall_result
 
     def process_physical_entity_and_attribute(self):
