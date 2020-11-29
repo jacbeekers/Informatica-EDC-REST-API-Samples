@@ -100,6 +100,11 @@ message = {
         , "message": "JSON key could not be found in JSON file"
         , "level": "ERROR"
     },
+    "missing_uid": {
+        "code": "MU-CONV-013"
+        , "message": "Missing UID key"
+        , "level": "ERROR"
+    },
     "EDC_GROUP": {
         "code": "EDC"
         , "message": "Group for warnings and errors related to Informatica EDC interfacing"

@@ -143,22 +143,50 @@ class ConvertJSONtoEDCLineage:
         generate a transformation file for each encountered transformation in the attribute_association json
         """
         module = "generate_transformations"
-        overall_result = messages.message["undetermined"]
+        overall_result = messages.message["ok"]
         if not "source_target_attribute_links" in self.data:
             self.mu_log.log(self.mu_log.DEBUG,
                             "did not find source_target_attribute_links. Transformation processing suppressed.", module)
             return messages.message["ok"]
 
         self.mu_log.log(self.mu_log.DEBUG, "found source_target_attribute_links", module)
+        link_number = 0
         for link in self.data["source_target_attribute_links"]:
-            self.mu_log.log(self.mu_log.DEBUG, "found transformation >" + link["transformation"]["uid"] + "<")
-            source_attributes = link["transformation"]["from"]
-            self.mu_log.log(self.mu_log.DEBUG, "# source attributes: " + str(len(source_attributes)))
-            for source_attribute in source_attributes:
-                self.mu_log.log(self.mu_log.VERBOSE, "source attribute: " + source_attribute)
-            self.mu_log.log(self.mu_log.DEBUG, "target attribute: " + link["transformation"]["to"])
-            self.mu_log.log(self.mu_log.VERBOSE, "description: " + link["description"])
-            self.mu_log.log(self.mu_log.VERBOSE, "formula: " + link["formula"])
+            link_number += 1
+            if "transformation" in link:
+                if "uid" in link["transformation"]:
+                    self.mu_log.log(self.mu_log.DEBUG, "found transformation >" + link["transformation"]["uid"] + "<",
+                                    module)
+                    if "from" in link["transformation"]:
+                        source_attributes = link["transformation"]["from"]
+                        self.mu_log.log(self.mu_log.DEBUG, "# source attributes: " + str(len(source_attributes)),
+                                        module)
+                        for source_attribute in source_attributes:
+                            self.mu_log.log(self.mu_log.VERBOSE, "source attribute: " + source_attribute)
+                    else:
+                        self.mu_log.log(self.mu_log.INFO,
+                                        "No source attributes provided. Assuming attribute is target-only.")
+                    if "to" in link["transformation"]:
+                        self.mu_log.log(self.mu_log.DEBUG, "target attribute: " + link["transformation"]["to"], module)
+                    else:
+                        self.mu_log.log(self.mu_log.INFO,
+                                        "No target attribute provided. Assuming attribute is source-only.")
+                    if "description" in link:
+                        self.mu_log.log(self.mu_log.VERBOSE, "description: " + link["description"], module)
+                    else:
+                        self.mu_log.log(self.mu_log.DEBUG, "No description provided, which is ok.")
+                    if "formula" in link:
+                        self.mu_log.log(self.mu_log.VERBOSE, "formula: " + link["formula"], module)
+                    else:
+                        self.mu_log.log(self.mu_log.INFO, "No formula provided, which is ok.")
+                else:
+                    self.mu_log.log(self.mu_log.ERROR, "transformation in link# " + str(link_number)
+                                    + "does not contain a uid.", module)
+                    overall_result = messages.message["missing_uid"]
+            else:
+                self.mu_log.log(self.mu_log.WARNING,
+                                "WARNING: No transformation info provided in link# " + str(link_number)
+                                + ". Transformation handling for source/target attributes surpressed.", module)
 
         return overall_result
 
