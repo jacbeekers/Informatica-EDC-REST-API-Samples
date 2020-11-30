@@ -29,6 +29,7 @@ class GenericSettings:
         self.azure_monitor_config = "unknown"
         self.azure_monitor_requests = "False"
         self.instrumentation_key = "unknown"
+        self.suppress_edc_call = "False"
         self.get_config()
 
     def get_config(self):
@@ -62,6 +63,16 @@ class GenericSettings:
                     print("Incorrect config value >" + data["azure_monitor_requests"]
                           + "< for azure_monitor_requests. Must be True or False")
                     self.azure_monitor_requests = False
+            if "suppress_edc_call" in data:
+                if data["suppress_edc_call"] == "True":
+                    self.suppress_edc_call = True
+                elif data["suppress_edc_call"] == "False":
+                    self.suppress_edc_call = False
+                else:
+                    print("Incorrect config value >" + data["suppress_edc_call"]
+                          + "< for suppress_edc_call. Must be True or False. Will default to False")
+                    self.suppress_edc_call = False
+
 
         if self.edc_config != "unknown":
             with open(self.edc_config) as edc:

@@ -217,7 +217,7 @@ class ConvertJSONtoEDCLineage:
         self.mu_log.log(self.mu_log.DEBUG, "sending lineage info to " + target, module)
 
         if target == "edc":
-            send_result = self.edc_lineage.send_metadata_to_edc()
+            send_result = self.edc_lineage.send_metadata_to_edc(self.settings.suppress_edc_call)
         elif target == "metadata_lake":
             send_result = self.send_metadata_to_metadata_lake()
         else:
@@ -240,7 +240,7 @@ class ConvertJSONtoEDCLineage:
 
 if __name__ == "__main__":
     result = ConvertJSONtoEDCLineage().main()
-    if result["code"] != "ok":
+    if result["code"] != "OK":
         exit(1)
     else:
         exit(0)

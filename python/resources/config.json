@@ -19,5 +19,6 @@
   "log_directory": "out/",
   "log_filename": "metadata_utilities.log",
   "log_filename_prefix": "{{timestamp}}",
-  "log_level": "VERBOSE"
+  "log_level": "VERBOSE",
+  "suppress_edc_call": "False"
 }

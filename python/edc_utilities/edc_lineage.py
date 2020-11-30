@@ -247,7 +247,7 @@ class EDCLineage:
 
         return build_result, self.payload
 
-    def send_metadata_to_edc(self):
+    def send_metadata_to_edc(self, suppress_edc_call=False):
         module = "send_metadata_to_edc"
         self.mu_log.log(self.mu_log.VERBOSE, "sending payload >" + self.payload + "<.", module)
         start_time = time.time()
@@ -256,20 +256,25 @@ class EDCLineage:
         url = self.edc_helper.baseUrl + "/access/1/catalog/data/objects"
         self.mu_log.log(self.mu_log.VERBOSE, "Used URL >" + url + "<.", module)
         head = {'Content-Type': 'application/json'}
-        response = self.edc_helper.session.patch(url, self.payload, timeout=20, headers=head)
-        status = response.status_code
-        if status != 200:
-            # some error - e.g. catalog not running, or bad credentials
-            self.mu_log.log(self.mu_log.ERROR, "Error from EDC: " + str(status) + ": " + str(response), module)
-            send_result = messages.message["edc_error"]
+        if suppress_edc_call:
+            self.mu_log.log(self.mu_log.WARNING
+                            , "'suppress_edc_call' is set to True in config.json. EDC call NOT exucuted", module)
+            send_result = messages.message["ok"]
         else:
-            try:
-                result_json = response.json()
-                self.mu_log.log(self.mu_log.INFO, "EDC returned: " + str(result_json), module)
-                send_result = messages.message["ok"]
-            except ValueError:
-                self.mu_log.log(self.mu_log.ERROR, "EDC API did not return a JSON payload")
-                send_result = messages.message["invalid_api_response"]
+            response = self.edc_helper.session.patch(url, self.payload, timeout=20, headers=head)
+            status = response.status_code
+            if status != 200:
+                # some error - e.g. catalog not running, or bad credentials
+                self.mu_log.log(self.mu_log.ERROR, "Error from EDC: " + str(status) + ": " + str(response), module)
+                send_result = messages.message["edc_error"]
+            else:
+                try:
+                    result_json = response.json()
+                    self.mu_log.log(self.mu_log.INFO, "EDC returned: " + str(result_json), module)
+                    send_result = messages.message["ok"]
+                except ValueError:
+                    self.mu_log.log(self.mu_log.ERROR, "EDC API did not return a JSON payload")
+                    send_result = messages.message["invalid_api_response"]
 
         run_time = time.time() - start_time
         self.mu_log.log(self.mu_log.DEBUG,
