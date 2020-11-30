@@ -108,7 +108,7 @@ class ConvertJSONtoEDCLineage:
                 self.mu_log.log(self.mu_log.DEBUG, "schema check failed with: " + check_result["code"] + " - "
                                 + check_result["message"], module)
             self.mu_log.log(self.mu_log.INFO, "=== END ============================================", module)
-        self.mu_log.log(self.mu_log.INFO, "Number of JSON files processed: " + str(number_of_files))
+        self.mu_log.log(self.mu_log.INFO, "Number of JSON files processed: " + str(number_of_files), module)
         return self.overall_result
 
     def process_physical_entity_and_attribute(self):
@@ -196,7 +196,6 @@ class ConvertJSONtoEDCLineage:
     def process_lineage_request(self):
         # Generate the lineage file or payload
         module = "process_lineage_request"
-        overall_result = messages.message["undetermined"]
         # TODO: generate json payload for the Metadata Interface APIs for lineage
         #       something like this:
         #           json_result = self.metadata_lake_lineage.generate_lineage("json_payload", self.meta_type, self.data)
@@ -206,14 +205,11 @@ class ConvertJSONtoEDCLineage:
             # Send lineage info to metadata target
             send_result = self.send_metadata()
             self.mu_log.log(self.mu_log.DEBUG, "lineage creation completed with >" + send_result['code'] + "<", module)
-            if send_result["code"] != "OK":
-                overall_result = send_result
         else:
-            overall_result = json_result
             self.mu_log.log(self.mu_log.ERROR, "json_payload lineage creation completed with >" + json_result['code']
                             + "<", module)
 
-        return overall_result
+        return json_result
 
     def send_metadata(self):
         module = "send_metadata"
