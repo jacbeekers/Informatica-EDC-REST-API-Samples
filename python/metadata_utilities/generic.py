@@ -18,7 +18,7 @@ class Generic:
     json_file = settings.json_file
 
     def __init__(self, configuration_file="resources/config.json"):
-        module = "generic.__init__"
+        module = "Generic.__init__"
         self.attribute_list = []
         self.json_file = ""
         self.data = "{}"
@@ -41,7 +41,7 @@ class Generic:
         find the JSON file that has the source_uuid in the value of the property.
         The JSON schema of the file must be 'target_schema_type'.
         """
-        module = "find_json"
+        module = "Generic.find_json"
         if not self.settings_found:
             self.mu_log.log(self.mu_log.ERROR, log_prefix + " settings were not found. Skipping processing.")
             return messages.message["main_config_not_found"]
@@ -157,7 +157,7 @@ class Generic:
 
     def write_local_file(self, filename, to_write):
         # local file system
-        module = "write_local_file"
+        module = "Generic.write_local_file"
         file_result = messages.message["ok"]
         path = self.settings.output_directory + filename
         self.mu_log.log(self.mu_log.VERBOSE, "writing >" + to_write + "< to file >" + path + "<...", module)
@@ -171,12 +171,13 @@ class Generic:
         return file_result
 
     def convert_list_into_string(self, list):
+        module = "Generic.convert_list_into_string"
         concatenated = ""
         nr_cols = 0
         for item in list:
-            # self.mu_log.log(self.mu_log.DEBUG, item)
+            # self.mu_log.log(self.mu_log.DEBUG, item, module)
             for attribute in ["name"]:
-                # self.mu_log.log(self.mu_log.DEBUG, item[attribute])
+                # self.mu_log.log(self.mu_log.DEBUG, item[attribute], module)
                 nr_cols += 1
                 if nr_cols == 1:
                     concatenated = item[attribute]

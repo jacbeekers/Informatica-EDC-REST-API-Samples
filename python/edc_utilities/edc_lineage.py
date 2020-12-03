@@ -40,10 +40,11 @@ class EDCLineage:
         self.payload = {}
 
     def generate_lineage(self, output_type, metadata_type, data):
-        module = "generate_lineage"
+        module = "EDCLineage.generate_lineage"
         result = self.settings.get_config()
         if result != messages.message["ok"]:
-            self.mu_log.log(self.mu_log.FATAL, "Cannot find main configuration file >" + self.settings.json_file + "<.")
+            self.mu_log.log(self.mu_log.FATAL, "Could not find main configuration file >" + self.settings.json_file + "<."
+                            , module)
             return messages.message["main_config_not_found"]
 
         self.proxies = self.settings.get_proxy()
@@ -69,7 +70,7 @@ class EDCLineage:
         return lineage_result
 
     def build_api_load(self):
-        module = "build_api_load"
+        module = "EDCLineage.build_api_load"
         self.template = self.environment.get_template(self.meta_type + ".json")
         if self.meta_type == "physical_entity_association":
             build_result, self.payload = self.build_api_load_entity_association()
@@ -86,7 +87,7 @@ class EDCLineage:
         """
         Loop through the list of source_target_entities
         """
-        module = "build_api_load_entity_association"
+        module = "EDCLineage.build_api_load_entity_association"
         build_result = messages.message["ok"]
         source_target_links = self.data["source_target_entity_links"]
         source_target_list = []
@@ -145,7 +146,7 @@ class EDCLineage:
         """
         Loop through the list of source_target_attributes
         """
-        module = "build_api_load_attribute_association"
+        module = "EDCLineage.build_api_load_attribute_association"
         build_result = messages.message["ok"]
         source_target_links = self.data["source_target_attribute_links"]
         source_target_list = []
@@ -264,7 +265,7 @@ class EDCLineage:
         return build_result, self.payload
 
     def send_metadata_to_edc(self, suppress_edc_call=False):
-        module = "send_metadata_to_edc"
+        module = "EDCLineage.send_metadata_to_edc"
         self.mu_log.log(self.mu_log.VERBOSE, "sending payload >" + self.payload + "<.", module)
         start_time = time.time()
         self.edc_helper.initUrlAndSessionFromEDCSettings()

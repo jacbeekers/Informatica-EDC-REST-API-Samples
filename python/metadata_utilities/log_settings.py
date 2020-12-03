@@ -22,7 +22,7 @@ class LogSettings:
         self.get_config()
 
     def get_config(self):
-        module="get_config"
+        module=__name__ + ".get_config"
         result = messages.message["undetermined"]
 
         try:

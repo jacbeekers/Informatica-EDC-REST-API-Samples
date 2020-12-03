@@ -35,7 +35,7 @@ class ConvertJSONtoEDCLineage:
         """
         Generate the metadata file for the data. The result is a file with only a header. No real data is needed.
         """
-        module = "generate_file_structure"
+        module = "ConvertJSONtoEDCLineage.generate_file_structure"
         file_result = messages.message["ok"]
         with open(self.json_file) as entity:
             data = json.load(entity)
@@ -57,7 +57,7 @@ class ConvertJSONtoEDCLineage:
         """
         A metafile is created for Informatica EDC to scan. This way no real data is needed.
         """
-        module = "create_metafile"
+        module = "ConvertJSONtoEDCLineage.create_metafile"
         self.mu_log.log(self.mu_log.DEBUG, "Start writing file", module)
         concatenated = self.generic.convert_list_into_string(attributes)
         if self.settings.target == "local":
@@ -78,7 +78,7 @@ class ConvertJSONtoEDCLineage:
         For each file: Validate its schema and generate the metadata definition file or lineage file
             (depends on the meta_type of the file found)
         """
-        module = "process_files"
+        module = "ConvertJSONtoEDCLineage.process_files"
         settings_result = self.settings.get_config()
         if settings_result != messages.message["ok"]:
             self.mu_log.log(self.mu_log.FATAL, "Configuration could not be read.", module)
@@ -125,7 +125,7 @@ class ConvertJSONtoEDCLineage:
         Generate metadata files to be parsed by EDC
         """
         file_result = messages.message["ok"]
-        module = "process_physical_entity_and_attribute"
+        module = "ConvertJSONtoEDCLineage.process_physical_entity_and_attribute"
 
         if self.meta_type not in ("physical_entity", "physical_entity_association", "physical_attribute_association"):
             self.mu_log.log(self.mu_log.DEBUG,
@@ -154,7 +154,7 @@ class ConvertJSONtoEDCLineage:
         """
         generate a transformation file for each encountered transformation in the attribute_association json
         """
-        module = "generate_transformations"
+        module = "ConvertJSONtoEDCLineage.generate_transformations"
         overall_result = messages.message["ok"]
         if not "source_target_attribute_links" in self.data:
             self.mu_log.log(self.mu_log.DEBUG,
@@ -204,7 +204,7 @@ class ConvertJSONtoEDCLineage:
 
     def process_lineage_request(self):
         # Generate the lineage file or payload
-        module = "process_lineage_request"
+        module = "ConvertJSONtoEDCLineage.process_lineage_request"
         # TODO: generate json payload for the Metadata Interface APIs for lineage
         #       something like this:
         #           json_result = self.metadata_lake_lineage.generate_lineage("json_payload", self.meta_type, self.data)
@@ -221,7 +221,7 @@ class ConvertJSONtoEDCLineage:
         return json_result
 
     def send_metadata(self):
-        module = "send_metadata"
+        module = "ConvertJSONtoEDCLineage.send_metadata"
         target = self.settings.metadata_store
         self.mu_log.log(self.mu_log.DEBUG, "sending lineage info to " + target, module)
 
@@ -236,7 +236,7 @@ class ConvertJSONtoEDCLineage:
         return send_result
 
     def send_metadata_to_metadata_lake(self):
-        module = "send_metadata_to_metadata_lake"
+        module = "ConvertJSONtoEDCLineage.send_metadata_to_metadata_lake"
         self.mu_log.log(self.mu_log.ERROR, "Function >" + module + "< is not implemented.", module)
         send_result = messages.message["not_implemented"]
         return send_result
@@ -246,7 +246,7 @@ class ConvertJSONtoEDCLineage:
             Main module to process JSON files that are stored at the location stated in the provided configuration file
             configuration_file: a relative or absolute path to the configuration file. Default is resources/config.json
         """
-        module = "main"
+        module = "ConvertJSONtoEDCLineage.main"
         process_result = self.process_files()
         self.mu_log.log(self.mu_log.INFO, "Result: " + process_result["code"] + " - " + process_result["message"],
                         module)

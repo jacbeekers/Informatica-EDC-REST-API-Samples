@@ -24,7 +24,7 @@ class CheckSchema:
         """
         Checks the JSON to determine which JSON schema is used and which version
         """
-        module = "check_schema"
+        module = "CheckSchema.check_schema"
         self.json_data = data
 
         try:
