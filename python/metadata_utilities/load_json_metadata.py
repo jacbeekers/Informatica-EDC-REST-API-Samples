@@ -20,16 +20,17 @@ class ConvertJSONtoEDCLineage:
         self.meta_type = "unknown"
         self.result = messages.message["undetermined"]
         self.settings = generic_settings.GenericSettings(configuration_file)
-        self.generic = generic.Generic()
+        self.settings.get_config()
+        self.mu_log = mu_logging.MULogging(self.settings.log_config)
+        self.generic = generic.Generic(configuration_file=configuration_file, mu_log_ref=self.mu_log)
         self.json_directory = self.settings.json_directory
         self.target = self.settings.target
         self.overall_result = messages.message["ok"]
-        self.mu_log = mu_logging.MULogging()
         # For Azure Monitor
         self.mu_log.code_version = self.code_version
         self.json_file_utilities = json_file_utilities.JSONFileUtilities()
         self.data = ""
-        self.edc_lineage = edc_lineage.EDCLineage()
+        self.edc_lineage = edc_lineage.EDCLineage(configuration_file=configuration_file,mu_log_ref=self.mu_log)
 
     def generate_file_structure(self):
         """
@@ -100,7 +101,7 @@ class ConvertJSONtoEDCLineage:
             self.mu_log.log(self.mu_log.INFO, "#" + str(number_of_files) + " JSON file is: " + self.json_file, module)
             self.data = self.json_file_utilities.get_json(self.json_file)
             file_result = messages.message["ok"]
-            check = check_schema.CheckSchema(self.settings)
+            check = check_schema.CheckSchema(self.settings, self.mu_log)
             check.mu_log.area = base_filename
             check_result = check.check_schema(self.data)
             if check_result["code"] == "OK":

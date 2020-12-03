@@ -10,23 +10,18 @@ class Generic:
     """
     Some generic utilities, e.g. reading the config.json
     """
-    code_version = "0.1.0"
-    metaschema_version = "0.0.0"
-    mu_log = mu_logging.MULogging()
-    settings = generic_settings.GenericSettings()
-    settings.get_config()
-    json_file = settings.json_file
+    code_version = "0.2.21"
 
-    def __init__(self, configuration_file="resources/config.json"):
+    def __init__(self, configuration_file, mu_log_ref):
         module = "Generic.__init__"
         self.attribute_list = []
         self.json_file = ""
         self.data = "{}"
         self.found_data = "{}"
         self.index = -1
-        self.mu_log = mu_logging.MULogging()
         self.settings_found = False
         self.settings = generic_settings.GenericSettings(configuration_file)
+        self.mu_log = mu_log_ref
         result = self.settings.get_config()
         if result != messages.message["ok"]:
             self.mu_log.log(self.mu_log.FATAL, "Cannot find main configuration file >" + self.settings.json_file + "<."
@@ -34,6 +29,7 @@ class Generic:
             self.settings_found = False
         else:
             self.settings_found = True
+        self.json_file = self.settings.json_file
 
 
     def find_json(self, source_uuid, target_schema_type, property, log_prefix = ""):

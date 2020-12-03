@@ -15,5 +15,6 @@
   "jinja_config": "resources/jinja_config.json",
   "suppress_edc_call": "False",
   "http_proxy": "None",
-  "https_proxy": "None"
+  "https_proxy": "None",
+  "log_config": "resources/log_config.json"
 }

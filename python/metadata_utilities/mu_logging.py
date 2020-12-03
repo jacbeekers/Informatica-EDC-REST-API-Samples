@@ -7,69 +7,49 @@ from metadata_utilities import log_settings
 
 
 class MULogging:
-    code_version = "0.2.12"
+    code_version = "0.2.21"
+    right_now = datetime.now().isoformat(timespec="microseconds").replace(":", "-")
     VERBOSE = 6
     DEBUG = 5
     INFO = 4
     WARNING = 3
     ERROR = 2
     FATAL = 1
-    log_setting = log_settings.LogSettings()
-    # log_setting.get_config()
-    logger = logging.getLogger("metadata_utilities")
-    logging_log_level = logging.DEBUG
-    log_level = DEBUG
-    right_now = datetime.now().isoformat(timespec="microseconds").replace(":","-")
-    # add prefix. Allow for limited number of functions
-    if log_setting.log_filename_prefix == "{{timestamp}}":
-        log_path = log_setting.log_directory + right_now + "-" + log_setting.log_filename
-    else:
-        log_path = log_setting.log_directory + log_setting.log_filename
-    fh = logging.FileHandler(log_path)
-    fh.setLevel(logging_log_level)
-    ch = logging.StreamHandler()
-    ch.setLevel(logging_log_level)
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    fh.setFormatter(formatter)
-    ch.setFormatter(formatter)
-    # add the handlers to the logger
-    logger.addHandler(fh)
-    logger.addHandler(ch)
-    # add azure monitor if configured
-    if log_setting.instrumentation_key != "unknown" and log_setting.azure_monitor_requests == "True":
-        logger.addHandler(AzureLogHandler(connection_string="InstrumentationKey=" + log_setting.instrumentation_key))
+    fh = None
+    ch = None
+    already_set = False
 
-    def __init__(self):
-        self.determine_log_level(self.log_setting.log_level)
-        self.logger.setLevel(self.logging_log_level)
-        self.area = None
+    def __init__(self, log_configuration_file):
+        if not self.already_set and self.fh is None:
+            print("Setting up logger.")
+            self.log_setting = log_settings.LogSettings(log_configuration_file)
+            self.logger = logging.getLogger("metadata_utilities")
+            self.logger.setLevel(self.log_setting.log_level)
+            self.area = None
+            logging_log_level = self.log_setting.DEBUG
+            # add prefix. Allow for limited number of functions
+            if self.log_setting.log_filename_prefix == "{{timestamp}}":
+                log_path = self.log_setting.log_directory + self.right_now + "-" + self.log_setting.log_filename
+            else:
+                log_path = self.log_setting.log_directory + self.log_setting.log_filename
+            self.fh = logging.FileHandler(log_path)
+            self.fh.setLevel(logging_log_level)
+            self.ch = logging.StreamHandler()
+            self.ch.setLevel(logging_log_level)
+            formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+            self.fh.setFormatter(formatter)
+            self.ch.setFormatter(formatter)
+            # add the handlers to the logger
+            self.logger.addHandler(self.fh)
+            self.logger.addHandler(self.ch)
+            # add azure monitor if configured
+            if self.log_setting.instrumentation_key != "unknown" and self.log_setting.azure_monitor_requests == "True":
+                self.logger.addHandler(AzureLogHandler(connection_string="InstrumentationKey=" + self.log_setting.instrumentation_key))
+        self.already_set = True
 
-    def determine_log_level(self, configured_log_level):
-        if configured_log_level == "VERBOSE":
-            self.log_level = self.VERBOSE
-            self.logging_log_level = logging.DEBUG
-        elif configured_log_level == "DEBUG":
-            self.log_level = self.DEBUG
-            self.logging_log_level = logging.DEBUG
-        elif configured_log_level == "INFO":
-            self.log_level = self.INFO
-            self.logging_log_level = logging.INFO
-        elif configured_log_level == "WARNING":
-            self.log_level = self.WARNING
-            self.logging_log_level = logging.WARNING
-        elif configured_log_level == "ERROR":
-            self.log_level = self.ERROR
-            self.logging_log_level = logging.ERROR
-        elif configured_log_level == "FATAL":
-            self.log_level = self.FATAL
-            self.logging_log_level = logging.FATAL
-        else:
-            print(f"invalid log level >{configured_log_level}< in config.json. Defaulting to DEBUG")
-            self.log_level = self.DEBUG
-            self.logging_log_level = logging.DEBUG
 
-    def log(self, level=DEBUG, msg="no_message", method="undetermined", extra=None):
-        if level <= self.log_level:
+    def log(self, level=5, msg="no_message", method="undetermined", extra=None):
+        if level <= self.log_setting.log_level:
             if extra is None:
                 properties = {"custom_dimensions": { "process": __name__, "code_version": self.code_version}}
             else:
@@ -79,15 +59,15 @@ class MULogging:
                 message += method + " - " + msg
             else:
                 message = method + " - " + self.area + " - " + msg
-            if level == self.FATAL:
+            if level == self.log_setting.FATAL:
                 self.logger.critical(message, extra=properties)
-            elif level == self.ERROR:
+            elif level == self.log_setting.ERROR:
                 self.logger.error(message, extra=properties)
-            elif level == self.WARNING:
+            elif level == self.log_setting.WARNING:
                 self.logger.warning(message, extra=properties)
-            elif level == self.INFO:
+            elif level == self.log_setting.INFO:
                 self.logger.info(message, extra=properties)
-            elif level == self.DEBUG:
+            elif level == self.log_setting.DEBUG:
                 self.logger.debug(message, extra=properties)
             else:
                 self.logger.debug(message, extra=properties)

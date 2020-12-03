@@ -11,7 +11,6 @@ class GenericSettings:
     def __init__(self, configuration_file="resources/config.json"):
         # config.json settings
         self.json_file = configuration_file
-        self.mu_log = mu_logging.MULogging()
         self.base_schema_folder = "unknown"
         self.meta_version = "unknown"
         self.schema_directory = "unknown"
@@ -19,18 +18,20 @@ class GenericSettings:
         self.target = "unknown"
         self.output_directory = "unknown"
         self.metadata_store = "unknown"
-        self.log_directory = self.mu_log.log_setting.log_directory
-        self.log_filename = self.mu_log.log_setting.log_filename
-        self.log_filename_prefix = self.mu_log.log_setting.log_filename_prefix
-        self.log_level = self.mu_log.log_level
+        self.mu_log = None
+        self.log_config = None
+        self.log_directory = None
+        self.log_filename = None
+        self.log_filename_prefix = None
+        self.log_level = None
         self.edc_config = "unknown"
         self.edc_config_data = {}
         self.edc_url = "http://localhost:8888"
         self.edc_secrets = "unknown"
         self.jinja_config = "unknown"
-        self.azure_monitor_config = self.mu_log.log_setting.azure_monitor_config
-        self.azure_monitor_requests = self.mu_log.log_setting.azure_monitor_requests
-        self.instrumentation_key = self.mu_log.log_setting.instrumentation_key
+        self.azure_monitor_config = None
+        self.azure_monitor_requests = None
+        self.instrumentation_key = None
         self.suppress_edc_call = "False"
         self.http_proxy = None
         self.https_proxy = None
@@ -78,6 +79,19 @@ class GenericSettings:
                         self.https_proxy = None
                 else:
                     self.https_proxy = None
+                if "log_config" in data:
+                    self.log_config = data["log_config"]
+                else:
+                    self.log_config = "resources/log_config"
+                self.mu_log = mu_logging.MULogging(self.log_config)
+                self.log_directory = self.mu_log.log_setting.log_directory
+                self.log_filename = self.mu_log.log_setting.log_filename
+                self.log_filename_prefix = self.mu_log.log_setting.log_filename_prefix
+                self.log_level = self.mu_log.log_setting.log_level
+                self.azure_monitor_config = self.mu_log.log_setting.azure_monitor_config
+                self.azure_monitor_requests = self.mu_log.log_setting.azure_monitor_requests
+                self.instrumentation_key = self.mu_log.log_setting.instrumentation_key
+
             result = messages.message["ok"]
         except FileNotFoundError:
             self.mu_log.log(self.mu_log.FATAL, "Cannot find main configuration file >"+ self.json_file + "<.", module)

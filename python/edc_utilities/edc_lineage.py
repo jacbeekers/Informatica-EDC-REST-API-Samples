@@ -12,15 +12,15 @@ class EDCLineage:
     EDLineage: Call Informatica EDC APIs to add lineage information for existing objects
     """
 
-    code_version = "0.2.15"
+    code_version = "0.2.21"
     total = 1000
 
-    def __init__(self, configuration_file="resources/config.json"):
+    def __init__(self, configuration_file, mu_log_ref):
         self.offset = 0
         self.page = 0
-        self.mu_log = mu_logging.MULogging()
         self.settings = generic_settings.GenericSettings(configuration_file)
-        self.generic = generic.Generic()
+        self.mu_log = mu_log_ref
+        self.generic = generic.Generic(configuration_file=configuration_file, mu_log_ref=self.mu_log)
         self.edc_source_filesystem = "unknown"
         self.edc_source_datasource = "unknown"
         self.edc_source_folder = "unknown"

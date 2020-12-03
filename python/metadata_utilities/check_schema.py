@@ -11,14 +11,15 @@ class CheckSchema:
     """
     code_version = "0.2.15"
 
-    def __init__(self, settings):
+    def __init__(self, settings, mu_log_ref):
         self.json_file = "not provided"
         self.json_data = ""
         self.meta_type = "unknown"
         self.meta_version = "unknown"
         self.schema_file = "unknown"
-        self.mu_log = mu_logging.MULogging()
         self.settings = settings
+        self.mu_log = mu_log_ref
+
 
     def check_schema(self, data):
         """
