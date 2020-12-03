@@ -50,6 +50,8 @@ class EDCSession:
         self.__setup_standard_cmdargs__()
         self.edcversion = 0
         self.timeout = 10
+        self.http_proxy = None
+        self.https_proxy = None
 
     def __setup_standard_cmdargs__(self):
         # check for args overriding the env vars
@@ -89,6 +91,20 @@ class EDCSession:
             "--user",
             required=False,
             help="user name - will also prompt for password ",
+            type=str,
+        )
+        self.argparser.add_argument(
+            "-x",
+            "--http_proxy",
+            required=False,
+            help="HTTP Proxy",
+            type=str,
+        )
+        self.argparser.add_argument(
+            "-X",
+            "--https_proxy",
+            required=False,
+            help="HTTPS Proxy",
             type=str,
         )
         self.argparser.add_argument(
@@ -147,6 +163,16 @@ class EDCSession:
                             "from {args.envfile}"
                         )
                         auth = edcauth
+
+                if self.http_proxy is None:
+                    http_proxy = os.getenv("HTTP_PROXY")
+                    print(f"\t\tread HTTP Proxy from {args.envfile} value={http_proxy}")
+
+                if self.https_proxy is None:
+                    https_proxy = os.getenv("HTTPS_PROXY")
+                    print(f"\t\tread HTTPS Proxy from {args.envfile} value={https_proxy}")
+
+
             else:
                 print("isfile False")
         else:
@@ -163,6 +189,14 @@ class EDCSession:
         if "INFA_EDC_SSL_PEM" in os.environ:
             verify = os.environ["INFA_EDC_SSL_PEM"]
             print("\t\tusing ssl certificate from env var INFA_EDC_SSL_PEM=" + verify)
+
+        if "HTTP_PROXY" in os.environ:
+            self.http_proxy = os.environ["HTTP_PROXY"]
+            print("\t\tusing HTTP Proxy from env var HTTP_PROXY=" + self.http_proxy)
+
+        if "HTTPS_PROXY" in os.environ:
+            self.https_proxy = os.environ["HTTPS_PROXY"]
+            print("\t\tusing HTTPS Proxy from env var HTTPS_PROXY=" + self.http_proxy)
 
         # check the catalog url & user command-line
         if args.edcurl is not None:
@@ -232,8 +266,10 @@ class EDCSession:
         print(f"validating connection to {self.session.baseUrl}")
         try:
             url = urljoin(self.baseUrl, "access/2/catalog/data/productInformation")
+            proxies = { "http": self.http_proxy
+                        , "https": self.https_proxy}
             # url = self.baseUrl + "access/2/catalog/data/productInformation"
-            resp = self.session.get(url, timeout=self.timeout)
+            resp = self.session.get(url, timeout=self.timeout, proxies=proxies)
             print(f"\tapi status code={resp.status_code}")
             if resp.status_code == 200:
                 # valid and 10.4+, get the actual version

@@ -14,6 +14,7 @@ class Generic:
     metaschema_version = "0.0.0"
     mu_log = mu_logging.MULogging()
     settings = generic_settings.GenericSettings()
+    settings.get_config()
     json_file = settings.json_file
 
     def __init__(self):
@@ -35,6 +36,7 @@ class Generic:
         found_meta_type = False
         found_uuid_count = 0
         directory = self.settings.json_directory
+        self.mu_log.log(self.mu_log.DEBUG, log_prefix + "Looking in directory: " + directory, module)
         file_result = messages.message["not_found"]
         overall_result = messages.message["not_found"]
         # Walk through json directory and check all json files

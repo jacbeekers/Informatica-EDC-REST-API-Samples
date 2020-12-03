@@ -13,13 +13,13 @@ class ConvertJSONtoEDCLineage:
     """
     Converts JSON file to a JSON payload that can be send to Informatica EDC using its APIs
     """
-    code_version = "0.2.2"
+    code_version = "0.2.15"
 
-    def __init__(self):
+    def __init__(self, configuration_file="resources/config.json"):
         self.json_file = "not provided"
         self.meta_type = "unknown"
         self.result = messages.message["undetermined"]
-        self.settings = generic_settings.GenericSettings()
+        self.settings = generic_settings.GenericSettings(configuration_file)
         self.generic = generic.Generic()
         self.json_directory = self.settings.json_directory
         self.target = self.settings.target
@@ -27,9 +27,9 @@ class ConvertJSONtoEDCLineage:
         self.mu_log = mu_logging.MULogging()
         # For Azure Monitor
         self.mu_log.code_version = self.code_version
-        self.edc_lineage = edc_lineage.EDCLineage()
         self.json_file_utilities = json_file_utilities.JSONFileUtilities()
         self.data = ""
+        self.edc_lineage = edc_lineage.EDCLineage()
 
     def generate_file_structure(self):
         """
@@ -60,7 +60,7 @@ class ConvertJSONtoEDCLineage:
         module = "create_metafile"
         self.mu_log.log(self.mu_log.DEBUG, "Start writing file", module)
         concatenated = self.generic.convert_list_into_string(attributes)
-        if self.target == "local":
+        if self.settings.target == "local":
             file_result = self.generic.write_local_file(filename, concatenated)
         else:
             # TODO: Implement "azure_blob"
@@ -79,6 +79,14 @@ class ConvertJSONtoEDCLineage:
             (depends on the meta_type of the file found)
         """
         module = "process_files"
+        settings_result = self.settings.get_config()
+        if settings_result != messages.message["ok"]:
+            self.mu_log.log(self.mu_log.FATAL, "Configuration could not be read.", module)
+            return settings_result
+        else:
+            self.mu_log.log(self.mu_log.DEBUG, "Configuration file >" + self.settings.json_file
+                            + "< found and read.", module)
+
         directory = self.settings.json_directory
         self.mu_log.log(self.mu_log.INFO, "===============================================", module)
         self.mu_log.log(self.mu_log.INFO, "Processing JSON files in directory " + directory, module)
@@ -108,6 +116,7 @@ class ConvertJSONtoEDCLineage:
                 self.mu_log.log(self.mu_log.DEBUG, "schema check failed with: " + check_result["code"] + " - "
                                 + check_result["message"], module)
             self.mu_log.log(self.mu_log.INFO, "=== END ============================================", module)
+        self.mu_log.area = "conclusion"
         self.mu_log.log(self.mu_log.INFO, "Number of JSON files processed: " + str(number_of_files), module)
         return self.overall_result
 
@@ -227,10 +236,16 @@ class ConvertJSONtoEDCLineage:
         return send_result
 
     def send_metadata_to_metadata_lake(self):
+        module = "send_metadata_to_metadata_lake"
+        self.mu_log.log(self.mu_log.ERROR, "Function >" + module + "< is not implemented.", module)
         send_result = messages.message["not_implemented"]
         return send_result
 
     def main(self):
+        """
+            Main module to process JSON files that are stored at the location stated in the provided configuration file
+            configuration_file: a relative or absolute path to the configuration file. Default is resources/config.json
+        """
         module = "main"
         process_result = self.process_files()
         self.mu_log.log(self.mu_log.INFO, "Result: " + process_result["code"] + " - " + process_result["message"],
@@ -239,6 +254,9 @@ class ConvertJSONtoEDCLineage:
 
 
 if __name__ == "__main__":
+    """
+        Call to main without any arguments reads the resources/config.json file to determine directories and other settings
+    """
     result = ConvertJSONtoEDCLineage().main()
     if result["code"] != "OK":
         exit(1)

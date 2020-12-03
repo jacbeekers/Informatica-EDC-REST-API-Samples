@@ -1,7 +1,7 @@
 message = {
     "GEN_GROUP": {
         "code": "GEN"
-        , "message": "Group for eneric error or warning"
+        , "message": "Group for generic error or warning"
         , "level": "INFO"
     },
     "ok": {
@@ -34,6 +34,31 @@ message = {
         ,
         "message": "Undetermined result. This should not happen. Please contact the development team and mention code 'MU-GEN-004'."
         , "level": "ERROR"
+    },
+    "main_config_not_found": {
+        "code": "MU-GEN-005"
+        ,"message": "Main configuration file not found."
+        ,"level": "FATAL"
+    },
+    "edc_config_not_found": {
+        "code": "MU-GEN-006"
+        ,"message": "EDC configuration file was provided, but could not be found. Check your main configuration file."
+        ,"level": "FATAL"
+    },
+    "edc_secrets_not_found": {
+        "code": "MU-GEN-007"
+        ,"message": "EDC secrets file was provided, but could not be found. Check your EDC configuration file."
+        ,"level": "FATAL"
+    },
+    "azure_config_not_found": {
+        "code": "MU-GEN-008"
+        ,"message": "Azure configuration file was provided, but could not be found. Check your main configuration file."
+        ,"level": "FATAL"
+    },
+    "log_config_not_found": {
+        "code": "MU-GEN-009"
+        ,"message": "Log configuration file was provided, but could not be found. Check your main configuration file."
+        ,"level": "FATAL"
     },
     "CONV_GROUP": {
         "code": "CONV"

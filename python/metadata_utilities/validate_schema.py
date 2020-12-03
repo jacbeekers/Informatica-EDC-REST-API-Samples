@@ -57,6 +57,7 @@ if __name__ == '__main__':
     meta_type = "unknown"
     result = messages.message["undetermined"]
     settings = generic_settings.GenericSettings()
+    settings.get_config()
     generic = generic.Generic()
     json_directory = settings.json_directory
     target = settings.target

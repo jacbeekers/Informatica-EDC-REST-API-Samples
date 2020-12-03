@@ -1,8 +1,8 @@
-requests~=2.24.0
-openpyxl~=3.0.5
-python-dotenv~=0.14.0
-urllib3~=1.25.10
-jinja2~=2.11.2
+requests
+openpyxl
+python-dotenv
+urllib3
+jinja2
 
 # unit tests
 nose
@@ -10,11 +10,8 @@ nose
 # logging to Azure Monitor
 opencensus-ext-azure
 opencensus-ext-requests
+opencensus
 
-opencensus~=0.7.10
-jsonschema~=3.2.0
-setuptools~=50.3.0
-packaging~=20.4
-six~=1.15.0
-wheel~=0.35.1
-pip>=20.2.2
+jsonschema
+setuptools
+six

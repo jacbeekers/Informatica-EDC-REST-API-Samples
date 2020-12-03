@@ -3,28 +3,28 @@ from datetime import datetime
 
 from opencensus.ext.azure.log_exporter import AzureLogHandler
 
-from metadata_utilities import generic_settings
+from metadata_utilities import log_settings
 
 
 class MULogging:
-    code_version = "0.1.2"
+    code_version = "0.2.12"
     VERBOSE = 6
     DEBUG = 5
     INFO = 4
     WARNING = 3
     ERROR = 2
     FATAL = 1
-    generic = generic_settings.GenericSettings()
-    generic.get_config()
+    log_setting = log_settings.LogSettings()
+    log_setting.get_config()
     logger = logging.getLogger("metadata_utilities")
     logging_log_level = logging.DEBUG
     log_level = DEBUG
     right_now = datetime.now().isoformat(timespec="microseconds").replace(":","-")
     # add prefix. Allow for limited number of functions
-    if generic.log_filename_prefix == "{{timestamp}}":
-        log_path = generic.log_directory + right_now + "-" + generic.log_filename
+    if log_setting.log_filename_prefix == "{{timestamp}}":
+        log_path = log_setting.log_directory + right_now + "-" + log_setting.log_filename
     else:
-        log_path = generic.log_directory + generic.log_filename
+        log_path = log_setting.log_directory + log_setting.log_filename
     fh = logging.FileHandler(log_path)
     fh.setLevel(logging_log_level)
     ch = logging.StreamHandler()
@@ -36,11 +36,11 @@ class MULogging:
     logger.addHandler(fh)
     logger.addHandler(ch)
     # add azure monitor if configured
-    if generic.instrumentation_key != "unknown" and generic.azure_monitor_requests == "True":
-        logger.addHandler(AzureLogHandler(connection_string="InstrumentationKey=" + generic.instrumentation_key))
+    if log_setting.instrumentation_key != "unknown" and log_setting.azure_monitor_requests == "True":
+        logger.addHandler(AzureLogHandler(connection_string="InstrumentationKey=" + log_setting.instrumentation_key))
 
     def __init__(self):
-        self.determine_log_level(self.generic.log_level)
+        self.determine_log_level(self.log_setting.log_level)
         self.logger.setLevel(self.logging_log_level)
         self.area = None
 
