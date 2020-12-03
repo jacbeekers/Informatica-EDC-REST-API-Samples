@@ -12,7 +12,7 @@ class Generic:
     """
     code_version = "0.2.21"
 
-    def __init__(self, configuration_file, mu_log_ref):
+    def __init__(self, settings, mu_log_ref):
         module = "Generic.__init__"
         self.attribute_list = []
         self.json_file = ""
@@ -20,7 +20,7 @@ class Generic:
         self.found_data = "{}"
         self.index = -1
         self.settings_found = False
-        self.settings = generic_settings.GenericSettings(configuration_file)
+        self.settings = settings
         self.mu_log = mu_log_ref
         result = self.settings.get_config()
         if result != messages.message["ok"]:
@@ -29,8 +29,7 @@ class Generic:
             self.settings_found = False
         else:
             self.settings_found = True
-        self.json_file = self.settings.json_file
-
+        self.json_file = self.settings.main_config_file
 
     def find_json(self, source_uuid, target_schema_type, property, log_prefix = ""):
         """

@@ -20,17 +20,20 @@ class ConvertJSONtoEDCLineage:
         self.meta_type = "unknown"
         self.result = messages.message["undetermined"]
         self.settings = generic_settings.GenericSettings(configuration_file)
-        self.settings.get_config()
-        self.mu_log = mu_logging.MULogging(self.settings.log_config)
-        self.generic = generic.Generic(configuration_file=configuration_file, mu_log_ref=self.mu_log)
-        self.json_directory = self.settings.json_directory
-        self.target = self.settings.target
-        self.overall_result = messages.message["ok"]
-        # For Azure Monitor
-        self.mu_log.code_version = self.code_version
-        self.json_file_utilities = json_file_utilities.JSONFileUtilities()
-        self.data = ""
-        self.edc_lineage = edc_lineage.EDCLineage(configuration_file=configuration_file,mu_log_ref=self.mu_log)
+        self.config_result = self.settings.get_config()
+        if self.config_result == messages.message["ok"]:
+            self.mu_log = mu_logging.MULogging(self.settings.log_config)
+            self.generic = generic.Generic(settings=self.settings, mu_log_ref=self.mu_log)
+            self.json_directory = self.settings.json_directory
+            self.target = self.settings.target
+            self.overall_result = messages.message["ok"]
+            # For Azure Monitor
+            self.mu_log.code_version = self.code_version
+            self.json_file_utilities = json_file_utilities.JSONFileUtilities()
+            self.data = ""
+            self.edc_lineage = edc_lineage.EDCLineage(self.settings, mu_log_ref=self.mu_log)
+        else:
+            print("FATAL:", "settings.get_config returned:", self.config_result["code"] + " - " +  self.config_result["message"])
 
     def generate_file_structure(self):
         """
@@ -80,12 +83,10 @@ class ConvertJSONtoEDCLineage:
             (depends on the meta_type of the file found)
         """
         module = "ConvertJSONtoEDCLineage.process_files"
-        settings_result = self.settings.get_config()
-        if settings_result != messages.message["ok"]:
-            self.mu_log.log(self.mu_log.FATAL, "Configuration could not be read.", module)
-            return settings_result
+        if self.config_result != messages.message["ok"]:
+            return self.config_result
         else:
-            self.mu_log.log(self.mu_log.DEBUG, "Configuration file >" + self.settings.json_file
+            self.mu_log.log(self.mu_log.DEBUG, "Configuration file >" + self.settings.main_config_file
                             + "< found and read.", module)
 
         directory = self.settings.json_directory
@@ -249,8 +250,6 @@ class ConvertJSONtoEDCLineage:
         """
         module = "ConvertJSONtoEDCLineage.main"
         process_result = self.process_files()
-        self.mu_log.log(self.mu_log.INFO, "Result: " + process_result["code"] + " - " + process_result["message"],
-                        module)
         return process_result
 
 

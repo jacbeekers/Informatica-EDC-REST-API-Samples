@@ -53,16 +53,21 @@ class CheckSchema:
         self.schema_file = schema_directory + self.meta_type + ".json"
         self.mu_log.log(self.mu_log.DEBUG, "schema_directory: " + schema_directory, module)
         self.mu_log.log(self.mu_log.DEBUG, "schema_file: " + self.schema_file, module)
-        with open(self.schema_file) as f:
-            schema = json.load(f)
-            try:
-                jsonschema.validate(data, schema)
-                self.mu_log.log(self.mu_log.INFO, "JSON file validated successfully against schema", module)
-            except jsonschema.exceptions.SchemaError as e:
-                self.mu_log.log(self.mu_log.FATAL, "A schema error occurred during validation", module)
-                return messages.message["jsonschema_validation_error"]
-            except jsonschema.exceptions.ValidationError as e:
-                self.mu_log.log(self.mu_log.ERROR, "A validation error occurred", module)
-                return messages.message["jsonschema_validation_error"]
+        try:
+            with open(self.schema_file) as f:
+                schema = json.load(f)
+                try:
+                    jsonschema.validate(data, schema)
+                    self.mu_log.log(self.mu_log.INFO, "JSON file validated successfully against schema", module)
+                except jsonschema.exceptions.SchemaError as e:
+                    self.mu_log.log(self.mu_log.FATAL, "A schema error occurred during validation", module)
+                    return messages.message["jsonschema_validation_error"]
+                except jsonschema.exceptions.ValidationError as e:
+                    self.mu_log.log(self.mu_log.ERROR, "A validation error occurred", module)
+                    return messages.message["jsonschema_validation_error"]
+        except FileNotFoundError:
+            self.mu_log.log(self.mu_log.ERROR, "Schema file >" + self.schema_file + "< could not be found"
+                            , module)
+            return messages.message["schema_file_not_found"]
 
         return messages.message["ok"]

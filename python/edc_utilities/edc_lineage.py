@@ -4,7 +4,7 @@ import time
 import jinja2
 
 from edc_utilities import edcSessionHelper
-from metadata_utilities import mu_logging, generic_settings, messages, generic
+from metadata_utilities import mu_logging, messages, generic
 
 
 class EDCLineage:
@@ -15,19 +15,19 @@ class EDCLineage:
     code_version = "0.2.21"
     total = 1000
 
-    def __init__(self, configuration_file, mu_log_ref):
+    def __init__(self, settings, mu_log_ref):
         self.offset = 0
         self.page = 0
-        self.settings = generic_settings.GenericSettings(configuration_file)
+        self.settings = settings
         self.mu_log = mu_log_ref
-        self.generic = generic.Generic(configuration_file=configuration_file, mu_log_ref=self.mu_log)
+        self.generic = None
         self.edc_source_filesystem = "unknown"
         self.edc_source_datasource = "unknown"
         self.edc_source_folder = "unknown"
         self.edc_target_filesystem = "unknown"
         self.edc_target_datasource = "unknown"
         self.edc_target_folder = "unknown"
-        self.edc_helper = edcSessionHelper.EDCSession()
+        self.edc_helper = edcSessionHelper.EDCSession(self.settings)
         self.proxies = "unknown"
         # TODO: Get info from jinja_config mentioned in config.json
         self.application = "edc_utilities"
@@ -38,6 +38,7 @@ class EDCLineage:
         self.template = self.environment.get_template("physical_entity_association.json")
         self.meta_type = "unknown"
         self.payload = {}
+        self.data = None
 
     def generate_lineage(self, output_type, metadata_type, data):
         module = "EDCLineage.generate_lineage"
@@ -47,6 +48,7 @@ class EDCLineage:
                             , module)
             return messages.message["main_config_not_found"]
 
+        self.generic = generic.Generic(settings=self.settings, mu_log_ref=self.mu_log)
         self.proxies = self.settings.get_proxy()
         self.edc_source_filesystem = self.settings.edc_config_data["edc_source_filesystem"]
         self.edc_source_datasource = self.settings.edc_config_data["edc_source_datasource"]
@@ -270,8 +272,9 @@ class EDCLineage:
         start_time = time.time()
         self.edc_helper.initUrlAndSessionFromEDCSettings()
 
-        url = self.edc_helper.baseUrl + "/access/1/catalog/data/objects"
-        self.mu_log.log(self.mu_log.VERBOSE, "Used URL >" + url + "<.", module)
+        self.mu_log.log(self.mu_log.DEBUG, "EDC base URL: " + self.settings.edc_url, module)
+        url = self.settings.edc_url + "/access/1/catalog/data/objects"
+        self.mu_log.log(self.mu_log.DEBUG, "Used URL >" + url + "<.", module)
         head = {'Content-Type': 'application/json'}
         self.mu_log.log(self.mu_log.VERBOSE, "Headers: " + str(head.items()))
         self.mu_log.log(self.mu_log.VERBOSE, "Proxies: " + str(self.proxies))
@@ -300,27 +303,3 @@ class EDCLineage:
                         "send to EDC completed with " + send_result["code"] + ". run time: " + str(run_time), module)
         return send_result
 
-
-if __name__ == "__main__":
-    edc_lineage = EDCLineage()
-    edc_lineage.meta_type = "physical_database_association"
-    source = "demoSource"
-    target = "demoTarget"
-    edc_lineage.data = ""
-    edc_lineage.build_api_load()
-
-    edc_lineage.meta_type = "physical_schema_association"
-    source = "demoSource://demoSource/dbo"
-    target = "demoTarget://demotarget/dbo"
-    edc_lineage.build_api_load()
-
-    edc_lineage.meta_type = "physical_entity_association"
-    source = "demoSource://demoSource/dbo/tblMetaDemo"
-    target = "demoTarget://demotarget/dbo/tblMetaDemo"
-    edc_lineage.build_api_load()
-
-    # TODO: For all columns
-    edc_lineage.meta_type = "physical_attribute_association"
-    source = "demoSource://demoSource/dbo/tblMetaDemo/ActiveFrom"
-    target = "demoTarget://demotarget/dbo/tblMetaDemo/ActiveFrom"
-    edc_lineage.build_api_load()

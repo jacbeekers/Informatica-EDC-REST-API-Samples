@@ -1,6 +1,7 @@
 import json
 from metadata_utilities import messages
 # from metadata_utilities import mu_logging
+import logging
 
 
 class LogSettings:
@@ -8,12 +9,12 @@ class LogSettings:
     Some generic utilities, e.g. reading the config.json
     """
     code_version = "0.2.21"
-    VERBOSE = 6
-    DEBUG = 5
-    INFO = 4
-    WARNING = 3
-    ERROR = 2
-    FATAL = 1
+    VERBOSE = 5
+    DEBUG = logging.DEBUG
+    INFO = logging.INFO
+    WARNING = logging.WARNING
+    ERROR = logging.ERROR
+    FATAL = logging.CRITICAL
 
     def __init__(self, configuration_file="resources/log_config.json"):
         # log_config.json settings

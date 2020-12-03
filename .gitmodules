@@ -1,6 +1,6 @@
-[submodule "python/metadata-registry-interface-specifications"]
-	path = python/metadata-registry-interface-specifications
-	url = https://github.com/jacbeekers/metadata-registry-interface-specifications.git
 [submodule "python/azure-python-samples"]
 	path = python/azure-python-samples
 	url = https://github.com/jacbeekers/azure-python-samples
+[submodule "python/metadata-registry-interface-specifications"]
+	path = python/metadata-registry-interface-specifications
+	url = https://github.com/jacbeekers/metadata-registry-interface-specifications.git

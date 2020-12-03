@@ -47,7 +47,7 @@ message = {
     },
     "edc_secrets_not_found": {
         "code": "MU-GEN-007"
-        ,"message": "EDC secrets file was provided, but could not be found. Check your EDC configuration file."
+        ,"message": "EDC secrets file was provided, but could not be found. Check your configuration file."
         ,"level": "FATAL"
     },
     "azure_config_not_found": {
@@ -128,6 +128,11 @@ message = {
     "missing_uid": {
         "code": "MU-CONV-013"
         , "message": "Missing UID key"
+        , "level": "ERROR"
+    },
+    "schema_file_not_found": {
+        "code": "MU-CONV-014"
+        , "message": "Schema file could not be found"
         , "level": "ERROR"
     },
     "EDC_GROUP": {

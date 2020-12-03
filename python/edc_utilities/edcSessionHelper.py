@@ -43,8 +43,8 @@ class EDCSession:
     for easy re-use for multiple scripts
     """
 
-    def __init__(self):
-        self.baseUrl = None
+    def __init__(self, settings):
+        self.baseUrl = settings.edc_url
         self.session: requests.session = None
         self.argparser = argparse.ArgumentParser(add_help=False)
         self.__setup_standard_cmdargs__()
@@ -52,6 +52,7 @@ class EDCSession:
         self.timeout = 10
         self.http_proxy = None
         self.https_proxy = None
+        self.settings =  settings
 
     def __setup_standard_cmdargs__(self):
         # check for args overriding the env vars
@@ -203,10 +204,11 @@ class EDCSession:
             if self.baseUrl != args.edcurl:
                 print(f"\t\tusing edcurl from command-line parameter {args.edcurl}")
                 self.baseUrl = args.edcurl
-        # if there is still no edc url - then prompt for it
+        # if there is still no edc url - then use it from edc secrets file
         if self.baseUrl is None:
             # nothing entered anywyere for the base url
             print(f"edc url not specified in ENV var or command-line parameter")
+            self.baseUrl = self.settings.edc_url
 
         # user credential stored in auth
         if args.auth is not None:

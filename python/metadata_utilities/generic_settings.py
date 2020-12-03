@@ -2,6 +2,7 @@ import json
 from metadata_utilities import messages
 from metadata_utilities import mu_logging
 
+
 class GenericSettings:
     """
     Some generic utilities, e.g. reading the config.json
@@ -10,7 +11,7 @@ class GenericSettings:
 
     def __init__(self, configuration_file="resources/config.json"):
         # config.json settings
-        self.json_file = configuration_file
+        self.main_config_file = configuration_file
         self.base_schema_folder = "unknown"
         self.meta_version = "unknown"
         self.schema_directory = "unknown"
@@ -40,11 +41,11 @@ class GenericSettings:
         """
             get the main configuration settings. default file is resources/config.json
         """
-        module="get_config"
+        module = "get_config"
         result = messages.message["undetermined"]
 
         try:
-            with open(self.json_file) as config:
+            with open(self.main_config_file) as config:
                 data = json.load(config)
                 self.base_schema_folder = data["schema_directory"]
                 # self.schema_directory = self.base_schema_folder + self.meta_version + "/"
@@ -91,26 +92,37 @@ class GenericSettings:
                 self.azure_monitor_config = self.mu_log.log_setting.azure_monitor_config
                 self.azure_monitor_requests = self.mu_log.log_setting.azure_monitor_requests
                 self.instrumentation_key = self.mu_log.log_setting.instrumentation_key
+                self.mu_log.log(self.mu_log.DEBUG, "Configuration file >" + self.main_config_file
+                                + "< found and read.", module)
 
             result = messages.message["ok"]
         except FileNotFoundError:
-            self.mu_log.log(self.mu_log.FATAL, "Cannot find main configuration file >"+ self.json_file + "<.", module)
+            print("FATAL:", module, "could find main configuration file >" + self.main_config_file + "<.")
             return messages.message["main_config_not_found"]
 
         if self.edc_config != "unknown":
             try:
                 with open(self.edc_config) as edc:
                     self.edc_config_data = json.load(edc)
+                self.mu_log.log(self.mu_log.DEBUG, "EDC Configuration file >" + self.edc_config
+                                + "< found and read.", module)
             except FileNotFoundError:
                 self.mu_log.log(self.mu_log.FATAL, "Cannot find provided edc_config file >" + self.edc_config + "<."
                                 , module)
                 return messages.message["edc_config_not_found"]
 
-        if self.edc_secrets != "unknown":
+        if self.edc_secrets == "unknown":
+            self.mu_log.log(self.mu_log.DEBUG, "edc_secrets is unknown")
+        else:
             try:
                 with open(self.edc_secrets) as edc:
                     data = json.load(edc)
-                    self.edc_url = data["edc_url"]
+                    if "edc_url" in data:
+                        self.edc_url = data["edc_url"]
+                        self.mu_log.log(self.mu_log.INFO, "EDC URL taken from edc secrets file >" + self.edc_secrets
+                                        + "<: "
+                                        + self.edc_url, module)
+                self.mu_log.log(self.mu_log.DEBUG, "EDC secrets file >" + self.edc_secrets + "< found and read.", module)
             except FileNotFoundError:
                 self.mu_log.log(self.mu_log.FATAL, "Cannot find provided edc_secrets file >" + self.edc_secrets + "<."
                                 , module)
