@@ -11,14 +11,14 @@ class CheckSchema:
     """
     code_version = "0.2.15"
 
-    def __init__(self):
+    def __init__(self, settings):
         self.json_file = "not provided"
         self.json_data = ""
         self.meta_type = "unknown"
         self.meta_version = "unknown"
         self.schema_file = "unknown"
         self.mu_log = mu_logging.MULogging()
-        self.settings = generic_settings.GenericSettings()
+        self.settings = settings
 
     def check_schema(self, data):
         """
@@ -48,7 +48,6 @@ class CheckSchema:
             self.mu_log.log(self.mu_log.FATAL, "Error parsing JSON:" + e.msg, module)
             return messages.message["json_parse_error"]
 
-        self.settings.get_config()
         schema_directory = self.settings.base_schema_folder + self.meta_version + "/"
         self.schema_file = schema_directory + self.meta_type + ".json"
         self.mu_log.log(self.mu_log.DEBUG, "schema_directory: " + schema_directory, module)

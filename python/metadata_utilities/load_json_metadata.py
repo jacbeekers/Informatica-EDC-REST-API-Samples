@@ -100,7 +100,7 @@ class ConvertJSONtoEDCLineage:
             self.mu_log.log(self.mu_log.INFO, "#" + str(number_of_files) + " JSON file is: " + self.json_file, module)
             self.data = self.json_file_utilities.get_json(self.json_file)
             file_result = messages.message["ok"]
-            check = check_schema.CheckSchema()
+            check = check_schema.CheckSchema(self.settings)
             check.mu_log.area = base_filename
             check_result = check.check_schema(self.data)
             if check_result["code"] == "OK":
