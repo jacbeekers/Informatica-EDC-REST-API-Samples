@@ -51,7 +51,7 @@ class CheckSchema:
         schema_directory = self.settings.base_schema_folder + self.meta_version + "/"
         self.schema_file = schema_directory + self.meta_type + ".json"
         self.mu_log.log(self.mu_log.DEBUG, "schema_directory: " + schema_directory, module)
-        self.mu_log.log(self.mu_log.DEBUG, "schema_file: " + self.schema_file)
+        self.mu_log.log(self.mu_log.DEBUG, "schema_file: " + self.schema_file, module)
         with open(self.schema_file) as f:
             schema = json.load(f)
             try:

@@ -7,11 +7,11 @@ class LogSettings:
     """
     Some generic utilities, e.g. reading the config.json
     """
-    code_version = "0.2.12"
+    code_version = "0.2.18"
 
     def __init__(self, configuration_file="resources/log_config.json"):
         # log_config.json settings
-        self.json_file = configuration_file
+        self.log_config = configuration_file
         self.log_directory = "unknown"
         self.log_filename = "unknown"
         self.log_filename_prefix = "unknown"
@@ -26,7 +26,7 @@ class LogSettings:
         result = messages.message["undetermined"]
 
         try:
-            with open(self.json_file) as config:
+            with open(self.log_config) as config:
                 data = json.load(config)
                 self.log_directory = data["log_directory"]
                 self.log_filename = data["log_filename"]
@@ -49,7 +49,7 @@ class LogSettings:
 
             result = messages.message["ok"]
         except FileNotFoundError:
-            print("No such file or directory: >" + self.json_file + "<.")
+            print("No such file or directory: >" + self.log_config + "<.")
             result = messages.message["log_config_not_found"]
 
         return result

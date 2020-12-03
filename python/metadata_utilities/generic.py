@@ -17,12 +17,24 @@ class Generic:
     settings.get_config()
     json_file = settings.json_file
 
-    def __init__(self):
+    def __init__(self, configuration_file="resources/config.json"):
+        module = "generic.__init__"
         self.attribute_list = []
         self.json_file = ""
         self.data = "{}"
         self.found_data = "{}"
         self.index = -1
+        self.mu_log = mu_logging.MULogging()
+        self.settings_found = False
+        self.settings = generic_settings.GenericSettings(configuration_file)
+        result = self.settings.get_config()
+        if result != messages.message["ok"]:
+            self.mu_log.log(self.mu_log.FATAL, "Cannot find main configuration file >" + self.settings.json_file + "<."
+                            , module)
+            self.settings_found = False
+        else:
+            self.settings_found = True
+
 
     def find_json(self, source_uuid, target_schema_type, property, log_prefix = ""):
         """
@@ -30,6 +42,10 @@ class Generic:
         The JSON schema of the file must be 'target_schema_type'.
         """
         module = "find_json"
+        if not self.settings_found:
+            self.mu_log.log(self.mu_log.ERROR, log_prefix + " settings were not found. Skipping processing.")
+            return messages.message["main_config_not_found"]
+        
         self.mu_log.log(self.mu_log.DEBUG, log_prefix + "target_schema_type: " + target_schema_type, module)
         self.mu_log.log(self.mu_log.DEBUG, log_prefix + "Looking for key >" + property + "< that contains uuid >"
                         + source_uuid + "<", module)
