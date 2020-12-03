@@ -15,7 +15,7 @@ class MULogging:
     ERROR = 2
     FATAL = 1
     log_setting = log_settings.LogSettings()
-    log_setting.get_config()
+    # log_setting.get_config()
     logger = logging.getLogger("metadata_utilities")
     logging_log_level = logging.DEBUG
     log_level = DEBUG

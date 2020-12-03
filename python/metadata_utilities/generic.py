@@ -45,7 +45,7 @@ class Generic:
         if not self.settings_found:
             self.mu_log.log(self.mu_log.ERROR, log_prefix + " settings were not found. Skipping processing.")
             return messages.message["main_config_not_found"]
-        
+
         self.mu_log.log(self.mu_log.DEBUG, log_prefix + "target_schema_type: " + target_schema_type, module)
         self.mu_log.log(self.mu_log.DEBUG, log_prefix + "Looking for key >" + property + "< that contains uuid >"
                         + source_uuid + "<", module)
