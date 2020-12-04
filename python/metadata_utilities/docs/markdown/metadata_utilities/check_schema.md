@@ -4,15 +4,12 @@ Module metadata_utilities.check_schema
 Classes
 -------
 
-`CheckSchema()`
+`CheckSchema(settings, mu_log_ref)`
 :   Checks the JSON schema of a given JSON file
 
     ### Class variables
 
     `code_version`
-    :
-
-    `metaschema_version`
     :
 
     ### Methods

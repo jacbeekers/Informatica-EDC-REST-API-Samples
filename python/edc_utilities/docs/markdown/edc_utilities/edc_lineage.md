@@ -4,7 +4,7 @@ Module edc_utilities.edc_lineage
 Classes
 -------
 
-`EDCLineage()`
+`EDCLineage(settings, mu_log_ref)`
 :   EDLineage: Call Informatica EDC APIs to add lineage information for existing objects
 
     ### Class variables
@@ -29,5 +29,5 @@ Classes
     `generate_lineage(self, output_type, metadata_type, data)`
     :
 
-    `send_metadata_to_edc(self)`
+    `send_metadata_to_edc(self, suppress_edc_call=False)`
     :

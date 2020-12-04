@@ -4,24 +4,12 @@ Module metadata_utilities.generic
 Classes
 -------
 
-`Generic()`
+`Generic(settings, mu_log_ref)`
 :   Some generic utilities, e.g. reading the config.json
 
     ### Class variables
 
     `code_version`
-    :
-
-    `json_file`
-    :
-
-    `metaschema_version`
-    :
-
-    `mu_log`
-    :
-
-    `settings`
     :
 
     ### Methods

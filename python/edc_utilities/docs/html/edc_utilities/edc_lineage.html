@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.9.1" />
+<meta name="generator" content="pdoc 0.9.2" />
 <title>edc_utilities.edc_lineage API documentation</title>
 <meta name="description" content="" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -32,7 +32,7 @@ import time
 import jinja2
 
 from edc_utilities import edcSessionHelper
-from metadata_utilities import mu_logging, generic_settings, messages, generic
+from metadata_utilities import mu_logging, messages, generic
 
 
 class EDCLineage:
@@ -40,39 +40,58 @@ class EDCLineage:
     EDLineage: Call Informatica EDC APIs to add lineage information for existing objects
     &#34;&#34;&#34;
 
-    code_version = &#34;0.1.0&#34;
+    code_version = &#34;0.2.21&#34;
     total = 1000
 
-    def __init__(self):
+    def __init__(self, settings, mu_log_ref):
         self.offset = 0
         self.page = 0
-        self.mu_log = mu_logging.MULogging()
-        self.settings = generic_settings.GenericSettings()
+        self.settings = settings
+        self.mu_log = mu_log_ref
+        self.generic = None
+        self.edc_source_filesystem = &#34;unknown&#34;
+        self.edc_source_datasource = &#34;unknown&#34;
+        self.edc_source_folder = &#34;unknown&#34;
+        self.edc_target_filesystem = &#34;unknown&#34;
+        self.edc_target_datasource = &#34;unknown&#34;
+        self.edc_target_folder = &#34;unknown&#34;
+        self.edc_helper = edcSessionHelper.EDCSession(self.settings)
+        self.proxies = &#34;unknown&#34;
+        # TODO: Get info from jinja_config mentioned in config.json
+        self.application = &#34;edc_utilities&#34;
+        self.templates = &#34;edc_payload_templates&#34;
+        self.template_directory = self.application + &#34;/&#34; + self.templates
+        self.environment = jinja2.Environment(loader=jinja2.FileSystemLoader(self.template_directory))
+        self.environment.filters[&#34;jsonify&#34;] = json.dumps
+        self.template = self.environment.get_template(&#34;physical_entity_association.json&#34;)
+        self.meta_type = &#34;unknown&#34;
+        self.payload = {}
+        self.data = None
+
+    def generate_lineage(self, output_type, metadata_type, data):
+        module = &#34;EDCLineage.generate_lineage&#34;
+        result = self.settings.get_config()
+        if result != messages.message[&#34;ok&#34;]:
+            self.mu_log.log(self.mu_log.FATAL, &#34;Could not find main configuration file &gt;&#34; + self.settings.json_file + &#34;&lt;.&#34;
+                            , module)
+            return messages.message[&#34;main_config_not_found&#34;]
+
+        self.generic = generic.Generic(settings=self.settings, mu_log_ref=self.mu_log)
+        self.proxies = self.settings.get_proxy()
         self.edc_source_filesystem = self.settings.edc_config_data[&#34;edc_source_filesystem&#34;]
         self.edc_source_datasource = self.settings.edc_config_data[&#34;edc_source_datasource&#34;]
         self.edc_source_folder = self.settings.edc_config_data[&#34;edc_source_folder&#34;]
         self.edc_target_filesystem = self.settings.edc_config_data[&#34;edc_target_filesystem&#34;]
         self.edc_target_datasource = self.settings.edc_config_data[&#34;edc_target_datasource&#34;]
         self.edc_target_folder = self.settings.edc_config_data[&#34;edc_target_folder&#34;]
-        self.generic = generic.Generic()
-        self.edc_helper = edcSessionHelper.EDCSession()
-        # TODO: Get info from jinja_config mentioned in config.json
-        self.application = &#34;edc_utilities&#34;
-        self.templates = &#34;edc_payload_templates&#34;
-        self.environment = jinja2.Environment(loader=jinja2.PackageLoader(self.application, self.templates))
-        self.environment.filters[&#34;jsonify&#34;] = json.dumps
-        self.template = self.environment.get_template(&#34;physical_entity_association.json&#34;)
-        self.meta_type = &#34;unknown&#34;
-        self.payload = &#34;{}&#34;
 
-    def generate_lineage(self, output_type, metadata_type, data):
-        module = &#34;generate_lineage&#34;
         self.meta_type = metadata_type
         self.data = data
         if output_type == &#34;json_payload&#34;:
             self.mu_log.log(self.mu_log.DEBUG, &#34;generating lineage for output_type &#34; + output_type, module)
             lineage_result, payload = self.build_api_load()
         elif output_type == &#34;csv&#34;:
+            self.mu_log.log(self.mu_log.ERROR, &#34;output_type csv has not been implemented.&#34;)
             lineage_result = messages.message[&#34;not_implemented&#34;]
         else:
             self.mu_log.log(self.mu_log.ERROR, &#34;invalid lineage output_type &gt;&#34; + output_type + &#34;&lt; specified.&#34;, module)
@@ -81,7 +100,7 @@ class EDCLineage:
         return lineage_result
 
     def build_api_load(self):
-        module = &#34;build_api_load&#34;
+        module = &#34;EDCLineage.build_api_load&#34;
         self.template = self.environment.get_template(self.meta_type + &#34;.json&#34;)
         if self.meta_type == &#34;physical_entity_association&#34;:
             build_result, self.payload = self.build_api_load_entity_association()
@@ -98,7 +117,7 @@ class EDCLineage:
         &#34;&#34;&#34;
         Loop through the list of source_target_entities
         &#34;&#34;&#34;
-        module = &#34;build_api_load_entity_association&#34;
+        module = &#34;EDCLineage.build_api_load_entity_association&#34;
         build_result = messages.message[&#34;ok&#34;]
         source_target_links = self.data[&#34;source_target_entity_links&#34;]
         source_target_list = []
@@ -157,7 +176,7 @@ class EDCLineage:
         &#34;&#34;&#34;
         Loop through the list of source_target_attributes
         &#34;&#34;&#34;
-        module = &#34;build_api_load_attribute_association&#34;
+        module = &#34;EDCLineage.build_api_load_attribute_association&#34;
         build_result = messages.message[&#34;ok&#34;]
         source_target_links = self.data[&#34;source_target_attribute_links&#34;]
         source_target_list = []
@@ -275,55 +294,42 @@ class EDCLineage:
 
         return build_result, self.payload
 
-    def send_metadata_to_edc(self):
-        module = &#34;send_metadata_to_edc&#34;
+    def send_metadata_to_edc(self, suppress_edc_call=False):
+        module = &#34;EDCLineage.send_metadata_to_edc&#34;
         self.mu_log.log(self.mu_log.VERBOSE, &#34;sending payload &gt;&#34; + self.payload + &#34;&lt;.&#34;, module)
         start_time = time.time()
         self.edc_helper.initUrlAndSessionFromEDCSettings()
 
-        url = self.edc_helper.baseUrl + &#34;/access/1/catalog/data/objects&#34;
-        self.mu_log.log(self.mu_log.VERBOSE, &#34;Used URL &gt;&#34; + url + &#34;&lt;.&#34;, module)
+        self.mu_log.log(self.mu_log.DEBUG, &#34;EDC base URL: &#34; + self.settings.edc_url, module)
+        url = self.settings.edc_url + &#34;/access/1/catalog/data/objects&#34;
+        self.mu_log.log(self.mu_log.DEBUG, &#34;Used URL &gt;&#34; + url + &#34;&lt;.&#34;, module)
         head = {&#39;Content-Type&#39;: &#39;application/json&#39;}
-        response = self.edc_helper.session.patch(url, self.payload, timeout=20, headers=head)
-        status = response.status_code
-        if status != 200:
-            # some error - e.g. catalog not running, or bad credentials
-            self.mu_log.log(self.mu_log.ERROR, &#34;Error from EDC: &#34; + str(status) + &#34;: &#34; + str(response), module)
-            send_result = messages.message[&#34;edc_error&#34;]
-        else:
-            result_json = response.json()
-            self.mu_log.log(self.mu_log.INFO, &#34;EDC returned: &#34; + str(result_json), module)
+        self.mu_log.log(self.mu_log.VERBOSE, &#34;Headers: &#34; + str(head.items()))
+        self.mu_log.log(self.mu_log.VERBOSE, &#34;Proxies: &#34; + str(self.proxies))
+        if suppress_edc_call:
+            self.mu_log.log(self.mu_log.WARNING
+                            , &#34;&#39;suppress_edc_call&#39; is set to True in config.json. EDC call NOT exucuted&#34;, module)
             send_result = messages.message[&#34;ok&#34;]
+        else:
+            response = self.edc_helper.session.patch(url, self.payload, timeout=20, headers=head, proxies=self.proxies)
+            status = response.status_code
+            if status != 200:
+                # some error - e.g. catalog not running, or bad credentials
+                self.mu_log.log(self.mu_log.ERROR, &#34;Error from EDC: &#34; + str(status) + &#34;: &#34; + str(response), module)
+                send_result = messages.message[&#34;edc_error&#34;]
+            else:
+                try:
+                    result_json = response.json()
+                    self.mu_log.log(self.mu_log.INFO, &#34;EDC returned: &#34; + str(result_json), module)
+                    send_result = messages.message[&#34;ok&#34;]
+                except ValueError:
+                    self.mu_log.log(self.mu_log.ERROR, &#34;EDC API did not return a JSON payload&#34;)
+                    send_result = messages.message[&#34;invalid_api_response&#34;]
 
         run_time = time.time() - start_time
         self.mu_log.log(self.mu_log.DEBUG,
                         &#34;send to EDC completed with &#34; + send_result[&#34;code&#34;] + &#34;. run time: &#34; + str(run_time), module)
-        return send_result
-
-
-if __name__ == &#34;__main__&#34;:
-    edc_lineage = EDCLineage()
-    edc_lineage.meta_type = &#34;physical_database_association&#34;
-    source = &#34;demoSource&#34;
-    target = &#34;demoTarget&#34;
-    edc_lineage.data = &#34;&#34;
-    edc_lineage.build_api_load()
-
-    edc_lineage.meta_type = &#34;physical_schema_association&#34;
-    source = &#34;demoSource://demoSource/dbo&#34;
-    target = &#34;demoTarget://demotarget/dbo&#34;
-    edc_lineage.build_api_load()
-
-    edc_lineage.meta_type = &#34;physical_entity_association&#34;
-    source = &#34;demoSource://demoSource/dbo/tblMetaDemo&#34;
-    target = &#34;demoTarget://demotarget/dbo/tblMetaDemo&#34;
-    edc_lineage.build_api_load()
-
-    # TODO: For all columns
-    edc_lineage.meta_type = &#34;physical_attribute_association&#34;
-    source = &#34;demoSource://demoSource/dbo/tblMetaDemo/ActiveFrom&#34;
-    target = &#34;demoTarget://demotarget/dbo/tblMetaDemo/ActiveFrom&#34;
-    edc_lineage.build_api_load()</code></pre>
+        return send_result</code></pre>
 </details>
 </section>
 <section>
@@ -337,6 +343,7 @@ if __name__ == &#34;__main__&#34;:
 <dl>
 <dt id="edc_utilities.edc_lineage.EDCLineage"><code class="flex name class">
 <span>class <span class="ident">EDCLineage</span></span>
+<span>(</span><span>settings, mu_log_ref)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>EDLineage: Call Informatica EDC APIs to add lineage information for existing objects</p></div>
@@ -349,39 +356,58 @@ if __name__ == &#34;__main__&#34;:
     EDLineage: Call Informatica EDC APIs to add lineage information for existing objects
     &#34;&#34;&#34;
 
-    code_version = &#34;0.1.0&#34;
+    code_version = &#34;0.2.21&#34;
     total = 1000
 
-    def __init__(self):
+    def __init__(self, settings, mu_log_ref):
         self.offset = 0
         self.page = 0
-        self.mu_log = mu_logging.MULogging()
-        self.settings = generic_settings.GenericSettings()
+        self.settings = settings
+        self.mu_log = mu_log_ref
+        self.generic = None
+        self.edc_source_filesystem = &#34;unknown&#34;
+        self.edc_source_datasource = &#34;unknown&#34;
+        self.edc_source_folder = &#34;unknown&#34;
+        self.edc_target_filesystem = &#34;unknown&#34;
+        self.edc_target_datasource = &#34;unknown&#34;
+        self.edc_target_folder = &#34;unknown&#34;
+        self.edc_helper = edcSessionHelper.EDCSession(self.settings)
+        self.proxies = &#34;unknown&#34;
+        # TODO: Get info from jinja_config mentioned in config.json
+        self.application = &#34;edc_utilities&#34;
+        self.templates = &#34;edc_payload_templates&#34;
+        self.template_directory = self.application + &#34;/&#34; + self.templates
+        self.environment = jinja2.Environment(loader=jinja2.FileSystemLoader(self.template_directory))
+        self.environment.filters[&#34;jsonify&#34;] = json.dumps
+        self.template = self.environment.get_template(&#34;physical_entity_association.json&#34;)
+        self.meta_type = &#34;unknown&#34;
+        self.payload = {}
+        self.data = None
+
+    def generate_lineage(self, output_type, metadata_type, data):
+        module = &#34;EDCLineage.generate_lineage&#34;
+        result = self.settings.get_config()
+        if result != messages.message[&#34;ok&#34;]:
+            self.mu_log.log(self.mu_log.FATAL, &#34;Could not find main configuration file &gt;&#34; + self.settings.json_file + &#34;&lt;.&#34;
+                            , module)
+            return messages.message[&#34;main_config_not_found&#34;]
+
+        self.generic = generic.Generic(settings=self.settings, mu_log_ref=self.mu_log)
+        self.proxies = self.settings.get_proxy()
         self.edc_source_filesystem = self.settings.edc_config_data[&#34;edc_source_filesystem&#34;]
         self.edc_source_datasource = self.settings.edc_config_data[&#34;edc_source_datasource&#34;]
         self.edc_source_folder = self.settings.edc_config_data[&#34;edc_source_folder&#34;]
         self.edc_target_filesystem = self.settings.edc_config_data[&#34;edc_target_filesystem&#34;]
         self.edc_target_datasource = self.settings.edc_config_data[&#34;edc_target_datasource&#34;]
         self.edc_target_folder = self.settings.edc_config_data[&#34;edc_target_folder&#34;]
-        self.generic = generic.Generic()
-        self.edc_helper = edcSessionHelper.EDCSession()
-        # TODO: Get info from jinja_config mentioned in config.json
-        self.application = &#34;edc_utilities&#34;
-        self.templates = &#34;edc_payload_templates&#34;
-        self.environment = jinja2.Environment(loader=jinja2.PackageLoader(self.application, self.templates))
-        self.environment.filters[&#34;jsonify&#34;] = json.dumps
-        self.template = self.environment.get_template(&#34;physical_entity_association.json&#34;)
-        self.meta_type = &#34;unknown&#34;
-        self.payload = &#34;{}&#34;
 
-    def generate_lineage(self, output_type, metadata_type, data):
-        module = &#34;generate_lineage&#34;
         self.meta_type = metadata_type
         self.data = data
         if output_type == &#34;json_payload&#34;:
             self.mu_log.log(self.mu_log.DEBUG, &#34;generating lineage for output_type &#34; + output_type, module)
             lineage_result, payload = self.build_api_load()
         elif output_type == &#34;csv&#34;:
+            self.mu_log.log(self.mu_log.ERROR, &#34;output_type csv has not been implemented.&#34;)
             lineage_result = messages.message[&#34;not_implemented&#34;]
         else:
             self.mu_log.log(self.mu_log.ERROR, &#34;invalid lineage output_type &gt;&#34; + output_type + &#34;&lt; specified.&#34;, module)
@@ -390,7 +416,7 @@ if __name__ == &#34;__main__&#34;:
         return lineage_result
 
     def build_api_load(self):
-        module = &#34;build_api_load&#34;
+        module = &#34;EDCLineage.build_api_load&#34;
         self.template = self.environment.get_template(self.meta_type + &#34;.json&#34;)
         if self.meta_type == &#34;physical_entity_association&#34;:
             build_result, self.payload = self.build_api_load_entity_association()
@@ -407,7 +433,7 @@ if __name__ == &#34;__main__&#34;:
         &#34;&#34;&#34;
         Loop through the list of source_target_entities
         &#34;&#34;&#34;
-        module = &#34;build_api_load_entity_association&#34;
+        module = &#34;EDCLineage.build_api_load_entity_association&#34;
         build_result = messages.message[&#34;ok&#34;]
         source_target_links = self.data[&#34;source_target_entity_links&#34;]
         source_target_list = []
@@ -466,7 +492,7 @@ if __name__ == &#34;__main__&#34;:
         &#34;&#34;&#34;
         Loop through the list of source_target_attributes
         &#34;&#34;&#34;
-        module = &#34;build_api_load_attribute_association&#34;
+        module = &#34;EDCLineage.build_api_load_attribute_association&#34;
         build_result = messages.message[&#34;ok&#34;]
         source_target_links = self.data[&#34;source_target_attribute_links&#34;]
         source_target_list = []
@@ -584,25 +610,37 @@ if __name__ == &#34;__main__&#34;:
 
         return build_result, self.payload
 
-    def send_metadata_to_edc(self):
-        module = &#34;send_metadata_to_edc&#34;
+    def send_metadata_to_edc(self, suppress_edc_call=False):
+        module = &#34;EDCLineage.send_metadata_to_edc&#34;
         self.mu_log.log(self.mu_log.VERBOSE, &#34;sending payload &gt;&#34; + self.payload + &#34;&lt;.&#34;, module)
         start_time = time.time()
         self.edc_helper.initUrlAndSessionFromEDCSettings()
 
-        url = self.edc_helper.baseUrl + &#34;/access/1/catalog/data/objects&#34;
-        self.mu_log.log(self.mu_log.VERBOSE, &#34;Used URL &gt;&#34; + url + &#34;&lt;.&#34;, module)
+        self.mu_log.log(self.mu_log.DEBUG, &#34;EDC base URL: &#34; + self.settings.edc_url, module)
+        url = self.settings.edc_url + &#34;/access/1/catalog/data/objects&#34;
+        self.mu_log.log(self.mu_log.DEBUG, &#34;Used URL &gt;&#34; + url + &#34;&lt;.&#34;, module)
         head = {&#39;Content-Type&#39;: &#39;application/json&#39;}
-        response = self.edc_helper.session.patch(url, self.payload, timeout=20, headers=head)
-        status = response.status_code
-        if status != 200:
-            # some error - e.g. catalog not running, or bad credentials
-            self.mu_log.log(self.mu_log.ERROR, &#34;Error from EDC: &#34; + str(status) + &#34;: &#34; + str(response), module)
-            send_result = messages.message[&#34;edc_error&#34;]
-        else:
-            result_json = response.json()
-            self.mu_log.log(self.mu_log.INFO, &#34;EDC returned: &#34; + str(result_json), module)
+        self.mu_log.log(self.mu_log.VERBOSE, &#34;Headers: &#34; + str(head.items()))
+        self.mu_log.log(self.mu_log.VERBOSE, &#34;Proxies: &#34; + str(self.proxies))
+        if suppress_edc_call:
+            self.mu_log.log(self.mu_log.WARNING
+                            , &#34;&#39;suppress_edc_call&#39; is set to True in config.json. EDC call NOT exucuted&#34;, module)
             send_result = messages.message[&#34;ok&#34;]
+        else:
+            response = self.edc_helper.session.patch(url, self.payload, timeout=20, headers=head, proxies=self.proxies)
+            status = response.status_code
+            if status != 200:
+                # some error - e.g. catalog not running, or bad credentials
+                self.mu_log.log(self.mu_log.ERROR, &#34;Error from EDC: &#34; + str(status) + &#34;: &#34; + str(response), module)
+                send_result = messages.message[&#34;edc_error&#34;]
+            else:
+                try:
+                    result_json = response.json()
+                    self.mu_log.log(self.mu_log.INFO, &#34;EDC returned: &#34; + str(result_json), module)
+                    send_result = messages.message[&#34;ok&#34;]
+                except ValueError:
+                    self.mu_log.log(self.mu_log.ERROR, &#34;EDC API did not return a JSON payload&#34;)
+                    send_result = messages.message[&#34;invalid_api_response&#34;]
 
         run_time = time.time() - start_time
         self.mu_log.log(self.mu_log.DEBUG,
@@ -632,7 +670,7 @@ if __name__ == &#34;__main__&#34;:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def build_api_load(self):
-    module = &#34;build_api_load&#34;
+    module = &#34;EDCLineage.build_api_load&#34;
     self.template = self.environment.get_template(self.meta_type + &#34;.json&#34;)
     if self.meta_type == &#34;physical_entity_association&#34;:
         build_result, self.payload = self.build_api_load_entity_association()
@@ -659,7 +697,7 @@ if __name__ == &#34;__main__&#34;:
     &#34;&#34;&#34;
     Loop through the list of source_target_attributes
     &#34;&#34;&#34;
-    module = &#34;build_api_load_attribute_association&#34;
+    module = &#34;EDCLineage.build_api_load_attribute_association&#34;
     build_result = messages.message[&#34;ok&#34;]
     source_target_links = self.data[&#34;source_target_attribute_links&#34;]
     source_target_list = []
@@ -791,7 +829,7 @@ if __name__ == &#34;__main__&#34;:
     &#34;&#34;&#34;
     Loop through the list of source_target_entities
     &#34;&#34;&#34;
-    module = &#34;build_api_load_entity_association&#34;
+    module = &#34;EDCLineage.build_api_load_entity_association&#34;
     build_result = messages.message[&#34;ok&#34;]
     source_target_links = self.data[&#34;source_target_entity_links&#34;]
     source_target_list = []
@@ -857,13 +895,29 @@ if __name__ == &#34;__main__&#34;:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def generate_lineage(self, output_type, metadata_type, data):
-    module = &#34;generate_lineage&#34;
+    module = &#34;EDCLineage.generate_lineage&#34;
+    result = self.settings.get_config()
+    if result != messages.message[&#34;ok&#34;]:
+        self.mu_log.log(self.mu_log.FATAL, &#34;Could not find main configuration file &gt;&#34; + self.settings.json_file + &#34;&lt;.&#34;
+                        , module)
+        return messages.message[&#34;main_config_not_found&#34;]
+
+    self.generic = generic.Generic(settings=self.settings, mu_log_ref=self.mu_log)
+    self.proxies = self.settings.get_proxy()
+    self.edc_source_filesystem = self.settings.edc_config_data[&#34;edc_source_filesystem&#34;]
+    self.edc_source_datasource = self.settings.edc_config_data[&#34;edc_source_datasource&#34;]
+    self.edc_source_folder = self.settings.edc_config_data[&#34;edc_source_folder&#34;]
+    self.edc_target_filesystem = self.settings.edc_config_data[&#34;edc_target_filesystem&#34;]
+    self.edc_target_datasource = self.settings.edc_config_data[&#34;edc_target_datasource&#34;]
+    self.edc_target_folder = self.settings.edc_config_data[&#34;edc_target_folder&#34;]
+
     self.meta_type = metadata_type
     self.data = data
     if output_type == &#34;json_payload&#34;:
         self.mu_log.log(self.mu_log.DEBUG, &#34;generating lineage for output_type &#34; + output_type, module)
         lineage_result, payload = self.build_api_load()
     elif output_type == &#34;csv&#34;:
+        self.mu_log.log(self.mu_log.ERROR, &#34;output_type csv has not been implemented.&#34;)
         lineage_result = messages.message[&#34;not_implemented&#34;]
     else:
         self.mu_log.log(self.mu_log.ERROR, &#34;invalid lineage output_type &gt;&#34; + output_type + &#34;&lt; specified.&#34;, module)
@@ -873,7 +927,7 @@ if __name__ == &#34;__main__&#34;:
 </details>
 </dd>
 <dt id="edc_utilities.edc_lineage.EDCLineage.send_metadata_to_edc"><code class="name flex">
-<span>def <span class="ident">send_metadata_to_edc</span></span>(<span>self)</span>
+<span>def <span class="ident">send_metadata_to_edc</span></span>(<span>self, suppress_edc_call=False)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -881,25 +935,37 @@ if __name__ == &#34;__main__&#34;:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def send_metadata_to_edc(self):
-    module = &#34;send_metadata_to_edc&#34;
+<pre><code class="python">def send_metadata_to_edc(self, suppress_edc_call=False):
+    module = &#34;EDCLineage.send_metadata_to_edc&#34;
     self.mu_log.log(self.mu_log.VERBOSE, &#34;sending payload &gt;&#34; + self.payload + &#34;&lt;.&#34;, module)
     start_time = time.time()
     self.edc_helper.initUrlAndSessionFromEDCSettings()
 
-    url = self.edc_helper.baseUrl + &#34;/access/1/catalog/data/objects&#34;
-    self.mu_log.log(self.mu_log.VERBOSE, &#34;Used URL &gt;&#34; + url + &#34;&lt;.&#34;, module)
+    self.mu_log.log(self.mu_log.DEBUG, &#34;EDC base URL: &#34; + self.settings.edc_url, module)
+    url = self.settings.edc_url + &#34;/access/1/catalog/data/objects&#34;
+    self.mu_log.log(self.mu_log.DEBUG, &#34;Used URL &gt;&#34; + url + &#34;&lt;.&#34;, module)
     head = {&#39;Content-Type&#39;: &#39;application/json&#39;}
-    response = self.edc_helper.session.patch(url, self.payload, timeout=20, headers=head)
-    status = response.status_code
-    if status != 200:
-        # some error - e.g. catalog not running, or bad credentials
-        self.mu_log.log(self.mu_log.ERROR, &#34;Error from EDC: &#34; + str(status) + &#34;: &#34; + str(response), module)
-        send_result = messages.message[&#34;edc_error&#34;]
-    else:
-        result_json = response.json()
-        self.mu_log.log(self.mu_log.INFO, &#34;EDC returned: &#34; + str(result_json), module)
+    self.mu_log.log(self.mu_log.VERBOSE, &#34;Headers: &#34; + str(head.items()))
+    self.mu_log.log(self.mu_log.VERBOSE, &#34;Proxies: &#34; + str(self.proxies))
+    if suppress_edc_call:
+        self.mu_log.log(self.mu_log.WARNING
+                        , &#34;&#39;suppress_edc_call&#39; is set to True in config.json. EDC call NOT exucuted&#34;, module)
         send_result = messages.message[&#34;ok&#34;]
+    else:
+        response = self.edc_helper.session.patch(url, self.payload, timeout=20, headers=head, proxies=self.proxies)
+        status = response.status_code
+        if status != 200:
+            # some error - e.g. catalog not running, or bad credentials
+            self.mu_log.log(self.mu_log.ERROR, &#34;Error from EDC: &#34; + str(status) + &#34;: &#34; + str(response), module)
+            send_result = messages.message[&#34;edc_error&#34;]
+        else:
+            try:
+                result_json = response.json()
+                self.mu_log.log(self.mu_log.INFO, &#34;EDC returned: &#34; + str(result_json), module)
+                send_result = messages.message[&#34;ok&#34;]
+            except ValueError:
+                self.mu_log.log(self.mu_log.ERROR, &#34;EDC API did not return a JSON payload&#34;)
+                send_result = messages.message[&#34;invalid_api_response&#34;]
 
     run_time = time.time() - start_time
     self.mu_log.log(self.mu_log.DEBUG,
@@ -943,7 +1009,7 @@ if __name__ == &#34;__main__&#34;:
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.1</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
 </footer>
 </body>
 </html>

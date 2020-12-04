@@ -4,8 +4,8 @@ Module metadata_utilities.mu_logging
 Classes
 -------
 
-`MULogging()`
-:   
+`MULogging(log_configuration_file)`
+:   TODO: Code refactoring needed to use wrapper instead of complicated logging
 
     ### Class variables
 
@@ -36,31 +36,12 @@ Classes
     `fh`
     :
 
-    `formatter`
-    :
+    ### Static methods
 
-    `generic`
-    :
-
-    `log_level`
-    :
-
-    `log_path`
-    :
-
-    `logger`
-    :
-
-    `logging_log_level`
-    :
-
-    `right_now`
+    `setup_logger(log_level, log_filename_prefix='', log_directory='log/', log_filename='some.log', instrumentation_key='unknown', azure_monitor_requests='False')`
     :
 
     ### Methods
 
-    `determine_log_level(self, configured_log_level)`
-    :
-
-    `log(self, level=5, msg='no_message', method='undetermined', extra=None)`
+    `log(self, level=10, msg='no_message', method='undetermined', extra=None)`
     :

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.9.1" />
+<meta name="generator" content="pdoc 0.9.2" />
 <title>metadata_utilities.generic API documentation</title>
 <meta name="description" content="" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -38,31 +38,44 @@ class Generic:
     &#34;&#34;&#34;
     Some generic utilities, e.g. reading the config.json
     &#34;&#34;&#34;
-    code_version = &#34;0.1.0&#34;
-    metaschema_version = &#34;0.0.0&#34;
-    mu_log = mu_logging.MULogging()
-    settings = generic_settings.GenericSettings()
-    json_file = settings.json_file
+    code_version = &#34;0.2.21&#34;
 
-    def __init__(self):
+    def __init__(self, settings, mu_log_ref):
+        module = &#34;Generic.__init__&#34;
         self.attribute_list = []
         self.json_file = &#34;&#34;
         self.data = &#34;{}&#34;
         self.found_data = &#34;{}&#34;
         self.index = -1
+        self.settings_found = False
+        self.settings = settings
+        self.mu_log = mu_log_ref
+        result = self.settings.get_config()
+        if result != messages.message[&#34;ok&#34;]:
+            self.mu_log.log(self.mu_log.FATAL, &#34;Cannot find main configuration file &gt;&#34; + self.settings.json_file + &#34;&lt;.&#34;
+                            , module)
+            self.settings_found = False
+        else:
+            self.settings_found = True
+        self.json_file = self.settings.main_config_file
 
     def find_json(self, source_uuid, target_schema_type, property, log_prefix = &#34;&#34;):
         &#34;&#34;&#34;
         find the JSON file that has the source_uuid in the value of the property.
         The JSON schema of the file must be &#39;target_schema_type&#39;.
         &#34;&#34;&#34;
-        module = &#34;find_json&#34;
+        module = &#34;Generic.find_json&#34;
+        if not self.settings_found:
+            self.mu_log.log(self.mu_log.ERROR, log_prefix + &#34; settings were not found. Skipping processing.&#34;)
+            return messages.message[&#34;main_config_not_found&#34;]
+
         self.mu_log.log(self.mu_log.DEBUG, log_prefix + &#34;target_schema_type: &#34; + target_schema_type, module)
         self.mu_log.log(self.mu_log.DEBUG, log_prefix + &#34;Looking for key &gt;&#34; + property + &#34;&lt; that contains uuid &gt;&#34;
                         + source_uuid + &#34;&lt;&#34;, module)
         found_meta_type = False
         found_uuid_count = 0
         directory = self.settings.json_directory
+        self.mu_log.log(self.mu_log.DEBUG, log_prefix + &#34;Looking in directory: &#34; + directory, module)
         file_result = messages.message[&#34;not_found&#34;]
         overall_result = messages.message[&#34;not_found&#34;]
         # Walk through json directory and check all json files
@@ -72,6 +85,13 @@ class Generic:
             file_result = messages.message[&#34;not_found&#34;]
             with open(current_json_file) as f:
                 self.data = json.load(f)
+                if &#34;meta&#34; not in self.data or &#34;meta_version&#34; not in self.data:
+                    self.mu_log.log(self.mu_log.ERROR, log_prefix +
+                                    &#34;the keys &#39;meta&#39; and &#39;meta_version&#39; are required, but not found in&#34; + current_json_file
+                                    , module)
+                    file_result = messages.message[&#34;meta_error&#34;]
+                    continue
+
                 meta_type = self.data[&#34;meta&#34;]
                 meta_version = self.data[&#34;meta_version&#34;]
                 self.mu_log.log(self.mu_log.DEBUG, log_prefix +
@@ -160,7 +180,7 @@ class Generic:
 
     def write_local_file(self, filename, to_write):
         # local file system
-        module = &#34;write_local_file&#34;
+        module = &#34;Generic.write_local_file&#34;
         file_result = messages.message[&#34;ok&#34;]
         path = self.settings.output_directory + filename
         self.mu_log.log(self.mu_log.VERBOSE, &#34;writing &gt;&#34; + to_write + &#34;&lt; to file &gt;&#34; + path + &#34;&lt;...&#34;, module)
@@ -174,12 +194,13 @@ class Generic:
         return file_result
 
     def convert_list_into_string(self, list):
+        module = &#34;Generic.convert_list_into_string&#34;
         concatenated = &#34;&#34;
         nr_cols = 0
         for item in list:
-            # self.mu_log.log(self.mu_log.DEBUG, item)
+            # self.mu_log.log(self.mu_log.DEBUG, item, module)
             for attribute in [&#34;name&#34;]:
-                # self.mu_log.log(self.mu_log.DEBUG, item[attribute])
+                # self.mu_log.log(self.mu_log.DEBUG, item[attribute], module)
                 nr_cols += 1
                 if nr_cols == 1:
                     concatenated = item[attribute]
@@ -199,6 +220,7 @@ class Generic:
 <dl>
 <dt id="metadata_utilities.generic.Generic"><code class="flex name class">
 <span>class <span class="ident">Generic</span></span>
+<span>(</span><span>settings, mu_log_ref)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Some generic utilities, e.g. reading the config.json</p></div>
@@ -210,31 +232,44 @@ class Generic:
     &#34;&#34;&#34;
     Some generic utilities, e.g. reading the config.json
     &#34;&#34;&#34;
-    code_version = &#34;0.1.0&#34;
-    metaschema_version = &#34;0.0.0&#34;
-    mu_log = mu_logging.MULogging()
-    settings = generic_settings.GenericSettings()
-    json_file = settings.json_file
+    code_version = &#34;0.2.21&#34;
 
-    def __init__(self):
+    def __init__(self, settings, mu_log_ref):
+        module = &#34;Generic.__init__&#34;
         self.attribute_list = []
         self.json_file = &#34;&#34;
         self.data = &#34;{}&#34;
         self.found_data = &#34;{}&#34;
         self.index = -1
+        self.settings_found = False
+        self.settings = settings
+        self.mu_log = mu_log_ref
+        result = self.settings.get_config()
+        if result != messages.message[&#34;ok&#34;]:
+            self.mu_log.log(self.mu_log.FATAL, &#34;Cannot find main configuration file &gt;&#34; + self.settings.json_file + &#34;&lt;.&#34;
+                            , module)
+            self.settings_found = False
+        else:
+            self.settings_found = True
+        self.json_file = self.settings.main_config_file
 
     def find_json(self, source_uuid, target_schema_type, property, log_prefix = &#34;&#34;):
         &#34;&#34;&#34;
         find the JSON file that has the source_uuid in the value of the property.
         The JSON schema of the file must be &#39;target_schema_type&#39;.
         &#34;&#34;&#34;
-        module = &#34;find_json&#34;
+        module = &#34;Generic.find_json&#34;
+        if not self.settings_found:
+            self.mu_log.log(self.mu_log.ERROR, log_prefix + &#34; settings were not found. Skipping processing.&#34;)
+            return messages.message[&#34;main_config_not_found&#34;]
+
         self.mu_log.log(self.mu_log.DEBUG, log_prefix + &#34;target_schema_type: &#34; + target_schema_type, module)
         self.mu_log.log(self.mu_log.DEBUG, log_prefix + &#34;Looking for key &gt;&#34; + property + &#34;&lt; that contains uuid &gt;&#34;
                         + source_uuid + &#34;&lt;&#34;, module)
         found_meta_type = False
         found_uuid_count = 0
         directory = self.settings.json_directory
+        self.mu_log.log(self.mu_log.DEBUG, log_prefix + &#34;Looking in directory: &#34; + directory, module)
         file_result = messages.message[&#34;not_found&#34;]
         overall_result = messages.message[&#34;not_found&#34;]
         # Walk through json directory and check all json files
@@ -244,6 +279,13 @@ class Generic:
             file_result = messages.message[&#34;not_found&#34;]
             with open(current_json_file) as f:
                 self.data = json.load(f)
+                if &#34;meta&#34; not in self.data or &#34;meta_version&#34; not in self.data:
+                    self.mu_log.log(self.mu_log.ERROR, log_prefix +
+                                    &#34;the keys &#39;meta&#39; and &#39;meta_version&#39; are required, but not found in&#34; + current_json_file
+                                    , module)
+                    file_result = messages.message[&#34;meta_error&#34;]
+                    continue
+
                 meta_type = self.data[&#34;meta&#34;]
                 meta_version = self.data[&#34;meta_version&#34;]
                 self.mu_log.log(self.mu_log.DEBUG, log_prefix +
@@ -332,7 +374,7 @@ class Generic:
 
     def write_local_file(self, filename, to_write):
         # local file system
-        module = &#34;write_local_file&#34;
+        module = &#34;Generic.write_local_file&#34;
         file_result = messages.message[&#34;ok&#34;]
         path = self.settings.output_directory + filename
         self.mu_log.log(self.mu_log.VERBOSE, &#34;writing &gt;&#34; + to_write + &#34;&lt; to file &gt;&#34; + path + &#34;&lt;...&#34;, module)
@@ -346,12 +388,13 @@ class Generic:
         return file_result
 
     def convert_list_into_string(self, list):
+        module = &#34;Generic.convert_list_into_string&#34;
         concatenated = &#34;&#34;
         nr_cols = 0
         for item in list:
-            # self.mu_log.log(self.mu_log.DEBUG, item)
+            # self.mu_log.log(self.mu_log.DEBUG, item, module)
             for attribute in [&#34;name&#34;]:
-                # self.mu_log.log(self.mu_log.DEBUG, item[attribute])
+                # self.mu_log.log(self.mu_log.DEBUG, item[attribute], module)
                 nr_cols += 1
                 if nr_cols == 1:
                     concatenated = item[attribute]
@@ -362,22 +405,6 @@ class Generic:
 <h3>Class variables</h3>
 <dl>
 <dt id="metadata_utilities.generic.Generic.code_version"><code class="name">var <span class="ident">code_version</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="metadata_utilities.generic.Generic.json_file"><code class="name">var <span class="ident">json_file</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="metadata_utilities.generic.Generic.metaschema_version"><code class="name">var <span class="ident">metaschema_version</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="metadata_utilities.generic.Generic.mu_log"><code class="name">var <span class="ident">mu_log</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="metadata_utilities.generic.Generic.settings"><code class="name">var <span class="ident">settings</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -394,12 +421,13 @@ class Generic:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def convert_list_into_string(self, list):
+    module = &#34;Generic.convert_list_into_string&#34;
     concatenated = &#34;&#34;
     nr_cols = 0
     for item in list:
-        # self.mu_log.log(self.mu_log.DEBUG, item)
+        # self.mu_log.log(self.mu_log.DEBUG, item, module)
         for attribute in [&#34;name&#34;]:
-            # self.mu_log.log(self.mu_log.DEBUG, item[attribute])
+            # self.mu_log.log(self.mu_log.DEBUG, item[attribute], module)
             nr_cols += 1
             if nr_cols == 1:
                 concatenated = item[attribute]
@@ -423,13 +451,18 @@ The JSON schema of the file must be 'target_schema_type'.</p></div>
     find the JSON file that has the source_uuid in the value of the property.
     The JSON schema of the file must be &#39;target_schema_type&#39;.
     &#34;&#34;&#34;
-    module = &#34;find_json&#34;
+    module = &#34;Generic.find_json&#34;
+    if not self.settings_found:
+        self.mu_log.log(self.mu_log.ERROR, log_prefix + &#34; settings were not found. Skipping processing.&#34;)
+        return messages.message[&#34;main_config_not_found&#34;]
+
     self.mu_log.log(self.mu_log.DEBUG, log_prefix + &#34;target_schema_type: &#34; + target_schema_type, module)
     self.mu_log.log(self.mu_log.DEBUG, log_prefix + &#34;Looking for key &gt;&#34; + property + &#34;&lt; that contains uuid &gt;&#34;
                     + source_uuid + &#34;&lt;&#34;, module)
     found_meta_type = False
     found_uuid_count = 0
     directory = self.settings.json_directory
+    self.mu_log.log(self.mu_log.DEBUG, log_prefix + &#34;Looking in directory: &#34; + directory, module)
     file_result = messages.message[&#34;not_found&#34;]
     overall_result = messages.message[&#34;not_found&#34;]
     # Walk through json directory and check all json files
@@ -439,6 +472,13 @@ The JSON schema of the file must be 'target_schema_type'.</p></div>
         file_result = messages.message[&#34;not_found&#34;]
         with open(current_json_file) as f:
             self.data = json.load(f)
+            if &#34;meta&#34; not in self.data or &#34;meta_version&#34; not in self.data:
+                self.mu_log.log(self.mu_log.ERROR, log_prefix +
+                                &#34;the keys &#39;meta&#39; and &#39;meta_version&#39; are required, but not found in&#34; + current_json_file
+                                , module)
+                file_result = messages.message[&#34;meta_error&#34;]
+                continue
+
             meta_type = self.data[&#34;meta&#34;]
             meta_version = self.data[&#34;meta_version&#34;]
             self.mu_log.log(self.mu_log.DEBUG, log_prefix +
@@ -537,7 +577,7 @@ The JSON schema of the file must be 'target_schema_type'.</p></div>
 </summary>
 <pre><code class="python">def write_local_file(self, filename, to_write):
     # local file system
-    module = &#34;write_local_file&#34;
+    module = &#34;Generic.write_local_file&#34;
     file_result = messages.message[&#34;ok&#34;]
     path = self.settings.output_directory + filename
     self.mu_log.log(self.mu_log.VERBOSE, &#34;writing &gt;&#34; + to_write + &#34;&lt; to file &gt;&#34; + path + &#34;&lt;...&#34;, module)
@@ -575,10 +615,6 @@ The JSON schema of the file must be 'target_schema_type'.</p></div>
 <li><code><a title="metadata_utilities.generic.Generic.code_version" href="#metadata_utilities.generic.Generic.code_version">code_version</a></code></li>
 <li><code><a title="metadata_utilities.generic.Generic.convert_list_into_string" href="#metadata_utilities.generic.Generic.convert_list_into_string">convert_list_into_string</a></code></li>
 <li><code><a title="metadata_utilities.generic.Generic.find_json" href="#metadata_utilities.generic.Generic.find_json">find_json</a></code></li>
-<li><code><a title="metadata_utilities.generic.Generic.json_file" href="#metadata_utilities.generic.Generic.json_file">json_file</a></code></li>
-<li><code><a title="metadata_utilities.generic.Generic.metaschema_version" href="#metadata_utilities.generic.Generic.metaschema_version">metaschema_version</a></code></li>
-<li><code><a title="metadata_utilities.generic.Generic.mu_log" href="#metadata_utilities.generic.Generic.mu_log">mu_log</a></code></li>
-<li><code><a title="metadata_utilities.generic.Generic.settings" href="#metadata_utilities.generic.Generic.settings">settings</a></code></li>
 <li><code><a title="metadata_utilities.generic.Generic.write_local_file" href="#metadata_utilities.generic.Generic.write_local_file">write_local_file</a></code></li>
 </ul>
 </li>
@@ -588,7 +624,7 @@ The JSON schema of the file must be 'target_schema_type'.</p></div>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.1</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
 </footer>
 </body>
 </html>

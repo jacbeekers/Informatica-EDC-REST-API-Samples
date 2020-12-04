@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.9.1" />
+<meta name="generator" content="pdoc 0.9.2" />
 <title>metadata_utilities.load_json_metadata API documentation</title>
 <meta name="description" content="" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -41,29 +41,33 @@ class ConvertJSONtoEDCLineage:
     &#34;&#34;&#34;
     Converts JSON file to a JSON payload that can be send to Informatica EDC using its APIs
     &#34;&#34;&#34;
-    code_version = &#34;0.2.2&#34;
+    code_version = &#34;0.2.15&#34;
 
-    def __init__(self):
+    def __init__(self, configuration_file=&#34;resources/config.json&#34;):
         self.json_file = &#34;not provided&#34;
         self.meta_type = &#34;unknown&#34;
         self.result = messages.message[&#34;undetermined&#34;]
-        self.settings = generic_settings.GenericSettings()
-        self.generic = generic.Generic()
-        self.json_directory = self.settings.json_directory
-        self.target = self.settings.target
-        self.overall_result = messages.message[&#34;ok&#34;]
-        self.mu_log = mu_logging.MULogging()
-        # For Azure Monitor
-        self.mu_log.code_version = self.code_version
-        self.edc_lineage = edc_lineage.EDCLineage()
-        self.json_file_utilities = json_file_utilities.JSONFileUtilities()
-        self.data = &#34;&#34;
+        self.settings = generic_settings.GenericSettings(configuration_file)
+        self.config_result = self.settings.get_config()
+        if self.config_result == messages.message[&#34;ok&#34;]:
+            self.mu_log = mu_logging.MULogging(self.settings.log_config)
+            self.generic = generic.Generic(settings=self.settings, mu_log_ref=self.mu_log)
+            self.json_directory = self.settings.json_directory
+            self.target = self.settings.target
+            self.overall_result = messages.message[&#34;ok&#34;]
+            # For Azure Monitor
+            self.mu_log.code_version = self.code_version
+            self.json_file_utilities = json_file_utilities.JSONFileUtilities()
+            self.data = &#34;&#34;
+            self.edc_lineage = edc_lineage.EDCLineage(self.settings, mu_log_ref=self.mu_log)
+        else:
+            print(&#34;FATAL:&#34;, &#34;settings.get_config returned:&#34;, self.config_result[&#34;code&#34;] + &#34; - &#34; +  self.config_result[&#34;message&#34;])
 
     def generate_file_structure(self):
         &#34;&#34;&#34;
         Generate the metadata file for the data. The result is a file with only a header. No real data is needed.
         &#34;&#34;&#34;
-        module = &#34;generate_file_structure&#34;
+        module = &#34;ConvertJSONtoEDCLineage.generate_file_structure&#34;
         file_result = messages.message[&#34;ok&#34;]
         with open(self.json_file) as entity:
             data = json.load(entity)
@@ -85,10 +89,10 @@ class ConvertJSONtoEDCLineage:
         &#34;&#34;&#34;
         A metafile is created for Informatica EDC to scan. This way no real data is needed.
         &#34;&#34;&#34;
-        module = &#34;create_metafile&#34;
+        module = &#34;ConvertJSONtoEDCLineage.create_metafile&#34;
         self.mu_log.log(self.mu_log.DEBUG, &#34;Start writing file&#34;, module)
         concatenated = self.generic.convert_list_into_string(attributes)
-        if self.target == &#34;local&#34;:
+        if self.settings.target == &#34;local&#34;:
             file_result = self.generic.write_local_file(filename, concatenated)
         else:
             # TODO: Implement &#34;azure_blob&#34;
@@ -106,19 +110,27 @@ class ConvertJSONtoEDCLineage:
         For each file: Validate its schema and generate the metadata definition file or lineage file
             (depends on the meta_type of the file found)
         &#34;&#34;&#34;
-        module = &#34;process_files&#34;
+        module = &#34;ConvertJSONtoEDCLineage.process_files&#34;
+        if self.config_result != messages.message[&#34;ok&#34;]:
+            return self.config_result
+        else:
+            self.mu_log.log(self.mu_log.DEBUG, &#34;Configuration file &gt;&#34; + self.settings.main_config_file
+                            + &#34;&lt; found and read.&#34;, module)
+
         directory = self.settings.json_directory
         self.mu_log.log(self.mu_log.INFO, &#34;===============================================&#34;, module)
         self.mu_log.log(self.mu_log.INFO, &#34;Processing JSON files in directory &#34; + directory, module)
         self.mu_log.log(self.mu_log.INFO, &#34;===============================================&#34;, module)
+        number_of_files = 0
         for file in glob.glob(directory + &#34;*.json&#34;):
+            number_of_files += 1
             self.json_file = file
             base_filename = os.path.splitext(os.path.basename(self.json_file))[0]
             self.mu_log.area = base_filename
-            self.mu_log.log(self.mu_log.INFO, &#34;JSON file is: &#34; + self.json_file, module)
+            self.mu_log.log(self.mu_log.INFO, &#34;#&#34; + str(number_of_files) + &#34; JSON file is: &#34; + self.json_file, module)
             self.data = self.json_file_utilities.get_json(self.json_file)
             file_result = messages.message[&#34;ok&#34;]
-            check = check_schema.CheckSchema()
+            check = check_schema.CheckSchema(self.settings, self.mu_log)
             check.mu_log.area = base_filename
             check_result = check.check_schema(self.data)
             if check_result[&#34;code&#34;] == &#34;OK&#34;:
@@ -134,6 +146,8 @@ class ConvertJSONtoEDCLineage:
                 self.mu_log.log(self.mu_log.DEBUG, &#34;schema check failed with: &#34; + check_result[&#34;code&#34;] + &#34; - &#34;
                                 + check_result[&#34;message&#34;], module)
             self.mu_log.log(self.mu_log.INFO, &#34;=== END ============================================&#34;, module)
+        self.mu_log.area = &#34;conclusion&#34;
+        self.mu_log.log(self.mu_log.INFO, &#34;Number of JSON files processed: &#34; + str(number_of_files), module)
         return self.overall_result
 
     def process_physical_entity_and_attribute(self):
@@ -141,7 +155,7 @@ class ConvertJSONtoEDCLineage:
         Generate metadata files to be parsed by EDC
         &#34;&#34;&#34;
         file_result = messages.message[&#34;ok&#34;]
-        module = &#34;process_physical_entity_and_attribute&#34;
+        module = &#34;ConvertJSONtoEDCLineage.process_physical_entity_and_attribute&#34;
 
         if self.meta_type not in (&#34;physical_entity&#34;, &#34;physical_entity_association&#34;, &#34;physical_attribute_association&#34;):
             self.mu_log.log(self.mu_log.DEBUG,
@@ -170,30 +184,57 @@ class ConvertJSONtoEDCLineage:
         &#34;&#34;&#34;
         generate a transformation file for each encountered transformation in the attribute_association json
         &#34;&#34;&#34;
-        module = &#34;generate_transformations&#34;
-        overall_result = messages.message[&#34;undetermined&#34;]
+        module = &#34;ConvertJSONtoEDCLineage.generate_transformations&#34;
+        overall_result = messages.message[&#34;ok&#34;]
         if not &#34;source_target_attribute_links&#34; in self.data:
             self.mu_log.log(self.mu_log.DEBUG,
                             &#34;did not find source_target_attribute_links. Transformation processing suppressed.&#34;, module)
             return messages.message[&#34;ok&#34;]
 
         self.mu_log.log(self.mu_log.DEBUG, &#34;found source_target_attribute_links&#34;, module)
+        link_number = 0
         for link in self.data[&#34;source_target_attribute_links&#34;]:
-            self.mu_log.log(self.mu_log.DEBUG, &#34;found transformation &gt;&#34; + link[&#34;transformation&#34;][&#34;uid&#34;] + &#34;&lt;&#34;)
-            source_attributes = link[&#34;transformation&#34;][&#34;from&#34;]
-            self.mu_log.log(self.mu_log.DEBUG, &#34;# source attributes: &#34; + str(len(source_attributes)))
-            for source_attribute in source_attributes:
-                self.mu_log.log(self.mu_log.VERBOSE, &#34;source attribute: &#34; + source_attribute)
-            self.mu_log.log(self.mu_log.DEBUG, &#34;target attribute: &#34; + link[&#34;transformation&#34;][&#34;to&#34;])
-            self.mu_log.log(self.mu_log.VERBOSE, &#34;description: &#34; + link[&#34;description&#34;])
-            self.mu_log.log(self.mu_log.VERBOSE, &#34;formula: &#34; + link[&#34;formula&#34;])
+            link_number += 1
+            if &#34;transformation&#34; in link:
+                if &#34;uid&#34; in link[&#34;transformation&#34;]:
+                    self.mu_log.log(self.mu_log.DEBUG, &#34;found transformation &gt;&#34; + link[&#34;transformation&#34;][&#34;uid&#34;] + &#34;&lt;&#34;,
+                                    module)
+                    if &#34;from&#34; in link[&#34;transformation&#34;]:
+                        source_attributes = link[&#34;transformation&#34;][&#34;from&#34;]
+                        self.mu_log.log(self.mu_log.DEBUG, &#34;# source attributes: &#34; + str(len(source_attributes)),
+                                        module)
+                        for source_attribute in source_attributes:
+                            self.mu_log.log(self.mu_log.VERBOSE, &#34;source attribute: &#34; + source_attribute)
+                    else:
+                        self.mu_log.log(self.mu_log.INFO,
+                                        &#34;No source attributes provided. Assuming attribute is target-only.&#34;)
+                    if &#34;to&#34; in link[&#34;transformation&#34;]:
+                        self.mu_log.log(self.mu_log.DEBUG, &#34;target attribute: &#34; + link[&#34;transformation&#34;][&#34;to&#34;], module)
+                    else:
+                        self.mu_log.log(self.mu_log.INFO,
+                                        &#34;No target attribute provided. Assuming attribute is source-only.&#34;)
+                    if &#34;description&#34; in link:
+                        self.mu_log.log(self.mu_log.VERBOSE, &#34;description: &#34; + link[&#34;description&#34;], module)
+                    else:
+                        self.mu_log.log(self.mu_log.DEBUG, &#34;No description provided, which is ok.&#34;)
+                    if &#34;formula&#34; in link:
+                        self.mu_log.log(self.mu_log.VERBOSE, &#34;formula: &#34; + link[&#34;formula&#34;], module)
+                    else:
+                        self.mu_log.log(self.mu_log.INFO, &#34;No formula provided, which is ok.&#34;)
+                else:
+                    self.mu_log.log(self.mu_log.ERROR, &#34;transformation in link# &#34; + str(link_number)
+                                    + &#34;does not contain a uid.&#34;, module)
+                    overall_result = messages.message[&#34;missing_uid&#34;]
+            else:
+                self.mu_log.log(self.mu_log.WARNING,
+                                &#34;WARNING: No transformation info provided in link# &#34; + str(link_number)
+                                + &#34;. Transformation handling for source/target attributes surpressed.&#34;, module)
 
         return overall_result
 
     def process_lineage_request(self):
         # Generate the lineage file or payload
-        module = &#34;process_lineage_request&#34;
-        overall_result = messages.message[&#34;undetermined&#34;]
+        module = &#34;ConvertJSONtoEDCLineage.process_lineage_request&#34;
         # TODO: generate json payload for the Metadata Interface APIs for lineage
         #       something like this:
         #           json_result = self.metadata_lake_lineage.generate_lineage(&#34;json_payload&#34;, self.meta_type, self.data)
@@ -203,22 +244,19 @@ class ConvertJSONtoEDCLineage:
             # Send lineage info to metadata target
             send_result = self.send_metadata()
             self.mu_log.log(self.mu_log.DEBUG, &#34;lineage creation completed with &gt;&#34; + send_result[&#39;code&#39;] + &#34;&lt;&#34;, module)
-            if send_result[&#34;code&#34;] != &#34;OK&#34;:
-                overall_result = send_result
         else:
-            overall_result = json_result
             self.mu_log.log(self.mu_log.ERROR, &#34;json_payload lineage creation completed with &gt;&#34; + json_result[&#39;code&#39;]
                             + &#34;&lt;&#34;, module)
 
-        return overall_result
+        return json_result
 
     def send_metadata(self):
-        module = &#34;send_metadata&#34;
+        module = &#34;ConvertJSONtoEDCLineage.send_metadata&#34;
         target = self.settings.metadata_store
         self.mu_log.log(self.mu_log.DEBUG, &#34;sending lineage info to &#34; + target, module)
 
         if target == &#34;edc&#34;:
-            send_result = self.edc_lineage.send_metadata_to_edc()
+            send_result = self.edc_lineage.send_metadata_to_edc(self.settings.suppress_edc_call)
         elif target == &#34;metadata_lake&#34;:
             send_result = self.send_metadata_to_metadata_lake()
         else:
@@ -228,19 +266,30 @@ class ConvertJSONtoEDCLineage:
         return send_result
 
     def send_metadata_to_metadata_lake(self):
+        module = &#34;ConvertJSONtoEDCLineage.send_metadata_to_metadata_lake&#34;
+        self.mu_log.log(self.mu_log.ERROR, &#34;Function &gt;&#34; + module + &#34;&lt; is not implemented.&#34;, module)
         send_result = messages.message[&#34;not_implemented&#34;]
         return send_result
 
     def main(self):
-        module = &#34;main&#34;
+        &#34;&#34;&#34;
+            Main module to process JSON files that are stored at the location stated in the provided configuration file
+            configuration_file: a relative or absolute path to the configuration file. Default is resources/config.json
+        &#34;&#34;&#34;
+        module = &#34;ConvertJSONtoEDCLineage.main&#34;
         process_result = self.process_files()
-        self.mu_log.log(self.mu_log.INFO, &#34;Result: &#34; + process_result[&#34;code&#34;] + &#34; - &#34; + process_result[&#34;message&#34;],
-                        module)
         return process_result
 
 
 if __name__ == &#34;__main__&#34;:
-    result = ConvertJSONtoEDCLineage().main()</code></pre>
+    &#34;&#34;&#34;
+        Call to main without any arguments reads the resources/config.json file to determine directories and other settings
+    &#34;&#34;&#34;
+    result = ConvertJSONtoEDCLineage().main()
+    if result[&#34;code&#34;] != &#34;OK&#34;:
+        exit(1)
+    else:
+        exit(0)</code></pre>
 </details>
 </section>
 <section>
@@ -254,6 +303,7 @@ if __name__ == &#34;__main__&#34;:
 <dl>
 <dt id="metadata_utilities.load_json_metadata.ConvertJSONtoEDCLineage"><code class="flex name class">
 <span>class <span class="ident">ConvertJSONtoEDCLineage</span></span>
+<span>(</span><span>configuration_file='resources/config.json')</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Converts JSON file to a JSON payload that can be send to Informatica EDC using its APIs</p></div>
@@ -265,29 +315,33 @@ if __name__ == &#34;__main__&#34;:
     &#34;&#34;&#34;
     Converts JSON file to a JSON payload that can be send to Informatica EDC using its APIs
     &#34;&#34;&#34;
-    code_version = &#34;0.2.2&#34;
+    code_version = &#34;0.2.15&#34;
 
-    def __init__(self):
+    def __init__(self, configuration_file=&#34;resources/config.json&#34;):
         self.json_file = &#34;not provided&#34;
         self.meta_type = &#34;unknown&#34;
         self.result = messages.message[&#34;undetermined&#34;]
-        self.settings = generic_settings.GenericSettings()
-        self.generic = generic.Generic()
-        self.json_directory = self.settings.json_directory
-        self.target = self.settings.target
-        self.overall_result = messages.message[&#34;ok&#34;]
-        self.mu_log = mu_logging.MULogging()
-        # For Azure Monitor
-        self.mu_log.code_version = self.code_version
-        self.edc_lineage = edc_lineage.EDCLineage()
-        self.json_file_utilities = json_file_utilities.JSONFileUtilities()
-        self.data = &#34;&#34;
+        self.settings = generic_settings.GenericSettings(configuration_file)
+        self.config_result = self.settings.get_config()
+        if self.config_result == messages.message[&#34;ok&#34;]:
+            self.mu_log = mu_logging.MULogging(self.settings.log_config)
+            self.generic = generic.Generic(settings=self.settings, mu_log_ref=self.mu_log)
+            self.json_directory = self.settings.json_directory
+            self.target = self.settings.target
+            self.overall_result = messages.message[&#34;ok&#34;]
+            # For Azure Monitor
+            self.mu_log.code_version = self.code_version
+            self.json_file_utilities = json_file_utilities.JSONFileUtilities()
+            self.data = &#34;&#34;
+            self.edc_lineage = edc_lineage.EDCLineage(self.settings, mu_log_ref=self.mu_log)
+        else:
+            print(&#34;FATAL:&#34;, &#34;settings.get_config returned:&#34;, self.config_result[&#34;code&#34;] + &#34; - &#34; +  self.config_result[&#34;message&#34;])
 
     def generate_file_structure(self):
         &#34;&#34;&#34;
         Generate the metadata file for the data. The result is a file with only a header. No real data is needed.
         &#34;&#34;&#34;
-        module = &#34;generate_file_structure&#34;
+        module = &#34;ConvertJSONtoEDCLineage.generate_file_structure&#34;
         file_result = messages.message[&#34;ok&#34;]
         with open(self.json_file) as entity:
             data = json.load(entity)
@@ -309,10 +363,10 @@ if __name__ == &#34;__main__&#34;:
         &#34;&#34;&#34;
         A metafile is created for Informatica EDC to scan. This way no real data is needed.
         &#34;&#34;&#34;
-        module = &#34;create_metafile&#34;
+        module = &#34;ConvertJSONtoEDCLineage.create_metafile&#34;
         self.mu_log.log(self.mu_log.DEBUG, &#34;Start writing file&#34;, module)
         concatenated = self.generic.convert_list_into_string(attributes)
-        if self.target == &#34;local&#34;:
+        if self.settings.target == &#34;local&#34;:
             file_result = self.generic.write_local_file(filename, concatenated)
         else:
             # TODO: Implement &#34;azure_blob&#34;
@@ -330,19 +384,27 @@ if __name__ == &#34;__main__&#34;:
         For each file: Validate its schema and generate the metadata definition file or lineage file
             (depends on the meta_type of the file found)
         &#34;&#34;&#34;
-        module = &#34;process_files&#34;
+        module = &#34;ConvertJSONtoEDCLineage.process_files&#34;
+        if self.config_result != messages.message[&#34;ok&#34;]:
+            return self.config_result
+        else:
+            self.mu_log.log(self.mu_log.DEBUG, &#34;Configuration file &gt;&#34; + self.settings.main_config_file
+                            + &#34;&lt; found and read.&#34;, module)
+
         directory = self.settings.json_directory
         self.mu_log.log(self.mu_log.INFO, &#34;===============================================&#34;, module)
         self.mu_log.log(self.mu_log.INFO, &#34;Processing JSON files in directory &#34; + directory, module)
         self.mu_log.log(self.mu_log.INFO, &#34;===============================================&#34;, module)
+        number_of_files = 0
         for file in glob.glob(directory + &#34;*.json&#34;):
+            number_of_files += 1
             self.json_file = file
             base_filename = os.path.splitext(os.path.basename(self.json_file))[0]
             self.mu_log.area = base_filename
-            self.mu_log.log(self.mu_log.INFO, &#34;JSON file is: &#34; + self.json_file, module)
+            self.mu_log.log(self.mu_log.INFO, &#34;#&#34; + str(number_of_files) + &#34; JSON file is: &#34; + self.json_file, module)
             self.data = self.json_file_utilities.get_json(self.json_file)
             file_result = messages.message[&#34;ok&#34;]
-            check = check_schema.CheckSchema()
+            check = check_schema.CheckSchema(self.settings, self.mu_log)
             check.mu_log.area = base_filename
             check_result = check.check_schema(self.data)
             if check_result[&#34;code&#34;] == &#34;OK&#34;:
@@ -358,6 +420,8 @@ if __name__ == &#34;__main__&#34;:
                 self.mu_log.log(self.mu_log.DEBUG, &#34;schema check failed with: &#34; + check_result[&#34;code&#34;] + &#34; - &#34;
                                 + check_result[&#34;message&#34;], module)
             self.mu_log.log(self.mu_log.INFO, &#34;=== END ============================================&#34;, module)
+        self.mu_log.area = &#34;conclusion&#34;
+        self.mu_log.log(self.mu_log.INFO, &#34;Number of JSON files processed: &#34; + str(number_of_files), module)
         return self.overall_result
 
     def process_physical_entity_and_attribute(self):
@@ -365,7 +429,7 @@ if __name__ == &#34;__main__&#34;:
         Generate metadata files to be parsed by EDC
         &#34;&#34;&#34;
         file_result = messages.message[&#34;ok&#34;]
-        module = &#34;process_physical_entity_and_attribute&#34;
+        module = &#34;ConvertJSONtoEDCLineage.process_physical_entity_and_attribute&#34;
 
         if self.meta_type not in (&#34;physical_entity&#34;, &#34;physical_entity_association&#34;, &#34;physical_attribute_association&#34;):
             self.mu_log.log(self.mu_log.DEBUG,
@@ -394,30 +458,57 @@ if __name__ == &#34;__main__&#34;:
         &#34;&#34;&#34;
         generate a transformation file for each encountered transformation in the attribute_association json
         &#34;&#34;&#34;
-        module = &#34;generate_transformations&#34;
-        overall_result = messages.message[&#34;undetermined&#34;]
+        module = &#34;ConvertJSONtoEDCLineage.generate_transformations&#34;
+        overall_result = messages.message[&#34;ok&#34;]
         if not &#34;source_target_attribute_links&#34; in self.data:
             self.mu_log.log(self.mu_log.DEBUG,
                             &#34;did not find source_target_attribute_links. Transformation processing suppressed.&#34;, module)
             return messages.message[&#34;ok&#34;]
 
         self.mu_log.log(self.mu_log.DEBUG, &#34;found source_target_attribute_links&#34;, module)
+        link_number = 0
         for link in self.data[&#34;source_target_attribute_links&#34;]:
-            self.mu_log.log(self.mu_log.DEBUG, &#34;found transformation &gt;&#34; + link[&#34;transformation&#34;][&#34;uid&#34;] + &#34;&lt;&#34;)
-            source_attributes = link[&#34;transformation&#34;][&#34;from&#34;]
-            self.mu_log.log(self.mu_log.DEBUG, &#34;# source attributes: &#34; + str(len(source_attributes)))
-            for source_attribute in source_attributes:
-                self.mu_log.log(self.mu_log.VERBOSE, &#34;source attribute: &#34; + source_attribute)
-            self.mu_log.log(self.mu_log.DEBUG, &#34;target attribute: &#34; + link[&#34;transformation&#34;][&#34;to&#34;])
-            self.mu_log.log(self.mu_log.VERBOSE, &#34;description: &#34; + link[&#34;description&#34;])
-            self.mu_log.log(self.mu_log.VERBOSE, &#34;formula: &#34; + link[&#34;formula&#34;])
+            link_number += 1
+            if &#34;transformation&#34; in link:
+                if &#34;uid&#34; in link[&#34;transformation&#34;]:
+                    self.mu_log.log(self.mu_log.DEBUG, &#34;found transformation &gt;&#34; + link[&#34;transformation&#34;][&#34;uid&#34;] + &#34;&lt;&#34;,
+                                    module)
+                    if &#34;from&#34; in link[&#34;transformation&#34;]:
+                        source_attributes = link[&#34;transformation&#34;][&#34;from&#34;]
+                        self.mu_log.log(self.mu_log.DEBUG, &#34;# source attributes: &#34; + str(len(source_attributes)),
+                                        module)
+                        for source_attribute in source_attributes:
+                            self.mu_log.log(self.mu_log.VERBOSE, &#34;source attribute: &#34; + source_attribute)
+                    else:
+                        self.mu_log.log(self.mu_log.INFO,
+                                        &#34;No source attributes provided. Assuming attribute is target-only.&#34;)
+                    if &#34;to&#34; in link[&#34;transformation&#34;]:
+                        self.mu_log.log(self.mu_log.DEBUG, &#34;target attribute: &#34; + link[&#34;transformation&#34;][&#34;to&#34;], module)
+                    else:
+                        self.mu_log.log(self.mu_log.INFO,
+                                        &#34;No target attribute provided. Assuming attribute is source-only.&#34;)
+                    if &#34;description&#34; in link:
+                        self.mu_log.log(self.mu_log.VERBOSE, &#34;description: &#34; + link[&#34;description&#34;], module)
+                    else:
+                        self.mu_log.log(self.mu_log.DEBUG, &#34;No description provided, which is ok.&#34;)
+                    if &#34;formula&#34; in link:
+                        self.mu_log.log(self.mu_log.VERBOSE, &#34;formula: &#34; + link[&#34;formula&#34;], module)
+                    else:
+                        self.mu_log.log(self.mu_log.INFO, &#34;No formula provided, which is ok.&#34;)
+                else:
+                    self.mu_log.log(self.mu_log.ERROR, &#34;transformation in link# &#34; + str(link_number)
+                                    + &#34;does not contain a uid.&#34;, module)
+                    overall_result = messages.message[&#34;missing_uid&#34;]
+            else:
+                self.mu_log.log(self.mu_log.WARNING,
+                                &#34;WARNING: No transformation info provided in link# &#34; + str(link_number)
+                                + &#34;. Transformation handling for source/target attributes surpressed.&#34;, module)
 
         return overall_result
 
     def process_lineage_request(self):
         # Generate the lineage file or payload
-        module = &#34;process_lineage_request&#34;
-        overall_result = messages.message[&#34;undetermined&#34;]
+        module = &#34;ConvertJSONtoEDCLineage.process_lineage_request&#34;
         # TODO: generate json payload for the Metadata Interface APIs for lineage
         #       something like this:
         #           json_result = self.metadata_lake_lineage.generate_lineage(&#34;json_payload&#34;, self.meta_type, self.data)
@@ -427,22 +518,19 @@ if __name__ == &#34;__main__&#34;:
             # Send lineage info to metadata target
             send_result = self.send_metadata()
             self.mu_log.log(self.mu_log.DEBUG, &#34;lineage creation completed with &gt;&#34; + send_result[&#39;code&#39;] + &#34;&lt;&#34;, module)
-            if send_result[&#34;code&#34;] != &#34;OK&#34;:
-                overall_result = send_result
         else:
-            overall_result = json_result
             self.mu_log.log(self.mu_log.ERROR, &#34;json_payload lineage creation completed with &gt;&#34; + json_result[&#39;code&#39;]
                             + &#34;&lt;&#34;, module)
 
-        return overall_result
+        return json_result
 
     def send_metadata(self):
-        module = &#34;send_metadata&#34;
+        module = &#34;ConvertJSONtoEDCLineage.send_metadata&#34;
         target = self.settings.metadata_store
         self.mu_log.log(self.mu_log.DEBUG, &#34;sending lineage info to &#34; + target, module)
 
         if target == &#34;edc&#34;:
-            send_result = self.edc_lineage.send_metadata_to_edc()
+            send_result = self.edc_lineage.send_metadata_to_edc(self.settings.suppress_edc_call)
         elif target == &#34;metadata_lake&#34;:
             send_result = self.send_metadata_to_metadata_lake()
         else:
@@ -452,14 +540,18 @@ if __name__ == &#34;__main__&#34;:
         return send_result
 
     def send_metadata_to_metadata_lake(self):
+        module = &#34;ConvertJSONtoEDCLineage.send_metadata_to_metadata_lake&#34;
+        self.mu_log.log(self.mu_log.ERROR, &#34;Function &gt;&#34; + module + &#34;&lt; is not implemented.&#34;, module)
         send_result = messages.message[&#34;not_implemented&#34;]
         return send_result
 
     def main(self):
-        module = &#34;main&#34;
+        &#34;&#34;&#34;
+            Main module to process JSON files that are stored at the location stated in the provided configuration file
+            configuration_file: a relative or absolute path to the configuration file. Default is resources/config.json
+        &#34;&#34;&#34;
+        module = &#34;ConvertJSONtoEDCLineage.main&#34;
         process_result = self.process_files()
-        self.mu_log.log(self.mu_log.INFO, &#34;Result: &#34; + process_result[&#34;code&#34;] + &#34; - &#34; + process_result[&#34;message&#34;],
-                        module)
         return process_result</code></pre>
 </details>
 <h3>Class variables</h3>
@@ -484,10 +576,10 @@ if __name__ == &#34;__main__&#34;:
     &#34;&#34;&#34;
     A metafile is created for Informatica EDC to scan. This way no real data is needed.
     &#34;&#34;&#34;
-    module = &#34;create_metafile&#34;
+    module = &#34;ConvertJSONtoEDCLineage.create_metafile&#34;
     self.mu_log.log(self.mu_log.DEBUG, &#34;Start writing file&#34;, module)
     concatenated = self.generic.convert_list_into_string(attributes)
-    if self.target == &#34;local&#34;:
+    if self.settings.target == &#34;local&#34;:
         file_result = self.generic.write_local_file(filename, concatenated)
     else:
         # TODO: Implement &#34;azure_blob&#34;
@@ -513,7 +605,7 @@ if __name__ == &#34;__main__&#34;:
     &#34;&#34;&#34;
     Generate the metadata file for the data. The result is a file with only a header. No real data is needed.
     &#34;&#34;&#34;
-    module = &#34;generate_file_structure&#34;
+    module = &#34;ConvertJSONtoEDCLineage.generate_file_structure&#34;
     file_result = messages.message[&#34;ok&#34;]
     with open(self.json_file) as entity:
         data = json.load(entity)
@@ -545,23 +637,51 @@ if __name__ == &#34;__main__&#34;:
     &#34;&#34;&#34;
     generate a transformation file for each encountered transformation in the attribute_association json
     &#34;&#34;&#34;
-    module = &#34;generate_transformations&#34;
-    overall_result = messages.message[&#34;undetermined&#34;]
+    module = &#34;ConvertJSONtoEDCLineage.generate_transformations&#34;
+    overall_result = messages.message[&#34;ok&#34;]
     if not &#34;source_target_attribute_links&#34; in self.data:
         self.mu_log.log(self.mu_log.DEBUG,
                         &#34;did not find source_target_attribute_links. Transformation processing suppressed.&#34;, module)
         return messages.message[&#34;ok&#34;]
 
     self.mu_log.log(self.mu_log.DEBUG, &#34;found source_target_attribute_links&#34;, module)
+    link_number = 0
     for link in self.data[&#34;source_target_attribute_links&#34;]:
-        self.mu_log.log(self.mu_log.DEBUG, &#34;found transformation &gt;&#34; + link[&#34;transformation&#34;][&#34;uid&#34;] + &#34;&lt;&#34;)
-        source_attributes = link[&#34;transformation&#34;][&#34;from&#34;]
-        self.mu_log.log(self.mu_log.DEBUG, &#34;# source attributes: &#34; + str(len(source_attributes)))
-        for source_attribute in source_attributes:
-            self.mu_log.log(self.mu_log.VERBOSE, &#34;source attribute: &#34; + source_attribute)
-        self.mu_log.log(self.mu_log.DEBUG, &#34;target attribute: &#34; + link[&#34;transformation&#34;][&#34;to&#34;])
-        self.mu_log.log(self.mu_log.VERBOSE, &#34;description: &#34; + link[&#34;description&#34;])
-        self.mu_log.log(self.mu_log.VERBOSE, &#34;formula: &#34; + link[&#34;formula&#34;])
+        link_number += 1
+        if &#34;transformation&#34; in link:
+            if &#34;uid&#34; in link[&#34;transformation&#34;]:
+                self.mu_log.log(self.mu_log.DEBUG, &#34;found transformation &gt;&#34; + link[&#34;transformation&#34;][&#34;uid&#34;] + &#34;&lt;&#34;,
+                                module)
+                if &#34;from&#34; in link[&#34;transformation&#34;]:
+                    source_attributes = link[&#34;transformation&#34;][&#34;from&#34;]
+                    self.mu_log.log(self.mu_log.DEBUG, &#34;# source attributes: &#34; + str(len(source_attributes)),
+                                    module)
+                    for source_attribute in source_attributes:
+                        self.mu_log.log(self.mu_log.VERBOSE, &#34;source attribute: &#34; + source_attribute)
+                else:
+                    self.mu_log.log(self.mu_log.INFO,
+                                    &#34;No source attributes provided. Assuming attribute is target-only.&#34;)
+                if &#34;to&#34; in link[&#34;transformation&#34;]:
+                    self.mu_log.log(self.mu_log.DEBUG, &#34;target attribute: &#34; + link[&#34;transformation&#34;][&#34;to&#34;], module)
+                else:
+                    self.mu_log.log(self.mu_log.INFO,
+                                    &#34;No target attribute provided. Assuming attribute is source-only.&#34;)
+                if &#34;description&#34; in link:
+                    self.mu_log.log(self.mu_log.VERBOSE, &#34;description: &#34; + link[&#34;description&#34;], module)
+                else:
+                    self.mu_log.log(self.mu_log.DEBUG, &#34;No description provided, which is ok.&#34;)
+                if &#34;formula&#34; in link:
+                    self.mu_log.log(self.mu_log.VERBOSE, &#34;formula: &#34; + link[&#34;formula&#34;], module)
+                else:
+                    self.mu_log.log(self.mu_log.INFO, &#34;No formula provided, which is ok.&#34;)
+            else:
+                self.mu_log.log(self.mu_log.ERROR, &#34;transformation in link# &#34; + str(link_number)
+                                + &#34;does not contain a uid.&#34;, module)
+                overall_result = messages.message[&#34;missing_uid&#34;]
+        else:
+            self.mu_log.log(self.mu_log.WARNING,
+                            &#34;WARNING: No transformation info provided in link# &#34; + str(link_number)
+                            + &#34;. Transformation handling for source/target attributes surpressed.&#34;, module)
 
     return overall_result</code></pre>
 </details>
@@ -570,16 +690,19 @@ if __name__ == &#34;__main__&#34;:
 <span>def <span class="ident">main</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Main module to process JSON files that are stored at the location stated in the provided configuration file
+configuration_file: a relative or absolute path to the configuration file. Default is resources/config.json</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def main(self):
-    module = &#34;main&#34;
+    &#34;&#34;&#34;
+        Main module to process JSON files that are stored at the location stated in the provided configuration file
+        configuration_file: a relative or absolute path to the configuration file. Default is resources/config.json
+    &#34;&#34;&#34;
+    module = &#34;ConvertJSONtoEDCLineage.main&#34;
     process_result = self.process_files()
-    self.mu_log.log(self.mu_log.INFO, &#34;Result: &#34; + process_result[&#34;code&#34;] + &#34; - &#34; + process_result[&#34;message&#34;],
-                    module)
     return process_result</code></pre>
 </details>
 </dd>
@@ -600,19 +723,27 @@ For each file: Validate its schema and generate the metadata definition file or 
     For each file: Validate its schema and generate the metadata definition file or lineage file
         (depends on the meta_type of the file found)
     &#34;&#34;&#34;
-    module = &#34;process_files&#34;
+    module = &#34;ConvertJSONtoEDCLineage.process_files&#34;
+    if self.config_result != messages.message[&#34;ok&#34;]:
+        return self.config_result
+    else:
+        self.mu_log.log(self.mu_log.DEBUG, &#34;Configuration file &gt;&#34; + self.settings.main_config_file
+                        + &#34;&lt; found and read.&#34;, module)
+
     directory = self.settings.json_directory
     self.mu_log.log(self.mu_log.INFO, &#34;===============================================&#34;, module)
     self.mu_log.log(self.mu_log.INFO, &#34;Processing JSON files in directory &#34; + directory, module)
     self.mu_log.log(self.mu_log.INFO, &#34;===============================================&#34;, module)
+    number_of_files = 0
     for file in glob.glob(directory + &#34;*.json&#34;):
+        number_of_files += 1
         self.json_file = file
         base_filename = os.path.splitext(os.path.basename(self.json_file))[0]
         self.mu_log.area = base_filename
-        self.mu_log.log(self.mu_log.INFO, &#34;JSON file is: &#34; + self.json_file, module)
+        self.mu_log.log(self.mu_log.INFO, &#34;#&#34; + str(number_of_files) + &#34; JSON file is: &#34; + self.json_file, module)
         self.data = self.json_file_utilities.get_json(self.json_file)
         file_result = messages.message[&#34;ok&#34;]
-        check = check_schema.CheckSchema()
+        check = check_schema.CheckSchema(self.settings, self.mu_log)
         check.mu_log.area = base_filename
         check_result = check.check_schema(self.data)
         if check_result[&#34;code&#34;] == &#34;OK&#34;:
@@ -628,6 +759,8 @@ For each file: Validate its schema and generate the metadata definition file or 
             self.mu_log.log(self.mu_log.DEBUG, &#34;schema check failed with: &#34; + check_result[&#34;code&#34;] + &#34; - &#34;
                             + check_result[&#34;message&#34;], module)
         self.mu_log.log(self.mu_log.INFO, &#34;=== END ============================================&#34;, module)
+    self.mu_log.area = &#34;conclusion&#34;
+    self.mu_log.log(self.mu_log.INFO, &#34;Number of JSON files processed: &#34; + str(number_of_files), module)
     return self.overall_result</code></pre>
 </details>
 </dd>
@@ -642,8 +775,7 @@ For each file: Validate its schema and generate the metadata definition file or 
 </summary>
 <pre><code class="python">def process_lineage_request(self):
     # Generate the lineage file or payload
-    module = &#34;process_lineage_request&#34;
-    overall_result = messages.message[&#34;undetermined&#34;]
+    module = &#34;ConvertJSONtoEDCLineage.process_lineage_request&#34;
     # TODO: generate json payload for the Metadata Interface APIs for lineage
     #       something like this:
     #           json_result = self.metadata_lake_lineage.generate_lineage(&#34;json_payload&#34;, self.meta_type, self.data)
@@ -653,14 +785,11 @@ For each file: Validate its schema and generate the metadata definition file or 
         # Send lineage info to metadata target
         send_result = self.send_metadata()
         self.mu_log.log(self.mu_log.DEBUG, &#34;lineage creation completed with &gt;&#34; + send_result[&#39;code&#39;] + &#34;&lt;&#34;, module)
-        if send_result[&#34;code&#34;] != &#34;OK&#34;:
-            overall_result = send_result
     else:
-        overall_result = json_result
         self.mu_log.log(self.mu_log.ERROR, &#34;json_payload lineage creation completed with &gt;&#34; + json_result[&#39;code&#39;]
                         + &#34;&lt;&#34;, module)
 
-    return overall_result</code></pre>
+    return json_result</code></pre>
 </details>
 </dd>
 <dt id="metadata_utilities.load_json_metadata.ConvertJSONtoEDCLineage.process_physical_entity_and_attribute"><code class="name flex">
@@ -677,7 +806,7 @@ For each file: Validate its schema and generate the metadata definition file or 
     Generate metadata files to be parsed by EDC
     &#34;&#34;&#34;
     file_result = messages.message[&#34;ok&#34;]
-    module = &#34;process_physical_entity_and_attribute&#34;
+    module = &#34;ConvertJSONtoEDCLineage.process_physical_entity_and_attribute&#34;
 
     if self.meta_type not in (&#34;physical_entity&#34;, &#34;physical_entity_association&#34;, &#34;physical_attribute_association&#34;):
         self.mu_log.log(self.mu_log.DEBUG,
@@ -713,12 +842,12 @@ For each file: Validate its schema and generate the metadata definition file or 
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def send_metadata(self):
-    module = &#34;send_metadata&#34;
+    module = &#34;ConvertJSONtoEDCLineage.send_metadata&#34;
     target = self.settings.metadata_store
     self.mu_log.log(self.mu_log.DEBUG, &#34;sending lineage info to &#34; + target, module)
 
     if target == &#34;edc&#34;:
-        send_result = self.edc_lineage.send_metadata_to_edc()
+        send_result = self.edc_lineage.send_metadata_to_edc(self.settings.suppress_edc_call)
     elif target == &#34;metadata_lake&#34;:
         send_result = self.send_metadata_to_metadata_lake()
     else:
@@ -738,6 +867,8 @@ For each file: Validate its schema and generate the metadata definition file or 
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def send_metadata_to_metadata_lake(self):
+    module = &#34;ConvertJSONtoEDCLineage.send_metadata_to_metadata_lake&#34;
+    self.mu_log.log(self.mu_log.ERROR, &#34;Function &gt;&#34; + module + &#34;&lt; is not implemented.&#34;, module)
     send_result = messages.message[&#34;not_implemented&#34;]
     return send_result</code></pre>
 </details>
@@ -781,7 +912,7 @@ For each file: Validate its schema and generate the metadata definition file or 
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.1</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
 </footer>
 </body>
 </html>

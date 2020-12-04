@@ -27,7 +27,7 @@ Note: this is syncronyous version - not async
 Classes
 -------
 
-`EDCSession()`
+`EDCSession(settings)`
 :   encapsulates argparse based command-line parser & requests.session object
     for easy re-use for multiple scripts
 

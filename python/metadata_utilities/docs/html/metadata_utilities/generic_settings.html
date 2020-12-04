@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.9.1" />
+<meta name="generator" content="pdoc 0.9.2" />
 <title>metadata_utilities.generic_settings API documentation</title>
 <meta name="description" content="" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -27,17 +27,19 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">import json
+from metadata_utilities import messages
+from metadata_utilities import mu_logging
 
 
 class GenericSettings:
     &#34;&#34;&#34;
     Some generic utilities, e.g. reading the config.json
     &#34;&#34;&#34;
-    code_version = &#34;0.1.0&#34;
+    code_version = &#34;0.2.12&#34;
 
-    def __init__(self):
+    def __init__(self, configuration_file=&#34;resources/config.json&#34;):
         # config.json settings
-        self.json_file = &#34;resources/config.json&#34;
+        self.main_config_file = configuration_file
         self.base_schema_folder = &#34;unknown&#34;
         self.meta_version = &#34;unknown&#34;
         self.schema_directory = &#34;unknown&#34;
@@ -45,66 +47,137 @@ class GenericSettings:
         self.target = &#34;unknown&#34;
         self.output_directory = &#34;unknown&#34;
         self.metadata_store = &#34;unknown&#34;
-        self.log_directory = &#34;unknown&#34;
-        self.log_filename = &#34;unknown&#34;
-        self.log_filename_prefix = &#34;unknown&#34;
-        self.log_level = &#34;DEBUG&#34;
+        self.mu_log = None
+        self.log_config = None
+        self.log_directory = None
+        self.log_filename = None
+        self.log_filename_prefix = None
+        self.log_level = None
         self.edc_config = &#34;unknown&#34;
-        self.edc_config_data = &#34;{}&#34;
+        self.edc_config_data = {}
         self.edc_url = &#34;http://localhost:8888&#34;
         self.edc_secrets = &#34;unknown&#34;
         self.jinja_config = &#34;unknown&#34;
-        self.azure_monitor_config = &#34;unknown&#34;
-        self.azure_monitor_requests = &#34;False&#34;
-        self.instrumentation_key = &#34;unknown&#34;
-        self.get_config()
+        self.azure_monitor_config = None
+        self.azure_monitor_requests = None
+        self.instrumentation_key = None
+        self.suppress_edc_call = &#34;False&#34;
+        self.http_proxy = None
+        self.https_proxy = None
 
     def get_config(self):
-        with open(self.json_file) as config:
-            data = json.load(config)
-            self.meta_version = data[&#34;meta_version&#34;]
-            self.base_schema_folder = data[&#34;schema_directory&#34;]
-            self.schema_directory = self.base_schema_folder + self.meta_version + &#34;/&#34;
-            self.json_directory = data[&#34;json_directory&#34;]
-            self.target = data[&#34;target&#34;]
-            self.output_directory = data[&#34;output_directory&#34;]
-            self.metadata_store = data[&#34;metadata_store&#34;]
-            self.log_directory = data[&#34;log_directory&#34;]
-            self.log_filename = data[&#34;log_filename&#34;]
-            self.log_filename_prefix = data[&#34;log_filename_prefix&#34;]
-            self.log_level = data[&#34;log_level&#34;]
-            if &#34;edc_config&#34; in data:
-                self.edc_config = data[&#34;edc_config&#34;]
-            if &#34;edc_secrets&#34; in data:
-                self.edc_secrets = data[&#34;edc_secrets&#34;]
-            if &#34;jinja_config&#34; in data:
-                self.jinja_config = data[&#34;jinja_config&#34;]
-            if &#34;azure_monitor_config&#34; in data:
-                self.azure_monitor_config = data[&#34;azure_monitor_config&#34;]
-            if &#34;azure_monitor_requests&#34; in data:
-                if data[&#34;azure_monitor_requests&#34;] == &#34;True&#34;:
-                    self.azure_monitor_requests = True
-                elif data[&#34;azure_monitor_requests&#34;] == &#34;False&#34;:
-                    self.azure_monitor_requests = False
+        &#34;&#34;&#34;
+            get the main configuration settings. default file is resources/config.json
+        &#34;&#34;&#34;
+        module = &#34;get_config&#34;
+        result = messages.message[&#34;undetermined&#34;]
+
+        try:
+            with open(self.main_config_file) as config:
+                data = json.load(config)
+                self.base_schema_folder = data[&#34;schema_directory&#34;]
+                # self.schema_directory = self.base_schema_folder + self.meta_version + &#34;/&#34;
+                self.json_directory = data[&#34;json_directory&#34;]
+                self.target = data[&#34;target&#34;]
+                self.output_directory = data[&#34;output_directory&#34;]
+                self.metadata_store = data[&#34;metadata_store&#34;]
+                if &#34;edc_config&#34; in data:
+                    self.edc_config = data[&#34;edc_config&#34;]
+                if &#34;edc_secrets&#34; in data:
+                    self.edc_secrets = data[&#34;edc_secrets&#34;]
+                if &#34;jinja_config&#34; in data:
+                    self.jinja_config = data[&#34;jinja_config&#34;]
+                if &#34;suppress_edc_call&#34; in data:
+                    if data[&#34;suppress_edc_call&#34;] == &#34;True&#34;:
+                        self.suppress_edc_call = True
+                    elif data[&#34;suppress_edc_call&#34;] == &#34;False&#34;:
+                        self.suppress_edc_call = False
+                    else:
+                        print(&#34;Incorrect config value &gt;&#34; + data[&#34;suppress_edc_call&#34;]
+                              + &#34;&lt; for suppress_edc_call. Must be True or False. Will default to False&#34;)
+                        self.suppress_edc_call = False
+                if &#34;http_proxy&#34; in data:
+                    self.http_proxy = data[&#34;http_proxy&#34;]
+                    if self.http_proxy == &#34;None&#34;:
+                        self.http_proxy = None
                 else:
-                    print(&#34;Incorrect config value &gt;&#34; + data[&#34;azure_monitor_requests&#34;]
-                          + &#34;&lt; for azure_monitor_requests. Must be True or False&#34;)
-                    self.azure_monitor_requests = False
+                    self.http_proxy = None
+                if &#34;https_proxy&#34; in data:
+                    self.https_proxy = data[&#34;https_proxy&#34;]
+                    if self.https_proxy == &#34;None&#34;:
+                        self.https_proxy = None
+                else:
+                    self.https_proxy = None
+                if &#34;log_config&#34; in data:
+                    self.log_config = data[&#34;log_config&#34;]
+                else:
+                    self.log_config = &#34;resources/log_config&#34;
+                self.mu_log = mu_logging.MULogging(self.log_config)
+                self.log_directory = self.mu_log.log_setting.log_directory
+                self.log_filename = self.mu_log.log_setting.log_filename
+                self.log_filename_prefix = self.mu_log.log_setting.log_filename_prefix
+                self.log_level = self.mu_log.log_setting.log_level
+                self.azure_monitor_config = self.mu_log.log_setting.azure_monitor_config
+                self.azure_monitor_requests = self.mu_log.log_setting.azure_monitor_requests
+                self.instrumentation_key = self.mu_log.log_setting.instrumentation_key
+                self.mu_log.log(self.mu_log.DEBUG, &#34;Configuration file &gt;&#34; + self.main_config_file
+                                + &#34;&lt; found and read.&#34;, module)
+
+            result = messages.message[&#34;ok&#34;]
+        except FileNotFoundError:
+            print(&#34;FATAL:&#34;, module, &#34;could find main configuration file &gt;&#34; + self.main_config_file + &#34;&lt;.&#34;)
+            return messages.message[&#34;main_config_not_found&#34;]
 
         if self.edc_config != &#34;unknown&#34;:
-            with open(self.edc_config) as edc:
-                self.edc_config_data = json.load(edc)
+            try:
+                with open(self.edc_config) as edc:
+                    self.edc_config_data = json.load(edc)
+                self.mu_log.log(self.mu_log.DEBUG, &#34;EDC Configuration file &gt;&#34; + self.edc_config
+                                + &#34;&lt; found and read.&#34;, module)
+            except FileNotFoundError:
+                self.mu_log.log(self.mu_log.FATAL, &#34;Cannot find provided edc_config file &gt;&#34; + self.edc_config + &#34;&lt;.&#34;
+                                , module)
+                return messages.message[&#34;edc_config_not_found&#34;]
 
-        if self.edc_secrets != &#34;unknown&#34;:
-            with open(self.edc_secrets) as edc:
-                data = json.load(edc)
-                self.edc_url = data[&#34;edc_url&#34;]
+        if self.edc_secrets == &#34;unknown&#34;:
+            self.mu_log.log(self.mu_log.DEBUG, &#34;edc_secrets is unknown&#34;)
+        else:
+            try:
+                with open(self.edc_secrets) as edc:
+                    data = json.load(edc)
+                    if &#34;edc_url&#34; in data:
+                        self.edc_url = data[&#34;edc_url&#34;]
+                        self.mu_log.log(self.mu_log.INFO, &#34;EDC URL taken from edc secrets file &gt;&#34; + self.edc_secrets
+                                        + &#34;&lt;: &#34;
+                                        + self.edc_url, module)
+                self.mu_log.log(self.mu_log.DEBUG, &#34;EDC secrets file &gt;&#34; + self.edc_secrets + &#34;&lt; found and read.&#34;, module)
+            except FileNotFoundError:
+                self.mu_log.log(self.mu_log.FATAL, &#34;Cannot find provided edc_secrets file &gt;&#34; + self.edc_secrets + &#34;&lt;.&#34;
+                                , module)
+                return messages.message[&#34;edc_secrets_not_found&#34;]
 
         if self.azure_monitor_config != &#34;unknown&#34;:
-            with open(self.azure_monitor_config) as az_monitor:
-                data = json.load(az_monitor)
-                if &#34;instrumentation_key&#34; in data:
-                    self.instrumentation_key = data[&#34;instrumentation_key&#34;]</code></pre>
+            try:
+                with open(self.azure_monitor_config) as az_monitor:
+                    data = json.load(az_monitor)
+                    if &#34;instrumentation_key&#34; in data:
+                        self.instrumentation_key = data[&#34;instrumentation_key&#34;]
+            except FileNotFoundError:
+                self.mu_log.log(self.mu_log.FATAL
+                                , &#34;Cannot find Azure configuration file, which is needed to get the instrumentation key&#34;
+                                , module)
+                return messages.message[&#34;azure_config_not_found&#34;]
+
+        return result
+
+    def get_proxy(self):
+
+        proxies = {
+            &#34;http&#34;: self.http_proxy,
+            &#34;https&#34;: self.https_proxy
+        }
+
+        return proxies</code></pre>
 </details>
 </section>
 <section>
@@ -118,6 +191,7 @@ class GenericSettings:
 <dl>
 <dt id="metadata_utilities.generic_settings.GenericSettings"><code class="flex name class">
 <span>class <span class="ident">GenericSettings</span></span>
+<span>(</span><span>configuration_file='resources/config.json')</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Some generic utilities, e.g. reading the config.json</p></div>
@@ -129,11 +203,11 @@ class GenericSettings:
     &#34;&#34;&#34;
     Some generic utilities, e.g. reading the config.json
     &#34;&#34;&#34;
-    code_version = &#34;0.1.0&#34;
+    code_version = &#34;0.2.12&#34;
 
-    def __init__(self):
+    def __init__(self, configuration_file=&#34;resources/config.json&#34;):
         # config.json settings
-        self.json_file = &#34;resources/config.json&#34;
+        self.main_config_file = configuration_file
         self.base_schema_folder = &#34;unknown&#34;
         self.meta_version = &#34;unknown&#34;
         self.schema_directory = &#34;unknown&#34;
@@ -141,66 +215,137 @@ class GenericSettings:
         self.target = &#34;unknown&#34;
         self.output_directory = &#34;unknown&#34;
         self.metadata_store = &#34;unknown&#34;
-        self.log_directory = &#34;unknown&#34;
-        self.log_filename = &#34;unknown&#34;
-        self.log_filename_prefix = &#34;unknown&#34;
-        self.log_level = &#34;DEBUG&#34;
+        self.mu_log = None
+        self.log_config = None
+        self.log_directory = None
+        self.log_filename = None
+        self.log_filename_prefix = None
+        self.log_level = None
         self.edc_config = &#34;unknown&#34;
-        self.edc_config_data = &#34;{}&#34;
+        self.edc_config_data = {}
         self.edc_url = &#34;http://localhost:8888&#34;
         self.edc_secrets = &#34;unknown&#34;
         self.jinja_config = &#34;unknown&#34;
-        self.azure_monitor_config = &#34;unknown&#34;
-        self.azure_monitor_requests = &#34;False&#34;
-        self.instrumentation_key = &#34;unknown&#34;
-        self.get_config()
+        self.azure_monitor_config = None
+        self.azure_monitor_requests = None
+        self.instrumentation_key = None
+        self.suppress_edc_call = &#34;False&#34;
+        self.http_proxy = None
+        self.https_proxy = None
 
     def get_config(self):
-        with open(self.json_file) as config:
-            data = json.load(config)
-            self.meta_version = data[&#34;meta_version&#34;]
-            self.base_schema_folder = data[&#34;schema_directory&#34;]
-            self.schema_directory = self.base_schema_folder + self.meta_version + &#34;/&#34;
-            self.json_directory = data[&#34;json_directory&#34;]
-            self.target = data[&#34;target&#34;]
-            self.output_directory = data[&#34;output_directory&#34;]
-            self.metadata_store = data[&#34;metadata_store&#34;]
-            self.log_directory = data[&#34;log_directory&#34;]
-            self.log_filename = data[&#34;log_filename&#34;]
-            self.log_filename_prefix = data[&#34;log_filename_prefix&#34;]
-            self.log_level = data[&#34;log_level&#34;]
-            if &#34;edc_config&#34; in data:
-                self.edc_config = data[&#34;edc_config&#34;]
-            if &#34;edc_secrets&#34; in data:
-                self.edc_secrets = data[&#34;edc_secrets&#34;]
-            if &#34;jinja_config&#34; in data:
-                self.jinja_config = data[&#34;jinja_config&#34;]
-            if &#34;azure_monitor_config&#34; in data:
-                self.azure_monitor_config = data[&#34;azure_monitor_config&#34;]
-            if &#34;azure_monitor_requests&#34; in data:
-                if data[&#34;azure_monitor_requests&#34;] == &#34;True&#34;:
-                    self.azure_monitor_requests = True
-                elif data[&#34;azure_monitor_requests&#34;] == &#34;False&#34;:
-                    self.azure_monitor_requests = False
+        &#34;&#34;&#34;
+            get the main configuration settings. default file is resources/config.json
+        &#34;&#34;&#34;
+        module = &#34;get_config&#34;
+        result = messages.message[&#34;undetermined&#34;]
+
+        try:
+            with open(self.main_config_file) as config:
+                data = json.load(config)
+                self.base_schema_folder = data[&#34;schema_directory&#34;]
+                # self.schema_directory = self.base_schema_folder + self.meta_version + &#34;/&#34;
+                self.json_directory = data[&#34;json_directory&#34;]
+                self.target = data[&#34;target&#34;]
+                self.output_directory = data[&#34;output_directory&#34;]
+                self.metadata_store = data[&#34;metadata_store&#34;]
+                if &#34;edc_config&#34; in data:
+                    self.edc_config = data[&#34;edc_config&#34;]
+                if &#34;edc_secrets&#34; in data:
+                    self.edc_secrets = data[&#34;edc_secrets&#34;]
+                if &#34;jinja_config&#34; in data:
+                    self.jinja_config = data[&#34;jinja_config&#34;]
+                if &#34;suppress_edc_call&#34; in data:
+                    if data[&#34;suppress_edc_call&#34;] == &#34;True&#34;:
+                        self.suppress_edc_call = True
+                    elif data[&#34;suppress_edc_call&#34;] == &#34;False&#34;:
+                        self.suppress_edc_call = False
+                    else:
+                        print(&#34;Incorrect config value &gt;&#34; + data[&#34;suppress_edc_call&#34;]
+                              + &#34;&lt; for suppress_edc_call. Must be True or False. Will default to False&#34;)
+                        self.suppress_edc_call = False
+                if &#34;http_proxy&#34; in data:
+                    self.http_proxy = data[&#34;http_proxy&#34;]
+                    if self.http_proxy == &#34;None&#34;:
+                        self.http_proxy = None
                 else:
-                    print(&#34;Incorrect config value &gt;&#34; + data[&#34;azure_monitor_requests&#34;]
-                          + &#34;&lt; for azure_monitor_requests. Must be True or False&#34;)
-                    self.azure_monitor_requests = False
+                    self.http_proxy = None
+                if &#34;https_proxy&#34; in data:
+                    self.https_proxy = data[&#34;https_proxy&#34;]
+                    if self.https_proxy == &#34;None&#34;:
+                        self.https_proxy = None
+                else:
+                    self.https_proxy = None
+                if &#34;log_config&#34; in data:
+                    self.log_config = data[&#34;log_config&#34;]
+                else:
+                    self.log_config = &#34;resources/log_config&#34;
+                self.mu_log = mu_logging.MULogging(self.log_config)
+                self.log_directory = self.mu_log.log_setting.log_directory
+                self.log_filename = self.mu_log.log_setting.log_filename
+                self.log_filename_prefix = self.mu_log.log_setting.log_filename_prefix
+                self.log_level = self.mu_log.log_setting.log_level
+                self.azure_monitor_config = self.mu_log.log_setting.azure_monitor_config
+                self.azure_monitor_requests = self.mu_log.log_setting.azure_monitor_requests
+                self.instrumentation_key = self.mu_log.log_setting.instrumentation_key
+                self.mu_log.log(self.mu_log.DEBUG, &#34;Configuration file &gt;&#34; + self.main_config_file
+                                + &#34;&lt; found and read.&#34;, module)
+
+            result = messages.message[&#34;ok&#34;]
+        except FileNotFoundError:
+            print(&#34;FATAL:&#34;, module, &#34;could find main configuration file &gt;&#34; + self.main_config_file + &#34;&lt;.&#34;)
+            return messages.message[&#34;main_config_not_found&#34;]
 
         if self.edc_config != &#34;unknown&#34;:
-            with open(self.edc_config) as edc:
-                self.edc_config_data = json.load(edc)
+            try:
+                with open(self.edc_config) as edc:
+                    self.edc_config_data = json.load(edc)
+                self.mu_log.log(self.mu_log.DEBUG, &#34;EDC Configuration file &gt;&#34; + self.edc_config
+                                + &#34;&lt; found and read.&#34;, module)
+            except FileNotFoundError:
+                self.mu_log.log(self.mu_log.FATAL, &#34;Cannot find provided edc_config file &gt;&#34; + self.edc_config + &#34;&lt;.&#34;
+                                , module)
+                return messages.message[&#34;edc_config_not_found&#34;]
 
-        if self.edc_secrets != &#34;unknown&#34;:
-            with open(self.edc_secrets) as edc:
-                data = json.load(edc)
-                self.edc_url = data[&#34;edc_url&#34;]
+        if self.edc_secrets == &#34;unknown&#34;:
+            self.mu_log.log(self.mu_log.DEBUG, &#34;edc_secrets is unknown&#34;)
+        else:
+            try:
+                with open(self.edc_secrets) as edc:
+                    data = json.load(edc)
+                    if &#34;edc_url&#34; in data:
+                        self.edc_url = data[&#34;edc_url&#34;]
+                        self.mu_log.log(self.mu_log.INFO, &#34;EDC URL taken from edc secrets file &gt;&#34; + self.edc_secrets
+                                        + &#34;&lt;: &#34;
+                                        + self.edc_url, module)
+                self.mu_log.log(self.mu_log.DEBUG, &#34;EDC secrets file &gt;&#34; + self.edc_secrets + &#34;&lt; found and read.&#34;, module)
+            except FileNotFoundError:
+                self.mu_log.log(self.mu_log.FATAL, &#34;Cannot find provided edc_secrets file &gt;&#34; + self.edc_secrets + &#34;&lt;.&#34;
+                                , module)
+                return messages.message[&#34;edc_secrets_not_found&#34;]
 
         if self.azure_monitor_config != &#34;unknown&#34;:
-            with open(self.azure_monitor_config) as az_monitor:
-                data = json.load(az_monitor)
-                if &#34;instrumentation_key&#34; in data:
-                    self.instrumentation_key = data[&#34;instrumentation_key&#34;]</code></pre>
+            try:
+                with open(self.azure_monitor_config) as az_monitor:
+                    data = json.load(az_monitor)
+                    if &#34;instrumentation_key&#34; in data:
+                        self.instrumentation_key = data[&#34;instrumentation_key&#34;]
+            except FileNotFoundError:
+                self.mu_log.log(self.mu_log.FATAL
+                                , &#34;Cannot find Azure configuration file, which is needed to get the instrumentation key&#34;
+                                , module)
+                return messages.message[&#34;azure_config_not_found&#34;]
+
+        return result
+
+    def get_proxy(self):
+
+        proxies = {
+            &#34;http&#34;: self.http_proxy,
+            &#34;https&#34;: self.https_proxy
+        }
+
+        return proxies</code></pre>
 </details>
 <h3>Class variables</h3>
 <dl>
@@ -215,57 +360,134 @@ class GenericSettings:
 <span>def <span class="ident">get_config</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>get the main configuration settings. default file is resources/config.json</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def get_config(self):
-    with open(self.json_file) as config:
-        data = json.load(config)
-        self.meta_version = data[&#34;meta_version&#34;]
-        self.base_schema_folder = data[&#34;schema_directory&#34;]
-        self.schema_directory = self.base_schema_folder + self.meta_version + &#34;/&#34;
-        self.json_directory = data[&#34;json_directory&#34;]
-        self.target = data[&#34;target&#34;]
-        self.output_directory = data[&#34;output_directory&#34;]
-        self.metadata_store = data[&#34;metadata_store&#34;]
-        self.log_directory = data[&#34;log_directory&#34;]
-        self.log_filename = data[&#34;log_filename&#34;]
-        self.log_filename_prefix = data[&#34;log_filename_prefix&#34;]
-        self.log_level = data[&#34;log_level&#34;]
-        if &#34;edc_config&#34; in data:
-            self.edc_config = data[&#34;edc_config&#34;]
-        if &#34;edc_secrets&#34; in data:
-            self.edc_secrets = data[&#34;edc_secrets&#34;]
-        if &#34;jinja_config&#34; in data:
-            self.jinja_config = data[&#34;jinja_config&#34;]
-        if &#34;azure_monitor_config&#34; in data:
-            self.azure_monitor_config = data[&#34;azure_monitor_config&#34;]
-        if &#34;azure_monitor_requests&#34; in data:
-            if data[&#34;azure_monitor_requests&#34;] == &#34;True&#34;:
-                self.azure_monitor_requests = True
-            elif data[&#34;azure_monitor_requests&#34;] == &#34;False&#34;:
-                self.azure_monitor_requests = False
+    &#34;&#34;&#34;
+        get the main configuration settings. default file is resources/config.json
+    &#34;&#34;&#34;
+    module = &#34;get_config&#34;
+    result = messages.message[&#34;undetermined&#34;]
+
+    try:
+        with open(self.main_config_file) as config:
+            data = json.load(config)
+            self.base_schema_folder = data[&#34;schema_directory&#34;]
+            # self.schema_directory = self.base_schema_folder + self.meta_version + &#34;/&#34;
+            self.json_directory = data[&#34;json_directory&#34;]
+            self.target = data[&#34;target&#34;]
+            self.output_directory = data[&#34;output_directory&#34;]
+            self.metadata_store = data[&#34;metadata_store&#34;]
+            if &#34;edc_config&#34; in data:
+                self.edc_config = data[&#34;edc_config&#34;]
+            if &#34;edc_secrets&#34; in data:
+                self.edc_secrets = data[&#34;edc_secrets&#34;]
+            if &#34;jinja_config&#34; in data:
+                self.jinja_config = data[&#34;jinja_config&#34;]
+            if &#34;suppress_edc_call&#34; in data:
+                if data[&#34;suppress_edc_call&#34;] == &#34;True&#34;:
+                    self.suppress_edc_call = True
+                elif data[&#34;suppress_edc_call&#34;] == &#34;False&#34;:
+                    self.suppress_edc_call = False
+                else:
+                    print(&#34;Incorrect config value &gt;&#34; + data[&#34;suppress_edc_call&#34;]
+                          + &#34;&lt; for suppress_edc_call. Must be True or False. Will default to False&#34;)
+                    self.suppress_edc_call = False
+            if &#34;http_proxy&#34; in data:
+                self.http_proxy = data[&#34;http_proxy&#34;]
+                if self.http_proxy == &#34;None&#34;:
+                    self.http_proxy = None
             else:
-                print(&#34;Incorrect config value &gt;&#34; + data[&#34;azure_monitor_requests&#34;]
-                      + &#34;&lt; for azure_monitor_requests. Must be True or False&#34;)
-                self.azure_monitor_requests = False
+                self.http_proxy = None
+            if &#34;https_proxy&#34; in data:
+                self.https_proxy = data[&#34;https_proxy&#34;]
+                if self.https_proxy == &#34;None&#34;:
+                    self.https_proxy = None
+            else:
+                self.https_proxy = None
+            if &#34;log_config&#34; in data:
+                self.log_config = data[&#34;log_config&#34;]
+            else:
+                self.log_config = &#34;resources/log_config&#34;
+            self.mu_log = mu_logging.MULogging(self.log_config)
+            self.log_directory = self.mu_log.log_setting.log_directory
+            self.log_filename = self.mu_log.log_setting.log_filename
+            self.log_filename_prefix = self.mu_log.log_setting.log_filename_prefix
+            self.log_level = self.mu_log.log_setting.log_level
+            self.azure_monitor_config = self.mu_log.log_setting.azure_monitor_config
+            self.azure_monitor_requests = self.mu_log.log_setting.azure_monitor_requests
+            self.instrumentation_key = self.mu_log.log_setting.instrumentation_key
+            self.mu_log.log(self.mu_log.DEBUG, &#34;Configuration file &gt;&#34; + self.main_config_file
+                            + &#34;&lt; found and read.&#34;, module)
+
+        result = messages.message[&#34;ok&#34;]
+    except FileNotFoundError:
+        print(&#34;FATAL:&#34;, module, &#34;could find main configuration file &gt;&#34; + self.main_config_file + &#34;&lt;.&#34;)
+        return messages.message[&#34;main_config_not_found&#34;]
 
     if self.edc_config != &#34;unknown&#34;:
-        with open(self.edc_config) as edc:
-            self.edc_config_data = json.load(edc)
+        try:
+            with open(self.edc_config) as edc:
+                self.edc_config_data = json.load(edc)
+            self.mu_log.log(self.mu_log.DEBUG, &#34;EDC Configuration file &gt;&#34; + self.edc_config
+                            + &#34;&lt; found and read.&#34;, module)
+        except FileNotFoundError:
+            self.mu_log.log(self.mu_log.FATAL, &#34;Cannot find provided edc_config file &gt;&#34; + self.edc_config + &#34;&lt;.&#34;
+                            , module)
+            return messages.message[&#34;edc_config_not_found&#34;]
 
-    if self.edc_secrets != &#34;unknown&#34;:
-        with open(self.edc_secrets) as edc:
-            data = json.load(edc)
-            self.edc_url = data[&#34;edc_url&#34;]
+    if self.edc_secrets == &#34;unknown&#34;:
+        self.mu_log.log(self.mu_log.DEBUG, &#34;edc_secrets is unknown&#34;)
+    else:
+        try:
+            with open(self.edc_secrets) as edc:
+                data = json.load(edc)
+                if &#34;edc_url&#34; in data:
+                    self.edc_url = data[&#34;edc_url&#34;]
+                    self.mu_log.log(self.mu_log.INFO, &#34;EDC URL taken from edc secrets file &gt;&#34; + self.edc_secrets
+                                    + &#34;&lt;: &#34;
+                                    + self.edc_url, module)
+            self.mu_log.log(self.mu_log.DEBUG, &#34;EDC secrets file &gt;&#34; + self.edc_secrets + &#34;&lt; found and read.&#34;, module)
+        except FileNotFoundError:
+            self.mu_log.log(self.mu_log.FATAL, &#34;Cannot find provided edc_secrets file &gt;&#34; + self.edc_secrets + &#34;&lt;.&#34;
+                            , module)
+            return messages.message[&#34;edc_secrets_not_found&#34;]
 
     if self.azure_monitor_config != &#34;unknown&#34;:
-        with open(self.azure_monitor_config) as az_monitor:
-            data = json.load(az_monitor)
-            if &#34;instrumentation_key&#34; in data:
-                self.instrumentation_key = data[&#34;instrumentation_key&#34;]</code></pre>
+        try:
+            with open(self.azure_monitor_config) as az_monitor:
+                data = json.load(az_monitor)
+                if &#34;instrumentation_key&#34; in data:
+                    self.instrumentation_key = data[&#34;instrumentation_key&#34;]
+        except FileNotFoundError:
+            self.mu_log.log(self.mu_log.FATAL
+                            , &#34;Cannot find Azure configuration file, which is needed to get the instrumentation key&#34;
+                            , module)
+            return messages.message[&#34;azure_config_not_found&#34;]
+
+    return result</code></pre>
+</details>
+</dd>
+<dt id="metadata_utilities.generic_settings.GenericSettings.get_proxy"><code class="name flex">
+<span>def <span class="ident">get_proxy</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_proxy(self):
+
+    proxies = {
+        &#34;http&#34;: self.http_proxy,
+        &#34;https&#34;: self.https_proxy
+    }
+
+    return proxies</code></pre>
 </details>
 </dd>
 </dl>
@@ -291,6 +513,7 @@ class GenericSettings:
 <ul class="">
 <li><code><a title="metadata_utilities.generic_settings.GenericSettings.code_version" href="#metadata_utilities.generic_settings.GenericSettings.code_version">code_version</a></code></li>
 <li><code><a title="metadata_utilities.generic_settings.GenericSettings.get_config" href="#metadata_utilities.generic_settings.GenericSettings.get_config">get_config</a></code></li>
+<li><code><a title="metadata_utilities.generic_settings.GenericSettings.get_proxy" href="#metadata_utilities.generic_settings.GenericSettings.get_proxy">get_proxy</a></code></li>
 </ul>
 </li>
 </ul>
@@ -299,7 +522,7 @@ class GenericSettings:
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.1</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
 </footer>
 </body>
 </html>

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.9.1" />
+<meta name="generator" content="pdoc 0.9.2" />
 <title>metadata_utilities.check_schema API documentation</title>
 <meta name="description" content="" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -37,24 +37,23 @@ class CheckSchema:
     &#34;&#34;&#34;
     Checks the JSON schema of a given JSON file
     &#34;&#34;&#34;
-    code_version = &#34;0.2.0&#34;
-    # TODO: Get the info from the file and check if that schema version exists
-    metaschema_version = generic_settings.GenericSettings().meta_version
+    code_version = &#34;0.2.15&#34;
 
-    def __init__(self):
+    def __init__(self, settings, mu_log_ref):
         self.json_file = &#34;not provided&#34;
         self.json_data = &#34;&#34;
         self.meta_type = &#34;unknown&#34;
         self.meta_version = &#34;unknown&#34;
         self.schema_file = &#34;unknown&#34;
-        self.mu_log = mu_logging.MULogging()
+        self.settings = settings
+        self.mu_log = mu_log_ref
+
 
     def check_schema(self, data):
         &#34;&#34;&#34;
         Checks the JSON to determine which JSON schema is used and which version
         &#34;&#34;&#34;
-        module = &#34;check_schema&#34;
-        self.mu_log.log(self.mu_log.DEBUG, &#34;expected meta_version is &gt;&#34; + self.metaschema_version + &#34;&lt;&#34;, module)
+        module = &#34;CheckSchema.check_schema&#34;
         self.json_data = data
 
         try:
@@ -78,10 +77,11 @@ class CheckSchema:
             self.mu_log.log(self.mu_log.FATAL, &#34;Error parsing JSON:&#34; + e.msg, module)
             return messages.message[&#34;json_parse_error&#34;]
 
-        if self.meta_version == generic_settings.GenericSettings().meta_version:
-            self.mu_log.log(self.mu_log.INFO, &#34;file meta version matches expected schema version&#34;, module)
-            schema_directory = generic_settings.GenericSettings().schema_directory
-            self.schema_file = schema_directory + self.meta_type + &#34;.json&#34;
+        schema_directory = self.settings.base_schema_folder + self.meta_version + &#34;/&#34;
+        self.schema_file = schema_directory + self.meta_type + &#34;.json&#34;
+        self.mu_log.log(self.mu_log.DEBUG, &#34;schema_directory: &#34; + schema_directory, module)
+        self.mu_log.log(self.mu_log.DEBUG, &#34;schema_file: &#34; + self.schema_file, module)
+        try:
             with open(self.schema_file) as f:
                 schema = json.load(f)
                 try:
@@ -93,9 +93,10 @@ class CheckSchema:
                 except jsonschema.exceptions.ValidationError as e:
                     self.mu_log.log(self.mu_log.ERROR, &#34;A validation error occurred&#34;, module)
                     return messages.message[&#34;jsonschema_validation_error&#34;]
-        else:
-            self.mu_log.log(self.mu_log.DEBUG, &#34;File meta version does not match expected schema version&#34;, module)
-            return messages.message[&#34;incorrect_meta_version&#34;]
+        except FileNotFoundError:
+            self.mu_log.log(self.mu_log.ERROR, &#34;Schema file &gt;&#34; + self.schema_file + &#34;&lt; could not be found&#34;
+                            , module)
+            return messages.message[&#34;schema_file_not_found&#34;]
 
         return messages.message[&#34;ok&#34;]</code></pre>
 </details>
@@ -111,6 +112,7 @@ class CheckSchema:
 <dl>
 <dt id="metadata_utilities.check_schema.CheckSchema"><code class="flex name class">
 <span>class <span class="ident">CheckSchema</span></span>
+<span>(</span><span>settings, mu_log_ref)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Checks the JSON schema of a given JSON file</p></div>
@@ -122,24 +124,23 @@ class CheckSchema:
     &#34;&#34;&#34;
     Checks the JSON schema of a given JSON file
     &#34;&#34;&#34;
-    code_version = &#34;0.2.0&#34;
-    # TODO: Get the info from the file and check if that schema version exists
-    metaschema_version = generic_settings.GenericSettings().meta_version
+    code_version = &#34;0.2.15&#34;
 
-    def __init__(self):
+    def __init__(self, settings, mu_log_ref):
         self.json_file = &#34;not provided&#34;
         self.json_data = &#34;&#34;
         self.meta_type = &#34;unknown&#34;
         self.meta_version = &#34;unknown&#34;
         self.schema_file = &#34;unknown&#34;
-        self.mu_log = mu_logging.MULogging()
+        self.settings = settings
+        self.mu_log = mu_log_ref
+
 
     def check_schema(self, data):
         &#34;&#34;&#34;
         Checks the JSON to determine which JSON schema is used and which version
         &#34;&#34;&#34;
-        module = &#34;check_schema&#34;
-        self.mu_log.log(self.mu_log.DEBUG, &#34;expected meta_version is &gt;&#34; + self.metaschema_version + &#34;&lt;&#34;, module)
+        module = &#34;CheckSchema.check_schema&#34;
         self.json_data = data
 
         try:
@@ -163,10 +164,11 @@ class CheckSchema:
             self.mu_log.log(self.mu_log.FATAL, &#34;Error parsing JSON:&#34; + e.msg, module)
             return messages.message[&#34;json_parse_error&#34;]
 
-        if self.meta_version == generic_settings.GenericSettings().meta_version:
-            self.mu_log.log(self.mu_log.INFO, &#34;file meta version matches expected schema version&#34;, module)
-            schema_directory = generic_settings.GenericSettings().schema_directory
-            self.schema_file = schema_directory + self.meta_type + &#34;.json&#34;
+        schema_directory = self.settings.base_schema_folder + self.meta_version + &#34;/&#34;
+        self.schema_file = schema_directory + self.meta_type + &#34;.json&#34;
+        self.mu_log.log(self.mu_log.DEBUG, &#34;schema_directory: &#34; + schema_directory, module)
+        self.mu_log.log(self.mu_log.DEBUG, &#34;schema_file: &#34; + self.schema_file, module)
+        try:
             with open(self.schema_file) as f:
                 schema = json.load(f)
                 try:
@@ -178,19 +180,16 @@ class CheckSchema:
                 except jsonschema.exceptions.ValidationError as e:
                     self.mu_log.log(self.mu_log.ERROR, &#34;A validation error occurred&#34;, module)
                     return messages.message[&#34;jsonschema_validation_error&#34;]
-        else:
-            self.mu_log.log(self.mu_log.DEBUG, &#34;File meta version does not match expected schema version&#34;, module)
-            return messages.message[&#34;incorrect_meta_version&#34;]
+        except FileNotFoundError:
+            self.mu_log.log(self.mu_log.ERROR, &#34;Schema file &gt;&#34; + self.schema_file + &#34;&lt; could not be found&#34;
+                            , module)
+            return messages.message[&#34;schema_file_not_found&#34;]
 
         return messages.message[&#34;ok&#34;]</code></pre>
 </details>
 <h3>Class variables</h3>
 <dl>
 <dt id="metadata_utilities.check_schema.CheckSchema.code_version"><code class="name">var <span class="ident">code_version</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="metadata_utilities.check_schema.CheckSchema.metaschema_version"><code class="name">var <span class="ident">metaschema_version</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -210,8 +209,7 @@ class CheckSchema:
     &#34;&#34;&#34;
     Checks the JSON to determine which JSON schema is used and which version
     &#34;&#34;&#34;
-    module = &#34;check_schema&#34;
-    self.mu_log.log(self.mu_log.DEBUG, &#34;expected meta_version is &gt;&#34; + self.metaschema_version + &#34;&lt;&#34;, module)
+    module = &#34;CheckSchema.check_schema&#34;
     self.json_data = data
 
     try:
@@ -235,10 +233,11 @@ class CheckSchema:
         self.mu_log.log(self.mu_log.FATAL, &#34;Error parsing JSON:&#34; + e.msg, module)
         return messages.message[&#34;json_parse_error&#34;]
 
-    if self.meta_version == generic_settings.GenericSettings().meta_version:
-        self.mu_log.log(self.mu_log.INFO, &#34;file meta version matches expected schema version&#34;, module)
-        schema_directory = generic_settings.GenericSettings().schema_directory
-        self.schema_file = schema_directory + self.meta_type + &#34;.json&#34;
+    schema_directory = self.settings.base_schema_folder + self.meta_version + &#34;/&#34;
+    self.schema_file = schema_directory + self.meta_type + &#34;.json&#34;
+    self.mu_log.log(self.mu_log.DEBUG, &#34;schema_directory: &#34; + schema_directory, module)
+    self.mu_log.log(self.mu_log.DEBUG, &#34;schema_file: &#34; + self.schema_file, module)
+    try:
         with open(self.schema_file) as f:
             schema = json.load(f)
             try:
@@ -250,9 +249,10 @@ class CheckSchema:
             except jsonschema.exceptions.ValidationError as e:
                 self.mu_log.log(self.mu_log.ERROR, &#34;A validation error occurred&#34;, module)
                 return messages.message[&#34;jsonschema_validation_error&#34;]
-    else:
-        self.mu_log.log(self.mu_log.DEBUG, &#34;File meta version does not match expected schema version&#34;, module)
-        return messages.message[&#34;incorrect_meta_version&#34;]
+    except FileNotFoundError:
+        self.mu_log.log(self.mu_log.ERROR, &#34;Schema file &gt;&#34; + self.schema_file + &#34;&lt; could not be found&#34;
+                        , module)
+        return messages.message[&#34;schema_file_not_found&#34;]
 
     return messages.message[&#34;ok&#34;]</code></pre>
 </details>
@@ -280,7 +280,6 @@ class CheckSchema:
 <ul class="">
 <li><code><a title="metadata_utilities.check_schema.CheckSchema.check_schema" href="#metadata_utilities.check_schema.CheckSchema.check_schema">check_schema</a></code></li>
 <li><code><a title="metadata_utilities.check_schema.CheckSchema.code_version" href="#metadata_utilities.check_schema.CheckSchema.code_version">code_version</a></code></li>
-<li><code><a title="metadata_utilities.check_schema.CheckSchema.metaschema_version" href="#metadata_utilities.check_schema.CheckSchema.metaschema_version">metaschema_version</a></code></li>
 </ul>
 </li>
 </ul>
@@ -289,7 +288,7 @@ class CheckSchema:
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.1</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
 </footer>
 </body>
 </html>

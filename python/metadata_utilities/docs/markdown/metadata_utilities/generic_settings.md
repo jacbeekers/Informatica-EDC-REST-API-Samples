@@ -4,7 +4,7 @@ Module metadata_utilities.generic_settings
 Classes
 -------
 
-`GenericSettings()`
+`GenericSettings(configuration_file='resources/config.json')`
 :   Some generic utilities, e.g. reading the config.json
 
     ### Class variables
@@ -15,4 +15,7 @@ Classes
     ### Methods
 
     `get_config(self)`
+    :   get the main configuration settings. default file is resources/config.json
+
+    `get_proxy(self)`
     :

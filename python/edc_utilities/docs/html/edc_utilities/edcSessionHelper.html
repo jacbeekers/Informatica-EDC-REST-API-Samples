@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.9.1" />
+<meta name="generator" content="pdoc 0.9.2" />
 <title>edc_utilities.edcSessionHelper API documentation</title>
 <meta name="description" content="defines a class to help with edc connections &amp; uses requests.session to store
 credentials &amp; verify settings for each subsequent api call …" />
@@ -93,13 +93,16 @@ class EDCSession:
     for easy re-use for multiple scripts
     &#34;&#34;&#34;
 
-    def __init__(self):
-        self.baseUrl = None
+    def __init__(self, settings):
+        self.baseUrl = settings.edc_url
         self.session: requests.session = None
         self.argparser = argparse.ArgumentParser(add_help=False)
         self.__setup_standard_cmdargs__()
         self.edcversion = 0
         self.timeout = 10
+        self.http_proxy = None
+        self.https_proxy = None
+        self.settings =  settings
 
     def __setup_standard_cmdargs__(self):
         # check for args overriding the env vars
@@ -139,6 +142,20 @@ class EDCSession:
             &#34;--user&#34;,
             required=False,
             help=&#34;user name - will also prompt for password &#34;,
+            type=str,
+        )
+        self.argparser.add_argument(
+            &#34;-x&#34;,
+            &#34;--http_proxy&#34;,
+            required=False,
+            help=&#34;HTTP Proxy&#34;,
+            type=str,
+        )
+        self.argparser.add_argument(
+            &#34;-X&#34;,
+            &#34;--https_proxy&#34;,
+            required=False,
+            help=&#34;HTTPS Proxy&#34;,
             type=str,
         )
         self.argparser.add_argument(
@@ -197,6 +214,16 @@ class EDCSession:
                             &#34;from {args.envfile}&#34;
                         )
                         auth = edcauth
+
+                if self.http_proxy is None:
+                    http_proxy = os.getenv(&#34;HTTP_PROXY&#34;)
+                    print(f&#34;\t\tread HTTP Proxy from {args.envfile} value={http_proxy}&#34;)
+
+                if self.https_proxy is None:
+                    https_proxy = os.getenv(&#34;HTTPS_PROXY&#34;)
+                    print(f&#34;\t\tread HTTPS Proxy from {args.envfile} value={https_proxy}&#34;)
+
+
             else:
                 print(&#34;isfile False&#34;)
         else:
@@ -214,15 +241,24 @@ class EDCSession:
             verify = os.environ[&#34;INFA_EDC_SSL_PEM&#34;]
             print(&#34;\t\tusing ssl certificate from env var INFA_EDC_SSL_PEM=&#34; + verify)
 
+        if &#34;HTTP_PROXY&#34; in os.environ:
+            self.http_proxy = os.environ[&#34;HTTP_PROXY&#34;]
+            print(&#34;\t\tusing HTTP Proxy from env var HTTP_PROXY=&#34; + self.http_proxy)
+
+        if &#34;HTTPS_PROXY&#34; in os.environ:
+            self.https_proxy = os.environ[&#34;HTTPS_PROXY&#34;]
+            print(&#34;\t\tusing HTTPS Proxy from env var HTTPS_PROXY=&#34; + self.http_proxy)
+
         # check the catalog url &amp; user command-line
         if args.edcurl is not None:
             if self.baseUrl != args.edcurl:
                 print(f&#34;\t\tusing edcurl from command-line parameter {args.edcurl}&#34;)
                 self.baseUrl = args.edcurl
-        # if there is still no edc url - then prompt for it
+        # if there is still no edc url - then use it from edc secrets file
         if self.baseUrl is None:
             # nothing entered anywyere for the base url
             print(f&#34;edc url not specified in ENV var or command-line parameter&#34;)
+            self.baseUrl = self.settings.edc_url
 
         # user credential stored in auth
         if args.auth is not None:
@@ -282,8 +318,10 @@ class EDCSession:
         print(f&#34;validating connection to {self.session.baseUrl}&#34;)
         try:
             url = urljoin(self.baseUrl, &#34;access/2/catalog/data/productInformation&#34;)
+            proxies = { &#34;http&#34;: self.http_proxy
+                        , &#34;https&#34;: self.https_proxy}
             # url = self.baseUrl + &#34;access/2/catalog/data/productInformation&#34;
-            resp = self.session.get(url, timeout=self.timeout)
+            resp = self.session.get(url, timeout=self.timeout, proxies=proxies)
             print(f&#34;\tapi status code={resp.status_code}&#34;)
             if resp.status_code == 200:
                 # valid and 10.4+, get the actual version
@@ -332,6 +370,7 @@ if __name__ == &#34;__main__&#34;:
 <dl>
 <dt id="edc_utilities.edcSessionHelper.EDCSession"><code class="flex name class">
 <span>class <span class="ident">EDCSession</span></span>
+<span>(</span><span>settings)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>encapsulates argparse based command-line parser &amp; requests.session object
@@ -346,13 +385,16 @@ for easy re-use for multiple scripts</p></div>
     for easy re-use for multiple scripts
     &#34;&#34;&#34;
 
-    def __init__(self):
-        self.baseUrl = None
+    def __init__(self, settings):
+        self.baseUrl = settings.edc_url
         self.session: requests.session = None
         self.argparser = argparse.ArgumentParser(add_help=False)
         self.__setup_standard_cmdargs__()
         self.edcversion = 0
         self.timeout = 10
+        self.http_proxy = None
+        self.https_proxy = None
+        self.settings =  settings
 
     def __setup_standard_cmdargs__(self):
         # check for args overriding the env vars
@@ -392,6 +434,20 @@ for easy re-use for multiple scripts</p></div>
             &#34;--user&#34;,
             required=False,
             help=&#34;user name - will also prompt for password &#34;,
+            type=str,
+        )
+        self.argparser.add_argument(
+            &#34;-x&#34;,
+            &#34;--http_proxy&#34;,
+            required=False,
+            help=&#34;HTTP Proxy&#34;,
+            type=str,
+        )
+        self.argparser.add_argument(
+            &#34;-X&#34;,
+            &#34;--https_proxy&#34;,
+            required=False,
+            help=&#34;HTTPS Proxy&#34;,
             type=str,
         )
         self.argparser.add_argument(
@@ -450,6 +506,16 @@ for easy re-use for multiple scripts</p></div>
                             &#34;from {args.envfile}&#34;
                         )
                         auth = edcauth
+
+                if self.http_proxy is None:
+                    http_proxy = os.getenv(&#34;HTTP_PROXY&#34;)
+                    print(f&#34;\t\tread HTTP Proxy from {args.envfile} value={http_proxy}&#34;)
+
+                if self.https_proxy is None:
+                    https_proxy = os.getenv(&#34;HTTPS_PROXY&#34;)
+                    print(f&#34;\t\tread HTTPS Proxy from {args.envfile} value={https_proxy}&#34;)
+
+
             else:
                 print(&#34;isfile False&#34;)
         else:
@@ -467,15 +533,24 @@ for easy re-use for multiple scripts</p></div>
             verify = os.environ[&#34;INFA_EDC_SSL_PEM&#34;]
             print(&#34;\t\tusing ssl certificate from env var INFA_EDC_SSL_PEM=&#34; + verify)
 
+        if &#34;HTTP_PROXY&#34; in os.environ:
+            self.http_proxy = os.environ[&#34;HTTP_PROXY&#34;]
+            print(&#34;\t\tusing HTTP Proxy from env var HTTP_PROXY=&#34; + self.http_proxy)
+
+        if &#34;HTTPS_PROXY&#34; in os.environ:
+            self.https_proxy = os.environ[&#34;HTTPS_PROXY&#34;]
+            print(&#34;\t\tusing HTTPS Proxy from env var HTTPS_PROXY=&#34; + self.http_proxy)
+
         # check the catalog url &amp; user command-line
         if args.edcurl is not None:
             if self.baseUrl != args.edcurl:
                 print(f&#34;\t\tusing edcurl from command-line parameter {args.edcurl}&#34;)
                 self.baseUrl = args.edcurl
-        # if there is still no edc url - then prompt for it
+        # if there is still no edc url - then use it from edc secrets file
         if self.baseUrl is None:
             # nothing entered anywyere for the base url
             print(f&#34;edc url not specified in ENV var or command-line parameter&#34;)
+            self.baseUrl = self.settings.edc_url
 
         # user credential stored in auth
         if args.auth is not None:
@@ -535,8 +610,10 @@ for easy re-use for multiple scripts</p></div>
         print(f&#34;validating connection to {self.session.baseUrl}&#34;)
         try:
             url = urljoin(self.baseUrl, &#34;access/2/catalog/data/productInformation&#34;)
+            proxies = { &#34;http&#34;: self.http_proxy
+                        , &#34;https&#34;: self.https_proxy}
             # url = self.baseUrl + &#34;access/2/catalog/data/productInformation&#34;
-            resp = self.session.get(url, timeout=self.timeout)
+            resp = self.session.get(url, timeout=self.timeout, proxies=proxies)
             print(f&#34;\tapi status code={resp.status_code}&#34;)
             if resp.status_code == 200:
                 # valid and 10.4+, get the actual version
@@ -653,6 +730,16 @@ url, auth</p></div>
                         &#34;from {args.envfile}&#34;
                     )
                     auth = edcauth
+
+            if self.http_proxy is None:
+                http_proxy = os.getenv(&#34;HTTP_PROXY&#34;)
+                print(f&#34;\t\tread HTTP Proxy from {args.envfile} value={http_proxy}&#34;)
+
+            if self.https_proxy is None:
+                https_proxy = os.getenv(&#34;HTTPS_PROXY&#34;)
+                print(f&#34;\t\tread HTTPS Proxy from {args.envfile} value={https_proxy}&#34;)
+
+
         else:
             print(&#34;isfile False&#34;)
     else:
@@ -670,15 +757,24 @@ url, auth</p></div>
         verify = os.environ[&#34;INFA_EDC_SSL_PEM&#34;]
         print(&#34;\t\tusing ssl certificate from env var INFA_EDC_SSL_PEM=&#34; + verify)
 
+    if &#34;HTTP_PROXY&#34; in os.environ:
+        self.http_proxy = os.environ[&#34;HTTP_PROXY&#34;]
+        print(&#34;\t\tusing HTTP Proxy from env var HTTP_PROXY=&#34; + self.http_proxy)
+
+    if &#34;HTTPS_PROXY&#34; in os.environ:
+        self.https_proxy = os.environ[&#34;HTTPS_PROXY&#34;]
+        print(&#34;\t\tusing HTTPS Proxy from env var HTTPS_PROXY=&#34; + self.http_proxy)
+
     # check the catalog url &amp; user command-line
     if args.edcurl is not None:
         if self.baseUrl != args.edcurl:
             print(f&#34;\t\tusing edcurl from command-line parameter {args.edcurl}&#34;)
             self.baseUrl = args.edcurl
-    # if there is still no edc url - then prompt for it
+    # if there is still no edc url - then use it from edc secrets file
     if self.baseUrl is None:
         # nothing entered anywyere for the base url
         print(f&#34;edc url not specified in ENV var or command-line parameter&#34;)
+        self.baseUrl = self.settings.edc_url
 
     # user credential stored in auth
     if args.auth is not None:
@@ -753,8 +849,10 @@ json message ()</p></div>
     print(f&#34;validating connection to {self.session.baseUrl}&#34;)
     try:
         url = urljoin(self.baseUrl, &#34;access/2/catalog/data/productInformation&#34;)
+        proxies = { &#34;http&#34;: self.http_proxy
+                    , &#34;https&#34;: self.https_proxy}
         # url = self.baseUrl + &#34;access/2/catalog/data/productInformation&#34;
-        resp = self.session.get(url, timeout=self.timeout)
+        resp = self.session.get(url, timeout=self.timeout, proxies=proxies)
         print(f&#34;\tapi status code={resp.status_code}&#34;)
         if resp.status_code == 200:
             # valid and 10.4+, get the actual version
@@ -817,7 +915,7 @@ json message ()</p></div>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.1</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
 </footer>
 </body>
 </html>

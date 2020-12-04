@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.9.1" />
+<meta name="generator" content="pdoc 0.9.2" />
 <title>metadata_utilities.mu_logging API documentation</title>
 <meta name="description" content="" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -28,78 +28,76 @@
 </summary>
 <pre><code class="python">import logging
 from datetime import datetime
-
 from opencensus.ext.azure.log_exporter import AzureLogHandler
-
-from metadata_utilities import generic_settings
+from metadata_utilities import log_settings
+import os
 
 
 class MULogging:
-    code_version = &#34;0.1.2&#34;
-    VERBOSE = 6
-    DEBUG = 5
-    INFO = 4
-    WARNING = 3
-    ERROR = 2
-    FATAL = 1
-    generic = generic_settings.GenericSettings()
-    generic.get_config()
-    logger = logging.getLogger(&#34;metadata_utilities&#34;)
-    logging_log_level = logging.DEBUG
-    log_level = DEBUG
-    right_now = datetime.now().isoformat(timespec=&#34;microseconds&#34;).replace(&#34;:&#34;,&#34;-&#34;)
-    # add prefix. Allow for limited number of functions
-    if generic.log_filename_prefix == &#34;{{timestamp}}&#34;:
-        log_path = generic.log_directory + right_now + &#34;-&#34; + generic.log_filename
-    else:
-        log_path = generic.log_directory + generic.log_filename
-    fh = logging.FileHandler(log_path)
-    fh.setLevel(logging_log_level)
-    ch = logging.StreamHandler()
-    ch.setLevel(logging_log_level)
-    formatter = logging.Formatter(&#39;%(asctime)s - %(name)s - %(levelname)s - %(message)s&#39;)
-    fh.setFormatter(formatter)
-    ch.setFormatter(formatter)
-    # add the handlers to the logger
-    logger.addHandler(fh)
-    logger.addHandler(ch)
-    # add azure monitor if configured
-    if generic.instrumentation_key != &#34;unknown&#34; and generic.azure_monitor_requests == &#34;True&#34;:
-        logger.addHandler(AzureLogHandler(connection_string=&#34;InstrumentationKey=&#34; + generic.instrumentation_key))
+    &#34;&#34;&#34;
+        TODO: Code refactoring needed to use wrapper instead of complicated logging
+    &#34;&#34;&#34;
+    code_version = &#34;0.2.21&#34;
+    VERBOSE = 5
+    DEBUG = logging.DEBUG
+    INFO = logging.INFO
+    WARNING = logging.WARNING
+    ERROR = logging.ERROR
+    FATAL = logging.CRITICAL
+    fh = None
+    ch = None
 
-    def __init__(self):
-        self.determine_log_level(self.generic.log_level)
-        self.logger.setLevel(self.logging_log_level)
+    def __init__(self, log_configuration_file):
+        self.log_setting = log_settings.LogSettings(log_configuration_file)
         self.area = None
+        self.logger = self.setup_logger(self.log_setting.log_level
+                                        , self.log_setting.log_filename_prefix
+                                        , self.log_setting.log_directory
+                                        , self.log_setting.log_filename
+                                        , self.log_setting.instrumentation_key
+                                        , self.log_setting.azure_monitor_requests
+                                        )
 
-    def determine_log_level(self, configured_log_level):
-        if configured_log_level == &#34;VERBOSE&#34;:
-            self.log_level = self.VERBOSE
-            self.logging_log_level = logging.DEBUG
-        elif configured_log_level == &#34;DEBUG&#34;:
-            self.log_level = self.DEBUG
-            self.logging_log_level = logging.DEBUG
-        elif configured_log_level == &#34;INFO&#34;:
-            self.log_level = self.INFO
-            self.logging_log_level = logging.INFO
-        elif configured_log_level == &#34;WARNING&#34;:
-            self.log_level = self.WARNING
-            self.logging_log_level = logging.WARNING
-        elif configured_log_level == &#34;ERROR&#34;:
-            self.log_level = self.ERROR
-            self.logging_log_level = logging.ERROR
-        elif configured_log_level == &#34;FATAL&#34;:
-            self.log_level = self.FATAL
-            self.logging_log_level = logging.FATAL
+    @staticmethod
+    def setup_logger(log_level
+                     , log_filename_prefix=&#34;&#34;
+                     , log_directory=&#34;log/&#34;
+                     , log_filename=&#34;some.log&#34;
+                     , instrumentation_key=&#34;unknown&#34;
+                     , azure_monitor_requests=&#34;False&#34;
+                     ):
+        logger = logging.getLogger(&#34;metadata_utilities&#34;)
+        if len(logger.handlers):
+            return logger
+        print(&#34;Setting up logger&#34;)
+        logger.setLevel(log_level)
+        right_now = datetime.now().isoformat(timespec=&#34;microseconds&#34;).replace(&#34;:&#34;, &#34;-&#34;)
+        # add prefix. Allow for limited number of functions
+        if log_filename_prefix == &#34;{{timestamp}}&#34;:
+            log_path = log_directory + right_now + &#34;-&#34; + log_filename
         else:
-            print(f&#34;invalid log level &gt;{configured_log_level}&lt; in config.json. Defaulting to DEBUG&#34;)
-            self.log_level = self.DEBUG
-            self.logging_log_level = logging.DEBUG
+            log_path = log_directory + log_filename
+        os.makedirs(log_directory, exist_ok=True)
+        fh = logging.FileHandler(log_path)
+        fh.setLevel(log_level)
+        ch = logging.StreamHandler()
+        ch.setLevel(log_level)
+        formatter = logging.Formatter(&#39;%(asctime)s - %(name)s - %(levelname)s - %(message)s&#39;)
+        fh.setFormatter(formatter)
+        ch.setFormatter(formatter)
+        # add the handlers to the logger
+        logger.addHandler(fh)
+        logger.addHandler(ch)
+        # add azure monitor if configured
+        if instrumentation_key != &#34;unknown&#34; and azure_monitor_requests == &#34;True&#34;:
+            logger.addHandler(
+                AzureLogHandler(connection_string=&#34;InstrumentationKey=&#34; + instrumentation_key))
+        return logger
 
     def log(self, level=DEBUG, msg=&#34;no_message&#34;, method=&#34;undetermined&#34;, extra=None):
-        if level &lt;= self.log_level:
+        if level &gt;= self.log_setting.log_level:
             if extra is None:
-                properties = {&#34;custom_dimensions&#34;: { &#34;process&#34;: __name__, &#34;code_version&#34;: self.code_version}}
+                properties = {&#34;custom_dimensions&#34;: {&#34;process&#34;: __name__, &#34;code_version&#34;: self.code_version}}
             else:
                 properties = {&#34;custom_dimensions&#34;: extra}
             message = &#34;&#34;
@@ -132,79 +130,79 @@ class MULogging:
 <dl>
 <dt id="metadata_utilities.mu_logging.MULogging"><code class="flex name class">
 <span>class <span class="ident">MULogging</span></span>
+<span>(</span><span>log_configuration_file)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>TODO: Code refactoring needed to use wrapper instead of complicated logging</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class MULogging:
-    code_version = &#34;0.1.2&#34;
-    VERBOSE = 6
-    DEBUG = 5
-    INFO = 4
-    WARNING = 3
-    ERROR = 2
-    FATAL = 1
-    generic = generic_settings.GenericSettings()
-    generic.get_config()
-    logger = logging.getLogger(&#34;metadata_utilities&#34;)
-    logging_log_level = logging.DEBUG
-    log_level = DEBUG
-    right_now = datetime.now().isoformat(timespec=&#34;microseconds&#34;).replace(&#34;:&#34;,&#34;-&#34;)
-    # add prefix. Allow for limited number of functions
-    if generic.log_filename_prefix == &#34;{{timestamp}}&#34;:
-        log_path = generic.log_directory + right_now + &#34;-&#34; + generic.log_filename
-    else:
-        log_path = generic.log_directory + generic.log_filename
-    fh = logging.FileHandler(log_path)
-    fh.setLevel(logging_log_level)
-    ch = logging.StreamHandler()
-    ch.setLevel(logging_log_level)
-    formatter = logging.Formatter(&#39;%(asctime)s - %(name)s - %(levelname)s - %(message)s&#39;)
-    fh.setFormatter(formatter)
-    ch.setFormatter(formatter)
-    # add the handlers to the logger
-    logger.addHandler(fh)
-    logger.addHandler(ch)
-    # add azure monitor if configured
-    if generic.instrumentation_key != &#34;unknown&#34; and generic.azure_monitor_requests == &#34;True&#34;:
-        logger.addHandler(AzureLogHandler(connection_string=&#34;InstrumentationKey=&#34; + generic.instrumentation_key))
+    &#34;&#34;&#34;
+        TODO: Code refactoring needed to use wrapper instead of complicated logging
+    &#34;&#34;&#34;
+    code_version = &#34;0.2.21&#34;
+    VERBOSE = 5
+    DEBUG = logging.DEBUG
+    INFO = logging.INFO
+    WARNING = logging.WARNING
+    ERROR = logging.ERROR
+    FATAL = logging.CRITICAL
+    fh = None
+    ch = None
 
-    def __init__(self):
-        self.determine_log_level(self.generic.log_level)
-        self.logger.setLevel(self.logging_log_level)
+    def __init__(self, log_configuration_file):
+        self.log_setting = log_settings.LogSettings(log_configuration_file)
         self.area = None
+        self.logger = self.setup_logger(self.log_setting.log_level
+                                        , self.log_setting.log_filename_prefix
+                                        , self.log_setting.log_directory
+                                        , self.log_setting.log_filename
+                                        , self.log_setting.instrumentation_key
+                                        , self.log_setting.azure_monitor_requests
+                                        )
 
-    def determine_log_level(self, configured_log_level):
-        if configured_log_level == &#34;VERBOSE&#34;:
-            self.log_level = self.VERBOSE
-            self.logging_log_level = logging.DEBUG
-        elif configured_log_level == &#34;DEBUG&#34;:
-            self.log_level = self.DEBUG
-            self.logging_log_level = logging.DEBUG
-        elif configured_log_level == &#34;INFO&#34;:
-            self.log_level = self.INFO
-            self.logging_log_level = logging.INFO
-        elif configured_log_level == &#34;WARNING&#34;:
-            self.log_level = self.WARNING
-            self.logging_log_level = logging.WARNING
-        elif configured_log_level == &#34;ERROR&#34;:
-            self.log_level = self.ERROR
-            self.logging_log_level = logging.ERROR
-        elif configured_log_level == &#34;FATAL&#34;:
-            self.log_level = self.FATAL
-            self.logging_log_level = logging.FATAL
+    @staticmethod
+    def setup_logger(log_level
+                     , log_filename_prefix=&#34;&#34;
+                     , log_directory=&#34;log/&#34;
+                     , log_filename=&#34;some.log&#34;
+                     , instrumentation_key=&#34;unknown&#34;
+                     , azure_monitor_requests=&#34;False&#34;
+                     ):
+        logger = logging.getLogger(&#34;metadata_utilities&#34;)
+        if len(logger.handlers):
+            return logger
+        print(&#34;Setting up logger&#34;)
+        logger.setLevel(log_level)
+        right_now = datetime.now().isoformat(timespec=&#34;microseconds&#34;).replace(&#34;:&#34;, &#34;-&#34;)
+        # add prefix. Allow for limited number of functions
+        if log_filename_prefix == &#34;{{timestamp}}&#34;:
+            log_path = log_directory + right_now + &#34;-&#34; + log_filename
         else:
-            print(f&#34;invalid log level &gt;{configured_log_level}&lt; in config.json. Defaulting to DEBUG&#34;)
-            self.log_level = self.DEBUG
-            self.logging_log_level = logging.DEBUG
+            log_path = log_directory + log_filename
+        os.makedirs(log_directory, exist_ok=True)
+        fh = logging.FileHandler(log_path)
+        fh.setLevel(log_level)
+        ch = logging.StreamHandler()
+        ch.setLevel(log_level)
+        formatter = logging.Formatter(&#39;%(asctime)s - %(name)s - %(levelname)s - %(message)s&#39;)
+        fh.setFormatter(formatter)
+        ch.setFormatter(formatter)
+        # add the handlers to the logger
+        logger.addHandler(fh)
+        logger.addHandler(ch)
+        # add azure monitor if configured
+        if instrumentation_key != &#34;unknown&#34; and azure_monitor_requests == &#34;True&#34;:
+            logger.addHandler(
+                AzureLogHandler(connection_string=&#34;InstrumentationKey=&#34; + instrumentation_key))
+        return logger
 
     def log(self, level=DEBUG, msg=&#34;no_message&#34;, method=&#34;undetermined&#34;, extra=None):
-        if level &lt;= self.log_level:
+        if level &gt;= self.log_setting.log_level:
             if extra is None:
-                properties = {&#34;custom_dimensions&#34;: { &#34;process&#34;: __name__, &#34;code_version&#34;: self.code_version}}
+                properties = {&#34;custom_dimensions&#34;: {&#34;process&#34;: __name__, &#34;code_version&#34;: self.code_version}}
             else:
                 properties = {&#34;custom_dimensions&#34;: extra}
             message = &#34;&#34;
@@ -263,39 +261,11 @@ class MULogging:
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="metadata_utilities.mu_logging.MULogging.formatter"><code class="name">var <span class="ident">formatter</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="metadata_utilities.mu_logging.MULogging.generic"><code class="name">var <span class="ident">generic</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="metadata_utilities.mu_logging.MULogging.log_level"><code class="name">var <span class="ident">log_level</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="metadata_utilities.mu_logging.MULogging.log_path"><code class="name">var <span class="ident">log_path</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="metadata_utilities.mu_logging.MULogging.logger"><code class="name">var <span class="ident">logger</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="metadata_utilities.mu_logging.MULogging.logging_log_level"><code class="name">var <span class="ident">logging_log_level</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="metadata_utilities.mu_logging.MULogging.right_now"><code class="name">var <span class="ident">right_now</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
 </dl>
-<h3>Methods</h3>
+<h3>Static methods</h3>
 <dl>
-<dt id="metadata_utilities.mu_logging.MULogging.determine_log_level"><code class="name flex">
-<span>def <span class="ident">determine_log_level</span></span>(<span>self, configured_log_level)</span>
+<dt id="metadata_utilities.mu_logging.MULogging.setup_logger"><code class="name flex">
+<span>def <span class="ident">setup_logger</span></span>(<span>log_level, log_filename_prefix='', log_directory='log/', log_filename='some.log', instrumentation_key='unknown', azure_monitor_requests='False')</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -303,33 +273,48 @@ class MULogging:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def determine_log_level(self, configured_log_level):
-    if configured_log_level == &#34;VERBOSE&#34;:
-        self.log_level = self.VERBOSE
-        self.logging_log_level = logging.DEBUG
-    elif configured_log_level == &#34;DEBUG&#34;:
-        self.log_level = self.DEBUG
-        self.logging_log_level = logging.DEBUG
-    elif configured_log_level == &#34;INFO&#34;:
-        self.log_level = self.INFO
-        self.logging_log_level = logging.INFO
-    elif configured_log_level == &#34;WARNING&#34;:
-        self.log_level = self.WARNING
-        self.logging_log_level = logging.WARNING
-    elif configured_log_level == &#34;ERROR&#34;:
-        self.log_level = self.ERROR
-        self.logging_log_level = logging.ERROR
-    elif configured_log_level == &#34;FATAL&#34;:
-        self.log_level = self.FATAL
-        self.logging_log_level = logging.FATAL
+<pre><code class="python">@staticmethod
+def setup_logger(log_level
+                 , log_filename_prefix=&#34;&#34;
+                 , log_directory=&#34;log/&#34;
+                 , log_filename=&#34;some.log&#34;
+                 , instrumentation_key=&#34;unknown&#34;
+                 , azure_monitor_requests=&#34;False&#34;
+                 ):
+    logger = logging.getLogger(&#34;metadata_utilities&#34;)
+    if len(logger.handlers):
+        return logger
+    print(&#34;Setting up logger&#34;)
+    logger.setLevel(log_level)
+    right_now = datetime.now().isoformat(timespec=&#34;microseconds&#34;).replace(&#34;:&#34;, &#34;-&#34;)
+    # add prefix. Allow for limited number of functions
+    if log_filename_prefix == &#34;{{timestamp}}&#34;:
+        log_path = log_directory + right_now + &#34;-&#34; + log_filename
     else:
-        print(f&#34;invalid log level &gt;{configured_log_level}&lt; in config.json. Defaulting to DEBUG&#34;)
-        self.log_level = self.DEBUG
-        self.logging_log_level = logging.DEBUG</code></pre>
+        log_path = log_directory + log_filename
+    os.makedirs(log_directory, exist_ok=True)
+    fh = logging.FileHandler(log_path)
+    fh.setLevel(log_level)
+    ch = logging.StreamHandler()
+    ch.setLevel(log_level)
+    formatter = logging.Formatter(&#39;%(asctime)s - %(name)s - %(levelname)s - %(message)s&#39;)
+    fh.setFormatter(formatter)
+    ch.setFormatter(formatter)
+    # add the handlers to the logger
+    logger.addHandler(fh)
+    logger.addHandler(ch)
+    # add azure monitor if configured
+    if instrumentation_key != &#34;unknown&#34; and azure_monitor_requests == &#34;True&#34;:
+        logger.addHandler(
+            AzureLogHandler(connection_string=&#34;InstrumentationKey=&#34; + instrumentation_key))
+    return logger</code></pre>
 </details>
 </dd>
+</dl>
+<h3>Methods</h3>
+<dl>
 <dt id="metadata_utilities.mu_logging.MULogging.log"><code class="name flex">
-<span>def <span class="ident">log</span></span>(<span>self, level=5, msg='no_message', method='undetermined', extra=None)</span>
+<span>def <span class="ident">log</span></span>(<span>self, level=10, msg='no_message', method='undetermined', extra=None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -338,9 +323,9 @@ class MULogging:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def log(self, level=DEBUG, msg=&#34;no_message&#34;, method=&#34;undetermined&#34;, extra=None):
-    if level &lt;= self.log_level:
+    if level &gt;= self.log_setting.log_level:
         if extra is None:
-            properties = {&#34;custom_dimensions&#34;: { &#34;process&#34;: __name__, &#34;code_version&#34;: self.code_version}}
+            properties = {&#34;custom_dimensions&#34;: {&#34;process&#34;: __name__, &#34;code_version&#34;: self.code_version}}
         else:
             properties = {&#34;custom_dimensions&#34;: extra}
         message = &#34;&#34;
@@ -391,16 +376,9 @@ class MULogging:
 <li><code><a title="metadata_utilities.mu_logging.MULogging.WARNING" href="#metadata_utilities.mu_logging.MULogging.WARNING">WARNING</a></code></li>
 <li><code><a title="metadata_utilities.mu_logging.MULogging.ch" href="#metadata_utilities.mu_logging.MULogging.ch">ch</a></code></li>
 <li><code><a title="metadata_utilities.mu_logging.MULogging.code_version" href="#metadata_utilities.mu_logging.MULogging.code_version">code_version</a></code></li>
-<li><code><a title="metadata_utilities.mu_logging.MULogging.determine_log_level" href="#metadata_utilities.mu_logging.MULogging.determine_log_level">determine_log_level</a></code></li>
 <li><code><a title="metadata_utilities.mu_logging.MULogging.fh" href="#metadata_utilities.mu_logging.MULogging.fh">fh</a></code></li>
-<li><code><a title="metadata_utilities.mu_logging.MULogging.formatter" href="#metadata_utilities.mu_logging.MULogging.formatter">formatter</a></code></li>
-<li><code><a title="metadata_utilities.mu_logging.MULogging.generic" href="#metadata_utilities.mu_logging.MULogging.generic">generic</a></code></li>
 <li><code><a title="metadata_utilities.mu_logging.MULogging.log" href="#metadata_utilities.mu_logging.MULogging.log">log</a></code></li>
-<li><code><a title="metadata_utilities.mu_logging.MULogging.log_level" href="#metadata_utilities.mu_logging.MULogging.log_level">log_level</a></code></li>
-<li><code><a title="metadata_utilities.mu_logging.MULogging.log_path" href="#metadata_utilities.mu_logging.MULogging.log_path">log_path</a></code></li>
-<li><code><a title="metadata_utilities.mu_logging.MULogging.logger" href="#metadata_utilities.mu_logging.MULogging.logger">logger</a></code></li>
-<li><code><a title="metadata_utilities.mu_logging.MULogging.logging_log_level" href="#metadata_utilities.mu_logging.MULogging.logging_log_level">logging_log_level</a></code></li>
-<li><code><a title="metadata_utilities.mu_logging.MULogging.right_now" href="#metadata_utilities.mu_logging.MULogging.right_now">right_now</a></code></li>
+<li><code><a title="metadata_utilities.mu_logging.MULogging.setup_logger" href="#metadata_utilities.mu_logging.MULogging.setup_logger">setup_logger</a></code></li>
 </ul>
 </li>
 </ul>
@@ -409,7 +387,7 @@ class MULogging:
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.1</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
 </footer>
 </body>
 </html>

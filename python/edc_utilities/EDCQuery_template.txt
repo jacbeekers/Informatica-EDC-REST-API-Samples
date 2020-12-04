@@ -13,8 +13,6 @@ import time
 
 from edc_utilities import edcutils, edcSessionHelper
 
-# set edc helper session + variables (easy/re-usable connection to edc api)
-edcHelper = edcSessionHelper.EDCSession()
 
 def process_item(an_item, item_count):
     """
@@ -38,6 +36,8 @@ def main():
     note:  this version supports the paging model, to process the results
            in chunks of pageSize
     """
+    # set edc helper session + variables (easy/re-usable connection to edc api)
+    edcHelper = edcSessionHelper.EDCSession()
     start_time = time.time()
     total = 1000  # initial value - set to > 0 - will replaced on first call
     offset = 0
