@@ -59,27 +59,27 @@ class Generic:
                 self.data = json.load(f)
                 if "meta" not in self.data or "meta_version" not in self.data:
                     self.mu_log.log(self.mu_log.ERROR, log_prefix +
-                                    "the keys 'meta' and 'meta_version' are required, but not found in" + current_json_file
+                                    "The keys 'meta' and 'meta_version' are required, but not found in" + current_json_file
                                     , module)
                     file_result = messages.message["meta_error"]
                     continue
 
                 meta_type = self.data["meta"]
                 meta_version = self.data["meta_version"]
-                self.mu_log.log(self.mu_log.DEBUG, log_prefix +
-                                "file states it adheres to schema >" + meta_type + "<, version >"
+                self.mu_log.log(self.mu_log.VERBOSE, log_prefix +
+                                "File states it adheres to schema >" + meta_type + "<, version >"
                                 + meta_version + "<", module)
                 if meta_type == target_schema_type:
                     self.mu_log.log(self.mu_log.DEBUG, log_prefix + "meta_type matches", module)
                     if property in self.data:
                         self.mu_log.log(self.mu_log.DEBUG, log_prefix
-                                        + "current metadata_type matches target_schema_type", module)
+                                        + "Current metadata_type matches target_schema_type", module)
                         found_meta_type = True
                         try:
                             the_property_value = self.data[property]
                             if the_property_value == source_uuid:
                                 self.mu_log.log(self.mu_log.DEBUG, log_prefix +
-                                                "file contains uuid >" + source_uuid + "< in property >" + property
+                                                "File contains uuid >" + source_uuid + "< in property >" + property
                                                 + "<", module)
                                 self.json_file = current_json_file
                                 self.found_data = self.data
@@ -119,12 +119,12 @@ class Generic:
                                     break
                                 else:
                                     self.mu_log.log(self.mu_log.VERBOSE, log_prefix
-                                                    + "this is not the UUID we are looking for", module)
+                                                    + "This is not the UUID we are looking for", module)
                         else:
-                            self.mu_log.log(self.mu_log.DEBUG, "property and attribute_list are not in the file", module)
+                            self.mu_log.log(self.mu_log.VERBOSE, "property and attribute_list are not in the file", module)
                 else:
-                    self.mu_log.log(self.mu_log.DEBUG, log_prefix +
-                                    "this is not the file we are looking for (schema_types do not match)", module)
+                    self.mu_log.log(self.mu_log.VERBOSE, log_prefix +
+                                    "This is not the file we are looking for (schema_types do not match)", module)
                     file_result = messages.message["not_found"]
 
         if found_meta_type:
@@ -145,7 +145,7 @@ class Generic:
                 overall_result = messages.message["json_uuid_not_found"]
         else:
             self.mu_log.log(self.mu_log.DEBUG, log_prefix
-                            + "no JSON with target_schema_type >" + target_schema_type + "<", module)
+                            + "No JSON with target_schema_type >" + target_schema_type + "<", module)
             overall_result = file_result
 
         return overall_result

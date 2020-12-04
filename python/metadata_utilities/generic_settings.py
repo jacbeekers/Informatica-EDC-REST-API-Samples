@@ -83,7 +83,7 @@ class GenericSettings:
                 if "log_config" in data:
                     self.log_config = data["log_config"]
                 else:
-                    self.log_config = "resources/log_config"
+                    self.log_config = "resources/log_config.json"
                 self.mu_log = mu_logging.MULogging(self.log_config)
                 self.log_directory = self.mu_log.log_setting.log_directory
                 self.log_filename = self.mu_log.log_setting.log_filename
