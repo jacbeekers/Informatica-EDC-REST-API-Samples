@@ -8,6 +8,11 @@ Getting Started
 ---------------
 
 * Clone this repository
+* This repository uses two submodules. Run the following the get them:
+  - git submodule init
+  - git submodule update
+The git repository metadata-registry-interface-specifications will be located in Informatica-EDC-REST-API-Samples/python/metadata-registry-specifications
+The git repository azure-python-samples will be located in Informatica-EDC-REST-API-Samples/python/azure-python-samples
 
 ## More into on the metadata_utilities
 [Dependency Graph](python/metadata_utilities/docs/metadata_utilities.svg)
@@ -33,3 +38,4 @@ Getting Started
 ## Package on PyPI
 
 [We are on PyPI](https://pypi.org/project/informatica-edc-rest-api-samples/)
+
