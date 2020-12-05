@@ -1,16 +1,14 @@
 import glob
 import json
 
-from metadata_utilities import generic_settings
 from metadata_utilities import messages
-from metadata_utilities import mu_logging
 
 
 class Generic:
     """
     Some generic utilities, e.g. reading the config.json
     """
-    code_version = "0.2.21"
+    code_version = "0.2.24"
 
     def __init__(self, settings, mu_log_ref):
         module = "Generic.__init__"
@@ -31,7 +29,7 @@ class Generic:
             self.settings_found = True
         self.json_file = self.settings.main_config_file
 
-    def find_json(self, source_uuid, target_schema_type, property, log_prefix = ""):
+    def find_json(self, source_uuid, target_schema_type, property, log_prefix=""):
         """
         find the JSON file that has the source_uuid in the value of the property.
         The JSON schema of the file must be 'target_schema_type'.
@@ -101,7 +99,8 @@ class Generic:
                             file_result = messages.message["json_key_error"]
                     else:
                         if "attribute_list" in self.data:
-                            self.mu_log.log(self.mu_log.VERBOSE, log_prefix + "JSON file contains attribute_list", module)
+                            self.mu_log.log(self.mu_log.VERBOSE, log_prefix + "JSON file contains attribute_list",
+                                            module)
                             i = -1
                             for attribute in self.data["attribute_list"]:
                                 i += 1
@@ -121,7 +120,8 @@ class Generic:
                                     self.mu_log.log(self.mu_log.VERBOSE, log_prefix
                                                     + "This is not the UUID we are looking for", module)
                         else:
-                            self.mu_log.log(self.mu_log.VERBOSE, "property and attribute_list are not in the file", module)
+                            self.mu_log.log(self.mu_log.VERBOSE, "property and attribute_list are not in the file",
+                                            module)
                 else:
                     self.mu_log.log(self.mu_log.VERBOSE, log_prefix +
                                     "This is not the file we are looking for (schema_types do not match)", module)
@@ -155,6 +155,7 @@ class Generic:
         module = "Generic.write_local_file"
         file_result = messages.message["ok"]
         path = self.settings.output_directory + filename
+        self.mu_log.log(self.mu_log.DEBUG, "File name: " + path, module)
         self.mu_log.log(self.mu_log.VERBOSE, "writing >" + to_write + "< to file >" + path + "<...", module)
         try:
             with open(path, "w") as f:
