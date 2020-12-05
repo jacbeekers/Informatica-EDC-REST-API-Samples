@@ -116,16 +116,6 @@ class EDCSession:
             ),
             type=str,
         )
-        self.argparser.add_argument(
-            &#34;-v&#34;,
-            &#34;--envfile&#34;,
-            help=(
-                &#34;.env file with config settings INFA_EDC_URL,INFA_EDC_AUTH etc  &#34;
-                &#34;will over-ride system environment variables.  &#34;
-                &#34;if not specified - &#39;.env&#39; file in current folder will be used &#34;
-            ),
-            default=&#34;.env&#34;,
-        )
         group = self.argparser.add_mutually_exclusive_group()
         group.add_argument(
             &#34;-a&#34;,
@@ -141,7 +131,7 @@ class EDCSession:
             &#34;-u&#34;,
             &#34;--user&#34;,
             required=False,
-            help=&#34;user name - will also prompt for password &#34;,
+            help=&#34;user name&#34;,
             type=str,
         )
         self.argparser.add_argument(
@@ -169,7 +159,7 @@ class EDCSession:
             type=str,
         )
 
-    def initUrlAndSessionFromEDCSettings(self):
+    def initUrlAndSessionFromEDCSettings(self, edc_secrets=&#34;resources/edc.secrets&#34;):
         &#34;&#34;&#34;
         reads the env vars and any command-line parameters &amp; creates an edc session
         with auth and optionally verify attributes populated (shared so no need to use
@@ -180,62 +170,20 @@ class EDCSession:
         auth = None
         verify = None
 
-        print(&#34;\treading common env/env file/cmd settings&#34;)
-
         args, unknown = self.argparser.parse_known_args()
-        if args.envfile is not None:
-            # check if the file exists
-            # envfullpath = (pathlib.Path(&#34;.&#34;).cwd() / args.envfile)
-            print(f&#34;ready to check .env file {args.envfile}&#34;)
-            if pathlib.Path(args.envfile).is_file():
-                print(f&#34;\t\tloading from .env file {args.envfile}&#34;)
-                # envfullpath = f&#34;{Path(&#39;.&#39;).cwd()}\\{args.envfile}&#34;
-                # override - ensure we read settings from &lt;envfile&gt; vs vars
-                load_dotenv(
-                    dotenv_path=(pathlib.Path(args.envfile)),
-                    verbose=True,
-                    override=True,
-                )
-                # check the settings from the .env file
-                # print(os.getenv(&#34;INFA_EDC_URL&#34;))
-                if self.baseUrl is None:
-                    edcurl = os.getenv(&#34;INFA_EDC_URL&#34;)
-                    print(f&#34;\t\tread edc url from {args.envfile} value={edcurl}&#34;)
-                    if edcurl is not None and edcurl != self.baseUrl:
-                        print(f&#34;\t\treplacing edc url with value from {args.envfile}&#34;)
-                        self.baseUrl = edcurl
-                print(&#34;EDCUrl: &#34; + self.baseUrl)
-                if auth is None:
-                    edcauth = os.environ[&#34;INFA_EDC_AUTH&#34;]
-                    # print(f&#34;read edc auth from {args.envfile} value={edcauth}&#34;)
-                    if edcauth is not None and edcauth != auth:
-                        print(
-                            f&#34;\t\treplacing edc auth with INFA_EDC_AUTH value &#34;
-                            &#34;from {args.envfile}&#34;
-                        )
-                        auth = edcauth
-
-                if self.http_proxy is None:
-                    http_proxy = os.getenv(&#34;HTTP_PROXY&#34;)
-                    print(f&#34;\t\tread HTTP Proxy from {args.envfile} value={http_proxy}&#34;)
-
-                if self.https_proxy is None:
-                    https_proxy = os.getenv(&#34;HTTPS_PROXY&#34;)
-                    print(f&#34;\t\tread HTTPS Proxy from {args.envfile} value={https_proxy}&#34;)
-
-
-            else:
-                print(&#34;isfile False&#34;)
-        else:
-            print(&#34;env file not found??&#34;)
-        if &#34;CUSTOM_INFA_EDC_URL&#34; in os.environ:
-            self.baseUrl = os.environ[&#34;CUSTOM_INFA_EDC_URL&#34;]
+        if &#34;INFA_EDC_URL&#34; in os.environ:
+            self.baseUrl = os.environ[&#34;INFA_EDC_URL&#34;]
             print(&#34;\t\tusing EDC_URL=&#34; + self.baseUrl + &#34; from INFA_EDC_URL environment variable&#34;)
 
-        if &#34;CUSTOM_INFA_EDC_AUTH&#34; in os.environ:
-            print(&#34;\t\tusing INFA_EDC_AUTH from environment&#34;)
-            auth = os.environ[&#34;CUSTOM_INFA_EDC_AUTH&#34;]
-            # print(f&#34;value = {auth}&#34;)
+        auth = self.settings.auth
+        if args.auth is not None:
+            print(f&#34;\t\tusing edc auth from command-line parameter.&#34;)
+            auth = args.auth
+        else:
+            if &#34;INFA_EDC_AUTH&#34; in os.environ:
+                print(&#34;\t\tusing INFA_EDC_AUTH from environment&#34;)
+                auth = os.environ[&#34;INFA_EDC_AUTH&#34;]
+                # print(f&#34;value = {auth}&#34;)
 
         if &#34;INFA_EDC_SSL_PEM&#34; in os.environ:
             verify = os.environ[&#34;INFA_EDC_SSL_PEM&#34;]
@@ -256,20 +204,8 @@ class EDCSession:
                 self.baseUrl = args.edcurl
         # if there is still no edc url - then use it from edc secrets file
         if self.baseUrl is None:
-            # nothing entered anywyere for the base url
-            print(f&#34;edc url not specified in ENV var or command-line parameter&#34;)
+            print(f&#34;\t\tusing edc url from edc secrets file&#34;)
             self.baseUrl = self.settings.edc_url
-
-        # user credential stored in auth
-        if args.auth is not None:
-            print(f&#34;\t\tover-riding auth setting from command-line..{args.auth}&#34;)
-            auth = args.auth
-
-        # if there is still no auth - then prompt for id and pwd
-        if auth is None:
-            print(
-                f&#34;no credentials in ENV var/.env file/command-line - &#34;
-            )
 
         if args.sslcert is not None:
             if args.sslcert == &#34;False&#34;:
@@ -277,22 +213,12 @@ class EDCSession:
             else:
                 verify = args.sslcert
 
-        if self.baseUrl is None:
-            # prompt the user for the catalog ui
-
-            print(
-                &#34;\t\tno catalog url passed, either as env variable or with &#34;
-                &#34;-c/--edcurl parameter - exiting&#34;
-            )
-
         # create a session
         self.session = requests.Session()
         # session.headers.update({&#34;Accept&#34;: &#34;application/json&#34;})
         self.session.verify = verify
         self.session.headers.update({&#34;Authorization&#34;: auth})
         self.session.baseUrl = self.baseUrl
-
-        print(&#34;\tfinished reading common env/.env/cmd parameters&#34;)
 
     def initSession(self, catalog_url, catalog_auth, verify):
         &#34;&#34;&#34;
@@ -408,16 +334,6 @@ for easy re-use for multiple scripts</p></div>
             ),
             type=str,
         )
-        self.argparser.add_argument(
-            &#34;-v&#34;,
-            &#34;--envfile&#34;,
-            help=(
-                &#34;.env file with config settings INFA_EDC_URL,INFA_EDC_AUTH etc  &#34;
-                &#34;will over-ride system environment variables.  &#34;
-                &#34;if not specified - &#39;.env&#39; file in current folder will be used &#34;
-            ),
-            default=&#34;.env&#34;,
-        )
         group = self.argparser.add_mutually_exclusive_group()
         group.add_argument(
             &#34;-a&#34;,
@@ -433,7 +349,7 @@ for easy re-use for multiple scripts</p></div>
             &#34;-u&#34;,
             &#34;--user&#34;,
             required=False,
-            help=&#34;user name - will also prompt for password &#34;,
+            help=&#34;user name&#34;,
             type=str,
         )
         self.argparser.add_argument(
@@ -461,7 +377,7 @@ for easy re-use for multiple scripts</p></div>
             type=str,
         )
 
-    def initUrlAndSessionFromEDCSettings(self):
+    def initUrlAndSessionFromEDCSettings(self, edc_secrets=&#34;resources/edc.secrets&#34;):
         &#34;&#34;&#34;
         reads the env vars and any command-line parameters &amp; creates an edc session
         with auth and optionally verify attributes populated (shared so no need to use
@@ -472,62 +388,20 @@ for easy re-use for multiple scripts</p></div>
         auth = None
         verify = None
 
-        print(&#34;\treading common env/env file/cmd settings&#34;)
-
         args, unknown = self.argparser.parse_known_args()
-        if args.envfile is not None:
-            # check if the file exists
-            # envfullpath = (pathlib.Path(&#34;.&#34;).cwd() / args.envfile)
-            print(f&#34;ready to check .env file {args.envfile}&#34;)
-            if pathlib.Path(args.envfile).is_file():
-                print(f&#34;\t\tloading from .env file {args.envfile}&#34;)
-                # envfullpath = f&#34;{Path(&#39;.&#39;).cwd()}\\{args.envfile}&#34;
-                # override - ensure we read settings from &lt;envfile&gt; vs vars
-                load_dotenv(
-                    dotenv_path=(pathlib.Path(args.envfile)),
-                    verbose=True,
-                    override=True,
-                )
-                # check the settings from the .env file
-                # print(os.getenv(&#34;INFA_EDC_URL&#34;))
-                if self.baseUrl is None:
-                    edcurl = os.getenv(&#34;INFA_EDC_URL&#34;)
-                    print(f&#34;\t\tread edc url from {args.envfile} value={edcurl}&#34;)
-                    if edcurl is not None and edcurl != self.baseUrl:
-                        print(f&#34;\t\treplacing edc url with value from {args.envfile}&#34;)
-                        self.baseUrl = edcurl
-                print(&#34;EDCUrl: &#34; + self.baseUrl)
-                if auth is None:
-                    edcauth = os.environ[&#34;INFA_EDC_AUTH&#34;]
-                    # print(f&#34;read edc auth from {args.envfile} value={edcauth}&#34;)
-                    if edcauth is not None and edcauth != auth:
-                        print(
-                            f&#34;\t\treplacing edc auth with INFA_EDC_AUTH value &#34;
-                            &#34;from {args.envfile}&#34;
-                        )
-                        auth = edcauth
-
-                if self.http_proxy is None:
-                    http_proxy = os.getenv(&#34;HTTP_PROXY&#34;)
-                    print(f&#34;\t\tread HTTP Proxy from {args.envfile} value={http_proxy}&#34;)
-
-                if self.https_proxy is None:
-                    https_proxy = os.getenv(&#34;HTTPS_PROXY&#34;)
-                    print(f&#34;\t\tread HTTPS Proxy from {args.envfile} value={https_proxy}&#34;)
-
-
-            else:
-                print(&#34;isfile False&#34;)
-        else:
-            print(&#34;env file not found??&#34;)
-        if &#34;CUSTOM_INFA_EDC_URL&#34; in os.environ:
-            self.baseUrl = os.environ[&#34;CUSTOM_INFA_EDC_URL&#34;]
+        if &#34;INFA_EDC_URL&#34; in os.environ:
+            self.baseUrl = os.environ[&#34;INFA_EDC_URL&#34;]
             print(&#34;\t\tusing EDC_URL=&#34; + self.baseUrl + &#34; from INFA_EDC_URL environment variable&#34;)
 
-        if &#34;CUSTOM_INFA_EDC_AUTH&#34; in os.environ:
-            print(&#34;\t\tusing INFA_EDC_AUTH from environment&#34;)
-            auth = os.environ[&#34;CUSTOM_INFA_EDC_AUTH&#34;]
-            # print(f&#34;value = {auth}&#34;)
+        auth = self.settings.auth
+        if args.auth is not None:
+            print(f&#34;\t\tusing edc auth from command-line parameter.&#34;)
+            auth = args.auth
+        else:
+            if &#34;INFA_EDC_AUTH&#34; in os.environ:
+                print(&#34;\t\tusing INFA_EDC_AUTH from environment&#34;)
+                auth = os.environ[&#34;INFA_EDC_AUTH&#34;]
+                # print(f&#34;value = {auth}&#34;)
 
         if &#34;INFA_EDC_SSL_PEM&#34; in os.environ:
             verify = os.environ[&#34;INFA_EDC_SSL_PEM&#34;]
@@ -548,20 +422,8 @@ for easy re-use for multiple scripts</p></div>
                 self.baseUrl = args.edcurl
         # if there is still no edc url - then use it from edc secrets file
         if self.baseUrl is None:
-            # nothing entered anywyere for the base url
-            print(f&#34;edc url not specified in ENV var or command-line parameter&#34;)
+            print(f&#34;\t\tusing edc url from edc secrets file&#34;)
             self.baseUrl = self.settings.edc_url
-
-        # user credential stored in auth
-        if args.auth is not None:
-            print(f&#34;\t\tover-riding auth setting from command-line..{args.auth}&#34;)
-            auth = args.auth
-
-        # if there is still no auth - then prompt for id and pwd
-        if auth is None:
-            print(
-                f&#34;no credentials in ENV var/.env file/command-line - &#34;
-            )
 
         if args.sslcert is not None:
             if args.sslcert == &#34;False&#34;:
@@ -569,22 +431,12 @@ for easy re-use for multiple scripts</p></div>
             else:
                 verify = args.sslcert
 
-        if self.baseUrl is None:
-            # prompt the user for the catalog ui
-
-            print(
-                &#34;\t\tno catalog url passed, either as env variable or with &#34;
-                &#34;-c/--edcurl parameter - exiting&#34;
-            )
-
         # create a session
         self.session = requests.Session()
         # session.headers.update({&#34;Accept&#34;: &#34;application/json&#34;})
         self.session.verify = verify
         self.session.headers.update({&#34;Authorization&#34;: auth})
         self.session.baseUrl = self.baseUrl
-
-        print(&#34;\tfinished reading common env/.env/cmd parameters&#34;)
 
     def initSession(self, catalog_url, catalog_auth, verify):
         &#34;&#34;&#34;
@@ -673,7 +525,7 @@ for subsequent calls, verify can be False</p></div>
 </details>
 </dd>
 <dt id="edc_utilities.edcSessionHelper.EDCSession.initUrlAndSessionFromEDCSettings"><code class="name flex">
-<span>def <span class="ident">initUrlAndSessionFromEDCSettings</span></span>(<span>self)</span>
+<span>def <span class="ident">initUrlAndSessionFromEDCSettings</span></span>(<span>self, edc_secrets='resources/edc.secrets')</span>
 </code></dt>
 <dd>
 <div class="desc"><p>reads the env vars and any command-line parameters &amp; creates an edc session
@@ -685,7 +537,7 @@ url, auth</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def initUrlAndSessionFromEDCSettings(self):
+<pre><code class="python">def initUrlAndSessionFromEDCSettings(self, edc_secrets=&#34;resources/edc.secrets&#34;):
     &#34;&#34;&#34;
     reads the env vars and any command-line parameters &amp; creates an edc session
     with auth and optionally verify attributes populated (shared so no need to use
@@ -696,62 +548,20 @@ url, auth</p></div>
     auth = None
     verify = None
 
-    print(&#34;\treading common env/env file/cmd settings&#34;)
-
     args, unknown = self.argparser.parse_known_args()
-    if args.envfile is not None:
-        # check if the file exists
-        # envfullpath = (pathlib.Path(&#34;.&#34;).cwd() / args.envfile)
-        print(f&#34;ready to check .env file {args.envfile}&#34;)
-        if pathlib.Path(args.envfile).is_file():
-            print(f&#34;\t\tloading from .env file {args.envfile}&#34;)
-            # envfullpath = f&#34;{Path(&#39;.&#39;).cwd()}\\{args.envfile}&#34;
-            # override - ensure we read settings from &lt;envfile&gt; vs vars
-            load_dotenv(
-                dotenv_path=(pathlib.Path(args.envfile)),
-                verbose=True,
-                override=True,
-            )
-            # check the settings from the .env file
-            # print(os.getenv(&#34;INFA_EDC_URL&#34;))
-            if self.baseUrl is None:
-                edcurl = os.getenv(&#34;INFA_EDC_URL&#34;)
-                print(f&#34;\t\tread edc url from {args.envfile} value={edcurl}&#34;)
-                if edcurl is not None and edcurl != self.baseUrl:
-                    print(f&#34;\t\treplacing edc url with value from {args.envfile}&#34;)
-                    self.baseUrl = edcurl
-            print(&#34;EDCUrl: &#34; + self.baseUrl)
-            if auth is None:
-                edcauth = os.environ[&#34;INFA_EDC_AUTH&#34;]
-                # print(f&#34;read edc auth from {args.envfile} value={edcauth}&#34;)
-                if edcauth is not None and edcauth != auth:
-                    print(
-                        f&#34;\t\treplacing edc auth with INFA_EDC_AUTH value &#34;
-                        &#34;from {args.envfile}&#34;
-                    )
-                    auth = edcauth
-
-            if self.http_proxy is None:
-                http_proxy = os.getenv(&#34;HTTP_PROXY&#34;)
-                print(f&#34;\t\tread HTTP Proxy from {args.envfile} value={http_proxy}&#34;)
-
-            if self.https_proxy is None:
-                https_proxy = os.getenv(&#34;HTTPS_PROXY&#34;)
-                print(f&#34;\t\tread HTTPS Proxy from {args.envfile} value={https_proxy}&#34;)
-
-
-        else:
-            print(&#34;isfile False&#34;)
-    else:
-        print(&#34;env file not found??&#34;)
-    if &#34;CUSTOM_INFA_EDC_URL&#34; in os.environ:
-        self.baseUrl = os.environ[&#34;CUSTOM_INFA_EDC_URL&#34;]
+    if &#34;INFA_EDC_URL&#34; in os.environ:
+        self.baseUrl = os.environ[&#34;INFA_EDC_URL&#34;]
         print(&#34;\t\tusing EDC_URL=&#34; + self.baseUrl + &#34; from INFA_EDC_URL environment variable&#34;)
 
-    if &#34;CUSTOM_INFA_EDC_AUTH&#34; in os.environ:
-        print(&#34;\t\tusing INFA_EDC_AUTH from environment&#34;)
-        auth = os.environ[&#34;CUSTOM_INFA_EDC_AUTH&#34;]
-        # print(f&#34;value = {auth}&#34;)
+    auth = self.settings.auth
+    if args.auth is not None:
+        print(f&#34;\t\tusing edc auth from command-line parameter.&#34;)
+        auth = args.auth
+    else:
+        if &#34;INFA_EDC_AUTH&#34; in os.environ:
+            print(&#34;\t\tusing INFA_EDC_AUTH from environment&#34;)
+            auth = os.environ[&#34;INFA_EDC_AUTH&#34;]
+            # print(f&#34;value = {auth}&#34;)
 
     if &#34;INFA_EDC_SSL_PEM&#34; in os.environ:
         verify = os.environ[&#34;INFA_EDC_SSL_PEM&#34;]
@@ -772,20 +582,8 @@ url, auth</p></div>
             self.baseUrl = args.edcurl
     # if there is still no edc url - then use it from edc secrets file
     if self.baseUrl is None:
-        # nothing entered anywyere for the base url
-        print(f&#34;edc url not specified in ENV var or command-line parameter&#34;)
+        print(f&#34;\t\tusing edc url from edc secrets file&#34;)
         self.baseUrl = self.settings.edc_url
-
-    # user credential stored in auth
-    if args.auth is not None:
-        print(f&#34;\t\tover-riding auth setting from command-line..{args.auth}&#34;)
-        auth = args.auth
-
-    # if there is still no auth - then prompt for id and pwd
-    if auth is None:
-        print(
-            f&#34;no credentials in ENV var/.env file/command-line - &#34;
-        )
 
     if args.sslcert is not None:
         if args.sslcert == &#34;False&#34;:
@@ -793,22 +591,12 @@ url, auth</p></div>
         else:
             verify = args.sslcert
 
-    if self.baseUrl is None:
-        # prompt the user for the catalog ui
-
-        print(
-            &#34;\t\tno catalog url passed, either as env variable or with &#34;
-            &#34;-c/--edcurl parameter - exiting&#34;
-        )
-
     # create a session
     self.session = requests.Session()
     # session.headers.update({&#34;Accept&#34;: &#34;application/json&#34;})
     self.session.verify = verify
     self.session.headers.update({&#34;Authorization&#34;: auth})
-    self.session.baseUrl = self.baseUrl
-
-    print(&#34;\tfinished reading common env/.env/cmd parameters&#34;)</code></pre>
+    self.session.baseUrl = self.baseUrl</code></pre>
 </details>
 </dd>
 <dt id="edc_utilities.edcSessionHelper.EDCSession.main"><code class="name flex">

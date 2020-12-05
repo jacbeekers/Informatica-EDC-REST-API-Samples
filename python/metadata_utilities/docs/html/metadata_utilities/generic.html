@@ -29,16 +29,14 @@
 <pre><code class="python">import glob
 import json
 
-from metadata_utilities import generic_settings
 from metadata_utilities import messages
-from metadata_utilities import mu_logging
 
 
 class Generic:
     &#34;&#34;&#34;
     Some generic utilities, e.g. reading the config.json
     &#34;&#34;&#34;
-    code_version = &#34;0.2.21&#34;
+    code_version = &#34;0.2.24&#34;
 
     def __init__(self, settings, mu_log_ref):
         module = &#34;Generic.__init__&#34;
@@ -59,7 +57,7 @@ class Generic:
             self.settings_found = True
         self.json_file = self.settings.main_config_file
 
-    def find_json(self, source_uuid, target_schema_type, property, log_prefix = &#34;&#34;):
+    def find_json(self, source_uuid, target_schema_type, property, log_prefix=&#34;&#34;):
         &#34;&#34;&#34;
         find the JSON file that has the source_uuid in the value of the property.
         The JSON schema of the file must be &#39;target_schema_type&#39;.
@@ -87,27 +85,27 @@ class Generic:
                 self.data = json.load(f)
                 if &#34;meta&#34; not in self.data or &#34;meta_version&#34; not in self.data:
                     self.mu_log.log(self.mu_log.ERROR, log_prefix +
-                                    &#34;the keys &#39;meta&#39; and &#39;meta_version&#39; are required, but not found in&#34; + current_json_file
+                                    &#34;The keys &#39;meta&#39; and &#39;meta_version&#39; are required, but not found in&#34; + current_json_file
                                     , module)
                     file_result = messages.message[&#34;meta_error&#34;]
                     continue
 
                 meta_type = self.data[&#34;meta&#34;]
                 meta_version = self.data[&#34;meta_version&#34;]
-                self.mu_log.log(self.mu_log.DEBUG, log_prefix +
-                                &#34;file states it adheres to schema &gt;&#34; + meta_type + &#34;&lt;, version &gt;&#34;
+                self.mu_log.log(self.mu_log.VERBOSE, log_prefix +
+                                &#34;File states it adheres to schema &gt;&#34; + meta_type + &#34;&lt;, version &gt;&#34;
                                 + meta_version + &#34;&lt;&#34;, module)
                 if meta_type == target_schema_type:
                     self.mu_log.log(self.mu_log.DEBUG, log_prefix + &#34;meta_type matches&#34;, module)
                     if property in self.data:
                         self.mu_log.log(self.mu_log.DEBUG, log_prefix
-                                        + &#34;current metadata_type matches target_schema_type&#34;, module)
+                                        + &#34;Current metadata_type matches target_schema_type&#34;, module)
                         found_meta_type = True
                         try:
                             the_property_value = self.data[property]
                             if the_property_value == source_uuid:
                                 self.mu_log.log(self.mu_log.DEBUG, log_prefix +
-                                                &#34;file contains uuid &gt;&#34; + source_uuid + &#34;&lt; in property &gt;&#34; + property
+                                                &#34;File contains uuid &gt;&#34; + source_uuid + &#34;&lt; in property &gt;&#34; + property
                                                 + &#34;&lt;&#34;, module)
                                 self.json_file = current_json_file
                                 self.found_data = self.data
@@ -129,7 +127,8 @@ class Generic:
                             file_result = messages.message[&#34;json_key_error&#34;]
                     else:
                         if &#34;attribute_list&#34; in self.data:
-                            self.mu_log.log(self.mu_log.VERBOSE, log_prefix + &#34;JSON file contains attribute_list&#34;, module)
+                            self.mu_log.log(self.mu_log.VERBOSE, log_prefix + &#34;JSON file contains attribute_list&#34;,
+                                            module)
                             i = -1
                             for attribute in self.data[&#34;attribute_list&#34;]:
                                 i += 1
@@ -147,12 +146,13 @@ class Generic:
                                     break
                                 else:
                                     self.mu_log.log(self.mu_log.VERBOSE, log_prefix
-                                                    + &#34;this is not the UUID we are looking for&#34;, module)
+                                                    + &#34;This is not the UUID we are looking for&#34;, module)
                         else:
-                            self.mu_log.log(self.mu_log.DEBUG, &#34;property and attribute_list are not in the file&#34;, module)
+                            self.mu_log.log(self.mu_log.VERBOSE, &#34;property and attribute_list are not in the file&#34;,
+                                            module)
                 else:
-                    self.mu_log.log(self.mu_log.DEBUG, log_prefix +
-                                    &#34;this is not the file we are looking for (schema_types do not match)&#34;, module)
+                    self.mu_log.log(self.mu_log.VERBOSE, log_prefix +
+                                    &#34;This is not the file we are looking for (schema_types do not match)&#34;, module)
                     file_result = messages.message[&#34;not_found&#34;]
 
         if found_meta_type:
@@ -173,7 +173,7 @@ class Generic:
                 overall_result = messages.message[&#34;json_uuid_not_found&#34;]
         else:
             self.mu_log.log(self.mu_log.DEBUG, log_prefix
-                            + &#34;no JSON with target_schema_type &gt;&#34; + target_schema_type + &#34;&lt;&#34;, module)
+                            + &#34;No JSON with target_schema_type &gt;&#34; + target_schema_type + &#34;&lt;&#34;, module)
             overall_result = file_result
 
         return overall_result
@@ -183,6 +183,7 @@ class Generic:
         module = &#34;Generic.write_local_file&#34;
         file_result = messages.message[&#34;ok&#34;]
         path = self.settings.output_directory + filename
+        self.mu_log.log(self.mu_log.DEBUG, &#34;File name: &#34; + path, module)
         self.mu_log.log(self.mu_log.VERBOSE, &#34;writing &gt;&#34; + to_write + &#34;&lt; to file &gt;&#34; + path + &#34;&lt;...&#34;, module)
         try:
             with open(path, &#34;w&#34;) as f:
@@ -232,7 +233,7 @@ class Generic:
     &#34;&#34;&#34;
     Some generic utilities, e.g. reading the config.json
     &#34;&#34;&#34;
-    code_version = &#34;0.2.21&#34;
+    code_version = &#34;0.2.24&#34;
 
     def __init__(self, settings, mu_log_ref):
         module = &#34;Generic.__init__&#34;
@@ -253,7 +254,7 @@ class Generic:
             self.settings_found = True
         self.json_file = self.settings.main_config_file
 
-    def find_json(self, source_uuid, target_schema_type, property, log_prefix = &#34;&#34;):
+    def find_json(self, source_uuid, target_schema_type, property, log_prefix=&#34;&#34;):
         &#34;&#34;&#34;
         find the JSON file that has the source_uuid in the value of the property.
         The JSON schema of the file must be &#39;target_schema_type&#39;.
@@ -281,27 +282,27 @@ class Generic:
                 self.data = json.load(f)
                 if &#34;meta&#34; not in self.data or &#34;meta_version&#34; not in self.data:
                     self.mu_log.log(self.mu_log.ERROR, log_prefix +
-                                    &#34;the keys &#39;meta&#39; and &#39;meta_version&#39; are required, but not found in&#34; + current_json_file
+                                    &#34;The keys &#39;meta&#39; and &#39;meta_version&#39; are required, but not found in&#34; + current_json_file
                                     , module)
                     file_result = messages.message[&#34;meta_error&#34;]
                     continue
 
                 meta_type = self.data[&#34;meta&#34;]
                 meta_version = self.data[&#34;meta_version&#34;]
-                self.mu_log.log(self.mu_log.DEBUG, log_prefix +
-                                &#34;file states it adheres to schema &gt;&#34; + meta_type + &#34;&lt;, version &gt;&#34;
+                self.mu_log.log(self.mu_log.VERBOSE, log_prefix +
+                                &#34;File states it adheres to schema &gt;&#34; + meta_type + &#34;&lt;, version &gt;&#34;
                                 + meta_version + &#34;&lt;&#34;, module)
                 if meta_type == target_schema_type:
                     self.mu_log.log(self.mu_log.DEBUG, log_prefix + &#34;meta_type matches&#34;, module)
                     if property in self.data:
                         self.mu_log.log(self.mu_log.DEBUG, log_prefix
-                                        + &#34;current metadata_type matches target_schema_type&#34;, module)
+                                        + &#34;Current metadata_type matches target_schema_type&#34;, module)
                         found_meta_type = True
                         try:
                             the_property_value = self.data[property]
                             if the_property_value == source_uuid:
                                 self.mu_log.log(self.mu_log.DEBUG, log_prefix +
-                                                &#34;file contains uuid &gt;&#34; + source_uuid + &#34;&lt; in property &gt;&#34; + property
+                                                &#34;File contains uuid &gt;&#34; + source_uuid + &#34;&lt; in property &gt;&#34; + property
                                                 + &#34;&lt;&#34;, module)
                                 self.json_file = current_json_file
                                 self.found_data = self.data
@@ -323,7 +324,8 @@ class Generic:
                             file_result = messages.message[&#34;json_key_error&#34;]
                     else:
                         if &#34;attribute_list&#34; in self.data:
-                            self.mu_log.log(self.mu_log.VERBOSE, log_prefix + &#34;JSON file contains attribute_list&#34;, module)
+                            self.mu_log.log(self.mu_log.VERBOSE, log_prefix + &#34;JSON file contains attribute_list&#34;,
+                                            module)
                             i = -1
                             for attribute in self.data[&#34;attribute_list&#34;]:
                                 i += 1
@@ -341,12 +343,13 @@ class Generic:
                                     break
                                 else:
                                     self.mu_log.log(self.mu_log.VERBOSE, log_prefix
-                                                    + &#34;this is not the UUID we are looking for&#34;, module)
+                                                    + &#34;This is not the UUID we are looking for&#34;, module)
                         else:
-                            self.mu_log.log(self.mu_log.DEBUG, &#34;property and attribute_list are not in the file&#34;, module)
+                            self.mu_log.log(self.mu_log.VERBOSE, &#34;property and attribute_list are not in the file&#34;,
+                                            module)
                 else:
-                    self.mu_log.log(self.mu_log.DEBUG, log_prefix +
-                                    &#34;this is not the file we are looking for (schema_types do not match)&#34;, module)
+                    self.mu_log.log(self.mu_log.VERBOSE, log_prefix +
+                                    &#34;This is not the file we are looking for (schema_types do not match)&#34;, module)
                     file_result = messages.message[&#34;not_found&#34;]
 
         if found_meta_type:
@@ -367,7 +370,7 @@ class Generic:
                 overall_result = messages.message[&#34;json_uuid_not_found&#34;]
         else:
             self.mu_log.log(self.mu_log.DEBUG, log_prefix
-                            + &#34;no JSON with target_schema_type &gt;&#34; + target_schema_type + &#34;&lt;&#34;, module)
+                            + &#34;No JSON with target_schema_type &gt;&#34; + target_schema_type + &#34;&lt;&#34;, module)
             overall_result = file_result
 
         return overall_result
@@ -377,6 +380,7 @@ class Generic:
         module = &#34;Generic.write_local_file&#34;
         file_result = messages.message[&#34;ok&#34;]
         path = self.settings.output_directory + filename
+        self.mu_log.log(self.mu_log.DEBUG, &#34;File name: &#34; + path, module)
         self.mu_log.log(self.mu_log.VERBOSE, &#34;writing &gt;&#34; + to_write + &#34;&lt; to file &gt;&#34; + path + &#34;&lt;...&#34;, module)
         try:
             with open(path, &#34;w&#34;) as f:
@@ -446,7 +450,7 @@ The JSON schema of the file must be 'target_schema_type'.</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def find_json(self, source_uuid, target_schema_type, property, log_prefix = &#34;&#34;):
+<pre><code class="python">def find_json(self, source_uuid, target_schema_type, property, log_prefix=&#34;&#34;):
     &#34;&#34;&#34;
     find the JSON file that has the source_uuid in the value of the property.
     The JSON schema of the file must be &#39;target_schema_type&#39;.
@@ -474,27 +478,27 @@ The JSON schema of the file must be 'target_schema_type'.</p></div>
             self.data = json.load(f)
             if &#34;meta&#34; not in self.data or &#34;meta_version&#34; not in self.data:
                 self.mu_log.log(self.mu_log.ERROR, log_prefix +
-                                &#34;the keys &#39;meta&#39; and &#39;meta_version&#39; are required, but not found in&#34; + current_json_file
+                                &#34;The keys &#39;meta&#39; and &#39;meta_version&#39; are required, but not found in&#34; + current_json_file
                                 , module)
                 file_result = messages.message[&#34;meta_error&#34;]
                 continue
 
             meta_type = self.data[&#34;meta&#34;]
             meta_version = self.data[&#34;meta_version&#34;]
-            self.mu_log.log(self.mu_log.DEBUG, log_prefix +
-                            &#34;file states it adheres to schema &gt;&#34; + meta_type + &#34;&lt;, version &gt;&#34;
+            self.mu_log.log(self.mu_log.VERBOSE, log_prefix +
+                            &#34;File states it adheres to schema &gt;&#34; + meta_type + &#34;&lt;, version &gt;&#34;
                             + meta_version + &#34;&lt;&#34;, module)
             if meta_type == target_schema_type:
                 self.mu_log.log(self.mu_log.DEBUG, log_prefix + &#34;meta_type matches&#34;, module)
                 if property in self.data:
                     self.mu_log.log(self.mu_log.DEBUG, log_prefix
-                                    + &#34;current metadata_type matches target_schema_type&#34;, module)
+                                    + &#34;Current metadata_type matches target_schema_type&#34;, module)
                     found_meta_type = True
                     try:
                         the_property_value = self.data[property]
                         if the_property_value == source_uuid:
                             self.mu_log.log(self.mu_log.DEBUG, log_prefix +
-                                            &#34;file contains uuid &gt;&#34; + source_uuid + &#34;&lt; in property &gt;&#34; + property
+                                            &#34;File contains uuid &gt;&#34; + source_uuid + &#34;&lt; in property &gt;&#34; + property
                                             + &#34;&lt;&#34;, module)
                             self.json_file = current_json_file
                             self.found_data = self.data
@@ -516,7 +520,8 @@ The JSON schema of the file must be 'target_schema_type'.</p></div>
                         file_result = messages.message[&#34;json_key_error&#34;]
                 else:
                     if &#34;attribute_list&#34; in self.data:
-                        self.mu_log.log(self.mu_log.VERBOSE, log_prefix + &#34;JSON file contains attribute_list&#34;, module)
+                        self.mu_log.log(self.mu_log.VERBOSE, log_prefix + &#34;JSON file contains attribute_list&#34;,
+                                        module)
                         i = -1
                         for attribute in self.data[&#34;attribute_list&#34;]:
                             i += 1
@@ -534,12 +539,13 @@ The JSON schema of the file must be 'target_schema_type'.</p></div>
                                 break
                             else:
                                 self.mu_log.log(self.mu_log.VERBOSE, log_prefix
-                                                + &#34;this is not the UUID we are looking for&#34;, module)
+                                                + &#34;This is not the UUID we are looking for&#34;, module)
                     else:
-                        self.mu_log.log(self.mu_log.DEBUG, &#34;property and attribute_list are not in the file&#34;, module)
+                        self.mu_log.log(self.mu_log.VERBOSE, &#34;property and attribute_list are not in the file&#34;,
+                                        module)
             else:
-                self.mu_log.log(self.mu_log.DEBUG, log_prefix +
-                                &#34;this is not the file we are looking for (schema_types do not match)&#34;, module)
+                self.mu_log.log(self.mu_log.VERBOSE, log_prefix +
+                                &#34;This is not the file we are looking for (schema_types do not match)&#34;, module)
                 file_result = messages.message[&#34;not_found&#34;]
 
     if found_meta_type:
@@ -560,7 +566,7 @@ The JSON schema of the file must be 'target_schema_type'.</p></div>
             overall_result = messages.message[&#34;json_uuid_not_found&#34;]
     else:
         self.mu_log.log(self.mu_log.DEBUG, log_prefix
-                        + &#34;no JSON with target_schema_type &gt;&#34; + target_schema_type + &#34;&lt;&#34;, module)
+                        + &#34;No JSON with target_schema_type &gt;&#34; + target_schema_type + &#34;&lt;&#34;, module)
         overall_result = file_result
 
     return overall_result</code></pre>
@@ -580,6 +586,7 @@ The JSON schema of the file must be 'target_schema_type'.</p></div>
     module = &#34;Generic.write_local_file&#34;
     file_result = messages.message[&#34;ok&#34;]
     path = self.settings.output_directory + filename
+    self.mu_log.log(self.mu_log.DEBUG, &#34;File name: &#34; + path, module)
     self.mu_log.log(self.mu_log.VERBOSE, &#34;writing &gt;&#34; + to_write + &#34;&lt; to file &gt;&#34; + path + &#34;&lt;...&#34;, module)
     try:
         with open(path, &#34;w&#34;) as f:

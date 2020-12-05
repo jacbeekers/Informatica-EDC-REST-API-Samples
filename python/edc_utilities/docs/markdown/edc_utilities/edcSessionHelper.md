@@ -37,7 +37,7 @@ Classes
     :   given a valid URL and auth - setup a requests session to use
         for subsequent calls, verify can be False
 
-    `initUrlAndSessionFromEDCSettings(self)`
+    `initUrlAndSessionFromEDCSettings(self, edc_secrets='resources/edc.secrets')`
     :   reads the env vars and any command-line parameters & creates an edc session
         with auth and optionally verify attributes populated (shared so no need to use
         on individual calls)

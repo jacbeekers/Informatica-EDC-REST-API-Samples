@@ -27,6 +27,7 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">import json
+
 from metadata_utilities import messages
 from metadata_utilities import mu_logging
 
@@ -62,8 +63,9 @@ class GenericSettings:
         self.azure_monitor_requests = None
         self.instrumentation_key = None
         self.suppress_edc_call = &#34;False&#34;
-        self.http_proxy = None
-        self.https_proxy = None
+        self.edc_http_proxy = None
+        self.edc_https_proxy = None
+        self.edc_auth = None
 
     def get_config(self):
         &#34;&#34;&#34;
@@ -111,7 +113,7 @@ class GenericSettings:
                 if &#34;log_config&#34; in data:
                     self.log_config = data[&#34;log_config&#34;]
                 else:
-                    self.log_config = &#34;resources/log_config&#34;
+                    self.log_config = &#34;resources/log_config.json&#34;
                 self.mu_log = mu_logging.MULogging(self.log_config)
                 self.log_directory = self.mu_log.log_setting.log_directory
                 self.log_filename = self.mu_log.log_setting.log_filename
@@ -142,19 +144,12 @@ class GenericSettings:
         if self.edc_secrets == &#34;unknown&#34;:
             self.mu_log.log(self.mu_log.DEBUG, &#34;edc_secrets is unknown&#34;)
         else:
-            try:
-                with open(self.edc_secrets) as edc:
-                    data = json.load(edc)
-                    if &#34;edc_url&#34; in data:
-                        self.edc_url = data[&#34;edc_url&#34;]
-                        self.mu_log.log(self.mu_log.INFO, &#34;EDC URL taken from edc secrets file &gt;&#34; + self.edc_secrets
-                                        + &#34;&lt;: &#34;
-                                        + self.edc_url, module)
-                self.mu_log.log(self.mu_log.DEBUG, &#34;EDC secrets file &gt;&#34; + self.edc_secrets + &#34;&lt; found and read.&#34;, module)
-            except FileNotFoundError:
-                self.mu_log.log(self.mu_log.FATAL, &#34;Cannot find provided edc_secrets file &gt;&#34; + self.edc_secrets + &#34;&lt;.&#34;
-                                , module)
-                return messages.message[&#34;edc_secrets_not_found&#34;]
+            edc_secrets_result = self.get_edc_secrets(self.edc_secrets)
+            if edc_secrets_result == messages.message[&#34;ok&#34;]:
+                self.mu_log.log(self.mu_log.DEBUG, &#34;get_edc_secrets returned OK&#34;, module)
+            else:
+                self.mu_log.log(self.mu_log.ERROR, &#34;get_edc_secrets returned: &#34; + edc_secrets_result[&#34;code&#34;], module)
+                return edc_secrets_result
 
         if self.azure_monitor_config != &#34;unknown&#34;:
             try:
@@ -170,14 +165,60 @@ class GenericSettings:
 
         return result
 
-    def get_proxy(self):
+    def get_edc_proxy(self):
+
+        if self.edc_http_proxy == &#34;None&#34;:
+            self.edc_http_proxy = None
+        if self.edc_https_proxy == &#34;None&#34;:
+            self.edc_https_proxy = None
 
         proxies = {
-            &#34;http&#34;: self.http_proxy,
-            &#34;https&#34;: self.https_proxy
+            &#34;http&#34;: self.edc_http_proxy,
+            &#34;https&#34;: self.edc_https_proxy
         }
+        return proxies
 
-        return proxies</code></pre>
+    def get_edc_secrets(self, edc_secrets=&#34;resources/edc.secrets&#34;):
+        module = &#34;get_edc_secrets&#34;
+
+        try:
+            with open(self.edc_secrets) as edc:
+                data = json.load(edc)
+                if &#34;edc_url&#34; in data:
+                    self.edc_url = data[&#34;edc_url&#34;]
+                    self.mu_log.log(self.mu_log.INFO, &#34;EDC URL taken from edc secrets file &gt;&#34; + self.edc_secrets
+                                    + &#34;&lt;: &#34;
+                                    + self.edc_url, module)
+                if &#34;edc_auth&#34; in data:
+                    self.auth = data[&#34;edc_auth&#34;]
+                    self.mu_log.log(self.mu_log.INFO, &#34;EDC Authentication taken from edc secrets file.&#34;, module)
+                else:
+                    self.mu_log.log(self.mu_log.WARNING, &#34;No Authentication for EDC found in edc secrets file. &#34;
+                                    + &#34;This is OK if the authentication has been set through the environment variable INFA_EDC_AUTH&#34;)
+
+                if &#34;edc_http_proxy&#34; in data:
+                    self.http_proxy = data[&#34;edc_http_proxy&#34;]
+                    self.mu_log.log(self.mu_log.INFO, &#34;HTTP Proxy for EDC taken from edc secrets file: &#34;
+                                    + self.http_proxy, module)
+                else:
+                    self.mu_log.log(self.mu_log.INFO, &#34;No HTTP Proxy for EDC found in edc secrets file. &#34;
+                                    + &#34;This is OK if no proxy is needed or has been set through the environment variable HTTP_PROXY&#34;
+                                    , module)
+                if &#34;edc_https_proxy&#34; in data:
+                    self.https_proxy = data[&#34;edc_https_proxy&#34;]
+                    self.mu_log.log(self.mu_log.INFO, &#34;HTTPS Proxy for EDC taken from edc secrets file: &#34;
+                                    + self.https_proxy, module)
+                else:
+                    self.mu_log.log(self.mu_log.INFO, &#34;No HTTPS Proxy for EDC found in edc secrets file. &#34;
+                                    + &#34;This is OK if no proxy is needed or has been set through the environment variable HTTPS_PROXY&#34;
+                                    , module)
+            self.mu_log.log(self.mu_log.DEBUG, &#34;EDC secrets file &gt;&#34; + self.edc_secrets + &#34;&lt; found and read.&#34;, module)
+        except FileNotFoundError:
+            self.mu_log.log(self.mu_log.FATAL, &#34;Cannot find provided edc_secrets file &gt;&#34; + self.edc_secrets + &#34;&lt;.&#34;
+                            , module)
+            return messages.message[&#34;edc_secrets_not_found&#34;]
+
+        return messages.message[&#34;ok&#34;]</code></pre>
 </details>
 </section>
 <section>
@@ -230,8 +271,9 @@ class GenericSettings:
         self.azure_monitor_requests = None
         self.instrumentation_key = None
         self.suppress_edc_call = &#34;False&#34;
-        self.http_proxy = None
-        self.https_proxy = None
+        self.edc_http_proxy = None
+        self.edc_https_proxy = None
+        self.edc_auth = None
 
     def get_config(self):
         &#34;&#34;&#34;
@@ -279,7 +321,7 @@ class GenericSettings:
                 if &#34;log_config&#34; in data:
                     self.log_config = data[&#34;log_config&#34;]
                 else:
-                    self.log_config = &#34;resources/log_config&#34;
+                    self.log_config = &#34;resources/log_config.json&#34;
                 self.mu_log = mu_logging.MULogging(self.log_config)
                 self.log_directory = self.mu_log.log_setting.log_directory
                 self.log_filename = self.mu_log.log_setting.log_filename
@@ -310,19 +352,12 @@ class GenericSettings:
         if self.edc_secrets == &#34;unknown&#34;:
             self.mu_log.log(self.mu_log.DEBUG, &#34;edc_secrets is unknown&#34;)
         else:
-            try:
-                with open(self.edc_secrets) as edc:
-                    data = json.load(edc)
-                    if &#34;edc_url&#34; in data:
-                        self.edc_url = data[&#34;edc_url&#34;]
-                        self.mu_log.log(self.mu_log.INFO, &#34;EDC URL taken from edc secrets file &gt;&#34; + self.edc_secrets
-                                        + &#34;&lt;: &#34;
-                                        + self.edc_url, module)
-                self.mu_log.log(self.mu_log.DEBUG, &#34;EDC secrets file &gt;&#34; + self.edc_secrets + &#34;&lt; found and read.&#34;, module)
-            except FileNotFoundError:
-                self.mu_log.log(self.mu_log.FATAL, &#34;Cannot find provided edc_secrets file &gt;&#34; + self.edc_secrets + &#34;&lt;.&#34;
-                                , module)
-                return messages.message[&#34;edc_secrets_not_found&#34;]
+            edc_secrets_result = self.get_edc_secrets(self.edc_secrets)
+            if edc_secrets_result == messages.message[&#34;ok&#34;]:
+                self.mu_log.log(self.mu_log.DEBUG, &#34;get_edc_secrets returned OK&#34;, module)
+            else:
+                self.mu_log.log(self.mu_log.ERROR, &#34;get_edc_secrets returned: &#34; + edc_secrets_result[&#34;code&#34;], module)
+                return edc_secrets_result
 
         if self.azure_monitor_config != &#34;unknown&#34;:
             try:
@@ -338,14 +373,60 @@ class GenericSettings:
 
         return result
 
-    def get_proxy(self):
+    def get_edc_proxy(self):
+
+        if self.edc_http_proxy == &#34;None&#34;:
+            self.edc_http_proxy = None
+        if self.edc_https_proxy == &#34;None&#34;:
+            self.edc_https_proxy = None
 
         proxies = {
-            &#34;http&#34;: self.http_proxy,
-            &#34;https&#34;: self.https_proxy
+            &#34;http&#34;: self.edc_http_proxy,
+            &#34;https&#34;: self.edc_https_proxy
         }
+        return proxies
 
-        return proxies</code></pre>
+    def get_edc_secrets(self, edc_secrets=&#34;resources/edc.secrets&#34;):
+        module = &#34;get_edc_secrets&#34;
+
+        try:
+            with open(self.edc_secrets) as edc:
+                data = json.load(edc)
+                if &#34;edc_url&#34; in data:
+                    self.edc_url = data[&#34;edc_url&#34;]
+                    self.mu_log.log(self.mu_log.INFO, &#34;EDC URL taken from edc secrets file &gt;&#34; + self.edc_secrets
+                                    + &#34;&lt;: &#34;
+                                    + self.edc_url, module)
+                if &#34;edc_auth&#34; in data:
+                    self.auth = data[&#34;edc_auth&#34;]
+                    self.mu_log.log(self.mu_log.INFO, &#34;EDC Authentication taken from edc secrets file.&#34;, module)
+                else:
+                    self.mu_log.log(self.mu_log.WARNING, &#34;No Authentication for EDC found in edc secrets file. &#34;
+                                    + &#34;This is OK if the authentication has been set through the environment variable INFA_EDC_AUTH&#34;)
+
+                if &#34;edc_http_proxy&#34; in data:
+                    self.http_proxy = data[&#34;edc_http_proxy&#34;]
+                    self.mu_log.log(self.mu_log.INFO, &#34;HTTP Proxy for EDC taken from edc secrets file: &#34;
+                                    + self.http_proxy, module)
+                else:
+                    self.mu_log.log(self.mu_log.INFO, &#34;No HTTP Proxy for EDC found in edc secrets file. &#34;
+                                    + &#34;This is OK if no proxy is needed or has been set through the environment variable HTTP_PROXY&#34;
+                                    , module)
+                if &#34;edc_https_proxy&#34; in data:
+                    self.https_proxy = data[&#34;edc_https_proxy&#34;]
+                    self.mu_log.log(self.mu_log.INFO, &#34;HTTPS Proxy for EDC taken from edc secrets file: &#34;
+                                    + self.https_proxy, module)
+                else:
+                    self.mu_log.log(self.mu_log.INFO, &#34;No HTTPS Proxy for EDC found in edc secrets file. &#34;
+                                    + &#34;This is OK if no proxy is needed or has been set through the environment variable HTTPS_PROXY&#34;
+                                    , module)
+            self.mu_log.log(self.mu_log.DEBUG, &#34;EDC secrets file &gt;&#34; + self.edc_secrets + &#34;&lt; found and read.&#34;, module)
+        except FileNotFoundError:
+            self.mu_log.log(self.mu_log.FATAL, &#34;Cannot find provided edc_secrets file &gt;&#34; + self.edc_secrets + &#34;&lt;.&#34;
+                            , module)
+            return messages.message[&#34;edc_secrets_not_found&#34;]
+
+        return messages.message[&#34;ok&#34;]</code></pre>
 </details>
 <h3>Class variables</h3>
 <dl>
@@ -411,7 +492,7 @@ class GenericSettings:
             if &#34;log_config&#34; in data:
                 self.log_config = data[&#34;log_config&#34;]
             else:
-                self.log_config = &#34;resources/log_config&#34;
+                self.log_config = &#34;resources/log_config.json&#34;
             self.mu_log = mu_logging.MULogging(self.log_config)
             self.log_directory = self.mu_log.log_setting.log_directory
             self.log_filename = self.mu_log.log_setting.log_filename
@@ -442,19 +523,12 @@ class GenericSettings:
     if self.edc_secrets == &#34;unknown&#34;:
         self.mu_log.log(self.mu_log.DEBUG, &#34;edc_secrets is unknown&#34;)
     else:
-        try:
-            with open(self.edc_secrets) as edc:
-                data = json.load(edc)
-                if &#34;edc_url&#34; in data:
-                    self.edc_url = data[&#34;edc_url&#34;]
-                    self.mu_log.log(self.mu_log.INFO, &#34;EDC URL taken from edc secrets file &gt;&#34; + self.edc_secrets
-                                    + &#34;&lt;: &#34;
-                                    + self.edc_url, module)
-            self.mu_log.log(self.mu_log.DEBUG, &#34;EDC secrets file &gt;&#34; + self.edc_secrets + &#34;&lt; found and read.&#34;, module)
-        except FileNotFoundError:
-            self.mu_log.log(self.mu_log.FATAL, &#34;Cannot find provided edc_secrets file &gt;&#34; + self.edc_secrets + &#34;&lt;.&#34;
-                            , module)
-            return messages.message[&#34;edc_secrets_not_found&#34;]
+        edc_secrets_result = self.get_edc_secrets(self.edc_secrets)
+        if edc_secrets_result == messages.message[&#34;ok&#34;]:
+            self.mu_log.log(self.mu_log.DEBUG, &#34;get_edc_secrets returned OK&#34;, module)
+        else:
+            self.mu_log.log(self.mu_log.ERROR, &#34;get_edc_secrets returned: &#34; + edc_secrets_result[&#34;code&#34;], module)
+            return edc_secrets_result
 
     if self.azure_monitor_config != &#34;unknown&#34;:
         try:
@@ -471,8 +545,8 @@ class GenericSettings:
     return result</code></pre>
 </details>
 </dd>
-<dt id="metadata_utilities.generic_settings.GenericSettings.get_proxy"><code class="name flex">
-<span>def <span class="ident">get_proxy</span></span>(<span>self)</span>
+<dt id="metadata_utilities.generic_settings.GenericSettings.get_edc_proxy"><code class="name flex">
+<span>def <span class="ident">get_edc_proxy</span></span>(<span>self)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -480,14 +554,70 @@ class GenericSettings:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_proxy(self):
+<pre><code class="python">def get_edc_proxy(self):
+
+    if self.edc_http_proxy == &#34;None&#34;:
+        self.edc_http_proxy = None
+    if self.edc_https_proxy == &#34;None&#34;:
+        self.edc_https_proxy = None
 
     proxies = {
-        &#34;http&#34;: self.http_proxy,
-        &#34;https&#34;: self.https_proxy
+        &#34;http&#34;: self.edc_http_proxy,
+        &#34;https&#34;: self.edc_https_proxy
     }
-
     return proxies</code></pre>
+</details>
+</dd>
+<dt id="metadata_utilities.generic_settings.GenericSettings.get_edc_secrets"><code class="name flex">
+<span>def <span class="ident">get_edc_secrets</span></span>(<span>self, edc_secrets='resources/edc.secrets')</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_edc_secrets(self, edc_secrets=&#34;resources/edc.secrets&#34;):
+    module = &#34;get_edc_secrets&#34;
+
+    try:
+        with open(self.edc_secrets) as edc:
+            data = json.load(edc)
+            if &#34;edc_url&#34; in data:
+                self.edc_url = data[&#34;edc_url&#34;]
+                self.mu_log.log(self.mu_log.INFO, &#34;EDC URL taken from edc secrets file &gt;&#34; + self.edc_secrets
+                                + &#34;&lt;: &#34;
+                                + self.edc_url, module)
+            if &#34;edc_auth&#34; in data:
+                self.auth = data[&#34;edc_auth&#34;]
+                self.mu_log.log(self.mu_log.INFO, &#34;EDC Authentication taken from edc secrets file.&#34;, module)
+            else:
+                self.mu_log.log(self.mu_log.WARNING, &#34;No Authentication for EDC found in edc secrets file. &#34;
+                                + &#34;This is OK if the authentication has been set through the environment variable INFA_EDC_AUTH&#34;)
+
+            if &#34;edc_http_proxy&#34; in data:
+                self.http_proxy = data[&#34;edc_http_proxy&#34;]
+                self.mu_log.log(self.mu_log.INFO, &#34;HTTP Proxy for EDC taken from edc secrets file: &#34;
+                                + self.http_proxy, module)
+            else:
+                self.mu_log.log(self.mu_log.INFO, &#34;No HTTP Proxy for EDC found in edc secrets file. &#34;
+                                + &#34;This is OK if no proxy is needed or has been set through the environment variable HTTP_PROXY&#34;
+                                , module)
+            if &#34;edc_https_proxy&#34; in data:
+                self.https_proxy = data[&#34;edc_https_proxy&#34;]
+                self.mu_log.log(self.mu_log.INFO, &#34;HTTPS Proxy for EDC taken from edc secrets file: &#34;
+                                + self.https_proxy, module)
+            else:
+                self.mu_log.log(self.mu_log.INFO, &#34;No HTTPS Proxy for EDC found in edc secrets file. &#34;
+                                + &#34;This is OK if no proxy is needed or has been set through the environment variable HTTPS_PROXY&#34;
+                                , module)
+        self.mu_log.log(self.mu_log.DEBUG, &#34;EDC secrets file &gt;&#34; + self.edc_secrets + &#34;&lt; found and read.&#34;, module)
+    except FileNotFoundError:
+        self.mu_log.log(self.mu_log.FATAL, &#34;Cannot find provided edc_secrets file &gt;&#34; + self.edc_secrets + &#34;&lt;.&#34;
+                        , module)
+        return messages.message[&#34;edc_secrets_not_found&#34;]
+
+    return messages.message[&#34;ok&#34;]</code></pre>
 </details>
 </dd>
 </dl>
@@ -513,7 +643,8 @@ class GenericSettings:
 <ul class="">
 <li><code><a title="metadata_utilities.generic_settings.GenericSettings.code_version" href="#metadata_utilities.generic_settings.GenericSettings.code_version">code_version</a></code></li>
 <li><code><a title="metadata_utilities.generic_settings.GenericSettings.get_config" href="#metadata_utilities.generic_settings.GenericSettings.get_config">get_config</a></code></li>
-<li><code><a title="metadata_utilities.generic_settings.GenericSettings.get_proxy" href="#metadata_utilities.generic_settings.GenericSettings.get_proxy">get_proxy</a></code></li>
+<li><code><a title="metadata_utilities.generic_settings.GenericSettings.get_edc_proxy" href="#metadata_utilities.generic_settings.GenericSettings.get_edc_proxy">get_edc_proxy</a></code></li>
+<li><code><a title="metadata_utilities.generic_settings.GenericSettings.get_edc_secrets" href="#metadata_utilities.generic_settings.GenericSettings.get_edc_secrets">get_edc_secrets</a></code></li>
 </ul>
 </li>
 </ul>

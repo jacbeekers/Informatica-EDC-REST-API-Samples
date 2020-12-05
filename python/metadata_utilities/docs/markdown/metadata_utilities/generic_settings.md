@@ -17,5 +17,8 @@ Classes
     `get_config(self)`
     :   get the main configuration settings. default file is resources/config.json
 
-    `get_proxy(self)`
+    `get_edc_proxy(self)`
+    :
+
+    `get_edc_secrets(self, edc_secrets='resources/edc.secrets')`
     :

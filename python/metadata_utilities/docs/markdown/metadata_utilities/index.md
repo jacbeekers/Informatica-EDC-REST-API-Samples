@@ -13,4 +13,5 @@ Sub-modules
 * metadata_utilities.messages
 * metadata_utilities.mu_logging
 * metadata_utilities.services
+* metadata_utilities.tryout
 * metadata_utilities.validate_schema

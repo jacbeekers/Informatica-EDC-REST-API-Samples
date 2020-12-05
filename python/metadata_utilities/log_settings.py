@@ -67,19 +67,19 @@ class LogSettings:
         if configured_log_level == "VERBOSE":
             self.log_level = self.VERBOSE
             return self.log_level
-        elif configured_log_level == "DEBUG":
+        elif configured_log_level == logging.getLevelName(logging.DEBUG):
             self.log_level = self.DEBUG
             return self.log_level
-        elif configured_log_level == "INFO":
+        elif configured_log_level == logging.getLevelName(logging.INFO):
             self.log_level = self.INFO
             return self.log_level
-        elif configured_log_level == "WARNING":
+        elif configured_log_level == logging.getLevelName(logging.WARNING):
             self.log_level = self.WARNING
             return self.log_level
-        elif configured_log_level == "ERROR":
+        elif configured_log_level == logging.getLevelName(logging.ERROR):
             self.log_level = self.ERROR
             return self.log_level
-        elif configured_log_level == "FATAL":
+        elif configured_log_level == logging.getLevelName(logging.FATAL):
             self.log_level = self.FATAL
             return self.log_level
         else:

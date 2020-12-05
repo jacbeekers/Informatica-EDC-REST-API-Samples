@@ -77,13 +77,6 @@ print(&#34;&#34;)
 print(&#34;for windows cmd:&#34;)
 print(f&#39;\tset INFA_EDC_AUTH=Basic {b64_auth_str.decode(&#34;utf-8&#34;)}&#39;)
 print(&#34;&#34;)
-print(&#34;or add to launch.json for vsvode debugging - in the configurations section&#34;)
-print(&#39;\t&#34;envFile&#34;: &#34;${workspaceFolder}/.env&#34;,&#39;)
-print(f&#39;\tand add\n\tINFA_EDC_AUTH=&#34;Basic {b64_auth_str.decode(&#34;utf-8&#34;)}&#34;,&#39;)
-print(&#34;\tto .env in the root folder of your project&#34;)
-print(&#34;&#34;)
-print(&#34;or add to launch.json for vscode debugging - in the configurations section&#34;)
-print(f&#39;\t&#34;env&#34; : {{&#34;INFA_EDC_AUTH&#34; : &#34;Basic {b64_auth_str.decode(&#34;utf-8&#34;)}&#34;}},&#39;)
 
 print(&#34;finished&#34;)</code></pre>
 </details>

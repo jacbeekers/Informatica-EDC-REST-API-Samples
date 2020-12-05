@@ -49,7 +49,7 @@ class EDCLineage:
             return messages.message["main_config_not_found"]
 
         self.generic = generic.Generic(settings=self.settings, mu_log_ref=self.mu_log)
-        self.proxies = self.settings.get_proxy()
+        self.proxies = self.settings.get_edc_proxy()
         self.edc_source_filesystem = self.settings.edc_config_data["edc_source_filesystem"]
         self.edc_source_datasource = self.settings.edc_config_data["edc_source_datasource"]
         self.edc_source_folder = self.settings.edc_config_data["edc_source_folder"]
@@ -276,8 +276,15 @@ class EDCLineage:
         url = self.settings.edc_url + "/access/1/catalog/data/objects"
         self.mu_log.log(self.mu_log.DEBUG, "Used URL >" + url + "<.", module)
         head = {'Content-Type': 'application/json'}
-        self.mu_log.log(self.mu_log.VERBOSE, "Headers: " + str(head.items()))
-        self.mu_log.log(self.mu_log.VERBOSE, "Proxies: " + str(self.proxies))
+        self.mu_log.log(self.mu_log.VERBOSE, "Headers: " + str(head.items()), module)
+        self.mu_log.log(self.mu_log.VERBOSE, "Proxies: " + str(self.proxies), module)
+        if self.settings.auth is None:
+            self.mu_log.log(self.mu_log.WARNING
+                            , "Auth not set. Add edc_auth to the edc.secrets file or set INFA_EDC_AUTH"
+                            , module)
+        # else:
+        #    self.mu_log.log(self.mu_log.VERBOSE, "Auth: " + self.settings.auth)
+
         if suppress_edc_call:
             self.mu_log.log(self.mu_log.WARNING
                             , "'suppress_edc_call' is set to True in config.json. EDC call NOT exucuted", module)
