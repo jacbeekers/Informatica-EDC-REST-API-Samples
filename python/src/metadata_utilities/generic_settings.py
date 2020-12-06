@@ -1,7 +1,7 @@
 import json
 
-from metadata_utilities import messages
-from metadata_utilities import mu_logging
+from src.metadata_utilities import messages
+from src.metadata_utilities import mu_logging
 
 
 class GenericSettings:
@@ -166,7 +166,8 @@ class GenericSettings:
                     self.mu_log.log(self.mu_log.INFO, "EDC Authentication taken from edc secrets file.", module)
                 else:
                     self.mu_log.log(self.mu_log.WARNING, "No Authentication for EDC found in edc secrets file. "
-                                    + "This is OK if the authentication has been set through the environment variable INFA_EDC_AUTH")
+                                    + "This is OK if the authentication has been set through the environment variable INFA_EDC_AUTH"
+                                    ,module)
 
                 if "edc_http_proxy" in data:
                     self.http_proxy = data["edc_http_proxy"]

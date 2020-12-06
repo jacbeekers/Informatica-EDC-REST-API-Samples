@@ -1,0 +1,5 @@
+{
+   "base_directory": "resources/jinja2/"
+  ,"application": "metadata_utilities"
+  ,"templates": "edc_payload_templates"
+}

@@ -22,7 +22,7 @@ import argparse
 import re
 import json
 #from pathlib import PurePath
-from edc_utilities.edcSessionHelper import EDCSession
+from src.edc_utilities.edcSessionHelper import EDCSession
 
 # global var declaration (with type hinting)
 #edcSession: EDCSession = None

@@ -28,7 +28,7 @@ import requests
 import urllib3
 from openpyxl import Workbook
 
-from edc_utilities.edcSessionHelper import EDCSession
+from src.edc_utilities.edcSessionHelper import EDCSession
 
 urllib3.disable_warnings()
 
@@ -53,7 +53,7 @@ pageSize = 5000  # number of objects for each page/chunk
 csv_file_name = "domain_summary.csv"
 excelFileName = "domain_summary.xlsx"
 # the path to write to - can be overwritten by -o cmdlink parameter
-csv_file_path = "out/"
+csv_file_path = "../out/"
 
 # edcSession = EDCSession()
 parser = argparse.ArgumentParser(parents=[MemVariables.edcSession.argparser])
@@ -197,7 +197,7 @@ def main():
     p = PurePath(sys.argv[0])
     print(f"{p.name} starting in {os.getcwd()}")
 
-    csv_file_path = "."
+    csv_file_path = ".."
     # read any command-line args passed
     # (only needed if using extra args from what is used in edcSession
     print("\treading command-line specific to domainSummary extractor")

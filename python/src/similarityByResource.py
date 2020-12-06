@@ -13,7 +13,7 @@ import time
 import sys
 import urllib3
 import csv
-from edc_utilities import edcSessionHelper
+from src.edc_utilities import edcSessionHelper
 import argparse
 import os
 

@@ -8,7 +8,7 @@ Note:  this script is not fully tested.  it is a quick example of how you could 
 """
 import json
 import csv
-from edc_utilities import edcutils, edcSessionHelper
+from src.edc_utilities import edcSessionHelper, edcutils
 import time
 import argparse
 import urllib3

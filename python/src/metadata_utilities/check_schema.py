@@ -2,7 +2,7 @@ import json
 
 import jsonschema
 
-from metadata_utilities import messages, generic_settings, mu_logging
+from src.metadata_utilities import messages
 
 
 class CheckSchema:

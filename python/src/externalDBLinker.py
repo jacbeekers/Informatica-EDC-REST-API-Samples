@@ -11,7 +11,7 @@ options include to create links directly (via API) - via -i switch (or --edcImpo
 """
 import json
 import csv
-from edc_utilities import edcutils, edcSessionHelper
+from src.edc_utilities import edcSessionHelper, edcutils
 import time
 import sys
 import argparse

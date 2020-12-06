@@ -2,11 +2,11 @@ import glob
 import json
 import os
 
-from edc_utilities import edc_lineage
-from metadata_utilities import check_schema
-from metadata_utilities import generic_settings, generic
-from metadata_utilities import messages
-from metadata_utilities import mu_logging, json_file_utilities
+from src.edc_utilities import edc_lineage
+from src.metadata_utilities import check_schema
+from src.metadata_utilities import generic_settings, generic
+from src.metadata_utilities import messages
+from src.metadata_utilities import mu_logging, json_file_utilities
 
 
 class ConvertJSONtoEDCLineage:
@@ -176,23 +176,23 @@ class ConvertJSONtoEDCLineage:
                         self.mu_log.log(self.mu_log.DEBUG, "# source attributes: " + str(len(source_attributes)),
                                         module)
                         for source_attribute in source_attributes:
-                            self.mu_log.log(self.mu_log.VERBOSE, "source attribute: " + source_attribute)
+                            self.mu_log.log(self.mu_log.VERBOSE, "source attribute: " + source_attribute, module)
                     else:
                         self.mu_log.log(self.mu_log.INFO,
-                                        "No source attributes provided. Assuming attribute is target-only.")
+                                        "No source attributes provided. Assuming attribute is target-only.", module)
                     if "to" in link["transformation"]:
                         self.mu_log.log(self.mu_log.DEBUG, "target attribute: " + link["transformation"]["to"], module)
                     else:
                         self.mu_log.log(self.mu_log.INFO,
-                                        "No target attribute provided. Assuming attribute is source-only.")
+                                        "No target attribute provided. Assuming attribute is source-only.", module)
                     if "description" in link:
                         self.mu_log.log(self.mu_log.VERBOSE, "description: " + link["description"], module)
                     else:
-                        self.mu_log.log(self.mu_log.DEBUG, "No description provided, which is ok.")
+                        self.mu_log.log(self.mu_log.DEBUG, "No description provided, which is ok.", module)
                     if "formula" in link:
                         self.mu_log.log(self.mu_log.VERBOSE, "formula: " + link["formula"], module)
                     else:
-                        self.mu_log.log(self.mu_log.INFO, "No formula provided, which is ok.")
+                        self.mu_log.log(self.mu_log.INFO, "No formula provided, which is ok.", module)
                 else:
                     self.mu_log.log(self.mu_log.ERROR, "transformation in link# " + str(link_number)
                                     + "does not contain a uid.", module)
@@ -211,7 +211,7 @@ class ConvertJSONtoEDCLineage:
         #       something like this:
         #           json_result = self.metadata_lake_lineage.generate_lineage("json_payload", self.meta_type, self.data)
         self.edc_lineage.mu_log.area = self.mu_log.area
-        json_result = self.edc_lineage.generate_lineage("json_payload", self.meta_type, self.data)
+        json_result = self.edc_lineage.generate_lineage("json_payload", self.meta_type, self.data, self.settings)
         if json_result["code"] == "OK":
             # Send lineage info to metadata target
             send_result = self.send_metadata()

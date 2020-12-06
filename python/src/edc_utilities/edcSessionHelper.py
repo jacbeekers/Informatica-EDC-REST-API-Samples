@@ -121,7 +121,7 @@ class EDCSession:
             self.baseUrl = os.environ["INFA_EDC_URL"]
             print("\t\tusing EDC_URL=" + self.baseUrl + " from INFA_EDC_URL environment variable")
 
-        auth = self.settings.auth
+        auth = self.settings.edc_auth
         if args.auth is not None:
             print(f"\t\tusing edc auth from command-line parameter.")
             auth = args.auth
@@ -221,11 +221,3 @@ class EDCSession:
             print(e.strerror)
             # exit if we can't connect
             return 0, None
-
-    def main(self):
-        print("Main should not be called for edcSessionHelper...")
-        return 1
-
-
-if __name__ == "__main__":
-    result = EDCSession().main()

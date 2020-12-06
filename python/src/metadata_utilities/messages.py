@@ -155,5 +155,19 @@ message = {
         , "message": "Group for warnings and errors related to the Metadata Lake"
         , "level:": "INFO"
     },
-
+    "JINJA_GROUP": {
+        "code": "JIN"
+        , "message": "Group for warnings and errors related to the Jinja templating"
+        , "level:": "INFO"
+    },
+    "jinja_config_file_not_found": {
+        "code": "MU-JIN-001"
+        , "message": "Could not find Jinja configuration file"
+        , "level": "ERROR"
+    },
+    "jinja_template_not_found": {
+        "code": "MU-JIN-002"
+        , "message": "Jinja template not found. Check the Jinja directory settings"
+        , "level": "ERROR"
+    }
 }

@@ -3,8 +3,8 @@ import time
 
 import jinja2
 
-from edc_utilities import edcSessionHelper
-from metadata_utilities import mu_logging, messages, generic
+from src.edc_utilities import edcSessionHelper
+from src.metadata_utilities import messages, generic
 
 
 class EDCLineage:
@@ -29,24 +29,36 @@ class EDCLineage:
         self.edc_target_folder = "unknown"
         self.edc_helper = edcSessionHelper.EDCSession(self.settings)
         self.proxies = "unknown"
-        # TODO: Get info from jinja_config mentioned in config.json
-        self.application = "edc_utilities"
-        self.templates = "edc_payload_templates"
-        self.template_directory = self.application + "/" + self.templates
-        self.environment = jinja2.Environment(loader=jinja2.FileSystemLoader(self.template_directory))
-        self.environment.filters["jsonify"] = json.dumps
-        self.template = self.environment.get_template("physical_entity_association.json")
+        self.jinja_base_directory = None
+        self.jinja_application = None
+        self.jinja_templates = None
+        self.jinja_template_directory = None
+        self.jinja_environment = None
         self.meta_type = "unknown"
         self.payload = {}
         self.data = None
+        self.jinja_configuration_file = self.settings.jinja_config
 
-    def generate_lineage(self, output_type, metadata_type, data):
+    def generate_lineage(self, output_type, metadata_type, data, generic_settings):
         module = "EDCLineage.generate_lineage"
-        result = self.settings.get_config()
-        if result != messages.message["ok"]:
-            self.mu_log.log(self.mu_log.FATAL, "Could not find main configuration file >" + self.settings.json_file + "<."
-                            , module)
-            return messages.message["main_config_not_found"]
+        if generic_settings is None:
+            self.mu_log.log(self.mu_log.DEBUG, "Loading generic settings.", module)
+            result = self.settings.get_config()
+            if result != messages.message["ok"]:
+                self.mu_log.log(self.mu_log.FATAL, "Could not find main configuration file >" + self.settings.json_file + "<."
+                                , module)
+                return messages.message["main_config_not_found"]
+        else:
+            self.mu_log.log(self.mu_log.DEBUG, "Generic settings already loaded.", module)
+            self.settings = generic_settings
+
+        # Get jinja configuration
+        result = self.get_jinja_settings(self.settings)
+        if result == messages.message["ok"]:
+            self.mu_log.log(self.mu_log.INFO, "Jinja configuration file found and read.", module)
+        else:
+            self.mu_log.log(self.mu_log.ERROR, "get_jinja_settings returned: " + result["code"], module)
+            return result
 
         self.generic = generic.Generic(settings=self.settings, mu_log_ref=self.mu_log)
         self.proxies = self.settings.get_edc_proxy()
@@ -63,7 +75,7 @@ class EDCLineage:
             self.mu_log.log(self.mu_log.DEBUG, "generating lineage for output_type " + output_type, module)
             lineage_result, payload = self.build_api_load()
         elif output_type == "csv":
-            self.mu_log.log(self.mu_log.ERROR, "output_type csv has not been implemented.")
+            self.mu_log.log(self.mu_log.ERROR, "output_type csv has not been implemented.", module)
             lineage_result = messages.message["not_implemented"]
         else:
             self.mu_log.log(self.mu_log.ERROR, "invalid lineage output_type >" + output_type + "< specified.", module)
@@ -71,16 +83,80 @@ class EDCLineage:
 
         return lineage_result
 
+    def get_jinja_settings(self, generic_settings):
+        """
+            Get the Jinja settings from the provided jinja configuration file: jinja_config key in main config.json
+        """
+        module = "edc_lineage.get_jinja_settings"
+        result = messages.message["ok"]
+        try:
+            with open(self.jinja_configuration_file) as jinja:
+                data = json.load(jinja)
+                if "base_directory" in data:
+                    self.jinja_base_directory = data["base_directory"]
+                    self.mu_log.log(self.mu_log.INFO, "Jinja base directory taken from jinja configuration file >"
+                                    + self.jinja_configuration_file
+                                    + "<: "
+                                    + self.jinja_base_directory, module)
+                else:
+                    self.mu_log.log(self.mu_log.INFO, "Jinja base directory setting not found in jinja configuration file."
+                                    + " Using current directory")
+                    self.jinja_base_directory = "."
+                if "application" in data:
+                    self.jinja_application = data["application"]
+                    self.mu_log.log(self.mu_log.INFO, "Jinja application setting taken from jinja configuration file >"
+                                    + self.jinja_configuration_file
+                                    + "<: "
+                                    + self.jinja_application, module)
+                else:
+                    self.mu_log.log(self.mu_log.INFO, "Jinja application setting not found. Using empty value", module)
+                    self.jinja_application = None
+                if "templates" in data:
+                    self.jinja_templates = data["templates"]
+                    self.mu_log.log(self.mu_log.INFO, "Jinja templates setting taken from jinja configuration file >"
+                                    + self.jinja_configuration_file
+                                    + "<: "
+                                    + self.jinja_templates, module)
+                else:
+                    self.mu_log.log(self.mu_log.INFO, "Jinja templates setting not found. Using empty value", module)
+                    self.jinja_templates = None
+
+                self.jinja_template_directory = self.jinja_base_directory
+                if self.jinja_application is not None:
+                    self.jinja_template_directory += self.jinja_application
+                if self.jinja_templates is not None:
+                    self.jinja_template_directory += "/" + self.jinja_templates
+
+                self.mu_log.log(self.mu_log.INFO, "Jinja template directory: " + self.jinja_template_directory, module)
+                self.jinja_environment = jinja2.Environment(loader=jinja2.FileSystemLoader(self.jinja_template_directory))
+                self.jinja_environment.filters["jsonify"] = json.dumps
+
+        except FileNotFoundError:
+            self.mu_log.log(self.mu_log.ERROR, "Could not find jinja configuration file: " + self.jinja_configuration_file
+                            , module)
+            return messages.message["jinja_config_file_not_found"]
+
+        return result
+
     def build_api_load(self):
         module = "EDCLineage.build_api_load"
-        self.template = self.environment.get_template(self.meta_type + ".json")
+        try:
+            self.template = self.jinja_environment.get_template(self.meta_type + ".json")
+            self.mu_log.log(self.mu_log.DEBUG, "Found jinja template: " + self.meta_type + ".json", module)
+        except jinja2.exceptions.TemplateNotFound:
+            self.mu_log.log(self.mu_log.ERROR, "Could not find jinja template >" + self.meta_type + ".json<."
+                            + " in directory >" + self.jinja_template_directory + "<."
+                            , module)
+            self.payload = {}
+            return messages.message["jinja_template_not_found"], self.payload
+
         if self.meta_type == "physical_entity_association":
             build_result, self.payload = self.build_api_load_entity_association()
         elif self.meta_type == "physical_attribute_association":
             build_result, self.payload = self.build_api_load_attribute_association()
         else:
             build_result = messages.message["unknown_metadata_target"]
-            self.payload = "{}"
+            self.payload = {}
 
         self.mu_log.log(self.mu_log.VERBOSE, "payload: " + self.payload, module)
         return build_result, self.payload
@@ -95,9 +171,9 @@ class EDCLineage:
         source_target_list = []
         update_entry_list = []
 
-        template_updates = self.environment.get_template("physical_association_updates.jinja2")
-        template_update_entry = self.environment.get_template("physical_association_update_entry.jinja2")
-        template_new_sourcelinks = self.environment.get_template("physical_association_source_link.jinja2")
+        template_updates = self.jinja_environment.get_template("physical_association_updates.jinja2")
+        template_update_entry = self.jinja_environment.get_template("physical_association_update_entry.jinja2")
+        template_new_sourcelinks = self.jinja_environment.get_template("physical_association_source_link.jinja2")
         target = ""
         for source_target_entity in source_target_links:
             self.mu_log.log(self.mu_log.DEBUG, "entity link from >" + source_target_entity["from"] + "< to >"
@@ -106,9 +182,10 @@ class EDCLineage:
                                                  , log_prefix="from " + source_target_entity["from"] + " - ")
             if find_result["code"] != "OK":
                 self.mu_log.log(self.mu_log.ERROR,
-                                "The entity association contains a source UUID that could not be found in any entity JSON file.")
+                                "The entity association contains a source UUID that could not be found in any entity JSON file."
+                                ,module)
                 build_result = messages.message["json_uuid_not_found"]
-                return build_result, "{}"
+                return build_result, {}
 
             source_name = self.generic.found_data["name"]
             from_dataset = self.edc_source_filesystem \
@@ -123,7 +200,8 @@ class EDCLineage:
                                                  , log_prefix="to " + source_target_entity["to"] + " - ")
             if find_result["code"] != "OK":
                 self.mu_log.log(self.mu_log.ERROR,
-                                "The entity association contains a target UUID that could not be found in any entity JSON file.")
+                                "The entity association contains a target UUID that could not be found in any entity JSON file."
+                                , module)
                 build_result = messages.message["json_uuid_not_found"]
                 return build_result, "{}"
 
@@ -154,9 +232,9 @@ class EDCLineage:
         source_target_list = []
         update_entry_list = []
 
-        template_updates = self.environment.get_template("physical_association_updates.jinja2")
-        template_update_entry = self.environment.get_template("physical_association_update_entry.jinja2")
-        template_new_source_links = self.environment.get_template("physical_association_source_link.jinja2")
+        template_updates = self.jinja_environment.get_template("physical_association_updates.jinja2")
+        template_update_entry = self.jinja_environment.get_template("physical_association_update_entry.jinja2")
+        template_new_source_links = self.jinja_environment.get_template("physical_association_source_link.jinja2")
 
         to_entity_name = "NONE"
         for source_target in source_target_links:
@@ -268,7 +346,7 @@ class EDCLineage:
 
     def send_metadata_to_edc(self, suppress_edc_call=False):
         module = "EDCLineage.send_metadata_to_edc"
-        self.mu_log.log(self.mu_log.VERBOSE, "sending payload >" + self.payload + "<.", module)
+        self.mu_log.log(self.mu_log.VERBOSE, "sending payload >" + str(self.payload) + "<.", module)
         start_time = time.time()
         self.edc_helper.initUrlAndSessionFromEDCSettings()
 
@@ -278,7 +356,7 @@ class EDCLineage:
         head = {'Content-Type': 'application/json'}
         self.mu_log.log(self.mu_log.VERBOSE, "Headers: " + str(head.items()), module)
         self.mu_log.log(self.mu_log.VERBOSE, "Proxies: " + str(self.proxies), module)
-        if self.settings.auth is None:
+        if self.settings.edc_auth is None:
             self.mu_log.log(self.mu_log.WARNING
                             , "Auth not set. Add edc_auth to the edc.secrets file or set INFA_EDC_AUTH"
                             , module)

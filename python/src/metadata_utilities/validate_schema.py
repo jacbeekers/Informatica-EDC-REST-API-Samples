@@ -3,8 +3,8 @@ import json
 import os
 
 import jsonschema
-from metadata_utilities import generic_settings, generic
-from metadata_utilities import messages
+from src.metadata_utilities import generic_settings, generic
+from src.metadata_utilities import messages
 
 
 class ValidateSchema():

@@ -1,0 +1,1282 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2" />
+<title>edc_utilities.edc_lineage API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>edc_utilities.edc_lineage</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">import json
+import time
+
+import jinja2
+
+from src.edc_utilities import edcSessionHelper
+from src.metadata_utilities import messages, generic
+
+
+class EDCLineage:
+    &#34;&#34;&#34;
+    EDLineage: Call Informatica EDC APIs to add lineage information for existing objects
+    &#34;&#34;&#34;
+
+    code_version = &#34;0.2.21&#34;
+    total = 1000
+
+    def __init__(self, settings, mu_log_ref):
+        self.offset = 0
+        self.page = 0
+        self.settings = settings
+        self.mu_log = mu_log_ref
+        self.generic = None
+        self.edc_source_filesystem = &#34;unknown&#34;
+        self.edc_source_datasource = &#34;unknown&#34;
+        self.edc_source_folder = &#34;unknown&#34;
+        self.edc_target_filesystem = &#34;unknown&#34;
+        self.edc_target_datasource = &#34;unknown&#34;
+        self.edc_target_folder = &#34;unknown&#34;
+        self.edc_helper = edcSessionHelper.EDCSession(self.settings)
+        self.proxies = &#34;unknown&#34;
+        self.jinja_base_directory = None
+        self.jinja_application = None
+        self.jinja_templates = None
+        self.jinja_template_directory = None
+        self.jinja_environment = None
+        self.meta_type = &#34;unknown&#34;
+        self.payload = {}
+        self.data = None
+        self.jinja_configuration_file = self.settings.jinja_config
+
+    def generate_lineage(self, output_type, metadata_type, data, generic_settings):
+        module = &#34;EDCLineage.generate_lineage&#34;
+        if generic_settings is None:
+            self.mu_log.log(self.mu_log.DEBUG, &#34;Loading generic settings.&#34;, module)
+            result = self.settings.get_config()
+            if result != messages.message[&#34;ok&#34;]:
+                self.mu_log.log(self.mu_log.FATAL, &#34;Could not find main configuration file &gt;&#34; + self.settings.json_file + &#34;&lt;.&#34;
+                                , module)
+                return messages.message[&#34;main_config_not_found&#34;]
+        else:
+            self.mu_log.log(self.mu_log.DEBUG, &#34;Generic settings already loaded.&#34;, module)
+            self.settings = generic_settings
+
+        # Get jinja configuration
+        result = self.get_jinja_settings(self.settings)
+        if result == messages.message[&#34;ok&#34;]:
+            self.mu_log.log(self.mu_log.INFO, &#34;Jinja configuration file found and read.&#34;, module)
+        else:
+            self.mu_log.log(self.mu_log.ERROR, &#34;get_jinja_settings returned: &#34; + result[&#34;code&#34;], module)
+            return result
+
+        self.generic = generic.Generic(settings=self.settings, mu_log_ref=self.mu_log)
+        self.proxies = self.settings.get_edc_proxy()
+        self.edc_source_filesystem = self.settings.edc_config_data[&#34;edc_source_filesystem&#34;]
+        self.edc_source_datasource = self.settings.edc_config_data[&#34;edc_source_datasource&#34;]
+        self.edc_source_folder = self.settings.edc_config_data[&#34;edc_source_folder&#34;]
+        self.edc_target_filesystem = self.settings.edc_config_data[&#34;edc_target_filesystem&#34;]
+        self.edc_target_datasource = self.settings.edc_config_data[&#34;edc_target_datasource&#34;]
+        self.edc_target_folder = self.settings.edc_config_data[&#34;edc_target_folder&#34;]
+
+        self.meta_type = metadata_type
+        self.data = data
+        if output_type == &#34;json_payload&#34;:
+            self.mu_log.log(self.mu_log.DEBUG, &#34;generating lineage for output_type &#34; + output_type, module)
+            lineage_result, payload = self.build_api_load()
+        elif output_type == &#34;csv&#34;:
+            self.mu_log.log(self.mu_log.ERROR, &#34;output_type csv has not been implemented.&#34;, module)
+            lineage_result = messages.message[&#34;not_implemented&#34;]
+        else:
+            self.mu_log.log(self.mu_log.ERROR, &#34;invalid lineage output_type &gt;&#34; + output_type + &#34;&lt; specified.&#34;, module)
+            lineage_result = messages.message[&#34;invalid_lineage_output_type&#34;]
+
+        return lineage_result
+
+    def get_jinja_settings(self, generic_settings):
+        &#34;&#34;&#34;
+            Get the Jinja settings from the provided jinja configuration file: jinja_config key in main config.json
+        &#34;&#34;&#34;
+        module = &#34;edc_lineage.get_jinja_settings&#34;
+        result = messages.message[&#34;ok&#34;]
+        try:
+            with open(self.jinja_configuration_file) as jinja:
+                data = json.load(jinja)
+                if &#34;base_directory&#34; in data:
+                    self.jinja_base_directory = data[&#34;base_directory&#34;]
+                    self.mu_log.log(self.mu_log.INFO, &#34;Jinja base directory taken from jinja configuration file &gt;&#34;
+                                    + self.jinja_configuration_file
+                                    + &#34;&lt;: &#34;
+                                    + self.jinja_base_directory, module)
+                else:
+                    self.mu_log.log(self.mu_log.INFO, &#34;Jinja base directory setting not found in jinja configuration file.&#34;
+                                    + &#34; Using current directory&#34;)
+                    self.jinja_base_directory = &#34;.&#34;
+                if &#34;application&#34; in data:
+                    self.jinja_application = data[&#34;application&#34;]
+                    self.mu_log.log(self.mu_log.INFO, &#34;Jinja application setting taken from jinja configuration file &gt;&#34;
+                                    + self.jinja_configuration_file
+                                    + &#34;&lt;: &#34;
+                                    + self.jinja_application, module)
+                else:
+                    self.mu_log.log(self.mu_log.INFO, &#34;Jinja application setting not found. Using empty value&#34;, module)
+                    self.jinja_application = None
+                if &#34;templates&#34; in data:
+                    self.jinja_templates = data[&#34;templates&#34;]
+                    self.mu_log.log(self.mu_log.INFO, &#34;Jinja templates setting taken from jinja configuration file &gt;&#34;
+                                    + self.jinja_configuration_file
+                                    + &#34;&lt;: &#34;
+                                    + self.jinja_templates, module)
+                else:
+                    self.mu_log.log(self.mu_log.INFO, &#34;Jinja templates setting not found. Using empty value&#34;, module)
+                    self.jinja_templates = None
+
+                self.jinja_template_directory = self.jinja_base_directory
+                if self.jinja_application is not None:
+                    self.jinja_template_directory += self.jinja_application
+                if self.jinja_templates is not None:
+                    self.jinja_template_directory += &#34;/&#34; + self.jinja_templates
+
+                self.mu_log.log(self.mu_log.INFO, &#34;Jinja template directory: &#34; + self.jinja_template_directory, module)
+                self.jinja_environment = jinja2.Environment(loader=jinja2.FileSystemLoader(self.jinja_template_directory))
+                self.jinja_environment.filters[&#34;jsonify&#34;] = json.dumps
+
+        except FileNotFoundError:
+            self.mu_log.log(self.mu_log.ERROR, &#34;Could not find jinja configuration file: &#34; + self.jinja_configuration_file
+                            , module)
+            return messages.message[&#34;jinja_config_file_not_found&#34;]
+
+        return result
+
+    def build_api_load(self):
+        module = &#34;EDCLineage.build_api_load&#34;
+        try:
+            self.template = self.jinja_environment.get_template(self.meta_type + &#34;.json&#34;)
+            self.mu_log.log(self.mu_log.DEBUG, &#34;Found jinja template: &#34; + self.meta_type + &#34;.json&#34;, module)
+        except jinja2.exceptions.TemplateNotFound:
+            self.mu_log.log(self.mu_log.ERROR, &#34;Could not find jinja template &gt;&#34; + self.meta_type + &#34;.json&lt;.&#34;
+                            + &#34; in directory &gt;&#34; + self.jinja_template_directory + &#34;&lt;.&#34;
+                            , module)
+            self.payload = {}
+            return messages.message[&#34;jinja_template_not_found&#34;], self.payload
+
+        if self.meta_type == &#34;physical_entity_association&#34;:
+            build_result, self.payload = self.build_api_load_entity_association()
+        elif self.meta_type == &#34;physical_attribute_association&#34;:
+            build_result, self.payload = self.build_api_load_attribute_association()
+        else:
+            build_result = messages.message[&#34;unknown_metadata_target&#34;]
+            self.payload = {}
+
+        self.mu_log.log(self.mu_log.VERBOSE, &#34;payload: &#34; + self.payload, module)
+        return build_result, self.payload
+
+    def build_api_load_entity_association(self):
+        &#34;&#34;&#34;
+        Loop through the list of source_target_entities
+        &#34;&#34;&#34;
+        module = &#34;EDCLineage.build_api_load_entity_association&#34;
+        build_result = messages.message[&#34;ok&#34;]
+        source_target_links = self.data[&#34;source_target_entity_links&#34;]
+        source_target_list = []
+        update_entry_list = []
+
+        template_updates = self.jinja_environment.get_template(&#34;physical_association_updates.jinja2&#34;)
+        template_update_entry = self.jinja_environment.get_template(&#34;physical_association_update_entry.jinja2&#34;)
+        template_new_sourcelinks = self.jinja_environment.get_template(&#34;physical_association_source_link.jinja2&#34;)
+        target = &#34;&#34;
+        for source_target_entity in source_target_links:
+            self.mu_log.log(self.mu_log.DEBUG, &#34;entity link from &gt;&#34; + source_target_entity[&#34;from&#34;] + &#34;&lt; to &gt;&#34;
+                            + source_target_entity[&#34;to&#34;] + &#34;&lt;&#34;, module)
+            find_result = self.generic.find_json(source_target_entity[&#34;from&#34;], &#34;physical_entity&#34;, &#34;uid&#34;
+                                                 , log_prefix=&#34;from &#34; + source_target_entity[&#34;from&#34;] + &#34; - &#34;)
+            if find_result[&#34;code&#34;] != &#34;OK&#34;:
+                self.mu_log.log(self.mu_log.ERROR,
+                                &#34;The entity association contains a source UUID that could not be found in any entity JSON file.&#34;
+                                ,module)
+                build_result = messages.message[&#34;json_uuid_not_found&#34;]
+                return build_result, {}
+
+            source_name = self.generic.found_data[&#34;name&#34;]
+            from_dataset = self.edc_source_filesystem \
+                           + self.edc_source_datasource \
+                           + self.edc_source_folder \
+                           + source_name
+            new_entry = template_new_sourcelinks.render(source_object_id=from_dataset, data_flow=&#34;core.DataSetDataFlow&#34;)
+            self.mu_log.log(self.mu_log.VERBOSE, &#34;new entry: &#34; + new_entry, module)
+            source_target_list.append(new_entry)
+
+            find_result = self.generic.find_json(source_target_entity[&#34;to&#34;], &#34;physical_entity&#34;, &#34;uid&#34;
+                                                 , log_prefix=&#34;to &#34; + source_target_entity[&#34;to&#34;] + &#34; - &#34;)
+            if find_result[&#34;code&#34;] != &#34;OK&#34;:
+                self.mu_log.log(self.mu_log.ERROR,
+                                &#34;The entity association contains a target UUID that could not be found in any entity JSON file.&#34;
+                                , module)
+                build_result = messages.message[&#34;json_uuid_not_found&#34;]
+                return build_result, &#34;{}&#34;
+
+            target_name = self.generic.found_data[&#34;name&#34;]
+            target = self.edc_target_filesystem \
+                     + self.edc_target_datasource \
+                     + self.edc_target_folder \
+                     + target_name
+
+        the_source_targets = &#34;,&#34;.join(source_target_list)
+        self.mu_log.log(self.mu_log.VERBOSE, &#34;source_targets combined: &#34; + the_source_targets, module)
+
+        update_entry = template_update_entry.render(new_sourcelinks=the_source_targets, target_object_id=target)
+        update_entry_list.append(update_entry)
+        the_entries = &#34;,&#34;.join(update_entry_list)
+        self.payload = template_updates.render(update_entries=the_entries)
+        self.mu_log.log(self.mu_log.VERBOSE, &#34;payload: &#34; + self.payload, module)
+
+        return build_result, self.payload
+
+    def build_api_load_attribute_association(self):
+        &#34;&#34;&#34;
+        Loop through the list of source_target_attributes
+        &#34;&#34;&#34;
+        module = &#34;EDCLineage.build_api_load_attribute_association&#34;
+        build_result = messages.message[&#34;ok&#34;]
+        source_target_links = self.data[&#34;source_target_attribute_links&#34;]
+        source_target_list = []
+        update_entry_list = []
+
+        template_updates = self.jinja_environment.get_template(&#34;physical_association_updates.jinja2&#34;)
+        template_update_entry = self.jinja_environment.get_template(&#34;physical_association_update_entry.jinja2&#34;)
+        template_new_source_links = self.jinja_environment.get_template(&#34;physical_association_source_link.jinja2&#34;)
+
+        to_entity_name = &#34;NONE&#34;
+        for source_target in source_target_links:
+            source_target_list = []
+            transformation = source_target[&#34;transformation&#34;]
+            to_attribute_uuid = transformation[&#34;to&#34;]
+            self.mu_log.log(self.mu_log.DEBUG, &#34;processing to_attribute_uuid: &#34; + to_attribute_uuid, module)
+            find_result = self.generic.find_json(to_attribute_uuid, &#34;physical_attribute&#34;, &#34;uid&#34;
+                                                 , log_prefix=&#34;to_attribute_uuid &#34; + to_attribute_uuid + &#34; - &#34;)
+            if find_result[&#34;code&#34;] != &#34;OK&#34;:
+                self.mu_log.log(self.mu_log.ERROR,
+                                &#34;The attribute association contains a target UUID that could not be found in any attribute JSON file.&#34;
+                                , module)
+                build_result = messages.message[&#34;json_uuid_not_found&#34;]
+                return build_result, &#34;{}&#34;
+
+            to_attribute_data = self.generic.found_data
+            to_attribute_index = self.generic.index
+            to_attribute_name = to_attribute_data[&#34;attribute_list&#34;][to_attribute_index][&#34;name&#34;]
+            self.mu_log.log(self.mu_log.DEBUG, &#34;to_attribute_name is: &#34; + to_attribute_name, module)
+            to_entity_uuid = to_attribute_data[&#34;physical_entity&#34;]
+            find_result = self.generic.find_json(to_entity_uuid, &#34;physical_entity&#34;, &#34;uid&#34;,
+                                                 log_prefix=&#34;to_entity_uuid &#34; + to_entity_uuid + &#34; - &#34;)
+            if find_result[&#34;code&#34;] != &#34;OK&#34;:
+                self.mu_log.log(self.mu_log.ERROR,
+                                &#34;The &#39;to&#39; attribute contains an entity UUID that could not be found in any entities JSON file.&#34;
+                                , module)
+                build_result = messages.message[&#34;json_uuid_not_found&#34;]
+                return build_result, &#34;{}&#34;
+
+            to_entity_data = self.generic.found_data
+            to_entity_name = to_entity_data[&#34;name&#34;]
+            to_attribute = self.edc_target_filesystem \
+                           + self.edc_target_datasource \
+                           + self.edc_target_folder \
+                           + to_entity_name \
+                           + &#34;/&#34; \
+                           + to_attribute_name
+            self.mu_log.log(self.mu_log.DEBUG, &#34;attribute id in EDC is &gt;&#34; + to_attribute + &#34;&lt;&#34;, module)
+
+            from_attribute_list = transformation[&#34;from&#34;]
+            self.mu_log.log(self.mu_log.DEBUG, &#34;from attribute(s) &gt;&#34; + str(from_attribute_list) + &#34;&lt; to &gt;&#34;
+                            + to_attribute + &#34;&lt;&#34;, module)
+
+            self.mu_log.log(self.mu_log.DEBUG, &#34;number of entries in attribute list: &#34; + str(len(from_attribute_list)),
+                            module)
+            if len(from_attribute_list) == 0:
+                new_entry = template_new_source_links.render(source_object_id=to_attribute,
+                                                             data_flow=&#34;core.DirectionalDataFlow&#34;)
+                self.mu_log.log(self.mu_log.VERBOSE, &#34;new entry: &#34; + new_entry, module)
+                source_target_list.append(new_entry)
+
+            i = 0
+            for attribute in from_attribute_list:
+                i += 1
+                nr = str(i).zfill(3) + &#34;: &#34;
+                self.mu_log.log(self.mu_log.VERBOSE, nr + &#34;current attribute: &#34; + attribute, module)
+                find_result = self.generic.find_json(attribute, &#34;physical_attribute&#34;, &#34;uid&#34;, log_prefix=nr)
+                if find_result[&#34;code&#34;] != &#34;OK&#34;:
+                    self.mu_log.log(self.mu_log.ERROR, nr +
+                                    &#34;The attribute association contains a source UUID that could not be found in any attribute JSON file.&#34;
+                                    , module)
+                    build_result = messages.message[&#34;json_uuid_not_found&#34;]
+                    return build_result, &#34;{}&#34;
+
+                attribute_data = self.generic.found_data
+                attribute_index = self.generic.index
+
+                find_result = self.generic.find_json(attribute_data[&#34;physical_entity&#34;], &#34;physical_entity&#34;, &#34;uid&#34;
+                                                     , log_prefix=nr + &#34; entity &#34; + attribute_data[
+                        &#34;physical_entity&#34;] + &#34; - &#34;)
+                if find_result[&#34;code&#34;] != &#34;OK&#34;:
+                    self.mu_log.log(self.mu_log.ERROR, nr +
+                                    &#34;The attribute association contains a physical entity UUID that could not be found in any entity JSON file.&#34;
+                                    , module)
+                    build_result = messages.message[&#34;json_uuid_not_found&#34;]
+                    return build_result, &#34;{}&#34;
+
+                entity_data = self.generic.found_data
+                source_name = self.edc_source_filesystem \
+                              + self.edc_source_datasource \
+                              + self.edc_source_folder \
+                              + entity_data[&#34;name&#34;] \
+                              + &#34;/&#34; \
+                              + attribute_data[&#34;attribute_list&#34;][attribute_index][&#34;name&#34;]
+                self.mu_log.log(self.mu_log.DEBUG, nr + &#34;attribute name is &gt;&#34; + str(source_name) + &#34;&lt;&#34;, module)
+
+                new_entry = template_new_source_links.render(source_object_id=source_name,
+                                                             data_flow=&#34;core.DirectionalDataFlow&#34;)
+                self.mu_log.log(self.mu_log.VERBOSE, nr + &#34;new entry: &#34; + new_entry, module)
+                source_target_list.append(new_entry)
+
+            the_source_targets = &#34;,&#34;.join(source_target_list)
+            self.mu_log.log(self.mu_log.VERBOSE, &#34;source_targets combined: &#34; + the_source_targets, module)
+            update_entry = template_update_entry.render(new_sourcelinks=the_source_targets,
+                                                        target_object_id=to_attribute)
+            update_entry_list.append(update_entry)
+
+        the_entries = &#34;,&#34;.join(update_entry_list)
+        self.payload = template_updates.render(update_entries=the_entries)
+        # TODO: Find a good solution for this
+        self.payload = self.payload.replace(&#34;&lt;&lt;NONE&gt;&gt;&#34;, self.edc_target_filesystem
+                                            + self.edc_target_datasource
+                                            + self.edc_target_folder
+                                            + to_entity_name)
+        self.mu_log.log(self.mu_log.VERBOSE, &#34;payload: &#34; + self.payload, module)
+
+        return build_result, self.payload
+
+    def send_metadata_to_edc(self, suppress_edc_call=False):
+        module = &#34;EDCLineage.send_metadata_to_edc&#34;
+        self.mu_log.log(self.mu_log.VERBOSE, &#34;sending payload &gt;&#34; + str(self.payload) + &#34;&lt;.&#34;, module)
+        start_time = time.time()
+        self.edc_helper.initUrlAndSessionFromEDCSettings()
+
+        self.mu_log.log(self.mu_log.DEBUG, &#34;EDC base URL: &#34; + self.settings.edc_url, module)
+        url = self.settings.edc_url + &#34;/access/1/catalog/data/objects&#34;
+        self.mu_log.log(self.mu_log.DEBUG, &#34;Used URL &gt;&#34; + url + &#34;&lt;.&#34;, module)
+        head = {&#39;Content-Type&#39;: &#39;application/json&#39;}
+        self.mu_log.log(self.mu_log.VERBOSE, &#34;Headers: &#34; + str(head.items()), module)
+        self.mu_log.log(self.mu_log.VERBOSE, &#34;Proxies: &#34; + str(self.proxies), module)
+        if self.settings.edc_auth is None:
+            self.mu_log.log(self.mu_log.WARNING
+                            , &#34;Auth not set. Add edc_auth to the edc.secrets file or set INFA_EDC_AUTH&#34;
+                            , module)
+        # else:
+        #    self.mu_log.log(self.mu_log.VERBOSE, &#34;Auth: &#34; + self.settings.auth)
+
+        if suppress_edc_call:
+            self.mu_log.log(self.mu_log.WARNING
+                            , &#34;&#39;suppress_edc_call&#39; is set to True in config.json. EDC call NOT exucuted&#34;, module)
+            send_result = messages.message[&#34;ok&#34;]
+        else:
+            response = self.edc_helper.session.patch(url, self.payload, timeout=20, headers=head, proxies=self.proxies)
+            status = response.status_code
+            if status != 200:
+                # some error - e.g. catalog not running, or bad credentials
+                self.mu_log.log(self.mu_log.ERROR, &#34;Error from EDC: &#34; + str(status) + &#34;: &#34; + str(response), module)
+                send_result = messages.message[&#34;edc_error&#34;]
+            else:
+                try:
+                    result_json = response.json()
+                    self.mu_log.log(self.mu_log.INFO, &#34;EDC returned: &#34; + str(result_json), module)
+                    send_result = messages.message[&#34;ok&#34;]
+                except ValueError:
+                    self.mu_log.log(self.mu_log.ERROR, &#34;EDC API did not return a JSON payload&#34;)
+                    send_result = messages.message[&#34;invalid_api_response&#34;]
+
+        run_time = time.time() - start_time
+        self.mu_log.log(self.mu_log.DEBUG,
+                        &#34;send to EDC completed with &#34; + send_result[&#34;code&#34;] + &#34;. run time: &#34; + str(run_time), module)
+        return send_result</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="edc_utilities.edc_lineage.EDCLineage"><code class="flex name class">
+<span>class <span class="ident">EDCLineage</span></span>
+<span>(</span><span>settings, mu_log_ref)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>EDLineage: Call Informatica EDC APIs to add lineage information for existing objects</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class EDCLineage:
+    &#34;&#34;&#34;
+    EDLineage: Call Informatica EDC APIs to add lineage information for existing objects
+    &#34;&#34;&#34;
+
+    code_version = &#34;0.2.21&#34;
+    total = 1000
+
+    def __init__(self, settings, mu_log_ref):
+        self.offset = 0
+        self.page = 0
+        self.settings = settings
+        self.mu_log = mu_log_ref
+        self.generic = None
+        self.edc_source_filesystem = &#34;unknown&#34;
+        self.edc_source_datasource = &#34;unknown&#34;
+        self.edc_source_folder = &#34;unknown&#34;
+        self.edc_target_filesystem = &#34;unknown&#34;
+        self.edc_target_datasource = &#34;unknown&#34;
+        self.edc_target_folder = &#34;unknown&#34;
+        self.edc_helper = edcSessionHelper.EDCSession(self.settings)
+        self.proxies = &#34;unknown&#34;
+        self.jinja_base_directory = None
+        self.jinja_application = None
+        self.jinja_templates = None
+        self.jinja_template_directory = None
+        self.jinja_environment = None
+        self.meta_type = &#34;unknown&#34;
+        self.payload = {}
+        self.data = None
+        self.jinja_configuration_file = self.settings.jinja_config
+
+    def generate_lineage(self, output_type, metadata_type, data, generic_settings):
+        module = &#34;EDCLineage.generate_lineage&#34;
+        if generic_settings is None:
+            self.mu_log.log(self.mu_log.DEBUG, &#34;Loading generic settings.&#34;, module)
+            result = self.settings.get_config()
+            if result != messages.message[&#34;ok&#34;]:
+                self.mu_log.log(self.mu_log.FATAL, &#34;Could not find main configuration file &gt;&#34; + self.settings.json_file + &#34;&lt;.&#34;
+                                , module)
+                return messages.message[&#34;main_config_not_found&#34;]
+        else:
+            self.mu_log.log(self.mu_log.DEBUG, &#34;Generic settings already loaded.&#34;, module)
+            self.settings = generic_settings
+
+        # Get jinja configuration
+        result = self.get_jinja_settings(self.settings)
+        if result == messages.message[&#34;ok&#34;]:
+            self.mu_log.log(self.mu_log.INFO, &#34;Jinja configuration file found and read.&#34;, module)
+        else:
+            self.mu_log.log(self.mu_log.ERROR, &#34;get_jinja_settings returned: &#34; + result[&#34;code&#34;], module)
+            return result
+
+        self.generic = generic.Generic(settings=self.settings, mu_log_ref=self.mu_log)
+        self.proxies = self.settings.get_edc_proxy()
+        self.edc_source_filesystem = self.settings.edc_config_data[&#34;edc_source_filesystem&#34;]
+        self.edc_source_datasource = self.settings.edc_config_data[&#34;edc_source_datasource&#34;]
+        self.edc_source_folder = self.settings.edc_config_data[&#34;edc_source_folder&#34;]
+        self.edc_target_filesystem = self.settings.edc_config_data[&#34;edc_target_filesystem&#34;]
+        self.edc_target_datasource = self.settings.edc_config_data[&#34;edc_target_datasource&#34;]
+        self.edc_target_folder = self.settings.edc_config_data[&#34;edc_target_folder&#34;]
+
+        self.meta_type = metadata_type
+        self.data = data
+        if output_type == &#34;json_payload&#34;:
+            self.mu_log.log(self.mu_log.DEBUG, &#34;generating lineage for output_type &#34; + output_type, module)
+            lineage_result, payload = self.build_api_load()
+        elif output_type == &#34;csv&#34;:
+            self.mu_log.log(self.mu_log.ERROR, &#34;output_type csv has not been implemented.&#34;, module)
+            lineage_result = messages.message[&#34;not_implemented&#34;]
+        else:
+            self.mu_log.log(self.mu_log.ERROR, &#34;invalid lineage output_type &gt;&#34; + output_type + &#34;&lt; specified.&#34;, module)
+            lineage_result = messages.message[&#34;invalid_lineage_output_type&#34;]
+
+        return lineage_result
+
+    def get_jinja_settings(self, generic_settings):
+        &#34;&#34;&#34;
+            Get the Jinja settings from the provided jinja configuration file: jinja_config key in main config.json
+        &#34;&#34;&#34;
+        module = &#34;edc_lineage.get_jinja_settings&#34;
+        result = messages.message[&#34;ok&#34;]
+        try:
+            with open(self.jinja_configuration_file) as jinja:
+                data = json.load(jinja)
+                if &#34;base_directory&#34; in data:
+                    self.jinja_base_directory = data[&#34;base_directory&#34;]
+                    self.mu_log.log(self.mu_log.INFO, &#34;Jinja base directory taken from jinja configuration file &gt;&#34;
+                                    + self.jinja_configuration_file
+                                    + &#34;&lt;: &#34;
+                                    + self.jinja_base_directory, module)
+                else:
+                    self.mu_log.log(self.mu_log.INFO, &#34;Jinja base directory setting not found in jinja configuration file.&#34;
+                                    + &#34; Using current directory&#34;)
+                    self.jinja_base_directory = &#34;.&#34;
+                if &#34;application&#34; in data:
+                    self.jinja_application = data[&#34;application&#34;]
+                    self.mu_log.log(self.mu_log.INFO, &#34;Jinja application setting taken from jinja configuration file &gt;&#34;
+                                    + self.jinja_configuration_file
+                                    + &#34;&lt;: &#34;
+                                    + self.jinja_application, module)
+                else:
+                    self.mu_log.log(self.mu_log.INFO, &#34;Jinja application setting not found. Using empty value&#34;, module)
+                    self.jinja_application = None
+                if &#34;templates&#34; in data:
+                    self.jinja_templates = data[&#34;templates&#34;]
+                    self.mu_log.log(self.mu_log.INFO, &#34;Jinja templates setting taken from jinja configuration file &gt;&#34;
+                                    + self.jinja_configuration_file
+                                    + &#34;&lt;: &#34;
+                                    + self.jinja_templates, module)
+                else:
+                    self.mu_log.log(self.mu_log.INFO, &#34;Jinja templates setting not found. Using empty value&#34;, module)
+                    self.jinja_templates = None
+
+                self.jinja_template_directory = self.jinja_base_directory
+                if self.jinja_application is not None:
+                    self.jinja_template_directory += self.jinja_application
+                if self.jinja_templates is not None:
+                    self.jinja_template_directory += &#34;/&#34; + self.jinja_templates
+
+                self.mu_log.log(self.mu_log.INFO, &#34;Jinja template directory: &#34; + self.jinja_template_directory, module)
+                self.jinja_environment = jinja2.Environment(loader=jinja2.FileSystemLoader(self.jinja_template_directory))
+                self.jinja_environment.filters[&#34;jsonify&#34;] = json.dumps
+
+        except FileNotFoundError:
+            self.mu_log.log(self.mu_log.ERROR, &#34;Could not find jinja configuration file: &#34; + self.jinja_configuration_file
+                            , module)
+            return messages.message[&#34;jinja_config_file_not_found&#34;]
+
+        return result
+
+    def build_api_load(self):
+        module = &#34;EDCLineage.build_api_load&#34;
+        try:
+            self.template = self.jinja_environment.get_template(self.meta_type + &#34;.json&#34;)
+            self.mu_log.log(self.mu_log.DEBUG, &#34;Found jinja template: &#34; + self.meta_type + &#34;.json&#34;, module)
+        except jinja2.exceptions.TemplateNotFound:
+            self.mu_log.log(self.mu_log.ERROR, &#34;Could not find jinja template &gt;&#34; + self.meta_type + &#34;.json&lt;.&#34;
+                            + &#34; in directory &gt;&#34; + self.jinja_template_directory + &#34;&lt;.&#34;
+                            , module)
+            self.payload = {}
+            return messages.message[&#34;jinja_template_not_found&#34;], self.payload
+
+        if self.meta_type == &#34;physical_entity_association&#34;:
+            build_result, self.payload = self.build_api_load_entity_association()
+        elif self.meta_type == &#34;physical_attribute_association&#34;:
+            build_result, self.payload = self.build_api_load_attribute_association()
+        else:
+            build_result = messages.message[&#34;unknown_metadata_target&#34;]
+            self.payload = {}
+
+        self.mu_log.log(self.mu_log.VERBOSE, &#34;payload: &#34; + self.payload, module)
+        return build_result, self.payload
+
+    def build_api_load_entity_association(self):
+        &#34;&#34;&#34;
+        Loop through the list of source_target_entities
+        &#34;&#34;&#34;
+        module = &#34;EDCLineage.build_api_load_entity_association&#34;
+        build_result = messages.message[&#34;ok&#34;]
+        source_target_links = self.data[&#34;source_target_entity_links&#34;]
+        source_target_list = []
+        update_entry_list = []
+
+        template_updates = self.jinja_environment.get_template(&#34;physical_association_updates.jinja2&#34;)
+        template_update_entry = self.jinja_environment.get_template(&#34;physical_association_update_entry.jinja2&#34;)
+        template_new_sourcelinks = self.jinja_environment.get_template(&#34;physical_association_source_link.jinja2&#34;)
+        target = &#34;&#34;
+        for source_target_entity in source_target_links:
+            self.mu_log.log(self.mu_log.DEBUG, &#34;entity link from &gt;&#34; + source_target_entity[&#34;from&#34;] + &#34;&lt; to &gt;&#34;
+                            + source_target_entity[&#34;to&#34;] + &#34;&lt;&#34;, module)
+            find_result = self.generic.find_json(source_target_entity[&#34;from&#34;], &#34;physical_entity&#34;, &#34;uid&#34;
+                                                 , log_prefix=&#34;from &#34; + source_target_entity[&#34;from&#34;] + &#34; - &#34;)
+            if find_result[&#34;code&#34;] != &#34;OK&#34;:
+                self.mu_log.log(self.mu_log.ERROR,
+                                &#34;The entity association contains a source UUID that could not be found in any entity JSON file.&#34;
+                                ,module)
+                build_result = messages.message[&#34;json_uuid_not_found&#34;]
+                return build_result, {}
+
+            source_name = self.generic.found_data[&#34;name&#34;]
+            from_dataset = self.edc_source_filesystem \
+                           + self.edc_source_datasource \
+                           + self.edc_source_folder \
+                           + source_name
+            new_entry = template_new_sourcelinks.render(source_object_id=from_dataset, data_flow=&#34;core.DataSetDataFlow&#34;)
+            self.mu_log.log(self.mu_log.VERBOSE, &#34;new entry: &#34; + new_entry, module)
+            source_target_list.append(new_entry)
+
+            find_result = self.generic.find_json(source_target_entity[&#34;to&#34;], &#34;physical_entity&#34;, &#34;uid&#34;
+                                                 , log_prefix=&#34;to &#34; + source_target_entity[&#34;to&#34;] + &#34; - &#34;)
+            if find_result[&#34;code&#34;] != &#34;OK&#34;:
+                self.mu_log.log(self.mu_log.ERROR,
+                                &#34;The entity association contains a target UUID that could not be found in any entity JSON file.&#34;
+                                , module)
+                build_result = messages.message[&#34;json_uuid_not_found&#34;]
+                return build_result, &#34;{}&#34;
+
+            target_name = self.generic.found_data[&#34;name&#34;]
+            target = self.edc_target_filesystem \
+                     + self.edc_target_datasource \
+                     + self.edc_target_folder \
+                     + target_name
+
+        the_source_targets = &#34;,&#34;.join(source_target_list)
+        self.mu_log.log(self.mu_log.VERBOSE, &#34;source_targets combined: &#34; + the_source_targets, module)
+
+        update_entry = template_update_entry.render(new_sourcelinks=the_source_targets, target_object_id=target)
+        update_entry_list.append(update_entry)
+        the_entries = &#34;,&#34;.join(update_entry_list)
+        self.payload = template_updates.render(update_entries=the_entries)
+        self.mu_log.log(self.mu_log.VERBOSE, &#34;payload: &#34; + self.payload, module)
+
+        return build_result, self.payload
+
+    def build_api_load_attribute_association(self):
+        &#34;&#34;&#34;
+        Loop through the list of source_target_attributes
+        &#34;&#34;&#34;
+        module = &#34;EDCLineage.build_api_load_attribute_association&#34;
+        build_result = messages.message[&#34;ok&#34;]
+        source_target_links = self.data[&#34;source_target_attribute_links&#34;]
+        source_target_list = []
+        update_entry_list = []
+
+        template_updates = self.jinja_environment.get_template(&#34;physical_association_updates.jinja2&#34;)
+        template_update_entry = self.jinja_environment.get_template(&#34;physical_association_update_entry.jinja2&#34;)
+        template_new_source_links = self.jinja_environment.get_template(&#34;physical_association_source_link.jinja2&#34;)
+
+        to_entity_name = &#34;NONE&#34;
+        for source_target in source_target_links:
+            source_target_list = []
+            transformation = source_target[&#34;transformation&#34;]
+            to_attribute_uuid = transformation[&#34;to&#34;]
+            self.mu_log.log(self.mu_log.DEBUG, &#34;processing to_attribute_uuid: &#34; + to_attribute_uuid, module)
+            find_result = self.generic.find_json(to_attribute_uuid, &#34;physical_attribute&#34;, &#34;uid&#34;
+                                                 , log_prefix=&#34;to_attribute_uuid &#34; + to_attribute_uuid + &#34; - &#34;)
+            if find_result[&#34;code&#34;] != &#34;OK&#34;:
+                self.mu_log.log(self.mu_log.ERROR,
+                                &#34;The attribute association contains a target UUID that could not be found in any attribute JSON file.&#34;
+                                , module)
+                build_result = messages.message[&#34;json_uuid_not_found&#34;]
+                return build_result, &#34;{}&#34;
+
+            to_attribute_data = self.generic.found_data
+            to_attribute_index = self.generic.index
+            to_attribute_name = to_attribute_data[&#34;attribute_list&#34;][to_attribute_index][&#34;name&#34;]
+            self.mu_log.log(self.mu_log.DEBUG, &#34;to_attribute_name is: &#34; + to_attribute_name, module)
+            to_entity_uuid = to_attribute_data[&#34;physical_entity&#34;]
+            find_result = self.generic.find_json(to_entity_uuid, &#34;physical_entity&#34;, &#34;uid&#34;,
+                                                 log_prefix=&#34;to_entity_uuid &#34; + to_entity_uuid + &#34; - &#34;)
+            if find_result[&#34;code&#34;] != &#34;OK&#34;:
+                self.mu_log.log(self.mu_log.ERROR,
+                                &#34;The &#39;to&#39; attribute contains an entity UUID that could not be found in any entities JSON file.&#34;
+                                , module)
+                build_result = messages.message[&#34;json_uuid_not_found&#34;]
+                return build_result, &#34;{}&#34;
+
+            to_entity_data = self.generic.found_data
+            to_entity_name = to_entity_data[&#34;name&#34;]
+            to_attribute = self.edc_target_filesystem \
+                           + self.edc_target_datasource \
+                           + self.edc_target_folder \
+                           + to_entity_name \
+                           + &#34;/&#34; \
+                           + to_attribute_name
+            self.mu_log.log(self.mu_log.DEBUG, &#34;attribute id in EDC is &gt;&#34; + to_attribute + &#34;&lt;&#34;, module)
+
+            from_attribute_list = transformation[&#34;from&#34;]
+            self.mu_log.log(self.mu_log.DEBUG, &#34;from attribute(s) &gt;&#34; + str(from_attribute_list) + &#34;&lt; to &gt;&#34;
+                            + to_attribute + &#34;&lt;&#34;, module)
+
+            self.mu_log.log(self.mu_log.DEBUG, &#34;number of entries in attribute list: &#34; + str(len(from_attribute_list)),
+                            module)
+            if len(from_attribute_list) == 0:
+                new_entry = template_new_source_links.render(source_object_id=to_attribute,
+                                                             data_flow=&#34;core.DirectionalDataFlow&#34;)
+                self.mu_log.log(self.mu_log.VERBOSE, &#34;new entry: &#34; + new_entry, module)
+                source_target_list.append(new_entry)
+
+            i = 0
+            for attribute in from_attribute_list:
+                i += 1
+                nr = str(i).zfill(3) + &#34;: &#34;
+                self.mu_log.log(self.mu_log.VERBOSE, nr + &#34;current attribute: &#34; + attribute, module)
+                find_result = self.generic.find_json(attribute, &#34;physical_attribute&#34;, &#34;uid&#34;, log_prefix=nr)
+                if find_result[&#34;code&#34;] != &#34;OK&#34;:
+                    self.mu_log.log(self.mu_log.ERROR, nr +
+                                    &#34;The attribute association contains a source UUID that could not be found in any attribute JSON file.&#34;
+                                    , module)
+                    build_result = messages.message[&#34;json_uuid_not_found&#34;]
+                    return build_result, &#34;{}&#34;
+
+                attribute_data = self.generic.found_data
+                attribute_index = self.generic.index
+
+                find_result = self.generic.find_json(attribute_data[&#34;physical_entity&#34;], &#34;physical_entity&#34;, &#34;uid&#34;
+                                                     , log_prefix=nr + &#34; entity &#34; + attribute_data[
+                        &#34;physical_entity&#34;] + &#34; - &#34;)
+                if find_result[&#34;code&#34;] != &#34;OK&#34;:
+                    self.mu_log.log(self.mu_log.ERROR, nr +
+                                    &#34;The attribute association contains a physical entity UUID that could not be found in any entity JSON file.&#34;
+                                    , module)
+                    build_result = messages.message[&#34;json_uuid_not_found&#34;]
+                    return build_result, &#34;{}&#34;
+
+                entity_data = self.generic.found_data
+                source_name = self.edc_source_filesystem \
+                              + self.edc_source_datasource \
+                              + self.edc_source_folder \
+                              + entity_data[&#34;name&#34;] \
+                              + &#34;/&#34; \
+                              + attribute_data[&#34;attribute_list&#34;][attribute_index][&#34;name&#34;]
+                self.mu_log.log(self.mu_log.DEBUG, nr + &#34;attribute name is &gt;&#34; + str(source_name) + &#34;&lt;&#34;, module)
+
+                new_entry = template_new_source_links.render(source_object_id=source_name,
+                                                             data_flow=&#34;core.DirectionalDataFlow&#34;)
+                self.mu_log.log(self.mu_log.VERBOSE, nr + &#34;new entry: &#34; + new_entry, module)
+                source_target_list.append(new_entry)
+
+            the_source_targets = &#34;,&#34;.join(source_target_list)
+            self.mu_log.log(self.mu_log.VERBOSE, &#34;source_targets combined: &#34; + the_source_targets, module)
+            update_entry = template_update_entry.render(new_sourcelinks=the_source_targets,
+                                                        target_object_id=to_attribute)
+            update_entry_list.append(update_entry)
+
+        the_entries = &#34;,&#34;.join(update_entry_list)
+        self.payload = template_updates.render(update_entries=the_entries)
+        # TODO: Find a good solution for this
+        self.payload = self.payload.replace(&#34;&lt;&lt;NONE&gt;&gt;&#34;, self.edc_target_filesystem
+                                            + self.edc_target_datasource
+                                            + self.edc_target_folder
+                                            + to_entity_name)
+        self.mu_log.log(self.mu_log.VERBOSE, &#34;payload: &#34; + self.payload, module)
+
+        return build_result, self.payload
+
+    def send_metadata_to_edc(self, suppress_edc_call=False):
+        module = &#34;EDCLineage.send_metadata_to_edc&#34;
+        self.mu_log.log(self.mu_log.VERBOSE, &#34;sending payload &gt;&#34; + str(self.payload) + &#34;&lt;.&#34;, module)
+        start_time = time.time()
+        self.edc_helper.initUrlAndSessionFromEDCSettings()
+
+        self.mu_log.log(self.mu_log.DEBUG, &#34;EDC base URL: &#34; + self.settings.edc_url, module)
+        url = self.settings.edc_url + &#34;/access/1/catalog/data/objects&#34;
+        self.mu_log.log(self.mu_log.DEBUG, &#34;Used URL &gt;&#34; + url + &#34;&lt;.&#34;, module)
+        head = {&#39;Content-Type&#39;: &#39;application/json&#39;}
+        self.mu_log.log(self.mu_log.VERBOSE, &#34;Headers: &#34; + str(head.items()), module)
+        self.mu_log.log(self.mu_log.VERBOSE, &#34;Proxies: &#34; + str(self.proxies), module)
+        if self.settings.edc_auth is None:
+            self.mu_log.log(self.mu_log.WARNING
+                            , &#34;Auth not set. Add edc_auth to the edc.secrets file or set INFA_EDC_AUTH&#34;
+                            , module)
+        # else:
+        #    self.mu_log.log(self.mu_log.VERBOSE, &#34;Auth: &#34; + self.settings.auth)
+
+        if suppress_edc_call:
+            self.mu_log.log(self.mu_log.WARNING
+                            , &#34;&#39;suppress_edc_call&#39; is set to True in config.json. EDC call NOT exucuted&#34;, module)
+            send_result = messages.message[&#34;ok&#34;]
+        else:
+            response = self.edc_helper.session.patch(url, self.payload, timeout=20, headers=head, proxies=self.proxies)
+            status = response.status_code
+            if status != 200:
+                # some error - e.g. catalog not running, or bad credentials
+                self.mu_log.log(self.mu_log.ERROR, &#34;Error from EDC: &#34; + str(status) + &#34;: &#34; + str(response), module)
+                send_result = messages.message[&#34;edc_error&#34;]
+            else:
+                try:
+                    result_json = response.json()
+                    self.mu_log.log(self.mu_log.INFO, &#34;EDC returned: &#34; + str(result_json), module)
+                    send_result = messages.message[&#34;ok&#34;]
+                except ValueError:
+                    self.mu_log.log(self.mu_log.ERROR, &#34;EDC API did not return a JSON payload&#34;)
+                    send_result = messages.message[&#34;invalid_api_response&#34;]
+
+        run_time = time.time() - start_time
+        self.mu_log.log(self.mu_log.DEBUG,
+                        &#34;send to EDC completed with &#34; + send_result[&#34;code&#34;] + &#34;. run time: &#34; + str(run_time), module)
+        return send_result</code></pre>
+</details>
+<h3>Class variables</h3>
+<dl>
+<dt id="edc_utilities.edc_lineage.EDCLineage.code_version"><code class="name">var <span class="ident">code_version</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="edc_utilities.edc_lineage.EDCLineage.total"><code class="name">var <span class="ident">total</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="edc_utilities.edc_lineage.EDCLineage.build_api_load"><code class="name flex">
+<span>def <span class="ident">build_api_load</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def build_api_load(self):
+    module = &#34;EDCLineage.build_api_load&#34;
+    try:
+        self.template = self.jinja_environment.get_template(self.meta_type + &#34;.json&#34;)
+        self.mu_log.log(self.mu_log.DEBUG, &#34;Found jinja template: &#34; + self.meta_type + &#34;.json&#34;, module)
+    except jinja2.exceptions.TemplateNotFound:
+        self.mu_log.log(self.mu_log.ERROR, &#34;Could not find jinja template &gt;&#34; + self.meta_type + &#34;.json&lt;.&#34;
+                        + &#34; in directory &gt;&#34; + self.jinja_template_directory + &#34;&lt;.&#34;
+                        , module)
+        self.payload = {}
+        return messages.message[&#34;jinja_template_not_found&#34;], self.payload
+
+    if self.meta_type == &#34;physical_entity_association&#34;:
+        build_result, self.payload = self.build_api_load_entity_association()
+    elif self.meta_type == &#34;physical_attribute_association&#34;:
+        build_result, self.payload = self.build_api_load_attribute_association()
+    else:
+        build_result = messages.message[&#34;unknown_metadata_target&#34;]
+        self.payload = {}
+
+    self.mu_log.log(self.mu_log.VERBOSE, &#34;payload: &#34; + self.payload, module)
+    return build_result, self.payload</code></pre>
+</details>
+</dd>
+<dt id="edc_utilities.edc_lineage.EDCLineage.build_api_load_attribute_association"><code class="name flex">
+<span>def <span class="ident">build_api_load_attribute_association</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Loop through the list of source_target_attributes</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def build_api_load_attribute_association(self):
+    &#34;&#34;&#34;
+    Loop through the list of source_target_attributes
+    &#34;&#34;&#34;
+    module = &#34;EDCLineage.build_api_load_attribute_association&#34;
+    build_result = messages.message[&#34;ok&#34;]
+    source_target_links = self.data[&#34;source_target_attribute_links&#34;]
+    source_target_list = []
+    update_entry_list = []
+
+    template_updates = self.jinja_environment.get_template(&#34;physical_association_updates.jinja2&#34;)
+    template_update_entry = self.jinja_environment.get_template(&#34;physical_association_update_entry.jinja2&#34;)
+    template_new_source_links = self.jinja_environment.get_template(&#34;physical_association_source_link.jinja2&#34;)
+
+    to_entity_name = &#34;NONE&#34;
+    for source_target in source_target_links:
+        source_target_list = []
+        transformation = source_target[&#34;transformation&#34;]
+        to_attribute_uuid = transformation[&#34;to&#34;]
+        self.mu_log.log(self.mu_log.DEBUG, &#34;processing to_attribute_uuid: &#34; + to_attribute_uuid, module)
+        find_result = self.generic.find_json(to_attribute_uuid, &#34;physical_attribute&#34;, &#34;uid&#34;
+                                             , log_prefix=&#34;to_attribute_uuid &#34; + to_attribute_uuid + &#34; - &#34;)
+        if find_result[&#34;code&#34;] != &#34;OK&#34;:
+            self.mu_log.log(self.mu_log.ERROR,
+                            &#34;The attribute association contains a target UUID that could not be found in any attribute JSON file.&#34;
+                            , module)
+            build_result = messages.message[&#34;json_uuid_not_found&#34;]
+            return build_result, &#34;{}&#34;
+
+        to_attribute_data = self.generic.found_data
+        to_attribute_index = self.generic.index
+        to_attribute_name = to_attribute_data[&#34;attribute_list&#34;][to_attribute_index][&#34;name&#34;]
+        self.mu_log.log(self.mu_log.DEBUG, &#34;to_attribute_name is: &#34; + to_attribute_name, module)
+        to_entity_uuid = to_attribute_data[&#34;physical_entity&#34;]
+        find_result = self.generic.find_json(to_entity_uuid, &#34;physical_entity&#34;, &#34;uid&#34;,
+                                             log_prefix=&#34;to_entity_uuid &#34; + to_entity_uuid + &#34; - &#34;)
+        if find_result[&#34;code&#34;] != &#34;OK&#34;:
+            self.mu_log.log(self.mu_log.ERROR,
+                            &#34;The &#39;to&#39; attribute contains an entity UUID that could not be found in any entities JSON file.&#34;
+                            , module)
+            build_result = messages.message[&#34;json_uuid_not_found&#34;]
+            return build_result, &#34;{}&#34;
+
+        to_entity_data = self.generic.found_data
+        to_entity_name = to_entity_data[&#34;name&#34;]
+        to_attribute = self.edc_target_filesystem \
+                       + self.edc_target_datasource \
+                       + self.edc_target_folder \
+                       + to_entity_name \
+                       + &#34;/&#34; \
+                       + to_attribute_name
+        self.mu_log.log(self.mu_log.DEBUG, &#34;attribute id in EDC is &gt;&#34; + to_attribute + &#34;&lt;&#34;, module)
+
+        from_attribute_list = transformation[&#34;from&#34;]
+        self.mu_log.log(self.mu_log.DEBUG, &#34;from attribute(s) &gt;&#34; + str(from_attribute_list) + &#34;&lt; to &gt;&#34;
+                        + to_attribute + &#34;&lt;&#34;, module)
+
+        self.mu_log.log(self.mu_log.DEBUG, &#34;number of entries in attribute list: &#34; + str(len(from_attribute_list)),
+                        module)
+        if len(from_attribute_list) == 0:
+            new_entry = template_new_source_links.render(source_object_id=to_attribute,
+                                                         data_flow=&#34;core.DirectionalDataFlow&#34;)
+            self.mu_log.log(self.mu_log.VERBOSE, &#34;new entry: &#34; + new_entry, module)
+            source_target_list.append(new_entry)
+
+        i = 0
+        for attribute in from_attribute_list:
+            i += 1
+            nr = str(i).zfill(3) + &#34;: &#34;
+            self.mu_log.log(self.mu_log.VERBOSE, nr + &#34;current attribute: &#34; + attribute, module)
+            find_result = self.generic.find_json(attribute, &#34;physical_attribute&#34;, &#34;uid&#34;, log_prefix=nr)
+            if find_result[&#34;code&#34;] != &#34;OK&#34;:
+                self.mu_log.log(self.mu_log.ERROR, nr +
+                                &#34;The attribute association contains a source UUID that could not be found in any attribute JSON file.&#34;
+                                , module)
+                build_result = messages.message[&#34;json_uuid_not_found&#34;]
+                return build_result, &#34;{}&#34;
+
+            attribute_data = self.generic.found_data
+            attribute_index = self.generic.index
+
+            find_result = self.generic.find_json(attribute_data[&#34;physical_entity&#34;], &#34;physical_entity&#34;, &#34;uid&#34;
+                                                 , log_prefix=nr + &#34; entity &#34; + attribute_data[
+                    &#34;physical_entity&#34;] + &#34; - &#34;)
+            if find_result[&#34;code&#34;] != &#34;OK&#34;:
+                self.mu_log.log(self.mu_log.ERROR, nr +
+                                &#34;The attribute association contains a physical entity UUID that could not be found in any entity JSON file.&#34;
+                                , module)
+                build_result = messages.message[&#34;json_uuid_not_found&#34;]
+                return build_result, &#34;{}&#34;
+
+            entity_data = self.generic.found_data
+            source_name = self.edc_source_filesystem \
+                          + self.edc_source_datasource \
+                          + self.edc_source_folder \
+                          + entity_data[&#34;name&#34;] \
+                          + &#34;/&#34; \
+                          + attribute_data[&#34;attribute_list&#34;][attribute_index][&#34;name&#34;]
+            self.mu_log.log(self.mu_log.DEBUG, nr + &#34;attribute name is &gt;&#34; + str(source_name) + &#34;&lt;&#34;, module)
+
+            new_entry = template_new_source_links.render(source_object_id=source_name,
+                                                         data_flow=&#34;core.DirectionalDataFlow&#34;)
+            self.mu_log.log(self.mu_log.VERBOSE, nr + &#34;new entry: &#34; + new_entry, module)
+            source_target_list.append(new_entry)
+
+        the_source_targets = &#34;,&#34;.join(source_target_list)
+        self.mu_log.log(self.mu_log.VERBOSE, &#34;source_targets combined: &#34; + the_source_targets, module)
+        update_entry = template_update_entry.render(new_sourcelinks=the_source_targets,
+                                                    target_object_id=to_attribute)
+        update_entry_list.append(update_entry)
+
+    the_entries = &#34;,&#34;.join(update_entry_list)
+    self.payload = template_updates.render(update_entries=the_entries)
+    # TODO: Find a good solution for this
+    self.payload = self.payload.replace(&#34;&lt;&lt;NONE&gt;&gt;&#34;, self.edc_target_filesystem
+                                        + self.edc_target_datasource
+                                        + self.edc_target_folder
+                                        + to_entity_name)
+    self.mu_log.log(self.mu_log.VERBOSE, &#34;payload: &#34; + self.payload, module)
+
+    return build_result, self.payload</code></pre>
+</details>
+</dd>
+<dt id="edc_utilities.edc_lineage.EDCLineage.build_api_load_entity_association"><code class="name flex">
+<span>def <span class="ident">build_api_load_entity_association</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Loop through the list of source_target_entities</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def build_api_load_entity_association(self):
+    &#34;&#34;&#34;
+    Loop through the list of source_target_entities
+    &#34;&#34;&#34;
+    module = &#34;EDCLineage.build_api_load_entity_association&#34;
+    build_result = messages.message[&#34;ok&#34;]
+    source_target_links = self.data[&#34;source_target_entity_links&#34;]
+    source_target_list = []
+    update_entry_list = []
+
+    template_updates = self.jinja_environment.get_template(&#34;physical_association_updates.jinja2&#34;)
+    template_update_entry = self.jinja_environment.get_template(&#34;physical_association_update_entry.jinja2&#34;)
+    template_new_sourcelinks = self.jinja_environment.get_template(&#34;physical_association_source_link.jinja2&#34;)
+    target = &#34;&#34;
+    for source_target_entity in source_target_links:
+        self.mu_log.log(self.mu_log.DEBUG, &#34;entity link from &gt;&#34; + source_target_entity[&#34;from&#34;] + &#34;&lt; to &gt;&#34;
+                        + source_target_entity[&#34;to&#34;] + &#34;&lt;&#34;, module)
+        find_result = self.generic.find_json(source_target_entity[&#34;from&#34;], &#34;physical_entity&#34;, &#34;uid&#34;
+                                             , log_prefix=&#34;from &#34; + source_target_entity[&#34;from&#34;] + &#34; - &#34;)
+        if find_result[&#34;code&#34;] != &#34;OK&#34;:
+            self.mu_log.log(self.mu_log.ERROR,
+                            &#34;The entity association contains a source UUID that could not be found in any entity JSON file.&#34;
+                            ,module)
+            build_result = messages.message[&#34;json_uuid_not_found&#34;]
+            return build_result, {}
+
+        source_name = self.generic.found_data[&#34;name&#34;]
+        from_dataset = self.edc_source_filesystem \
+                       + self.edc_source_datasource \
+                       + self.edc_source_folder \
+                       + source_name
+        new_entry = template_new_sourcelinks.render(source_object_id=from_dataset, data_flow=&#34;core.DataSetDataFlow&#34;)
+        self.mu_log.log(self.mu_log.VERBOSE, &#34;new entry: &#34; + new_entry, module)
+        source_target_list.append(new_entry)
+
+        find_result = self.generic.find_json(source_target_entity[&#34;to&#34;], &#34;physical_entity&#34;, &#34;uid&#34;
+                                             , log_prefix=&#34;to &#34; + source_target_entity[&#34;to&#34;] + &#34; - &#34;)
+        if find_result[&#34;code&#34;] != &#34;OK&#34;:
+            self.mu_log.log(self.mu_log.ERROR,
+                            &#34;The entity association contains a target UUID that could not be found in any entity JSON file.&#34;
+                            , module)
+            build_result = messages.message[&#34;json_uuid_not_found&#34;]
+            return build_result, &#34;{}&#34;
+
+        target_name = self.generic.found_data[&#34;name&#34;]
+        target = self.edc_target_filesystem \
+                 + self.edc_target_datasource \
+                 + self.edc_target_folder \
+                 + target_name
+
+    the_source_targets = &#34;,&#34;.join(source_target_list)
+    self.mu_log.log(self.mu_log.VERBOSE, &#34;source_targets combined: &#34; + the_source_targets, module)
+
+    update_entry = template_update_entry.render(new_sourcelinks=the_source_targets, target_object_id=target)
+    update_entry_list.append(update_entry)
+    the_entries = &#34;,&#34;.join(update_entry_list)
+    self.payload = template_updates.render(update_entries=the_entries)
+    self.mu_log.log(self.mu_log.VERBOSE, &#34;payload: &#34; + self.payload, module)
+
+    return build_result, self.payload</code></pre>
+</details>
+</dd>
+<dt id="edc_utilities.edc_lineage.EDCLineage.generate_lineage"><code class="name flex">
+<span>def <span class="ident">generate_lineage</span></span>(<span>self, output_type, metadata_type, data, generic_settings)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def generate_lineage(self, output_type, metadata_type, data, generic_settings):
+    module = &#34;EDCLineage.generate_lineage&#34;
+    if generic_settings is None:
+        self.mu_log.log(self.mu_log.DEBUG, &#34;Loading generic settings.&#34;, module)
+        result = self.settings.get_config()
+        if result != messages.message[&#34;ok&#34;]:
+            self.mu_log.log(self.mu_log.FATAL, &#34;Could not find main configuration file &gt;&#34; + self.settings.json_file + &#34;&lt;.&#34;
+                            , module)
+            return messages.message[&#34;main_config_not_found&#34;]
+    else:
+        self.mu_log.log(self.mu_log.DEBUG, &#34;Generic settings already loaded.&#34;, module)
+        self.settings = generic_settings
+
+    # Get jinja configuration
+    result = self.get_jinja_settings(self.settings)
+    if result == messages.message[&#34;ok&#34;]:
+        self.mu_log.log(self.mu_log.INFO, &#34;Jinja configuration file found and read.&#34;, module)
+    else:
+        self.mu_log.log(self.mu_log.ERROR, &#34;get_jinja_settings returned: &#34; + result[&#34;code&#34;], module)
+        return result
+
+    self.generic = generic.Generic(settings=self.settings, mu_log_ref=self.mu_log)
+    self.proxies = self.settings.get_edc_proxy()
+    self.edc_source_filesystem = self.settings.edc_config_data[&#34;edc_source_filesystem&#34;]
+    self.edc_source_datasource = self.settings.edc_config_data[&#34;edc_source_datasource&#34;]
+    self.edc_source_folder = self.settings.edc_config_data[&#34;edc_source_folder&#34;]
+    self.edc_target_filesystem = self.settings.edc_config_data[&#34;edc_target_filesystem&#34;]
+    self.edc_target_datasource = self.settings.edc_config_data[&#34;edc_target_datasource&#34;]
+    self.edc_target_folder = self.settings.edc_config_data[&#34;edc_target_folder&#34;]
+
+    self.meta_type = metadata_type
+    self.data = data
+    if output_type == &#34;json_payload&#34;:
+        self.mu_log.log(self.mu_log.DEBUG, &#34;generating lineage for output_type &#34; + output_type, module)
+        lineage_result, payload = self.build_api_load()
+    elif output_type == &#34;csv&#34;:
+        self.mu_log.log(self.mu_log.ERROR, &#34;output_type csv has not been implemented.&#34;, module)
+        lineage_result = messages.message[&#34;not_implemented&#34;]
+    else:
+        self.mu_log.log(self.mu_log.ERROR, &#34;invalid lineage output_type &gt;&#34; + output_type + &#34;&lt; specified.&#34;, module)
+        lineage_result = messages.message[&#34;invalid_lineage_output_type&#34;]
+
+    return lineage_result</code></pre>
+</details>
+</dd>
+<dt id="edc_utilities.edc_lineage.EDCLineage.get_jinja_settings"><code class="name flex">
+<span>def <span class="ident">get_jinja_settings</span></span>(<span>self, generic_settings)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get the Jinja settings from the provided jinja configuration file: jinja_config key in main config.json</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_jinja_settings(self, generic_settings):
+    &#34;&#34;&#34;
+        Get the Jinja settings from the provided jinja configuration file: jinja_config key in main config.json
+    &#34;&#34;&#34;
+    module = &#34;edc_lineage.get_jinja_settings&#34;
+    result = messages.message[&#34;ok&#34;]
+    try:
+        with open(self.jinja_configuration_file) as jinja:
+            data = json.load(jinja)
+            if &#34;base_directory&#34; in data:
+                self.jinja_base_directory = data[&#34;base_directory&#34;]
+                self.mu_log.log(self.mu_log.INFO, &#34;Jinja base directory taken from jinja configuration file &gt;&#34;
+                                + self.jinja_configuration_file
+                                + &#34;&lt;: &#34;
+                                + self.jinja_base_directory, module)
+            else:
+                self.mu_log.log(self.mu_log.INFO, &#34;Jinja base directory setting not found in jinja configuration file.&#34;
+                                + &#34; Using current directory&#34;)
+                self.jinja_base_directory = &#34;.&#34;
+            if &#34;application&#34; in data:
+                self.jinja_application = data[&#34;application&#34;]
+                self.mu_log.log(self.mu_log.INFO, &#34;Jinja application setting taken from jinja configuration file &gt;&#34;
+                                + self.jinja_configuration_file
+                                + &#34;&lt;: &#34;
+                                + self.jinja_application, module)
+            else:
+                self.mu_log.log(self.mu_log.INFO, &#34;Jinja application setting not found. Using empty value&#34;, module)
+                self.jinja_application = None
+            if &#34;templates&#34; in data:
+                self.jinja_templates = data[&#34;templates&#34;]
+                self.mu_log.log(self.mu_log.INFO, &#34;Jinja templates setting taken from jinja configuration file &gt;&#34;
+                                + self.jinja_configuration_file
+                                + &#34;&lt;: &#34;
+                                + self.jinja_templates, module)
+            else:
+                self.mu_log.log(self.mu_log.INFO, &#34;Jinja templates setting not found. Using empty value&#34;, module)
+                self.jinja_templates = None
+
+            self.jinja_template_directory = self.jinja_base_directory
+            if self.jinja_application is not None:
+                self.jinja_template_directory += self.jinja_application
+            if self.jinja_templates is not None:
+                self.jinja_template_directory += &#34;/&#34; + self.jinja_templates
+
+            self.mu_log.log(self.mu_log.INFO, &#34;Jinja template directory: &#34; + self.jinja_template_directory, module)
+            self.jinja_environment = jinja2.Environment(loader=jinja2.FileSystemLoader(self.jinja_template_directory))
+            self.jinja_environment.filters[&#34;jsonify&#34;] = json.dumps
+
+    except FileNotFoundError:
+        self.mu_log.log(self.mu_log.ERROR, &#34;Could not find jinja configuration file: &#34; + self.jinja_configuration_file
+                        , module)
+        return messages.message[&#34;jinja_config_file_not_found&#34;]
+
+    return result</code></pre>
+</details>
+</dd>
+<dt id="edc_utilities.edc_lineage.EDCLineage.send_metadata_to_edc"><code class="name flex">
+<span>def <span class="ident">send_metadata_to_edc</span></span>(<span>self, suppress_edc_call=False)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def send_metadata_to_edc(self, suppress_edc_call=False):
+    module = &#34;EDCLineage.send_metadata_to_edc&#34;
+    self.mu_log.log(self.mu_log.VERBOSE, &#34;sending payload &gt;&#34; + str(self.payload) + &#34;&lt;.&#34;, module)
+    start_time = time.time()
+    self.edc_helper.initUrlAndSessionFromEDCSettings()
+
+    self.mu_log.log(self.mu_log.DEBUG, &#34;EDC base URL: &#34; + self.settings.edc_url, module)
+    url = self.settings.edc_url + &#34;/access/1/catalog/data/objects&#34;
+    self.mu_log.log(self.mu_log.DEBUG, &#34;Used URL &gt;&#34; + url + &#34;&lt;.&#34;, module)
+    head = {&#39;Content-Type&#39;: &#39;application/json&#39;}
+    self.mu_log.log(self.mu_log.VERBOSE, &#34;Headers: &#34; + str(head.items()), module)
+    self.mu_log.log(self.mu_log.VERBOSE, &#34;Proxies: &#34; + str(self.proxies), module)
+    if self.settings.edc_auth is None:
+        self.mu_log.log(self.mu_log.WARNING
+                        , &#34;Auth not set. Add edc_auth to the edc.secrets file or set INFA_EDC_AUTH&#34;
+                        , module)
+    # else:
+    #    self.mu_log.log(self.mu_log.VERBOSE, &#34;Auth: &#34; + self.settings.auth)
+
+    if suppress_edc_call:
+        self.mu_log.log(self.mu_log.WARNING
+                        , &#34;&#39;suppress_edc_call&#39; is set to True in config.json. EDC call NOT exucuted&#34;, module)
+        send_result = messages.message[&#34;ok&#34;]
+    else:
+        response = self.edc_helper.session.patch(url, self.payload, timeout=20, headers=head, proxies=self.proxies)
+        status = response.status_code
+        if status != 200:
+            # some error - e.g. catalog not running, or bad credentials
+            self.mu_log.log(self.mu_log.ERROR, &#34;Error from EDC: &#34; + str(status) + &#34;: &#34; + str(response), module)
+            send_result = messages.message[&#34;edc_error&#34;]
+        else:
+            try:
+                result_json = response.json()
+                self.mu_log.log(self.mu_log.INFO, &#34;EDC returned: &#34; + str(result_json), module)
+                send_result = messages.message[&#34;ok&#34;]
+            except ValueError:
+                self.mu_log.log(self.mu_log.ERROR, &#34;EDC API did not return a JSON payload&#34;)
+                send_result = messages.message[&#34;invalid_api_response&#34;]
+
+    run_time = time.time() - start_time
+    self.mu_log.log(self.mu_log.DEBUG,
+                    &#34;send to EDC completed with &#34; + send_result[&#34;code&#34;] + &#34;. run time: &#34; + str(run_time), module)
+    return send_result</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="edc_utilities" href="index.html">edc_utilities</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="edc_utilities.edc_lineage.EDCLineage" href="#edc_utilities.edc_lineage.EDCLineage">EDCLineage</a></code></h4>
+<ul class="">
+<li><code><a title="edc_utilities.edc_lineage.EDCLineage.build_api_load" href="#edc_utilities.edc_lineage.EDCLineage.build_api_load">build_api_load</a></code></li>
+<li><code><a title="edc_utilities.edc_lineage.EDCLineage.build_api_load_attribute_association" href="#edc_utilities.edc_lineage.EDCLineage.build_api_load_attribute_association">build_api_load_attribute_association</a></code></li>
+<li><code><a title="edc_utilities.edc_lineage.EDCLineage.build_api_load_entity_association" href="#edc_utilities.edc_lineage.EDCLineage.build_api_load_entity_association">build_api_load_entity_association</a></code></li>
+<li><code><a title="edc_utilities.edc_lineage.EDCLineage.code_version" href="#edc_utilities.edc_lineage.EDCLineage.code_version">code_version</a></code></li>
+<li><code><a title="edc_utilities.edc_lineage.EDCLineage.generate_lineage" href="#edc_utilities.edc_lineage.EDCLineage.generate_lineage">generate_lineage</a></code></li>
+<li><code><a title="edc_utilities.edc_lineage.EDCLineage.get_jinja_settings" href="#edc_utilities.edc_lineage.EDCLineage.get_jinja_settings">get_jinja_settings</a></code></li>
+<li><code><a title="edc_utilities.edc_lineage.EDCLineage.send_metadata_to_edc" href="#edc_utilities.edc_lineage.EDCLineage.send_metadata_to_edc">send_metadata_to_edc</a></code></li>
+<li><code><a title="edc_utilities.edc_lineage.EDCLineage.total" href="#edc_utilities.edc_lineage.EDCLineage.total">total</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
+</footer>
+</body>
+</html>

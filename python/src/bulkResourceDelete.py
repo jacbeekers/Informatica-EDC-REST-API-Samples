@@ -6,7 +6,7 @@ import os
 import argparse
 import sys
 import requests
-from edc_utilities.edcSessionHelper import EDCSession
+from src.edc_utilities.edcSessionHelper import EDCSession
 import urllib3
 
 

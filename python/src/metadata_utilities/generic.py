@@ -1,7 +1,7 @@
 import glob
 import json
 
-from metadata_utilities import messages
+from src.metadata_utilities import messages
 
 
 class Generic:
@@ -20,12 +20,17 @@ class Generic:
         self.settings_found = False
         self.settings = settings
         self.mu_log = mu_log_ref
-        result = self.settings.get_config()
-        if result != messages.message["ok"]:
-            self.mu_log.log(self.mu_log.FATAL, "Cannot find main configuration file >" + self.settings.json_file + "<."
-                            , module)
-            self.settings_found = False
+        if settings is None:
+            result = self.settings.get_config()
+            if result != messages.message["ok"]:
+                self.mu_log.log(self.mu_log.FATAL, "Cannot find main configuration file >" + self.settings.json_file + "<."
+                                , module)
+                self.settings_found = False
+            else:
+                self.mu_log.log(self.mu_log.DEBUG, "Generic settings loaded.", module)
+                self.settings_found = True
         else:
+            self.mu_log.log(self.mu_log.DEBUG, "Using provided generic settings.", module)
             self.settings_found = True
         self.json_file = self.settings.main_config_file
 
@@ -36,7 +41,7 @@ class Generic:
         """
         module = "Generic.find_json"
         if not self.settings_found:
-            self.mu_log.log(self.mu_log.ERROR, log_prefix + " settings were not found. Skipping processing.")
+            self.mu_log.log(self.mu_log.ERROR, log_prefix + " settings were not found. Skipping processing.", module)
             return messages.message["main_config_not_found"]
 
         self.mu_log.log(self.mu_log.DEBUG, log_prefix + "target_schema_type: " + target_schema_type, module)

@@ -1,5 +1,5 @@
 import json
-from metadata_utilities import messages
+from src.metadata_utilities import messages
 # from metadata_utilities import mu_logging
 import logging
 

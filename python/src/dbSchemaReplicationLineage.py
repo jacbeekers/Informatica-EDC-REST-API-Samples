@@ -43,7 +43,7 @@ import csv
 import json
 import time
 
-from edc_utilities import edcutils, edcSessionHelper
+from src.edc_utilities import edcSessionHelper, edcutils
 
 # set edc helper session + variables (easy/re-usable connection to edc api)
 edcHelper = edcSessionHelper.EDCSession()
