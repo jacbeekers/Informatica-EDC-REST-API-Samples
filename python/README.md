@@ -1,14 +1,10 @@
-# EDC rest api samples/utilities using python
+# Informatica EDC REST-API samples using python
 
-contains examples for connecting to and querying EDC via python
+contains examples for connecting to and generating attribute level lineage in EDC via python.
 
 Requirements
 ------------
-* python 3.6+ - legacy python will not be actively tested
-  * why? support for legacy python stops 1/1/2020, fstrings, unicode, async, many other 3rd party libraries like pandas, numpy, django are also not supporting legacy python 
-* Note:  some scipts will work with legacy python (v2.7) but these are not maintained or heavily tested
-  * any script with a suffix of 27 should work on legacy python systems
-  * if you can't easily install python 3.x (e.g 3.7) - you could use docker to run the code in a python3 container, or send a request for us to create a compiled binary executable (e.g. using pyinstaller)
+* python 3.6+
 * Python editors (ide/environments)
   * VS Code - good support for python - free an runs on all platforms  https://code.visualstudio.com/
   * pycharm - https://www.jetbrains.com/pycharm/
@@ -26,15 +22,22 @@ Getting Started
 * verify that python is installed - v3.6+
 * Create a new VSCode/pycharm/Eclipse Project and import/use the files in the python folder (not the java folder)
 * Ensure EDC is running while executing the samples - try/except code will catch & immediately exit
-* best practice is to use a virtual environment with python
-  * e.g. python -m venv .edcvenv  
+  The property suppress_edc_calls can be set in the config.json to bypass any calls to EDC
+* Use a virtual environment with python
+  * python3 -m venv venv  
   * and then 
-    * source .edcvenv/bin/activate (for linux/macox)
-    * .edcvenv/Scripts/activate.ps1 (for windows powershell)
+    * source venv/bin/activate (for linux/macos)
+    * venv/Scripts/activate.ps1 (for windows powershell)
       Note:  you may need to execute `Set-ExecutionPolicy unrestricted` for powershell (run powershell as administrator to do this)
-    * .edcvenv/Scripts/activate.bat (windows cmd)
-  * after activating (or using your base python3.6+), execute `pip install -r requirements.txt` (will install any packages referecned in requirements .txt file - including requests, openpyxl and python-dotenv)
-
+    * venv/Scripts/activate.bat (windows cmd)
+  * after activating
+      * execute the following to get the latest version for test purposes
+        pip3 install --extra-index-url https://test.pypi.org/simple/ informatica-edc-rest-api-samples
+      * execute the following to get a tested version (see coverage overview in htmlcoverage):
+        pip3 install informatica-edc-rest-api-samples
+  * Run the code (remember to have an activated venv):
+    python3 run_edc_lineage.p
+    
 
 REST API Authentication
 -----------------------
@@ -48,11 +51,9 @@ REST API Authentication
   * you can set the variable for each session, so it is not stored anywhere
   * if using docker - you can add this variable to an .env file to pass to docker at runtime
   * if using VS Code - you can add and "env" setting for individual environment variables used in the debugger (launch.json)
-    * e.g  "envFile": "${workspaceFolder}/.env",        // and add any settings to .env (preferred - also works with docker)
     * e.g. "env" : {"INFA_EDC_AUTH" : "Basic dXNlcjE6YUNvbXBsIWNAdGVkUGEkM3cwcmQ="}, (works but prefer .env file)
   * Note:  any files inside of .vscode (e.g. launch.json) will be excluded from the git repo (each user has their own local version)
-* you can also use setupConnection.py to create a .env file that stores the catalog url and the encoded user credentials
-* TODO:  create a seperate document & recording disucssing authorization techniques (http header, .netrc, auth=)
+* In this fork setupConnection.py and the functionality to use an .env has been removed
 
 
 HTTPS/TLS/SSL Connections and certificates
@@ -67,6 +68,7 @@ HTTPS/TLS/SSL Connections and certificates
 Sample Programs in the Project
 ------------------------------
 
+The following samples may no longer work in this fork of the original project. If you want to use them, please use a clone of the original project, not this fork.
 * `encodeUser.py`: simple program to prompt for a userid/pwd and optionally a security domain and create a base64 encoded string that can be used for authentication in the http header.  e.g. ```"Basic dXNlcjE6YUNvbXBsIWNAdGVkUGEkM3cwcmQ="```
   * use this script before you call use the other scripts, to get the right format for authenticating & not storing passwords in the .py files
     * an alternate is to prompt for a password within your script & encode the id:password
@@ -102,6 +104,3 @@ Sample Programs in the Project
   * supports command-line parameters and environment vars for accessing the catalog.
   * uses edcSessionHelper.py to get a session reference to any rest queries
 * `setParentFilterValues.py` - use this script to update in bulk relational objects with a custom attribute containing the value of the schema the object belongs to. This will faceting by schema name in search results, as well as creating custom tab pointing to specific database schema within a resource, see [setParentFilterValues.md](setParentFilterValues.md) for more info
-
-
-

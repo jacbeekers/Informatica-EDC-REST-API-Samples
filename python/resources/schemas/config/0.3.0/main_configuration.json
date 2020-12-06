@@ -1,0 +1,116 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/jacbeekers/Informatica-EDC-REST-API-Samples/blob/master/resources/schemas/config/0.3.0/main_configuration.json",
+  "title": "Structure for Informatica-EDC-REST-API-Samples' main configuration file",
+  "description": "List all available configuration items for the main configuration file.",
+  "required": [
+    "schema_directory",
+    "json_directory",
+    "output_directory",
+    "target",
+    "metadata_store",
+    "jinja_config",
+    "log_config"
+  ],
+  "type": "object",
+  "properties": {
+    "meta": {
+      "type": "string",
+      "description": "Metadata Type",
+      "const": "main_configuration"
+    },
+    "meta_version": {
+      "type": "string",
+      "description": "the meta structure version for the object",
+      "pattern": "^([0-9]+).([0-9]+).*$"
+    },
+    "schema_directory": {
+      "type": "string",
+      "description": "The relative or absolute path to the JSON schema files. Add a trailing slash! Omit the version (will be added automatically).",
+      "pattern": ".*/$"
+    },
+    "json_directory": {
+      "type": "string",
+      "description": "The relative or absolute path to the JSON files that need to be processed. Add a trailing slash!",
+      "pattern": ".*/$"
+    },
+    "output_directory": {
+      "type": "string",
+      "description": "The entity structures will be written to this directory. Can be a relative or absolute path. Include a trailing slash!",
+      "pattern": ".*/$"
+    },
+    "target": {
+      "type": "string",
+      "description": "Where to write the entity structure files to. (In the current version only 'local' has been implemented)",
+      "enum": [
+        "local",
+        "azure_blob",
+        "adls_gen2"
+      ]
+    },
+    "metadata_store": {
+      "type": "string",
+      "description": "Where the information should be send to. (In the current version only 'edc' has been implemented)",
+      "enum": [
+        "edc",
+        "metadata_lake"
+      ]
+    },
+    "edc_config": {
+      "type": "string",
+      "description": "Relative or absolute path to the EDC configuration file that stores the information about the EDC source and target resource (scanned data objects)"
+    },
+    "edc_secrets": {
+      "type": "string",
+      "description": "File that contains EDC connectivity information like EDC URL, encoded Authentication header."
+    },
+    "jinja_config": {
+      "type": "string",
+      "description": "Relative or absolute path to the configuration file that specifies the location where to find the Jinja2 templates"
+    },
+    "suppress_edc_call": {
+      "type": "string",
+      "description": "Whether the actual call to EDC should be suppressed (True) or not (False). Default is False. Can be used as a dry-run.",
+      "enum": [
+        "True",
+        "False"
+      ]
+    },
+    "http_proxy": {
+      "type": "string",
+      "description": "HTTP Proxy to be used for EDC calls (if any). Can be set to \"None\"",
+      "oneOf": [
+        {
+          "type": "string",
+          "enum": [
+            "None"
+          ]
+        },
+        {
+          "type": "string",
+          "pattern": "^http:"
+        }
+      ]
+    },
+    "https_proxy": {
+      "type": "string",
+      "description": "HTTPS Proxy to be used for EDC calls (if any). Can be set to \"None\"",
+      "oneOf": [
+        {
+          "type": "string",
+          "enum": [
+            "None"
+          ]
+        },
+        {
+          "type": "string",
+          "pattern": "^https:"
+        }
+      ]
+    },
+    "log_config": {
+      "type": "string",
+      "description": "Relative or absolute path to the log configuration file (log location, logfile naming and more)"
+    }
+  }
+}
