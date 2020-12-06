@@ -32,10 +32,6 @@ import requests
 
 warnings.filterwarnings('ignore', message='Unverified HTTPS request')
 
-# from pathlib import Path
-import pathlib
-from dotenv import load_dotenv
-
 
 class EDCSession:
     """
@@ -52,7 +48,7 @@ class EDCSession:
         self.timeout = 10
         self.http_proxy = None
         self.https_proxy = None
-        self.settings =  settings
+        self.settings = settings
 
     def __setup_standard_cmdargs__(self):
         # check for args overriding the env vars
@@ -194,8 +190,8 @@ class EDCSession:
         print(f"validating connection to {self.session.baseUrl}")
         try:
             url = urljoin(self.baseUrl, "access/2/catalog/data/productInformation")
-            proxies = { "http": self.http_proxy
-                        , "https": self.https_proxy}
+            proxies = {"http": self.http_proxy
+                , "https": self.https_proxy}
             # url = self.baseUrl + "access/2/catalog/data/productInformation"
             resp = self.session.get(url, timeout=self.timeout, proxies=proxies)
             print(f"\tapi status code={resp.status_code}")
@@ -229,7 +225,7 @@ class EDCSession:
     def main(self):
         print("Main should not be called for edcSessionHelper...")
         return 1
-    
+
 
 if __name__ == "__main__":
     result = EDCSession().main()

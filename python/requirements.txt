@@ -1,17 +1,6 @@
-requests
-openpyxl
-python-dotenv
-urllib3
-jinja2
+# for development and test only
+# for install check install_requires in setup.py
+-e .
 
 # unit tests
-nose
-
-# logging to Azure Monitor
-opencensus-ext-azure
-opencensus-ext-requests
-opencensus
-
-jsonschema
-setuptools
-six
+pytest

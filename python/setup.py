@@ -43,11 +43,9 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     install_requires=[
         'requests',
-        'openpyxl',
-        'python-dotenv',
+        #    'openpyxl',
         'urllib3',
         'jinja2',
-        'nose',
         'opencensus-ext-azure',
         'opencensus-ext-requests',
         'jsonschema'
