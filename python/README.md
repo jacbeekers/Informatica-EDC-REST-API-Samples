@@ -1,6 +1,6 @@
 # Informatica EDC REST-API samples using python
 
-contains examples for connecting to and generating attribute level lineage in EDC via python.
+Contains examples for connecting to and generating attribute level lineage in EDC via python.
 
 Requirements
 ------------
