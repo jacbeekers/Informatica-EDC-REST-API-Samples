@@ -17,7 +17,8 @@ Getting Started
   * The tested version from pypi.org:
     pip3 install informatica-edc-rest-api-samples
 * Run the code
-    python3 run_edc_lineage.py
+  * python3 run_edc_lineage.py
+  * Note: Check the run_edc_lineage code if you want to use your own config.json
 
 Note: Check the coverage information available in [coverage overview](python/docs/htmlcoverage)
 
