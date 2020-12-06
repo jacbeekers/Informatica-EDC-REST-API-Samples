@@ -32,11 +32,11 @@ Contributing
 The git repository metadata-registry-interface-specifications will be located in Informatica-EDC-REST-API-Samples/python/metadata-registry-specifications
 
 ## More into on the metadata_utilities
-[Dependency Graph](python/metadata_utilities/docs/metadata_utilities.svg)
+[Dependency Graph](python/docs/metadata_utilities/metadata_utilities.svg)
 
-[Documentation](python/metadata_utilities/docs/markdown/metadata_utilities/index.md)
+[Documentation](python/docs/metadata_utilities/markdown/metadata_utilities/index.md)
 
-[Documentation as html](python/metadata_utilities/docs/html/metadata_utilities/index.html)
+[Documentation as html](python/docs/metadata_utilities/html/metadata_utilities/index.html)
 
 [Usage](python/metadata_utilities/usage.md)
 
@@ -44,11 +44,11 @@ The git repository metadata-registry-interface-specifications will be located in
 ## More info on the edc_utilities
 (these are used by the metadata_utilities)
 
-[Dependency Graph](python/edc_utilities/docs/edc_utilities.svg)
+[Dependency Graph](python/docs/edc_utilities/edc_utilities.svg)
 
-[Documentation](python/edc_utilities/docs/markdown/edc_utilities/index.md)
+[Documentation](python/docs/edc_utilities/markdown/edc_utilities/index.md)
 
-[Documentation as html](python/edc_utilities/docs/html/edc_utilities/index.html)
+[Documentation as html](python/docs/edc_utilities/html/edc_utilities/index.html)
 
 [Usage](python/edc_utilities/usage.md)
 
