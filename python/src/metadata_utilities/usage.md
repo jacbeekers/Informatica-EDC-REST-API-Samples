@@ -5,9 +5,11 @@ How to use metadata_utilities
 
 ## Prerequisites
 
-* .env - check the original github project for more info on this file. Also check the .env.example file
+For more on the configuration files, check the [configuration docs](https://github.com/jacbeekers/Informatica-EDC-REST-API-Samples/tree/master/python/resources/schemas/config)
+
 * resources/config.json
 * resources/edc_config.json
+* resources/log_config.json
 * resources/azure_monitor.secrets - only needed if you want to use opencensus
 * resources/edc_connectivity.secrets (not needed when using .env)
 * dependencies listed in requirements.txt (opencensus only needed if you want to use it)
