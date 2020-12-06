@@ -38,7 +38,7 @@ The git repository metadata-registry-interface-specifications will be located in
 
 [Documentation as html](python/docs/metadata_utilities/html/metadata_utilities/index.html)
 
-[Usage](python/metadata_utilities/usage.md)
+[Usage](python/src/metadata_utilities/usage.md)
 
 
 ## More info on the edc_utilities
@@ -50,7 +50,7 @@ The git repository metadata-registry-interface-specifications will be located in
 
 [Documentation as html](python/docs/edc_utilities/html/edc_utilities/index.html)
 
-[Usage](python/edc_utilities/usage.md)
+[Usage](python/src/edc_utilities/usage.md)
 
 ## Package on PyPI
 
