@@ -7,12 +7,28 @@ Official REST API documents can be found [here](https://docs.informatica.com/dat
 Getting Started
 ---------------
 
+* Create a virtual environment:
+  python3 -m venv venv
+* Activate the virtual environment:
+  source venv/bin/activate
+* Install the package
+  * The latest version from test.pypi.org:
+    pip3 install --extra-index-url https://test.pypi.org/simple/ informatica-edc-rest-api-samples
+  * The tested version from pypi.org:
+    pip3 install informatica-edc-rest-api-samples
+* Run the code
+    python3 run_edc_lineage.py
+
+Note: Check the coverage information available in [coverage overview](python/docs/htmlcoverage)
+
+Contributing
+------------
+
 * Clone this repository
-* This repository uses two submodules. Run the following the get them:
+* This repository uses one submodules. Run the following the get it:
   - git submodule init
   - git submodule update
 The git repository metadata-registry-interface-specifications will be located in Informatica-EDC-REST-API-Samples/python/metadata-registry-specifications
-The git repository azure-python-samples will be located in Informatica-EDC-REST-API-Samples/python/azure-python-samples
 
 ## More into on the metadata_utilities
 [Dependency Graph](python/metadata_utilities/docs/metadata_utilities.svg)
