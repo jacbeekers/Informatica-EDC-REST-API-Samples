@@ -60,6 +60,16 @@ message = {
         ,"message": "Log configuration file was provided, but could not be found. Check your main configuration file."
         ,"level": "FATAL"
     },
+    "unsupported_meta_version_edc_config": {
+        "code": "MU-GEN-010"
+        ,"message": "EDC configuration file contains meta_version that is not supported (yet)."
+        ,"level": "ERROR"
+    },
+    "unsupported_meta_version_edc_secrets": {
+        "code": "MU-GEN-011"
+        ,"message": "EDC configuration file contains meta_version that is not supported (yet)."
+        ,"level": "ERROR"
+    },
     "CONV_GROUP": {
         "code": "CONV"
         , "message": "Group for conversion and schema warnings and errors"

@@ -1,0 +1,49 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/jacbeekers/Informatica-EDC-REST-API-Samples/blob/master/python/resources/schemas/config/0.3.0/log_configuration.json",
+  "title": "Configuration file structure for Informatica-EDC-REST-API-Samples' log configuration",
+  "description": "The configuration file contains the log settings, e.g. log directory and log level",
+  "required": [
+    "log_directory",
+    "log_filename",
+    "log_level"
+  ],
+  "type": "object",
+  "properties": {
+    "meta": {
+      "type": "string",
+      "description": "Metadata Type",
+      "const": "log_configuration"
+    },
+    "meta_version": {
+      "type": "string",
+      "description": "the meta structure version for the object",
+      "pattern": "^([0-9]+).([0-9]+).*$"
+    },
+    "log_directory": {
+      "type": "string",
+      "description": "The relative or absolute path for the log files. Include a trailing slash!",
+      "pattern": ".*/$"
+    },
+    "log_filename": {
+      "type": "string",
+      "description": "The log filename. May be prefixed by specifying log_filename_prefix."
+    },
+    "log_filename_prefix": {
+      "type": "string",
+      "description": "A prefix to add to the log filename. This can be used to add e.g. a timestamp",
+      "enum": [
+        "{{timestamp}}",
+        null,
+        ""
+      ]
+    },
+    "log_level": {
+      "type": "string",
+      "description": "The log level to be used. Check enum for allowed values.",
+      "enum": [
+        "VERBOSE", "DEBUG", "WARNING", "INFO", "ERROR", "FATAL"
+      ]
+    }
+  }
+}

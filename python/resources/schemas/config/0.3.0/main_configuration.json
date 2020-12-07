@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://github.com/jacbeekers/Informatica-EDC-REST-API-Samples/blob/master/resources/schemas/config/0.3.0/main_configuration.json",
+  "$id": "https://github.com/jacbeekers/Informatica-EDC-REST-API-Samples/blob/master/python/resources/schemas/config/0.3.0/main_configuration.json",
   "title": "Structure for Informatica-EDC-REST-API-Samples' main configuration file",
   "description": "List all available configuration items for the main configuration file.",
   "required": [
