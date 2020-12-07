@@ -191,7 +191,7 @@ class GenericSettings:
                             + "<: "
                             + self.edc_url, module)
         if "edc_auth" in data:
-            self.auth = data["edc_auth"]
+            self.edc_auth = data["edc_auth"]
             self.mu_log.log(self.mu_log.INFO, "EDC Authentication taken from edc secrets file.", module)
         else:
             self.mu_log.log(self.mu_log.WARNING, "No Authentication for EDC found in edc secrets file. "

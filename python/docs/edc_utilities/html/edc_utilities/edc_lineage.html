@@ -49,7 +49,7 @@ class EDCLineage:
         self.settings = settings
         self.mu_log = mu_log_ref
         self.generic = None
-        self.edc_source_filesystem = &#34;unknown&#34;
+        self.edc_source_resource_name = &#34;unknown&#34;
         self.edc_source_datasource = &#34;unknown&#34;
         self.edc_source_folder = &#34;unknown&#34;
         self.edc_target_filesystem = &#34;unknown&#34;
@@ -67,13 +67,45 @@ class EDCLineage:
         self.data = None
         self.jinja_configuration_file = self.settings.jinja_config
 
+    def get_edc_data_references(self):
+        module = &#34;edc_lineage.get_edc_data_references&#34;
+        # support old config files
+        if &#34;meta_version&#34; in self.settings.edc_config_data:
+            main_meta_version = self.settings.edc_config_data[&#34;meta_version&#34;][:3]
+            self.mu_log.log(self.mu_log.INFO, &#34;provided meta_version &gt;&#34; + self.settings.edc_config_data[&#34;meta_version&#34;]
+                            + &#34;&lt; is main_meta_version &gt;&#34; + main_meta_version + &#34;&lt;.&#34;, module)
+            if main_meta_version == &#34;0.3&#34;:
+                self.edc_source_resource_name = self.settings.edc_config_data[&#34;edc_source_resource_name&#34;]
+                self.edc_source_datasource = self.settings.edc_config_data[&#34;edc_source_datasource&#34;]
+                self.edc_source_folder = self.settings.edc_config_data[&#34;edc_source_container&#34;]
+                self.edc_target_filesystem = self.settings.edc_config_data[&#34;edc_target_resource_name&#34;]
+                self.edc_target_datasource = self.settings.edc_config_data[&#34;edc_target_datasource&#34;]
+                self.edc_target_folder = self.settings.edc_config_data[&#34;edc_target_container&#34;]
+            else:
+                self.mu_log.log(self.mu_log.ERROR, &#34;meta_version &gt;&#34; + self.settings.edc_config_data[&#34;meta_version&#34;]
+                                + &#34;&lt; not supported.&#34;, module)
+                return messages.message[&#34;unsupported_meta_version_edc_config&#34;]
+        else:
+            self.mu_log.log(self.mu_log.WARNING, &#34;Backward compatibility used for EDC configuration file. &#34;
+                            + &#34;Please update it to a later version.&#34;
+                            , module)
+            self.edc_source_resource_name = self.settings.edc_config_data[&#34;edc_source_filesystem&#34;]
+            self.edc_source_datasource = self.settings.edc_config_data[&#34;edc_source_datasource&#34;]
+            self.edc_source_folder = self.settings.edc_config_data[&#34;edc_source_folder&#34;]
+            self.edc_target_filesystem = self.settings.edc_config_data[&#34;edc_target_filesystem&#34;]
+            self.edc_target_datasource = self.settings.edc_config_data[&#34;edc_target_datasource&#34;]
+            self.edc_target_folder = self.settings.edc_config_data[&#34;edc_target_folder&#34;]
+
+        return messages.message[&#34;ok&#34;]
+
     def generate_lineage(self, output_type, metadata_type, data, generic_settings):
         module = &#34;EDCLineage.generate_lineage&#34;
         if generic_settings is None:
             self.mu_log.log(self.mu_log.DEBUG, &#34;Loading generic settings.&#34;, module)
             result = self.settings.get_config()
             if result != messages.message[&#34;ok&#34;]:
-                self.mu_log.log(self.mu_log.FATAL, &#34;Could not find main configuration file &gt;&#34; + self.settings.json_file + &#34;&lt;.&#34;
+                self.mu_log.log(self.mu_log.FATAL,
+                                &#34;Could not find main configuration file &gt;&#34; + self.settings.json_file + &#34;&lt;.&#34;
                                 , module)
                 return messages.message[&#34;main_config_not_found&#34;]
         else:
@@ -90,12 +122,12 @@ class EDCLineage:
 
         self.generic = generic.Generic(settings=self.settings, mu_log_ref=self.mu_log)
         self.proxies = self.settings.get_edc_proxy()
-        self.edc_source_filesystem = self.settings.edc_config_data[&#34;edc_source_filesystem&#34;]
-        self.edc_source_datasource = self.settings.edc_config_data[&#34;edc_source_datasource&#34;]
-        self.edc_source_folder = self.settings.edc_config_data[&#34;edc_source_folder&#34;]
-        self.edc_target_filesystem = self.settings.edc_config_data[&#34;edc_target_filesystem&#34;]
-        self.edc_target_datasource = self.settings.edc_config_data[&#34;edc_target_datasource&#34;]
-        self.edc_target_folder = self.settings.edc_config_data[&#34;edc_target_folder&#34;]
+        result = self.get_edc_data_references()
+        if result == messages.message[&#34;ok&#34;]:
+            self.mu_log.log(self.mu_log.DEBUG, &#34;EDC Data references for scanned objects determined.&#34;, module)
+        else:
+            self.mu_log.log(self.mu_log.ERROR, &#34;EDC Data references for scanned objects returned: &#34; + result[&#34;code&#34;], module)
+            return result
 
         self.meta_type = metadata_type
         self.data = data
@@ -127,7 +159,8 @@ class EDCLineage:
                                     + &#34;&lt;: &#34;
                                     + self.jinja_base_directory, module)
                 else:
-                    self.mu_log.log(self.mu_log.INFO, &#34;Jinja base directory setting not found in jinja configuration file.&#34;
+                    self.mu_log.log(self.mu_log.INFO,
+                                    &#34;Jinja base directory setting not found in jinja configuration file.&#34;
                                     + &#34; Using current directory&#34;)
                     self.jinja_base_directory = &#34;.&#34;
                 if &#34;application&#34; in data:
@@ -156,11 +189,13 @@ class EDCLineage:
                     self.jinja_template_directory += &#34;/&#34; + self.jinja_templates
 
                 self.mu_log.log(self.mu_log.INFO, &#34;Jinja template directory: &#34; + self.jinja_template_directory, module)
-                self.jinja_environment = jinja2.Environment(loader=jinja2.FileSystemLoader(self.jinja_template_directory))
+                self.jinja_environment = jinja2.Environment(
+                    loader=jinja2.FileSystemLoader(self.jinja_template_directory))
                 self.jinja_environment.filters[&#34;jsonify&#34;] = json.dumps
 
         except FileNotFoundError:
-            self.mu_log.log(self.mu_log.ERROR, &#34;Could not find jinja configuration file: &#34; + self.jinja_configuration_file
+            self.mu_log.log(self.mu_log.ERROR,
+                            &#34;Could not find jinja configuration file: &#34; + self.jinja_configuration_file
                             , module)
             return messages.message[&#34;jinja_config_file_not_found&#34;]
 
@@ -211,12 +246,12 @@ class EDCLineage:
             if find_result[&#34;code&#34;] != &#34;OK&#34;:
                 self.mu_log.log(self.mu_log.ERROR,
                                 &#34;The entity association contains a source UUID that could not be found in any entity JSON file.&#34;
-                                ,module)
+                                , module)
                 build_result = messages.message[&#34;json_uuid_not_found&#34;]
                 return build_result, {}
 
             source_name = self.generic.found_data[&#34;name&#34;]
-            from_dataset = self.edc_source_filesystem \
+            from_dataset = self.edc_source_resource_name \
                            + self.edc_source_datasource \
                            + self.edc_source_folder \
                            + source_name
@@ -342,7 +377,7 @@ class EDCLineage:
                     return build_result, &#34;{}&#34;
 
                 entity_data = self.generic.found_data
-                source_name = self.edc_source_filesystem \
+                source_name = self.edc_source_resource_name \
                               + self.edc_source_datasource \
                               + self.edc_source_folder \
                               + entity_data[&#34;name&#34;] \
@@ -450,7 +485,7 @@ class EDCLineage:
         self.settings = settings
         self.mu_log = mu_log_ref
         self.generic = None
-        self.edc_source_filesystem = &#34;unknown&#34;
+        self.edc_source_resource_name = &#34;unknown&#34;
         self.edc_source_datasource = &#34;unknown&#34;
         self.edc_source_folder = &#34;unknown&#34;
         self.edc_target_filesystem = &#34;unknown&#34;
@@ -468,13 +503,45 @@ class EDCLineage:
         self.data = None
         self.jinja_configuration_file = self.settings.jinja_config
 
+    def get_edc_data_references(self):
+        module = &#34;edc_lineage.get_edc_data_references&#34;
+        # support old config files
+        if &#34;meta_version&#34; in self.settings.edc_config_data:
+            main_meta_version = self.settings.edc_config_data[&#34;meta_version&#34;][:3]
+            self.mu_log.log(self.mu_log.INFO, &#34;provided meta_version &gt;&#34; + self.settings.edc_config_data[&#34;meta_version&#34;]
+                            + &#34;&lt; is main_meta_version &gt;&#34; + main_meta_version + &#34;&lt;.&#34;, module)
+            if main_meta_version == &#34;0.3&#34;:
+                self.edc_source_resource_name = self.settings.edc_config_data[&#34;edc_source_resource_name&#34;]
+                self.edc_source_datasource = self.settings.edc_config_data[&#34;edc_source_datasource&#34;]
+                self.edc_source_folder = self.settings.edc_config_data[&#34;edc_source_container&#34;]
+                self.edc_target_filesystem = self.settings.edc_config_data[&#34;edc_target_resource_name&#34;]
+                self.edc_target_datasource = self.settings.edc_config_data[&#34;edc_target_datasource&#34;]
+                self.edc_target_folder = self.settings.edc_config_data[&#34;edc_target_container&#34;]
+            else:
+                self.mu_log.log(self.mu_log.ERROR, &#34;meta_version &gt;&#34; + self.settings.edc_config_data[&#34;meta_version&#34;]
+                                + &#34;&lt; not supported.&#34;, module)
+                return messages.message[&#34;unsupported_meta_version_edc_config&#34;]
+        else:
+            self.mu_log.log(self.mu_log.WARNING, &#34;Backward compatibility used for EDC configuration file. &#34;
+                            + &#34;Please update it to a later version.&#34;
+                            , module)
+            self.edc_source_resource_name = self.settings.edc_config_data[&#34;edc_source_filesystem&#34;]
+            self.edc_source_datasource = self.settings.edc_config_data[&#34;edc_source_datasource&#34;]
+            self.edc_source_folder = self.settings.edc_config_data[&#34;edc_source_folder&#34;]
+            self.edc_target_filesystem = self.settings.edc_config_data[&#34;edc_target_filesystem&#34;]
+            self.edc_target_datasource = self.settings.edc_config_data[&#34;edc_target_datasource&#34;]
+            self.edc_target_folder = self.settings.edc_config_data[&#34;edc_target_folder&#34;]
+
+        return messages.message[&#34;ok&#34;]
+
     def generate_lineage(self, output_type, metadata_type, data, generic_settings):
         module = &#34;EDCLineage.generate_lineage&#34;
         if generic_settings is None:
             self.mu_log.log(self.mu_log.DEBUG, &#34;Loading generic settings.&#34;, module)
             result = self.settings.get_config()
             if result != messages.message[&#34;ok&#34;]:
-                self.mu_log.log(self.mu_log.FATAL, &#34;Could not find main configuration file &gt;&#34; + self.settings.json_file + &#34;&lt;.&#34;
+                self.mu_log.log(self.mu_log.FATAL,
+                                &#34;Could not find main configuration file &gt;&#34; + self.settings.json_file + &#34;&lt;.&#34;
                                 , module)
                 return messages.message[&#34;main_config_not_found&#34;]
         else:
@@ -491,12 +558,12 @@ class EDCLineage:
 
         self.generic = generic.Generic(settings=self.settings, mu_log_ref=self.mu_log)
         self.proxies = self.settings.get_edc_proxy()
-        self.edc_source_filesystem = self.settings.edc_config_data[&#34;edc_source_filesystem&#34;]
-        self.edc_source_datasource = self.settings.edc_config_data[&#34;edc_source_datasource&#34;]
-        self.edc_source_folder = self.settings.edc_config_data[&#34;edc_source_folder&#34;]
-        self.edc_target_filesystem = self.settings.edc_config_data[&#34;edc_target_filesystem&#34;]
-        self.edc_target_datasource = self.settings.edc_config_data[&#34;edc_target_datasource&#34;]
-        self.edc_target_folder = self.settings.edc_config_data[&#34;edc_target_folder&#34;]
+        result = self.get_edc_data_references()
+        if result == messages.message[&#34;ok&#34;]:
+            self.mu_log.log(self.mu_log.DEBUG, &#34;EDC Data references for scanned objects determined.&#34;, module)
+        else:
+            self.mu_log.log(self.mu_log.ERROR, &#34;EDC Data references for scanned objects returned: &#34; + result[&#34;code&#34;], module)
+            return result
 
         self.meta_type = metadata_type
         self.data = data
@@ -528,7 +595,8 @@ class EDCLineage:
                                     + &#34;&lt;: &#34;
                                     + self.jinja_base_directory, module)
                 else:
-                    self.mu_log.log(self.mu_log.INFO, &#34;Jinja base directory setting not found in jinja configuration file.&#34;
+                    self.mu_log.log(self.mu_log.INFO,
+                                    &#34;Jinja base directory setting not found in jinja configuration file.&#34;
                                     + &#34; Using current directory&#34;)
                     self.jinja_base_directory = &#34;.&#34;
                 if &#34;application&#34; in data:
@@ -557,11 +625,13 @@ class EDCLineage:
                     self.jinja_template_directory += &#34;/&#34; + self.jinja_templates
 
                 self.mu_log.log(self.mu_log.INFO, &#34;Jinja template directory: &#34; + self.jinja_template_directory, module)
-                self.jinja_environment = jinja2.Environment(loader=jinja2.FileSystemLoader(self.jinja_template_directory))
+                self.jinja_environment = jinja2.Environment(
+                    loader=jinja2.FileSystemLoader(self.jinja_template_directory))
                 self.jinja_environment.filters[&#34;jsonify&#34;] = json.dumps
 
         except FileNotFoundError:
-            self.mu_log.log(self.mu_log.ERROR, &#34;Could not find jinja configuration file: &#34; + self.jinja_configuration_file
+            self.mu_log.log(self.mu_log.ERROR,
+                            &#34;Could not find jinja configuration file: &#34; + self.jinja_configuration_file
                             , module)
             return messages.message[&#34;jinja_config_file_not_found&#34;]
 
@@ -612,12 +682,12 @@ class EDCLineage:
             if find_result[&#34;code&#34;] != &#34;OK&#34;:
                 self.mu_log.log(self.mu_log.ERROR,
                                 &#34;The entity association contains a source UUID that could not be found in any entity JSON file.&#34;
-                                ,module)
+                                , module)
                 build_result = messages.message[&#34;json_uuid_not_found&#34;]
                 return build_result, {}
 
             source_name = self.generic.found_data[&#34;name&#34;]
-            from_dataset = self.edc_source_filesystem \
+            from_dataset = self.edc_source_resource_name \
                            + self.edc_source_datasource \
                            + self.edc_source_folder \
                            + source_name
@@ -743,7 +813,7 @@ class EDCLineage:
                     return build_result, &#34;{}&#34;
 
                 entity_data = self.generic.found_data
-                source_name = self.edc_source_filesystem \
+                source_name = self.edc_source_resource_name \
                               + self.edc_source_datasource \
                               + self.edc_source_folder \
                               + entity_data[&#34;name&#34;] \
@@ -964,7 +1034,7 @@ class EDCLineage:
                 return build_result, &#34;{}&#34;
 
             entity_data = self.generic.found_data
-            source_name = self.edc_source_filesystem \
+            source_name = self.edc_source_resource_name \
                           + self.edc_source_datasource \
                           + self.edc_source_folder \
                           + entity_data[&#34;name&#34;] \
@@ -1026,12 +1096,12 @@ class EDCLineage:
         if find_result[&#34;code&#34;] != &#34;OK&#34;:
             self.mu_log.log(self.mu_log.ERROR,
                             &#34;The entity association contains a source UUID that could not be found in any entity JSON file.&#34;
-                            ,module)
+                            , module)
             build_result = messages.message[&#34;json_uuid_not_found&#34;]
             return build_result, {}
 
         source_name = self.generic.found_data[&#34;name&#34;]
-        from_dataset = self.edc_source_filesystem \
+        from_dataset = self.edc_source_resource_name \
                        + self.edc_source_datasource \
                        + self.edc_source_folder \
                        + source_name
@@ -1081,7 +1151,8 @@ class EDCLineage:
         self.mu_log.log(self.mu_log.DEBUG, &#34;Loading generic settings.&#34;, module)
         result = self.settings.get_config()
         if result != messages.message[&#34;ok&#34;]:
-            self.mu_log.log(self.mu_log.FATAL, &#34;Could not find main configuration file &gt;&#34; + self.settings.json_file + &#34;&lt;.&#34;
+            self.mu_log.log(self.mu_log.FATAL,
+                            &#34;Could not find main configuration file &gt;&#34; + self.settings.json_file + &#34;&lt;.&#34;
                             , module)
             return messages.message[&#34;main_config_not_found&#34;]
     else:
@@ -1098,12 +1169,12 @@ class EDCLineage:
 
     self.generic = generic.Generic(settings=self.settings, mu_log_ref=self.mu_log)
     self.proxies = self.settings.get_edc_proxy()
-    self.edc_source_filesystem = self.settings.edc_config_data[&#34;edc_source_filesystem&#34;]
-    self.edc_source_datasource = self.settings.edc_config_data[&#34;edc_source_datasource&#34;]
-    self.edc_source_folder = self.settings.edc_config_data[&#34;edc_source_folder&#34;]
-    self.edc_target_filesystem = self.settings.edc_config_data[&#34;edc_target_filesystem&#34;]
-    self.edc_target_datasource = self.settings.edc_config_data[&#34;edc_target_datasource&#34;]
-    self.edc_target_folder = self.settings.edc_config_data[&#34;edc_target_folder&#34;]
+    result = self.get_edc_data_references()
+    if result == messages.message[&#34;ok&#34;]:
+        self.mu_log.log(self.mu_log.DEBUG, &#34;EDC Data references for scanned objects determined.&#34;, module)
+    else:
+        self.mu_log.log(self.mu_log.ERROR, &#34;EDC Data references for scanned objects returned: &#34; + result[&#34;code&#34;], module)
+        return result
 
     self.meta_type = metadata_type
     self.data = data
@@ -1118,6 +1189,47 @@ class EDCLineage:
         lineage_result = messages.message[&#34;invalid_lineage_output_type&#34;]
 
     return lineage_result</code></pre>
+</details>
+</dd>
+<dt id="edc_utilities.edc_lineage.EDCLineage.get_edc_data_references"><code class="name flex">
+<span>def <span class="ident">get_edc_data_references</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_edc_data_references(self):
+    module = &#34;edc_lineage.get_edc_data_references&#34;
+    # support old config files
+    if &#34;meta_version&#34; in self.settings.edc_config_data:
+        main_meta_version = self.settings.edc_config_data[&#34;meta_version&#34;][:3]
+        self.mu_log.log(self.mu_log.INFO, &#34;provided meta_version &gt;&#34; + self.settings.edc_config_data[&#34;meta_version&#34;]
+                        + &#34;&lt; is main_meta_version &gt;&#34; + main_meta_version + &#34;&lt;.&#34;, module)
+        if main_meta_version == &#34;0.3&#34;:
+            self.edc_source_resource_name = self.settings.edc_config_data[&#34;edc_source_resource_name&#34;]
+            self.edc_source_datasource = self.settings.edc_config_data[&#34;edc_source_datasource&#34;]
+            self.edc_source_folder = self.settings.edc_config_data[&#34;edc_source_container&#34;]
+            self.edc_target_filesystem = self.settings.edc_config_data[&#34;edc_target_resource_name&#34;]
+            self.edc_target_datasource = self.settings.edc_config_data[&#34;edc_target_datasource&#34;]
+            self.edc_target_folder = self.settings.edc_config_data[&#34;edc_target_container&#34;]
+        else:
+            self.mu_log.log(self.mu_log.ERROR, &#34;meta_version &gt;&#34; + self.settings.edc_config_data[&#34;meta_version&#34;]
+                            + &#34;&lt; not supported.&#34;, module)
+            return messages.message[&#34;unsupported_meta_version_edc_config&#34;]
+    else:
+        self.mu_log.log(self.mu_log.WARNING, &#34;Backward compatibility used for EDC configuration file. &#34;
+                        + &#34;Please update it to a later version.&#34;
+                        , module)
+        self.edc_source_resource_name = self.settings.edc_config_data[&#34;edc_source_filesystem&#34;]
+        self.edc_source_datasource = self.settings.edc_config_data[&#34;edc_source_datasource&#34;]
+        self.edc_source_folder = self.settings.edc_config_data[&#34;edc_source_folder&#34;]
+        self.edc_target_filesystem = self.settings.edc_config_data[&#34;edc_target_filesystem&#34;]
+        self.edc_target_datasource = self.settings.edc_config_data[&#34;edc_target_datasource&#34;]
+        self.edc_target_folder = self.settings.edc_config_data[&#34;edc_target_folder&#34;]
+
+    return messages.message[&#34;ok&#34;]</code></pre>
 </details>
 </dd>
 <dt id="edc_utilities.edc_lineage.EDCLineage.get_jinja_settings"><code class="name flex">
@@ -1145,7 +1257,8 @@ class EDCLineage:
                                 + &#34;&lt;: &#34;
                                 + self.jinja_base_directory, module)
             else:
-                self.mu_log.log(self.mu_log.INFO, &#34;Jinja base directory setting not found in jinja configuration file.&#34;
+                self.mu_log.log(self.mu_log.INFO,
+                                &#34;Jinja base directory setting not found in jinja configuration file.&#34;
                                 + &#34; Using current directory&#34;)
                 self.jinja_base_directory = &#34;.&#34;
             if &#34;application&#34; in data:
@@ -1174,11 +1287,13 @@ class EDCLineage:
                 self.jinja_template_directory += &#34;/&#34; + self.jinja_templates
 
             self.mu_log.log(self.mu_log.INFO, &#34;Jinja template directory: &#34; + self.jinja_template_directory, module)
-            self.jinja_environment = jinja2.Environment(loader=jinja2.FileSystemLoader(self.jinja_template_directory))
+            self.jinja_environment = jinja2.Environment(
+                loader=jinja2.FileSystemLoader(self.jinja_template_directory))
             self.jinja_environment.filters[&#34;jsonify&#34;] = json.dumps
 
     except FileNotFoundError:
-        self.mu_log.log(self.mu_log.ERROR, &#34;Could not find jinja configuration file: &#34; + self.jinja_configuration_file
+        self.mu_log.log(self.mu_log.ERROR,
+                        &#34;Could not find jinja configuration file: &#34; + self.jinja_configuration_file
                         , module)
         return messages.message[&#34;jinja_config_file_not_found&#34;]
 
@@ -1265,6 +1380,7 @@ class EDCLineage:
 <li><code><a title="edc_utilities.edc_lineage.EDCLineage.build_api_load_entity_association" href="#edc_utilities.edc_lineage.EDCLineage.build_api_load_entity_association">build_api_load_entity_association</a></code></li>
 <li><code><a title="edc_utilities.edc_lineage.EDCLineage.code_version" href="#edc_utilities.edc_lineage.EDCLineage.code_version">code_version</a></code></li>
 <li><code><a title="edc_utilities.edc_lineage.EDCLineage.generate_lineage" href="#edc_utilities.edc_lineage.EDCLineage.generate_lineage">generate_lineage</a></code></li>
+<li><code><a title="edc_utilities.edc_lineage.EDCLineage.get_edc_data_references" href="#edc_utilities.edc_lineage.EDCLineage.get_edc_data_references">get_edc_data_references</a></code></li>
 <li><code><a title="edc_utilities.edc_lineage.EDCLineage.get_jinja_settings" href="#edc_utilities.edc_lineage.EDCLineage.get_jinja_settings">get_jinja_settings</a></code></li>
 <li><code><a title="edc_utilities.edc_lineage.EDCLineage.send_metadata_to_edc" href="#edc_utilities.edc_lineage.EDCLineage.send_metadata_to_edc">send_metadata_to_edc</a></code></li>
 <li><code><a title="edc_utilities.edc_lineage.EDCLineage.total" href="#edc_utilities.edc_lineage.EDCLineage.total">total</a></code></li>

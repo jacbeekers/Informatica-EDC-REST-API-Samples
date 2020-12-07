@@ -14,6 +14,9 @@ Classes
 
     ### Methods
 
+    `determine_edc_secrets(self, data)`
+    :
+
     `get_config(self)`
     :   get the main configuration settings. default file is resources/config.json
 

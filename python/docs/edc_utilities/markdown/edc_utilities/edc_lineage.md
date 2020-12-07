@@ -29,6 +29,9 @@ Classes
     `generate_lineage(self, output_type, metadata_type, data, generic_settings)`
     :
 
+    `get_edc_data_references(self)`
+    :
+
     `get_jinja_settings(self, generic_settings)`
     :   Get the Jinja settings from the provided jinja configuration file: jinja_config key in main config.json
 

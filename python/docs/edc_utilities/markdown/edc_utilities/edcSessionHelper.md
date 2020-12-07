@@ -44,9 +44,6 @@ Classes
         returns:
             url, auth
 
-    `main(self)`
-    :
-
     `validateConnection(self)`
     :   validate that the connection informatioon (url + auth credentials)
         are correct.
