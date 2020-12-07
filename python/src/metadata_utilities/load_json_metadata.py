@@ -105,11 +105,11 @@ class ConvertJSONtoEDCLineage:
             check = check_schema.CheckSchema(self.settings, self.mu_log)
             check.mu_log.area = base_filename
             check_result = check.check_schema(self.data)
-            if check_result["code"] == "OK":
+            if check_result == messages.message["ok"]:
                 self.mu_log.log(self.mu_log.DEBUG, "schema check returned OK", module)
                 self.meta_type = check.meta_type
                 file_result = self.process_physical_entity_and_attribute()
-                if file_result["code"] == "OK":
+                if file_result == messages.message["ok"]:
                     self.mu_log.log(self.mu_log.DEBUG, "file processed successfully", module)
                 else:
                     self.overall_result = file_result
@@ -148,7 +148,7 @@ class ConvertJSONtoEDCLineage:
         if self.meta_type in ("physical_attribute_association", "physical_entity_association"):
             file_result = self.process_lineage_request()
             self.mu_log.log(self.mu_log.DEBUG, "lineage processing completed with code >"
-                            + file_result['code'] + "<"
+                            + file_result['code'] + "<" + " - " + file_result["message"]
                             , module)
         return file_result
 
@@ -195,7 +195,7 @@ class ConvertJSONtoEDCLineage:
                         self.mu_log.log(self.mu_log.INFO, "No formula provided, which is ok.", module)
                 else:
                     self.mu_log.log(self.mu_log.ERROR, "transformation in link# " + str(link_number)
-                                    + "does not contain a uid.", module)
+                                    + " does not contain a uid.", module)
                     overall_result = messages.message["missing_uid"]
             else:
                 self.mu_log.log(self.mu_log.WARNING,
@@ -212,30 +212,25 @@ class ConvertJSONtoEDCLineage:
         #           json_result = self.metadata_lake_lineage.generate_lineage("json_payload", self.meta_type, self.data)
         self.edc_lineage.mu_log.area = self.mu_log.area
         json_result = self.edc_lineage.generate_lineage("json_payload", self.meta_type, self.data, self.settings)
-        if json_result["code"] == "OK":
+        if json_result == messages.message["ok"]:
             # Send lineage info to metadata target
-            send_result = self.send_metadata()
+            target = self.settings.metadata_store
+            self.mu_log.log(self.mu_log.DEBUG, "sending lineage info to " + target, module)
+            if target == "edc":
+                send_result = self.edc_lineage.create_custom_attribute("UUID")
+                send_result = self.edc_lineage.create_custom_attribute("formula")
+                send_result = self.edc_lineage.send_metadata_to_edc(self.settings.suppress_edc_call)
+            elif target == "metadata_lake":
+                send_result = self.send_metadata_to_metadata_lake()
+            else:
+                self.mu_log.log(self.mu_log.ERROR, "Invalid target specified: " + target, module)
+                return messages.message["unknown_metadata_target"]
             self.mu_log.log(self.mu_log.DEBUG, "lineage creation completed with >" + send_result['code'] + "<", module)
         else:
             self.mu_log.log(self.mu_log.ERROR, "json_payload lineage creation completed with >" + json_result['code']
                             + "<", module)
 
         return json_result
-
-    def send_metadata(self):
-        module = "ConvertJSONtoEDCLineage.send_metadata"
-        target = self.settings.metadata_store
-        self.mu_log.log(self.mu_log.DEBUG, "sending lineage info to " + target, module)
-
-        if target == "edc":
-            send_result = self.edc_lineage.send_metadata_to_edc(self.settings.suppress_edc_call)
-        elif target == "metadata_lake":
-            send_result = self.send_metadata_to_metadata_lake()
-        else:
-            self.mu_log.log(self.mu_log.DEBUG, "unknown metadata target type: " + target, module)
-            send_result = messages.message["unknown_metadata_target"]
-
-        return send_result
 
     def send_metadata_to_metadata_lake(self):
         module = "ConvertJSONtoEDCLineage.send_metadata_to_metadata_lake"

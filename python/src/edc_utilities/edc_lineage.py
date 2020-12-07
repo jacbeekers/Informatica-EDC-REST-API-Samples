@@ -12,7 +12,7 @@ class EDCLineage:
     EDLineage: Call Informatica EDC APIs to add lineage information for existing objects
     """
 
-    code_version = "0.2.21"
+    code_version = "0.3.5"
     total = 1000
 
     def __init__(self, settings, mu_log_ref):
@@ -272,11 +272,14 @@ class EDCLineage:
         template_new_source_links = self.jinja_environment.get_template("physical_association_source_link.jinja2")
 
         to_entity_name = "NONE"
+        source_target_nr = 0
         for source_target in source_target_links:
+            source_target_nr += 1
             source_target_list = []
             transformation = source_target["transformation"]
             to_attribute_uuid = transformation["to"]
-            self.mu_log.log(self.mu_log.DEBUG, "processing to_attribute_uuid: " + to_attribute_uuid, module)
+            self.mu_log.log(self.mu_log.DEBUG, "source_target_nr#" + str(source_target_nr)
+                            + " processing to_attribute_uuid: " + to_attribute_uuid, module)
             find_result = self.generic.find_json(to_attribute_uuid, "physical_attribute", "uid"
                                                  , log_prefix="to_attribute_uuid " + to_attribute_uuid + " - ")
             if find_result["code"] != "OK":
@@ -284,7 +287,7 @@ class EDCLineage:
                                 "The attribute association contains a target UUID that could not be found in any attribute JSON file."
                                 , module)
                 build_result = messages.message["json_uuid_not_found"]
-                return build_result, "{}"
+                return build_result, {}
 
             to_attribute_data = self.generic.found_data
             to_attribute_index = self.generic.index
@@ -298,7 +301,7 @@ class EDCLineage:
                                 "The 'to' attribute contains an entity UUID that could not be found in any entities JSON file."
                                 , module)
                 build_result = messages.message["json_uuid_not_found"]
-                return build_result, "{}"
+                return build_result, {}
 
             to_entity_data = self.generic.found_data
             to_entity_name = to_entity_data["name"]
@@ -333,7 +336,7 @@ class EDCLineage:
                                     "The attribute association contains a source UUID that could not be found in any attribute JSON file."
                                     , module)
                     build_result = messages.message["json_uuid_not_found"]
-                    return build_result, "{}"
+                    return build_result, {}
 
                 attribute_data = self.generic.found_data
                 attribute_index = self.generic.index
@@ -346,7 +349,7 @@ class EDCLineage:
                                     "The attribute association contains a physical entity UUID that could not be found in any entity JSON file."
                                     , module)
                     build_result = messages.message["json_uuid_not_found"]
-                    return build_result, "{}"
+                    return build_result, {}
 
                 entity_data = self.generic.found_data
                 source_name = self.edc_source_resource_name \

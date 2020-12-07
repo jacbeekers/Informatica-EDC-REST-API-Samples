@@ -4,25 +4,25 @@
       "analyzer": "TEXT_TECHNICAL",
       "boost": "HIGH",
       "classes": [
-        "core.DataElement"
+        {{ allowed_classes }}
       ],
       "dataTypeId": "core.String",
       "deprecated": false,
       "derived": false,
-      "description": "Formula leading to current field",
+      "description": "{{ attribute_description }}",
       "facetable": false,
       "indexed": true,
       "multivalued": false,
-      "name": "Formula",
+      "name": "{{ attribute_name }}",
       "resources": {
         "assignmentType": "LIST",
         "values": [
-          "Custom_Scanner"
+          {{ attribute_allowed_resources }}
         ]
       },
       "searchable": true,
       "sortable": false,
       "suggestable": false
     }
-  ],
+  ]
 }
