@@ -156,39 +156,62 @@ class GenericSettings:
         try:
             with open(self.edc_secrets) as edc:
                 data = json.load(edc)
-                if "edc_url" in data:
-                    self.edc_url = data["edc_url"]
-                    self.mu_log.log(self.mu_log.INFO, "EDC URL taken from edc secrets file >" + self.edc_secrets
-                                    + "<: "
-                                    + self.edc_url, module)
-                if "edc_auth" in data:
-                    self.auth = data["edc_auth"]
-                    self.mu_log.log(self.mu_log.INFO, "EDC Authentication taken from edc secrets file.", module)
-                else:
-                    self.mu_log.log(self.mu_log.WARNING, "No Authentication for EDC found in edc secrets file. "
-                                    + "This is OK if the authentication has been set through the environment variable INFA_EDC_AUTH"
-                                    ,module)
-
-                if "edc_http_proxy" in data:
-                    self.http_proxy = data["edc_http_proxy"]
-                    self.mu_log.log(self.mu_log.INFO, "HTTP Proxy for EDC taken from edc secrets file: "
-                                    + self.http_proxy, module)
-                else:
-                    self.mu_log.log(self.mu_log.INFO, "No HTTP Proxy for EDC found in edc secrets file. "
-                                    + "This is OK if no proxy is needed or has been set through the environment variable HTTP_PROXY"
+                result = self.determine_edc_secrets(data)
+                if result == messages.message["ok"]:
+                    self.mu_log.log(self.mu_log.DEBUG, "EDC secrets file >" + self.edc_secrets + "< found and read."
                                     , module)
-                if "edc_https_proxy" in data:
-                    self.https_proxy = data["edc_https_proxy"]
-                    self.mu_log.log(self.mu_log.INFO, "HTTPS Proxy for EDC taken from edc secrets file: "
-                                    + self.https_proxy, module)
                 else:
-                    self.mu_log.log(self.mu_log.INFO, "No HTTPS Proxy for EDC found in edc secrets file. "
-                                    + "This is OK if no proxy is needed or has been set through the environment variable HTTPS_PROXY"
-                                    , module)
-            self.mu_log.log(self.mu_log.DEBUG, "EDC secrets file >" + self.edc_secrets + "< found and read.", module)
+                    self.mu_log.log(self.mu_log.ERROR, "determine edc secrets returned: " + result["code"])
+                    return result
         except FileNotFoundError:
             self.mu_log.log(self.mu_log.FATAL, "Cannot find provided edc_secrets file >" + self.edc_secrets + "<."
                             , module)
             return messages.message["edc_secrets_not_found"]
 
+        return messages.message["ok"]
+
+    def determine_edc_secrets(self, data):
+        module = "generic_settings.determine_edc_secrets"
+
+        if "meta_version" in data:
+            main_meta_version = data["meta_version"][:3]
+            if main_meta_version == "0.3":
+                self.mu_log.log(self.mu_log.INFO, "main_meta_version of edc secrets is >" + main_meta_version + "<.")
+            else:
+                self.mu_log.log(self.mu_log.ERROR, "Unsupported meta_version >" + data["meta_version"] + "<.")
+                return messages.message["unsupported_meta_version_edc_secrets"]
+        else:
+            self.mu_log.log(self.mu_log.WARNING, "Backward compatible edc secrets file detected. Please updata to a later version."
+                            , module)
+
+        # The following is true for version 0.3 as well as the configuration before introduction of meta_version
+        if "edc_url" in data:
+            self.edc_url = data["edc_url"]
+            self.mu_log.log(self.mu_log.INFO, "EDC URL taken from edc secrets file >" + self.edc_secrets
+                            + "<: "
+                            + self.edc_url, module)
+        if "edc_auth" in data:
+            self.auth = data["edc_auth"]
+            self.mu_log.log(self.mu_log.INFO, "EDC Authentication taken from edc secrets file.", module)
+        else:
+            self.mu_log.log(self.mu_log.WARNING, "No Authentication for EDC found in edc secrets file. "
+                            + "This is OK if the authentication has been set through the environment variable INFA_EDC_AUTH"
+                            , module)
+
+        if "edc_http_proxy" in data:
+            self.http_proxy = data["edc_http_proxy"]
+            self.mu_log.log(self.mu_log.INFO, "HTTP Proxy for EDC taken from edc secrets file: "
+                            + self.http_proxy, module)
+        else:
+            self.mu_log.log(self.mu_log.INFO, "No HTTP Proxy for EDC found in edc secrets file. "
+                            + "This is OK if no proxy is needed or has been set through the environment variable HTTP_PROXY"
+                            , module)
+        if "edc_https_proxy" in data:
+            self.https_proxy = data["edc_https_proxy"]
+            self.mu_log.log(self.mu_log.INFO, "HTTPS Proxy for EDC taken from edc secrets file: "
+                            + self.https_proxy, module)
+        else:
+            self.mu_log.log(self.mu_log.INFO, "No HTTPS Proxy for EDC found in edc secrets file. "
+                            + "This is OK if no proxy is needed or has been set through the environment variable HTTPS_PROXY"
+                            , module)
         return messages.message["ok"]

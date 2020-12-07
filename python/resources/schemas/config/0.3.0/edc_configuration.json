@@ -1,0 +1,51 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/jacbeekers/Informatica-EDC-REST-API-Samples/blob/master/python/resources/schemas/config/0.3.0/edc_configuration.json",
+  "title": "Configuration file structure for Informatica-EDC-REST-API-Samples' EDC data object references",
+  "description": "The configuration file contains the scanned EDC Data Object locations",
+  "required": [
+    "edc_source_resource_name",
+    "edc_source_datasource",
+    "edc_source_container",
+    "edc_target_resource_name",
+    "edc_target_datasource",
+    "edc_target_container"
+  ],
+  "type": "object",
+  "properties": {
+    "meta": {
+      "type": "string",
+      "description": "Metadata Type",
+      "const": "edc_configuration"
+    },
+    "meta_version": {
+      "type": "string",
+      "description": "the meta structure version for the object",
+      "pattern": "^([0-9]+).([0-9]+).*$"
+    },
+    "edc_source_resource_name": {
+      "type": "string",
+      "description": "The resource name in EDC in which the scanned source data objects can be found."
+    },
+    "edc_source_datasource": {
+      "type": "string",
+      "description": "The datasource in EDC that contains the scanned source data objects. For databases, this is the database name. For file systems, it is FileServer."
+    },
+    "edc_source_container": {
+      "type": "string",
+      "description": "The container (database schema or file system folder) that contains the source database tables or file system files.",
+    },
+    "edc_target_resource_name": {
+      "type": "string",
+      "description": "The resource name in EDC in which the scanned target data objects can be found."
+    },
+    "edc_target_datasource": {
+      "type": "string",
+      "description": "The datasource in EDC that contains the scanned target data objects. For databases, this is the database name. For file systems, it is FileServer."
+    },
+    "edc_target_container": {
+      "type": "string",
+      "description": "The container (database schema or file system folder) that contains the target database tables or file system files.",
+    }
+  }
+}
