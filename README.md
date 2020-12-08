@@ -13,8 +13,10 @@ Getting Started
   source venv/bin/activate
 * Install the package
   * The latest version from test.pypi.org:
+  
     pip3 install --extra-index-url https://test.pypi.org/simple/ informatica-edc-rest-api-samples
   * The tested version from pypi.org:
+  
     pip3 install informatica-edc-rest-api-samples
 * Run the code
   * python3 run_edc_lineage.py
@@ -24,14 +26,51 @@ Note: Check the coverage information available in [coverage overview](python/doc
 
 Contributing
 ------------
+#### Steps to setup your development environment
 
 * Clone this repository
 * This repository uses one submodules. Run the following the get it:
   - git submodule init
   - git submodule update
 The git repository metadata-registry-interface-specifications will be located in Informatica-EDC-REST-API-Samples/python/metadata-registry-specifications
+* Create a virtual environment in the main directory:
+  ```shell script
+    cd <your_directory>/Informatica-EDC-REST-API-Samples
+    python3 -m venv venv
+  ```
+    
+* Source it
+  ```shell script
+    source venv/bin/activate
+  ```
+  On Windows:
+  ```commandline
+    venv\bin\Scripts\activate.cmd
+  ```
+    
+* Upgrade pip
+    get rid of annoying 'you should bla bla':
+    ```shell script
+    python3 -m pip install --upgrade pip
+    ```
+* create the directory temp in the directory python:
+    ```shell script
+    cd <your_directory>/Informatica-EDC-REST-API-Samples/python
+    mkdir temp
+    ```
+* install requirements file that exists in the python directory:
+    (make sure the venv is active)
+    ```shell script
+    cd <your_directory>/Informatica-EDC-REST-API-Samples/python
+    pip3 install -r requirements.txt    
+    ```
+    Note: This also install the package itself. You may want to uninstall it:
+    ```shell script
+    pip3 uninstall informatica-edc-rest-api-samples
+    ```
 
-## More into on the metadata_utilities
+## More info on the metadata_utilities
+
 [Dependency Graph](python/docs/metadata_utilities/metadata_utilities.svg)
 
 [Documentation](python/docs/metadata_utilities/markdown/metadata_utilities/index.md)
