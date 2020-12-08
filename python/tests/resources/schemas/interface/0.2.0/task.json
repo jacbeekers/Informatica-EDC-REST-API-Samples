@@ -1,0 +1,78 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/jacbeekers/metadata-registry-interface-specifications/blob/master/metadata/schemas/interface/0.2.0/task.json",
+  "title": "Task, part of the DAG",
+  "description": "The task in the DAG schema configuration (isc-orchestrator/orchestrator). Simplified for lineage purposes.",
+  "required": [
+    "meta",
+    "meta_version",
+    "task",
+    "version"
+  ],
+  "type": "object",
+  "properties": {
+    "meta": {
+      "type": "string",
+      "description": "metadata type",
+      "enum": [
+        "task"
+      ]
+    },
+    "meta_version": {
+      "type": "string",
+      "description": "the meta structure version for the object",
+      "pattern": "^([0-9]+).([0-9]+).*$"
+    },
+    "version": {
+      "type": "string",
+      "description": "version of the object definition",
+      "pattern": "^([0-9]+).([0-9]+).([0-9]+)$"
+    },
+    "task": {
+      "anyOf": [
+        {
+          "properties": {
+            "uid": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "name": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "uid",
+            "name",
+            "type"
+          ]
+        },
+        {
+          "properties": {
+            "$task": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "$task"
+          ]
+        },
+        {
+          "properties": {
+            "$path": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "$path"
+          ]
+        }
+      ]
+    }
+  }
+}

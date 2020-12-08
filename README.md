@@ -30,8 +30,11 @@ Contributing
 
 * Clone this repository
 * This repository uses one submodules. Run the following the get it:
-  - git submodule init
-  - git submodule update
+    ```shell script
+    git submodule init
+    git submodule update
+    ```
+ 
 The git repository metadata-registry-interface-specifications will be located in Informatica-EDC-REST-API-Samples/python/metadata-registry-specifications
 * Create a virtual environment in the main directory:
   ```shell script

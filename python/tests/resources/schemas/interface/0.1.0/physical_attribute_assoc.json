@@ -1,0 +1,114 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/jacbeekers/metadata-registry-interface-specifications/blob/master/metadata/schemas/interface/0.1.0/physical_attribute_assoc.json",
+  "title": "Physical Entity Association",
+  "description": "The association of two (or more) physical attributes",
+  "required": [
+    "uid",
+    "name",
+    "version",
+    "physicalEntityAssocation",
+    "sourceTargetAttributeLinks"
+  ],
+  "type": "object",
+  "properties": {
+    "uid": {
+      "description": "The unique identifier for the association",
+      "type": "string",
+      "format": "uuid"
+    },
+    "name": {
+      "description": "The name of the association for later referral",
+      "type": "string"
+    },
+    "version": {
+      "description": "The version number of the association",
+      "pattern": "^([0-9]+).([0-9]+).([0-9]+)$",
+      "type": "string"
+    },
+    "physicalEntityAssocation": {
+      "oneOf": [
+        {
+          "$ref": "https://github.com/jacbeekers/metadata-registry-interface-specifications/blob/master/metadata/schemas/interface/0.1.0/physical_entity_assoc.json"
+        },
+        {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^(.+)-(.+)-(.+)$"
+        }
+      ],
+      "description": "To which this attribute association belongs"
+    },
+    "sourceTargetAttributeLinks": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/sourceTargetAttributeLink"
+      },
+      "uniqueItems": true
+    }
+  },
+  "definitions": {
+    "sourceTargetAttributeLink": {
+      "type": "object",
+      "required": [
+        "transformation"
+      ],
+      "properties": {
+        "transformation": {
+          "$ref": "#/definitions/transformation"
+        },
+        "description": {
+          "type": "string",
+          "description": "Explanation of the transformation"
+        },
+        "formula": {
+          "type": "string",
+          "description": "Formula applied to the attributes. Use the names or UUIDs of the attributes and place it in {{}}, e.g. '{{LastName}}' or '{{19aee165-025c-4358-97ed-08ba90910c47}}'"
+        }
+      }
+    },
+    "transformation": {
+      "type": "object",
+      "required": [
+        "uid",
+        "from",
+        "to"
+      ],
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "The transformation id. Use the same id when multiple source attributes lead to the same target attribute"
+        },
+        "from": {
+          "type": "array",
+          "items": {
+            "oneOf": [
+              {
+                "$ref": "https://github.com/jacbeekers/metadata-registry-interface-specifications/blob/master/metadata/schemas/interface/0.1.0/physical_attribute.json"
+              },
+              {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^(.+)-(.+)-(.+)$"
+              }
+            ]
+          },
+          "description": "The source attributes (or existing references to it/them)"
+        },
+        "to": {
+          "oneOf": [
+            {
+              "$ref": "https://github.com/jacbeekers/metadata-registry-interface-specifications/blob/master/metadata/schemas/interface/0.1.0/physical_attribute.json"
+            },
+            {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^(.+)-(.+)-(.+)$"
+            }
+          ],
+          "description": "The target attribute (or existing reference to it)"
+        }
+      }
+    }
+  }
+}

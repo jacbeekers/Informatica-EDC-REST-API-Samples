@@ -1,18 +1,18 @@
 from pathlib import Path
-from src import run_edc_lineage
+from src.metadata_utilities import load_json_metadata
 from src.metadata_utilities import messages
 import os
 import contextlib
 
+test_config = "tests/resources/config.json"
 
-def test_main_config_file(configuration_file="tests/resources/config.json"):
+
+def test_main_config_file(configuration_file=test_config):
     assert Path(configuration_file).is_file()
 
 
-
-
 def test_load_json_metadata(expected_message=messages.message["ok"]):
-    result = run_edc_lineage.load_json_metadata.ConvertJSONtoEDCLineage().main()
+    result = load_json_metadata.ConvertJSONtoEDCLineage(configuration_file=test_config).main()
     assert result == expected_message
     # result = load_json_metadata.ConvertJSONtoEDCLineage("/tmp/config.json").main()
 

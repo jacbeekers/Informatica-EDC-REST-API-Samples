@@ -1,0 +1,70 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/jacbeekers/metadata-registry-interface-specifications/blob/master/metadata/schemas/interface/0.2.0/physical_entity.json",
+  "title": "Physical Entity",
+  "type": "object",
+  "description": "Description of the physical entity",
+  "required": [
+    "entity_type",
+    "uid",
+    "name",
+    "version",
+    "meta",
+    "meta_version",
+    "location"
+  ],
+  "properties": {
+    "meta": {
+      "type": "string",
+      "description": "metadata type",
+      "enum": [
+        "physical_entity"
+      ]
+    },
+    "meta_version": {
+      "type": "string",
+      "description": "the meta structure version for the object",
+      "pattern": "^([0-9]+).([0-9]+).*$"
+    },
+    "entity_type": {
+      "description": "The physical entity's type",
+      "type": "string",
+      "enum": [
+        "file",
+        "table",
+        "stream",
+        "api"
+      ]
+    },
+    "uid": {
+      "description": "The unique identifier of the physical entity. Makes it easy to link attributes to the entity.",
+      "type": "string",
+      "format": "uuid"
+    },
+    "name": {
+      "description": "The name of the physical entity (design time)",
+      "type": "string"
+    },
+    "description": {
+      "description": "The description of the physical entity",
+      "type": "string"
+    },
+    "LoGSID": {
+      "description": "The List of Golden Sources (LoGS) identifier the physical entity links to",
+      "type": "string"
+    },
+    "OARID": {
+      "description": "The One Application Referencial (OAR) Identifier the physical entity links to",
+      "type": "string"
+    },
+    "version": {
+      "description": "The version of the physical entity metadata",
+      "pattern": "^([0-9]+).([0-9]+).([0-9]+)$",
+      "type": "string"
+    },
+    "location": {
+      "description": "The location of this entity, e.g. Landing Zone",
+      "type": "string"
+    }
+  }
+}

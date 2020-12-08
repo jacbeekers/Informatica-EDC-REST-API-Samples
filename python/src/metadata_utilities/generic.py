@@ -1,29 +1,30 @@
 import glob
 import json
 
-from src.metadata_utilities import messages
-
+from src.metadata_utilities import messages, generic_settings
+import os
 
 class Generic:
     """
     Some generic utilities, e.g. reading the config.json
     """
-    code_version = "0.2.24"
+    code_version = "0.3.9"
 
     def __init__(self, settings, mu_log_ref):
         module = "Generic.__init__"
         self.attribute_list = []
         self.json_file = ""
-        self.data = "{}"
-        self.found_data = "{}"
+        self.data = {}
+        self.found_data = {}
         self.index = -1
         self.settings_found = False
         self.settings = settings
         self.mu_log = mu_log_ref
         if settings is None:
+            self.settings = generic_settings.GenericSettings()
             result = self.settings.get_config()
             if result != messages.message["ok"]:
-                self.mu_log.log(self.mu_log.FATAL, "Cannot find main configuration file >" + self.settings.json_file + "<."
+                self.mu_log.log(self.mu_log.FATAL, "Cannot find main configuration file >" + self.settings.main_config_file + "<."
                                 , module)
                 self.settings_found = False
             else:
@@ -160,6 +161,7 @@ class Generic:
         module = "Generic.write_local_file"
         file_result = messages.message["ok"]
         path = self.settings.output_directory + filename
+        os.makedirs(self.settings.output_directory, exist_ok=True)
         self.mu_log.log(self.mu_log.DEBUG, "File name: " + path, module)
         self.mu_log.log(self.mu_log.VERBOSE, "writing >" + to_write + "< to file >" + path + "<...", module)
         try:

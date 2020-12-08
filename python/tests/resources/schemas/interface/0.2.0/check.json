@@ -1,0 +1,214 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/jacbeekers/metadata-registry-interface-specifications/blob/master/metadata/schemas/interface/0.2.0/check.json",
+  "title": "Check that is part of the Control Framework",
+  "description": "A check conducts a technical or logical verification of data",
+  "required": [
+    "uid",
+    "name",
+    "version",
+    "meta",
+    "meta_version"
+  ],
+  "type": "object",
+  "properties": {
+    "meta": {
+      "type": "string",
+      "description": "metadata type",
+      "enum": [
+        "check"
+      ]
+    },
+    "meta_version": {
+      "type": "string",
+      "description": "the meta structure version for the object",
+      "pattern": "^([0-9]+).([0-9]+).*$"
+    },
+    "check": {
+      "oneOf": [
+        {
+          "type": "object",
+          "$ref": "#/definitions/technicalCheck"
+        },
+        {
+          "type": "object",
+          "$ref": "#/definitions/dataCheck"
+        }
+      ]
+    }
+  },
+  "definitions": {
+    "port": {
+      "type": "object",
+      "required": [
+        "uid",
+        "name"
+      ],
+      "properties": {
+        "uid": {
+          "description": "The unique identifier for the port within the check",
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^(.+)-(.+)-(.+)$"
+        },
+        "name": {
+          "description": "The name of the port",
+          "type": "string"
+        },
+        "description": {
+          "description": "A description of the input port",
+          "type": "string"
+        }
+      }
+    },
+    "technicalCheck": {
+      "type": "object",
+      "required": [
+        "uid",
+        "name",
+        "type"
+      ],
+      "properties": {
+        "uid": {
+          "description": "The unique identifier for the check",
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^(.+)-(.+)-(.+)$"
+        },
+        "name": {
+          "description": "The name of the check",
+          "type": "string"
+        },
+        "type": {
+          "description": "The check type",
+          "type": "string",
+          "const": "Technical"
+        },
+        "technicalDescription": {
+          "description": "Technical description of what the check does, e.g. a formula",
+          "type": "string"
+        },
+        "input": {
+          "description": "The list of inputs",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/port"
+          },
+          "uniqueItems": true
+        },
+        "outputCode": {
+          "description": "The output code in case of a negative result. 1=OK, 0=N/A",
+          "type": "integer",
+          "maximum": 1
+        },
+        "version": {
+          "description": "The version number of the check",
+          "pattern": "^([0-9]+).([0-9]+).([0-9]+)$",
+          "type": "string"
+        }
+      }
+    },
+    "dataCheck": {
+      "type": "object",
+      "required": [
+        "uid",
+        "name",
+        "type"
+      ],
+      "properties": {
+        "uid": {
+          "description": "The unique identifier for the check",
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^(.+)-(.+)-(.+)$"
+        },
+        "name": {
+          "description": "The name of the check",
+          "type": "string"
+        },
+        "type": {
+          "description": "The check type",
+          "type": "string",
+          "const": "DataQuality"
+        },
+        "project": {
+          "description": "The project the check is part of",
+          "type": "string"
+        },
+        "location": {
+          "description": "Location in the project where the check can be found. Could be a folder, component, etc.",
+          "type": "string"
+        },
+        "functionalDescription": {
+          "description": "Function description of what the check does",
+          "type": "string"
+        },
+        "technicalDescription": {
+          "description": "Technical description of what the check does, e.g. a formula",
+          "type": "string"
+        },
+        "damaDimension": {
+          "description": "The DAMA dimension the check belongs to",
+          "type": "string",
+          "enum": [
+            "accuracy",
+            "completeness",
+            "consistency",
+            "timeliness"
+          ]
+        },
+        "input": {
+          "description": "The list of input ports",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/port"
+          },
+          "uniqueItems": true
+        },
+        "output": {
+          "description": "The list of output ports",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/port"
+          },
+          "uniqueItems": true
+        },
+        "inputOutputMapping": {
+          "description": "An array that maps input ports to output ports",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "inputPort": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^(.+)-(.+)-(.+)$",
+                "description": "The UUID of an existing input port"
+              },
+              "outputPorts": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^(.+)-(.+)-(.+)$"
+                }
+              }
+            },
+            "description": "Which input ports map to which (one or more) output ports",
+            "uniqueItems": true
+          }
+        },
+        "outputCode": {
+          "description": "The output code in case of a negative result. 1=OK, 0=N/A",
+          "type": "integer",
+          "maximum": 1
+        },
+        "version": {
+          "description": "The version number of the check",
+          "pattern": "^([0-9]+).([0-9]+).([0-9]+)$",
+          "type": "string"
+        }
+      }
+    }
+  }
+}

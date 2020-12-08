@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/jacbeekers/metadata-registry-interface-specifications/blob/master/metadata/schemas/interface/0.1.0/physical_attribute.json",
+  "title": "Physical Attribute",
+  "description": "Description of the physical attribute",
+  "required": [
+    "name",
+    "physicalEntity",
+    "version"
+  ],
+  "type": "object",
+  "properties": {
+    "uid": {
+      "description": "The unique identifier of the physical attribute.",
+      "type": "string",
+      "format": "uuid"
+    },
+    "name": {
+      "description": "The name of the physical attribute",
+      "type": "string"
+    },
+    "description": {
+      "description": "The description of the physical attribute",
+      "type": "string"
+    },
+    "physicalEntity": {
+      "oneOf": [
+        {
+          "$ref": "https://github.com/jacbeekers/metadata-registry-interface-specifications/blob/master/metadata/schemas/interface/0.1.0/physical_entity.json"
+        },
+        {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^(.+)-(.+)-(.+)$"
+        }
+      ],
+      "description": "Physical entity the attribute belongs to"
+    },
+    "version": {
+      "description": "The metadata version number of the attribute",
+      "pattern": "^([0-9]+).([0-9]+).([0-9]+)$",
+      "type": "string"
+    }
+  }
+}

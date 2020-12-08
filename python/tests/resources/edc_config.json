@@ -1,0 +1,10 @@
+{
+  "meta": "edc_configuration",
+  "meta_version": "0.3.0",
+  "edc_source_resource_name": "test_localfs://",
+  "edc_source_datasource": "FileServer",
+  "edc_source_container": "/tmp/files/source/",
+  "edc_target_resource_name": "test_localfs://",
+  "edc_target_datasource": "FileServer",
+  "edc_target_container": "/tmp/files/target/"
+}

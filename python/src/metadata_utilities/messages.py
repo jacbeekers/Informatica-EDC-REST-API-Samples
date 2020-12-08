@@ -160,6 +160,16 @@ message = {
         , "message": "EDC API did not return a JSON object"
         , "level": "ERROR"
     },
+    "custom_attribute_not_found": {
+        "code": "MU-EDC-003"
+        , "message": "Custom Attribute could not be found."
+        , "level": "ERROR"
+    },
+    "custom_attribute_already_exists": {
+        "code": "MU-EDC-004"
+        , "message": "Custom Attribute already exists."
+        , "level": "ERROR"
+    },
     "MDL_GROUP": {
         "code": "MDL"
         , "message": "Group for warnings and errors related to the Metadata Lake"

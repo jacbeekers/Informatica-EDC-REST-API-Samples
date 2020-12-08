@@ -154,7 +154,7 @@ class GenericSettings:
         module = "get_edc_secrets"
 
         try:
-            with open(self.edc_secrets) as edc:
+            with open(edc_secrets) as edc:
                 data = json.load(edc)
                 result = self.determine_edc_secrets(data)
                 if result == messages.message["ok"]:
@@ -176,12 +176,14 @@ class GenericSettings:
         if "meta_version" in data:
             main_meta_version = data["meta_version"][:3]
             if main_meta_version == "0.3":
-                self.mu_log.log(self.mu_log.INFO, "main_meta_version of edc secrets is >" + main_meta_version + "<.")
+                self.mu_log.log(self.mu_log.INFO, "main_meta_version of edc secrets is >" + main_meta_version + "<."
+                                , module)
             else:
-                self.mu_log.log(self.mu_log.ERROR, "Unsupported meta_version >" + data["meta_version"] + "<.")
+                self.mu_log.log(self.mu_log.ERROR, "Unsupported meta_version >" + data["meta_version"] + "<."
+                                , module)
                 return messages.message["unsupported_meta_version_edc_secrets"]
         else:
-            self.mu_log.log(self.mu_log.WARNING, "Backward compatible edc secrets file detected. Please updata to a later version."
+            self.mu_log.log(self.mu_log.WARNING, "Backward compatible edc secrets file detected. Please update to a later version."
                             , module)
 
         # The following is true for version 0.3 as well as the configuration before introduction of meta_version

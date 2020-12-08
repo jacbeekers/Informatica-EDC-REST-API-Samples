@@ -141,7 +141,7 @@ class EDCSession:
 
         if "HTTPS_PROXY" in os.environ:
             self.https_proxy = os.environ["HTTPS_PROXY"]
-            print("\t\tusing HTTPS Proxy from env var HTTPS_PROXY=" + self.http_proxy)
+            print("\t\tusing HTTPS Proxy from env var HTTPS_PROXY=" + self.https_proxy)
 
         # check the catalog url & user command-line
         if args.edcurl is not None:

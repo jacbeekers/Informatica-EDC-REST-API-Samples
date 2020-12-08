@@ -1,0 +1,69 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/jacbeekers/metadata-registry-interface-specifications/blob/master/metadata/schemas/interface/0.2.0/job.json",
+  "title": "Job",
+  "description": "The job as defined in the job schema configuration (isc-orchestrator/optimus)",
+  "type": "object",
+  "required": [
+    "meta",
+    "meta_version",
+    "uid",
+    "name",
+    "type",
+    "job"
+  ],
+  "properties": {
+    "meta": {
+      "type": "string",
+      "description": "metadata type",
+      "enum": [
+        "job"
+      ]
+    },
+    "meta_version": {
+      "type": "string",
+      "description": "the meta structure version for the object",
+      "pattern": "^([0-9]+).([0-9]+).*$"
+    },
+    "uid": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "name": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string"
+    },
+    "job": {
+      "type": "object",
+      "$path": {
+        "type": "string"
+      }
+    },
+    "existing_cluster_id": {
+      "type": "string"
+    },
+    "task_type": {
+      "type": "string",
+      "enum": [
+        "python",
+        "notebook"
+      ]
+    },
+    "runner": {
+      "type": "string"
+    },
+    "databricks_conn_id": {
+      "type": "string"
+    },
+    "extra_kwargs": {
+      "type": "object",
+      "job_operator": {
+        "type": "object",
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}

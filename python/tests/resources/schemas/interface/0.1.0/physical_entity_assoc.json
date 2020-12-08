@@ -1,0 +1,112 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/jacbeekers/metadata-registry-interface-specifications/blob/master/metadata/schemas/interface/0.1.0/physical_entity_assoc.json",
+  "title": "Physical Entity Association",
+  "description": "The association of two (or more) physical entities",
+  "required": [
+    "uid",
+    "name",
+    "version",
+    "job",
+    "dag",
+    "task"
+  ],
+  "type": "object",
+  "properties": {
+    "uid": {
+      "description": "The unique identifier for the association",
+      "type": "string",
+      "format": "uuid"
+    },
+    "name": {
+      "description": "The name of the association for later referral",
+      "type": "string"
+    },
+    "job": {
+      "oneOf": [
+        {
+          "$ref": "https://github.com/jacbeekers/metadata-registry-interface-specifications/blob/master/metadata/schemas/interface/0.1.0/job.json"
+        },
+        {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^(.+)-(.+)-(.+)$"
+        }
+      ],
+      "description": "The job that conducts the task"
+    },
+    "dag": {
+      "oneOf": [
+        {
+          "$ref": "https://github.com/jacbeekers/metadata-registry-interface-specifications/blob/master/metadata/schemas/interface/0.1.0/dag.json"
+        },
+        {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^(.+)-(.+)-(.+)$"
+        }
+      ],
+      "description": "The DAG that schedules the data tasks"
+    },
+    "task": {
+      "oneOf": [
+        {
+          "$ref": "https://github.com/jacbeekers/metadata-registry-interface-specifications/blob/master/metadata/schemas/interface/0.1.0/task.json"
+        },
+        {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^(.+)-(.+)-(.+)$"
+        }
+      ],
+      "description": "The task, as part of the job, that processes the data"
+    },
+    "version": {
+      "description": "The version number of the association",
+      "pattern": "^([0-9]+).([0-9]+).([0-9]+)$",
+      "type": "string"
+    },
+    "sourceTargetEntityLinks": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/sourceTargetEntityLink"
+      },
+      "uniqueItems": true
+    }
+  },
+  "definitions": {
+    "sourceTargetEntityLink": {
+      "type": "object",
+      "required": [
+        "from",
+        "to"
+      ],
+      "properties": {
+        "from": {
+          "oneOf": [
+            {
+              "$ref": "https://github.com/jacbeekers/metadata-registry-interface-specifications/blob/master/metadata/schemas/interface/0.1.0/physical_entity.json"
+            },
+            {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^(.+)-(.+)-(.+)$"
+            }
+          ]
+        },
+        "to": {
+          "oneOf": [
+            {
+              "$ref": "https://github.com/jacbeekers/metadata-registry-interface-specifications/blob/master/metadata/schemas/interface/0.1.0/physical_entity.json"
+            },
+            {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^(.+)-(.+)-(.+)$"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

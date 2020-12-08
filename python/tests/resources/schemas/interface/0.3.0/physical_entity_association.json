@@ -1,0 +1,109 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/jacbeekers/metadata-registry-interface-specifications/blob/master/metadata/schemas/interface/0.2.0/physical_entity_assoc.json",
+  "title": "Physical Entity Association",
+  "description": "The association of two (or more) physical entities",
+  "required": [
+    "meta",
+    "meta_version",
+    "uid",
+    "name",
+    "version",
+    "source_target_entity_links"
+   ],
+  "type": "object",
+  "properties": {
+    "meta": {
+      "type": "string",
+      "description": "metadata type",
+      "enum": [
+        "physical_entity_association"
+      ]
+    },
+    "meta_version": {
+      "type": "string",
+      "description": "the meta structure version for the object",
+      "pattern": "^([0-9]+).([0-9]+).*$"
+    },
+    "uid": {
+      "description": "The unique identifier for the association",
+      "type": "string",
+      "format": "uuid"
+    },
+    "name": {
+      "description": "The name of the association for later referral",
+      "type": "string"
+    },
+    "job": {
+      "oneOf": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^(.+)-(.+)-(.+)$"
+        }
+      ],
+      "description": "The job that conducts the task"
+    },
+    "dag": {
+      "oneOf": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^(.+)-(.+)-(.+)$"
+        }
+      ],
+      "description": "The DAG that schedules the data tasks"
+    },
+    "task": {
+      "oneOf": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^(.+)-(.+)-(.+)$"
+        }
+      ],
+      "description": "The task, as part of the job, that processes the data"
+    },
+    "version": {
+      "description": "The version number of the association",
+      "pattern": "^([0-9]+).([0-9]+).([0-9]+)$",
+      "type": "string"
+    },
+    "source_target_entity_links": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/source_target_entity_link"
+      },
+      "uniqueItems": true
+    }
+  },
+  "definitions": {
+    "source_target_entity_link": {
+      "type": "object",
+      "required": [
+        "from",
+        "to"
+      ],
+      "properties": {
+        "from": {
+          "oneOf": [
+            {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^(.+)-(.+)-(.+)$"
+            }
+          ]
+        },
+        "to": {
+          "oneOf": [
+            {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^(.+)-(.+)-(.+)$"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

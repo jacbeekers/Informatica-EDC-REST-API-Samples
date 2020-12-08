@@ -7,7 +7,7 @@ from src.metadata_utilities import check_schema
 from src.metadata_utilities import generic_settings, generic
 from src.metadata_utilities import messages
 from src.metadata_utilities import mu_logging, json_file_utilities
-
+from src.edc_utilities import edc_custom_attributes
 
 class ConvertJSONtoEDCLineage:
     """
@@ -21,6 +21,8 @@ class ConvertJSONtoEDCLineage:
         self.result = messages.message["undetermined"]
         self.settings = generic_settings.GenericSettings(configuration_file)
         self.config_result = self.settings.get_config()
+        self.edc_custom_attributes = edc_custom_attributes.EDCCustomAttribute()
+
         if self.config_result == messages.message["ok"]:
             self.mu_log = mu_logging.MULogging(self.settings.log_config)
             self.generic = generic.Generic(settings=self.settings, mu_log_ref=self.mu_log)
@@ -217,8 +219,9 @@ class ConvertJSONtoEDCLineage:
             target = self.settings.metadata_store
             self.mu_log.log(self.mu_log.DEBUG, "sending lineage info to " + target, module)
             if target == "edc":
-                send_result = self.edc_lineage.create_custom_attribute("UUID")
-                send_result = self.edc_lineage.create_custom_attribute("formula")
+                # TODO: Create custom attributes, if not already exist
+                send_result = self.edc_custom_attributes.create_custom_attribute("UUID")
+                send_result = self.edc_custom_attributes.create_custom_attribute("formula")
                 send_result = self.edc_lineage.send_metadata_to_edc(self.settings.suppress_edc_call)
             elif target == "metadata_lake":
                 send_result = self.send_metadata_to_metadata_lake()

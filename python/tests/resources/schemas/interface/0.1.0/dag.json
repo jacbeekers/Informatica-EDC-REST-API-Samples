@@ -1,0 +1,80 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/jacbeekers/metadata-registry-interface-specifications/blob/master/metadata/schemas/interface/0.1.0/dag.json",
+  "title": "DAG configuration",
+  "description": "The DAG as defined in the DAG schema configuration (isc-orchestrator/orchestrator).",
+  "type": "object",
+  "properties": {
+    "dag_name": {
+      "type": "string"
+    },
+    "schedule_interval": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "extra_kwargs": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "tasks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "anyOf": [
+          {
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              },
+              "upstream": {
+                "$ref": "#/properties/tasks"
+              },
+              "downstream": {
+                "$ref": "#/properties/tasks"
+              },
+              "extra_kwargs": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            },
+            "required": [
+              "name",
+              "type"
+            ],
+            "additionalProperties": true
+          },
+          {
+            "properties": {
+              "$task": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "$task"
+            ]
+          },
+          {
+            "properties": {
+              "$path": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "$path"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "required": [
+    "dag_name",
+    "tasks"
+  ],
+  "additionalProperties": true
+}

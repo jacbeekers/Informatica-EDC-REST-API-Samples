@@ -1,0 +1,94 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/jacbeekers/metadata-registry-interface-specifications/blob/master/metadata/schemas/interface/0.2.0/dag.json",
+  "title": "DAG configuration",
+  "description": "The DAG as defined in the DAG schema configuration (isc-orchestrator/orchestrator).",
+  "required": [
+    "meta",
+    "meta_version",
+    "version",
+    "dag_name",
+    "tasks"
+  ],
+  "type": "object",
+  "properties": {
+    "meta": {
+      "type": "string",
+      "description": "metadata type",
+      "enum": [
+        "dag"
+      ]
+    },
+    "meta_version": {
+      "type": "string",
+      "description": "the meta structure version for the object",
+      "pattern": "^([0-9]+).([0-9]+).*$"
+    },
+    "dag_name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string",
+      "description": "The version number of this DAG. Increase it whenever something changes.",
+      "pattern": "^([0-9]+).([0-9]+).*$"
+    },
+    "schedule_interval": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "extra_kwargs": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "tasks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "anyOf": [
+          {
+            "task": {
+              "$ref": "#/definitions/task"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "task_reference": {
+      "type": "string",
+      "format": "uuid",
+      "pattern": "^(.+)-(.+)-(.+)$"
+    },
+    "task": {
+      "type": "object",
+      "required": [
+        "uid"
+      ],
+      "properties": {
+        "uid": {
+          "description": "Reference to the unique identifier of the task.",
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^(.+)-(.+)-(.+)$"
+        },
+        "upstream": {
+          "$ref": "#/definitions/task_reference"
+        },
+        "downstream": {
+          "$ref": "#/definitions/task_reference"
+        },
+        "extra_kwargs": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    }
+  },
+  "additionalProperties": true
+}
