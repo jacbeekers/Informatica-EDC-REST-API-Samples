@@ -1,0 +1,60 @@
+{
+  "defined_custom_attributes": [
+    {
+      "items": [
+        {
+          "analyzer": "TEXT_TECHNICAL",
+          "boost": "HIGH",
+          "classes": [
+            {
+              "id": "core.IClass"
+            }
+          ],
+          "dataTypeId": "core.String",
+          "deprecated": false,
+          "derived": false,
+          "description": "Unique Identifier",
+          "facetable": false,
+          "indexed": true,
+          "multivalued": false,
+          "name": "UUID",
+          "resources": {
+            "assignmentType": "ALL",
+            "values": []
+          },
+          "searchable": true,
+          "sortable": false,
+          "suggestable": false
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "analyzer": "TEXT_TECHNICAL",
+          "boost": "HIGH",
+          "classes": [
+            {
+              "id": "core.DataElement"
+            }
+          ],
+          "dataTypeId": "core.String",
+          "deprecated": false,
+          "derived": false,
+          "description": "Formula used that results in the value of this element",
+          "facetable": false,
+          "indexed": true,
+          "multivalued": false,
+          "name": "Formula",
+          "resources": {
+            "assignmentType": "ALL",
+            "values": []
+          },
+          "searchable": true,
+          "sortable": false,
+          "suggestable": false
+        }
+      ]
+    }
+  ]
+}

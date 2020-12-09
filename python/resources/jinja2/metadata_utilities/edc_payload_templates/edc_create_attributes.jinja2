@@ -3,9 +3,9 @@
     {
       "analyzer": "TEXT_TECHNICAL",
       "boost": "HIGH",
-      "classes": [
+      "classes":
         {{ allowed_classes }}
-      ],
+      ,
       "dataTypeId": "core.String",
       "deprecated": false,
       "derived": false,
@@ -15,10 +15,9 @@
       "multivalued": false,
       "name": "{{ attribute_name }}",
       "resources": {
-        "assignmentType": "LIST",
-        "values": [
+        "assignmentType": "{{ type_allowed_resources }}",
+        "values":
           {{ attribute_allowed_resources }}
-        ]
       },
       "searchable": true,
       "sortable": false,

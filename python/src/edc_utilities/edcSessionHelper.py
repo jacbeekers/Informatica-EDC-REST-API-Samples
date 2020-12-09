@@ -39,7 +39,7 @@ class EDCSession:
     for easy re-use for multiple scripts
     """
 
-    def __init__(self, settings):
+    def __init__(self, settings, mu_log):
         self.baseUrl = settings.edc_url
         self.session: requests.session = None
         self.argparser = argparse.ArgumentParser(add_help=False)
@@ -49,6 +49,8 @@ class EDCSession:
         self.http_proxy = None
         self.https_proxy = None
         self.settings = settings
+        self.mu_log = self.settings.mu_log
+        self.initUrlAndSessionFromEDCSettings()
 
     def __setup_standard_cmdargs__(self):
         # check for args overriding the env vars
@@ -105,7 +107,7 @@ class EDCSession:
             type=str,
         )
 
-    def initUrlAndSessionFromEDCSettings(self, edc_secrets="resources/edc.secrets"):
+    def initUrlAndSessionFromEDCSettings(self):
         """
         reads the env vars and any command-line parameters & creates an edc session
         with auth and optionally verify attributes populated (shared so no need to use
@@ -113,6 +115,7 @@ class EDCSession:
         returns:
             url, auth
         """
+        module = __name__ +".initUrlAndSessionFromEDCSettings"
         auth = None
         verify = None
 
@@ -146,7 +149,7 @@ class EDCSession:
         # check the catalog url & user command-line
         if args.edcurl is not None:
             if self.baseUrl != args.edcurl:
-                print(f"\t\tusing edcurl from command-line parameter {args.edcurl}")
+                print(f"\t\tusing edc url from command-line parameter {args.edcurl}")
                 self.baseUrl = args.edcurl
         # if there is still no edc url - then use it from edc secrets file
         if self.baseUrl is None:
@@ -161,10 +164,13 @@ class EDCSession:
 
         # create a session
         self.session = requests.Session()
-        # session.headers.update({"Accept": "application/json"})
         self.session.verify = verify
+        self.session.headers.update({"Accept": "application/json"})
+        self.session.headers.update({"Content-Type": "application/json; charset=utf8"})
         self.session.headers.update({"Authorization": auth})
+        self.mu_log.log(self.mu_log.DEBUG, "Authorization header was set.", module)
         self.session.baseUrl = self.baseUrl
+        return self.session
 
     def initSession(self, catalog_url, catalog_auth, verify):
         """

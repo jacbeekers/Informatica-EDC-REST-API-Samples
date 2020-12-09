@@ -27,6 +27,7 @@ class EDCLineage:
         self.edc_target_filesystem = "unknown"
         self.edc_target_datasource = "unknown"
         self.edc_target_folder = "unknown"
+        self.head = {'Content-Type': 'application/json'}
         self.edc_helper = edcSessionHelper.EDCSession(self.settings)
         self.proxies = "unknown"
         self.jinja_base_directory = None
@@ -40,7 +41,7 @@ class EDCLineage:
         self.jinja_configuration_file = self.settings.jinja_config
 
     def get_edc_data_references(self):
-        module = "edc_lineage.get_edc_data_references"
+        module = __name__ + ".get_edc_data_references"
         # support old config files
         if "meta_version" in self.settings.edc_config_data:
             main_meta_version = self.settings.edc_config_data["meta_version"][:3]
@@ -85,7 +86,7 @@ class EDCLineage:
             self.settings = generic_settings
 
         # Get jinja configuration
-        result = self.get_jinja_settings(self.settings)
+        result = self.settings.jinja_config.get_jinja_settings(self.settings)
         if result == messages.message["ok"]:
             self.mu_log.log(self.mu_log.INFO, "Jinja configuration file found and read.", module)
         else:
@@ -114,64 +115,6 @@ class EDCLineage:
             lineage_result = messages.message["invalid_lineage_output_type"]
 
         return lineage_result
-
-    def get_jinja_settings(self, generic_settings):
-        """
-            Get the Jinja settings from the provided jinja configuration file: jinja_config key in main config.json
-        """
-        module = "edc_lineage.get_jinja_settings"
-        result = messages.message["ok"]
-        try:
-            with open(self.jinja_configuration_file) as jinja:
-                data = json.load(jinja)
-                if "base_directory" in data:
-                    self.jinja_base_directory = data["base_directory"]
-                    self.mu_log.log(self.mu_log.INFO, "Jinja base directory taken from jinja configuration file >"
-                                    + self.jinja_configuration_file
-                                    + "<: "
-                                    + self.jinja_base_directory, module)
-                else:
-                    self.mu_log.log(self.mu_log.INFO,
-                                    "Jinja base directory setting not found in jinja configuration file."
-                                    + " Using current directory")
-                    self.jinja_base_directory = "."
-                if "application" in data:
-                    self.jinja_application = data["application"]
-                    self.mu_log.log(self.mu_log.INFO, "Jinja application setting taken from jinja configuration file >"
-                                    + self.jinja_configuration_file
-                                    + "<: "
-                                    + self.jinja_application, module)
-                else:
-                    self.mu_log.log(self.mu_log.INFO, "Jinja application setting not found. Using empty value", module)
-                    self.jinja_application = None
-                if "templates" in data:
-                    self.jinja_templates = data["templates"]
-                    self.mu_log.log(self.mu_log.INFO, "Jinja templates setting taken from jinja configuration file >"
-                                    + self.jinja_configuration_file
-                                    + "<: "
-                                    + self.jinja_templates, module)
-                else:
-                    self.mu_log.log(self.mu_log.INFO, "Jinja templates setting not found. Using empty value", module)
-                    self.jinja_templates = None
-
-                self.jinja_template_directory = self.jinja_base_directory
-                if self.jinja_application is not None:
-                    self.jinja_template_directory += self.jinja_application
-                if self.jinja_templates is not None:
-                    self.jinja_template_directory += "/" + self.jinja_templates
-
-                self.mu_log.log(self.mu_log.INFO, "Jinja template directory: " + self.jinja_template_directory, module)
-                self.jinja_environment = jinja2.Environment(
-                    loader=jinja2.FileSystemLoader(self.jinja_template_directory))
-                self.jinja_environment.filters["jsonify"] = json.dumps
-
-        except FileNotFoundError:
-            self.mu_log.log(self.mu_log.ERROR,
-                            "Could not find jinja configuration file: " + self.jinja_configuration_file
-                            , module)
-            return messages.message["jinja_config_file_not_found"]
-
-        return result
 
     def build_api_load(self):
         module = "EDCLineage.build_api_load"
@@ -391,8 +334,7 @@ class EDCLineage:
         self.mu_log.log(self.mu_log.DEBUG, "EDC base URL: " + self.settings.edc_url, module)
         url = self.settings.edc_url + "/access/1/catalog/data/objects"
         self.mu_log.log(self.mu_log.DEBUG, "Used URL >" + url + "<.", module)
-        head = {'Content-Type': 'application/json'}
-        self.mu_log.log(self.mu_log.VERBOSE, "Headers: " + str(head.items()), module)
+        self.mu_log.log(self.mu_log.VERBOSE, "Headers: " + str(self.head.items()), module)
         self.mu_log.log(self.mu_log.VERBOSE, "Proxies: " + str(self.proxies), module)
         if self.settings.edc_auth is None:
             self.mu_log.log(self.mu_log.WARNING
@@ -406,7 +348,7 @@ class EDCLineage:
                             , "'suppress_edc_call' is set to True in config.json. EDC call NOT exucuted", module)
             send_result = messages.message["ok"]
         else:
-            response = self.edc_helper.session.patch(url, self.payload, timeout=20, headers=head, proxies=self.proxies)
+            response = self.edc_helper.session.patch(url, self.payload, timeout=3, headers=self.head, proxies=self.proxies)
             status = response.status_code
             if status != 200:
                 # some error - e.g. catalog not running, or bad credentials

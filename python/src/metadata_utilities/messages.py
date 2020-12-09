@@ -170,6 +170,26 @@ message = {
         , "message": "Custom Attribute already exists."
         , "level": "ERROR"
     },
+    "edc_status_not_200": {
+        "code": "MU-EDC-005"
+        , "message": "EDC did not return status=200."
+        , "level": "ERROR"
+    },
+    "edc_status_401": {
+        "code": "MU-EDC-006"
+        , "message": "EDC returned 401: unauthorized access. Please check the encoded Authorization value in edc.secrets."
+        , "level": "ERROR"
+    },
+    "edc_error_creating_custom_attribute": {
+        "code": "MU-EDC-007"
+        , "message": "An error occurred creating the custom attribute"
+        , "level": "ERROR"
+    },
+    "edc_custom_attribute_already_exists": {
+        "code": "MU-EDC-008"
+        , "message": "Custom Attribute already exists"
+        , "level": "ERROR"
+    },
     "MDL_GROUP": {
         "code": "MDL"
         , "message": "Group for warnings and errors related to the Metadata Lake"
@@ -188,6 +208,11 @@ message = {
     "jinja_template_not_found": {
         "code": "MU-JIN-002"
         , "message": "Jinja template not found. Check the Jinja directory settings"
+        , "level": "ERROR"
+    },
+    "jinja_template_name_not_provided": {
+        "code": "MU-JIN-003"
+        , "message": "No Jinja template name was provided."
         , "level": "ERROR"
     }
 }

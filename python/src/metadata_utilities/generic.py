@@ -1,8 +1,9 @@
 import glob
 import json
-
+import jinja2
 from src.metadata_utilities import messages, generic_settings
 import os
+
 
 class Generic:
     """
@@ -34,6 +35,13 @@ class Generic:
             self.mu_log.log(self.mu_log.DEBUG, "Using provided generic settings.", module)
             self.settings_found = True
         self.json_file = self.settings.main_config_file
+        self.jinja_environment = None
+        self.jinja_base_directory = None
+        self.jinja_template_directory = None
+        self.jinja_application = None
+        self.jinja_templates = None
+        self.jinja_configuration_file = self.settings.jinja_config
+        self.get_jinja_settings()
 
     def find_json(self, source_uuid, target_schema_type, property, log_prefix=""):
         """
@@ -187,3 +195,82 @@ class Generic:
                 else:
                     concatenated += "," + item[attribute]
         return concatenated
+
+    def get_jinja_settings(self):
+        """
+            Get the Jinja settings from the provided jinja configuration file: jinja_config key in main config.json
+        """
+        module = "edc_lineage.get_jinja_settings"
+        result = messages.message["ok"]
+        try:
+            with open(self.jinja_configuration_file) as jinja:
+                data = json.load(jinja)
+                if "base_directory" in data:
+                    self.jinja_base_directory = data["base_directory"]
+                    self.mu_log.log(self.mu_log.INFO, "Jinja base directory taken from jinja configuration file >"
+                                    + self.jinja_configuration_file
+                                    + "<: "
+                                    + self.jinja_base_directory, module)
+                else:
+                    self.mu_log.log(self.mu_log.INFO,
+                                    "Jinja base directory setting not found in jinja configuration file."
+                                    + " Using current directory")
+                    self.jinja_base_directory = "."
+                if "application" in data:
+                    self.jinja_application = data["application"]
+                    self.mu_log.log(self.mu_log.INFO, "Jinja application setting taken from jinja configuration file >"
+                                    + self.jinja_configuration_file
+                                    + "<: "
+                                    + self.jinja_application, module)
+                else:
+                    self.mu_log.log(self.mu_log.INFO, "Jinja application setting not found. Using empty value", module)
+                    self.jinja_application = None
+                if "templates" in data:
+                    self.jinja_templates = data["templates"]
+                    self.mu_log.log(self.mu_log.INFO, "Jinja templates setting taken from jinja configuration file >"
+                                    + self.jinja_configuration_file
+                                    + "<: "
+                                    + self.jinja_templates, module)
+                else:
+                    self.mu_log.log(self.mu_log.INFO, "Jinja templates setting not found. Using empty value", module)
+                    self.jinja_templates = None
+
+                self.jinja_template_directory = self.jinja_base_directory
+                if self.jinja_application is not None:
+                    self.jinja_template_directory += self.jinja_application
+                if self.jinja_templates is not None:
+                    self.jinja_template_directory += "/" + self.jinja_templates
+                self.jinja_template_directory += "/" if not self.jinja_template_directory.endswith("/") else ""
+
+                self.mu_log.log(self.mu_log.INFO, "Jinja template directory: " + self.jinja_template_directory, module)
+                self.jinja_environment = jinja2.Environment(
+                    loader=jinja2.FileSystemLoader(self.jinja_template_directory))
+                self.jinja_environment.filters["safe"] = json.dumps
+
+        except FileNotFoundError:
+            self.mu_log.log(self.mu_log.ERROR,
+                            "Could not find jinja configuration file: " + self.jinja_configuration_file
+                            , module)
+            return messages.message["jinja_config_file_not_found"]
+
+        return result
+
+    def get_jinja_template(self, template_name):
+        module = __name__ + ".get_jinja_template"
+        the_template = None
+        if template_name is None:
+            return messages.message["jinja_template_name_not_provided"], the_template
+
+        self.mu_log.log(self.mu_log.DEBUG, "Jinja template requested: " + template_name, module)
+        self.mu_log.log(self.mu_log.DEBUG, "Jinja template directory: " + self.jinja_template_directory, module)
+        try:
+            the_template = self.jinja_environment.get_template(template_name)
+            self.mu_log.log(self.mu_log.DEBUG, "Found jinja template: " + template_name, module)
+        except jinja2.exceptions.TemplateNotFound:
+            self.mu_log.log(self.mu_log.ERROR, "Could not find jinja template >" + template_name
+                            + "< in directory >" + self.jinja_template_directory + "<."
+                            , module)
+            return messages.message["jinja_template_not_found"], the_template
+
+        return messages.message["ok"], the_template
+
