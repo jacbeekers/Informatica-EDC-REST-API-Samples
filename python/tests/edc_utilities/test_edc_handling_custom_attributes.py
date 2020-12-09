@@ -1,5 +1,3 @@
-from pathlib import Path
-from src import run_edc_lineage
 from src.edc_utilities import edc_custom_attributes
 from src.metadata_utilities import messages
 from src.metadata_utilities import generic_settings
