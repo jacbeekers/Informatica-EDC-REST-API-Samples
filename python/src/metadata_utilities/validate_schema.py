@@ -31,24 +31,30 @@ class ValidateSchema():
 
     def validate(self):
 
-        with open(self.verify_file) as file:
-            name = os.path.basename(file.name)
-            print(f"Verifying {name}")
-            the_doc = json.load(file)
-
-            with open(self.against_schema) as structure:
-                struct = os.path.basename(structure.name)
-                print(f"\t\t against {structure.name}")
+        try:
+            with open(self.verify_file) as file:
+                name = os.path.basename(file.name)
+                print(f"Verifying {name}")
+                the_doc = json.load(file)
                 try:
-                    the_schema = json.load(structure)
-                    jsonschema.validate(the_doc, the_schema)
-                    return True, self.schema
-                except jsonschema.exceptions.ValidationError as e:
-                    print(f"\t\t Validation error:{e.message} ")
-                except json.decoder.JSONDecodeError as e:
-                    print(f"\t\t ERROR parsing JSON:{e.msg} line {e.lineno} col {e.colno}")
+                    with open(self.against_schema) as structure:
+                        struct = os.path.basename(structure.name)
+                        print(f"\t\t against {structure.name}")
+                        try:
+                            the_schema = json.load(structure)
+                            jsonschema.validate(the_doc, the_schema)
+                            return True, self.schema
+                        except jsonschema.exceptions.ValidationError as e:
+                            print(f"\t\t Validation error:{e.message} ")
+                        except json.decoder.JSONDecodeError as e:
+                            print(f"\t\t ERROR parsing JSON:{e.msg} line {e.lineno} col {e.colno}")
+                except FileNotFoundError:
+                    print(f"\t\t Schema file not found: " + self.against_schema)
 
-        return False, "None"
+        except FileNotFoundError:
+            print(f"\t\t File to be validated not found: " + self.verify_file)
+
+        return False, None
 
 
 if __name__ == '__main__':
