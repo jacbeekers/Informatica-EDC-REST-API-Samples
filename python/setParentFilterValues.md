@@ -8,7 +8,7 @@ the data type should be set to String, the attribute can be multivalued or not, 
 
 ![Custom attribute definition](https://github.com/Informatica-EIC/REST-API-Samples/blob/master/img/custom_attribute_parent_definition.png?raw=true)
 
-* execute the script [`setParentFilterValues.py`](src/informatica/setParentFilterValues.py)
+* execute the script [`setParentFilterValues.py`](../informatica/setParentFilterValues.py)
 setup your environment by creating an .env file, with 2 environment variables
 
   * INFA_EDC_AUTH=Basic {your value} - see [`encodeUser.py`](src/edc_utilities/encodeUser.py) to generate the value

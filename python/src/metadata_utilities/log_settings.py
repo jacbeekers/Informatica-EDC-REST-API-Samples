@@ -19,14 +19,14 @@ class LogSettings:
     def __init__(self, configuration_file="resources/log_config.json"):
         # log_config.json settings
         self.log_config = configuration_file
-        self.log_directory = "unknown"
-        self.log_filename = "unknown"
-        self.log_filename_prefix = "unknown"
+        self.log_directory = None
+        self.log_filename = None
+        self.log_filename_prefix = None
         self.configured_log_level = "DEBUG"
         self.log_level = self.DEBUG
-        self.azure_monitor_config = "unknown"
-        self.azure_monitor_requests = "False"
-        self.instrumentation_key = "unknown"
+        self.azure_monitor_config = None
+        self.azure_monitor_requests = False
+        self.instrumentation_key = None
         self.get_config()
 
     def get_config(self):

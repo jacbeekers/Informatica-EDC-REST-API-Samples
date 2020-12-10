@@ -13,23 +13,23 @@ class GenericSettings:
     def __init__(self, configuration_file="resources/config.json"):
         # config.json settings
         self.main_config_file = configuration_file
-        self.base_schema_folder = "unknown"
-        self.meta_version = "unknown"
-        self.schema_directory = "unknown"
-        self.json_directory = "unknown"
-        self.target = "unknown"
-        self.output_directory = "unknown"
-        self.metadata_store = "unknown"
+        self.base_schema_folder = None
+        self.meta_version = None
+        self.schema_directory = None
+        self.json_directory = None
+        self.target = None
+        self.output_directory = None
+        self.metadata_store = None
         self.mu_log = None
         self.log_config = None
         self.log_directory = None
         self.log_filename = None
         self.log_filename_prefix = None
         self.log_level = None
-        self.edc_config = "unknown"
+        self.edc_config = None
         self.edc_config_data = {}
         self.edc_url = "http://localhost:8888"
-        self.edc_secrets = "unknown"
+        self.edc_secrets = None
         self.jinja_config = None
         self.azure_monitor_config = None
         self.azure_monitor_requests = None
@@ -102,7 +102,7 @@ class GenericSettings:
             print("FATAL:", module, "could find main configuration file >" + self.main_config_file + "<.")
             return messages.message["main_config_not_found"]
 
-        if self.edc_config != "unknown":
+        if self.edc_config is not None:
             try:
                 with open(self.edc_config) as edc:
                     self.edc_config_data = json.load(edc)
@@ -113,7 +113,7 @@ class GenericSettings:
                                 , module)
                 return messages.message["edc_config_not_found"]
 
-        if self.edc_secrets == "unknown":
+        if self.edc_secrets is None:
             self.mu_log.log(self.mu_log.DEBUG, "edc_secrets is unknown")
         else:
             edc_secrets_result = self.get_edc_secrets(self.edc_secrets)
@@ -123,7 +123,7 @@ class GenericSettings:
                 self.mu_log.log(self.mu_log.ERROR, "get_edc_secrets returned: " + edc_secrets_result["code"], module)
                 return edc_secrets_result
 
-        if self.azure_monitor_config != "unknown":
+        if self.azure_monitor_config is not None:
             try:
                 with open(self.azure_monitor_config) as az_monitor:
                     data = json.load(az_monitor)

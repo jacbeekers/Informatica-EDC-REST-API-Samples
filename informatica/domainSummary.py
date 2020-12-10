@@ -197,7 +197,7 @@ def main():
     p = PurePath(sys.argv[0])
     print(f"{p.name} starting in {os.getcwd()}")
 
-    csv_file_path = "../.."
+    csv_file_path = "../python"
     # read any command-line args passed
     # (only needed if using extra args from what is used in edcSession
     print("\treading command-line specific to domainSummary extractor")
