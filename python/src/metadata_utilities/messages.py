@@ -70,6 +70,16 @@ message = {
         ,"message": "EDC configuration file contains meta_version that is not supported (yet)."
         ,"level": "ERROR"
     },
+    "main_config_issue": {
+        "code": "MU-GEN-011"
+        , "message": "There is an issue with the main configuration file."
+        , "level": "FATAL"
+    },
+    "custom_attribute_file_not_found": {
+        "code": "MU-GEN-012"
+        , "message": "Custom attribute file not found."
+        , "level": "ERROR"
+    },
     "CONV_GROUP": {
         "code": "CONV"
         , "message": "Group for conversion and schema warnings and errors"

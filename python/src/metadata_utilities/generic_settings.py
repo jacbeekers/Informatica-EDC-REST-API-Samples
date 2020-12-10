@@ -99,7 +99,7 @@ class GenericSettings:
 
             result = messages.message["ok"]
         except FileNotFoundError:
-            print("FATAL:", module, "could find main configuration file >" + self.main_config_file + "<.")
+            print("FATAL:", module, "could find not main configuration file >" + self.main_config_file + "<.")
             return messages.message["main_config_not_found"]
 
         if self.edc_config is not None:

@@ -21,5 +21,11 @@ Classes
     :   find the JSON file that has the source_uuid in the value of the property.
         The JSON schema of the file must be 'target_schema_type'.
 
+    `get_jinja_settings(self)`
+    :   Get the Jinja settings from the provided jinja configuration file: jinja_config key in main config.json
+
+    `get_jinja_template(self, template_name)`
+    :
+
     `write_local_file(self, filename, to_write)`
     :

@@ -98,6 +98,16 @@
         ,&#34;message&#34;: &#34;EDC configuration file contains meta_version that is not supported (yet).&#34;
         ,&#34;level&#34;: &#34;ERROR&#34;
     },
+    &#34;main_config_issue&#34;: {
+        &#34;code&#34;: &#34;MU-GEN-011&#34;
+        , &#34;message&#34;: &#34;There is an issue with the main configuration file.&#34;
+        , &#34;level&#34;: &#34;FATAL&#34;
+    },
+    &#34;custom_attribute_file_not_found&#34;: {
+        &#34;code&#34;: &#34;MU-GEN-012&#34;
+        , &#34;message&#34;: &#34;Custom attribute file not found.&#34;
+        , &#34;level&#34;: &#34;ERROR&#34;
+    },
     &#34;CONV_GROUP&#34;: {
         &#34;code&#34;: &#34;CONV&#34;
         , &#34;message&#34;: &#34;Group for conversion and schema warnings and errors&#34;
@@ -188,6 +198,41 @@
         , &#34;message&#34;: &#34;EDC API did not return a JSON object&#34;
         , &#34;level&#34;: &#34;ERROR&#34;
     },
+    &#34;custom_attribute_not_found&#34;: {
+        &#34;code&#34;: &#34;MU-EDC-003&#34;
+        , &#34;message&#34;: &#34;Custom Attribute could not be found.&#34;
+        , &#34;level&#34;: &#34;ERROR&#34;
+    },
+    &#34;custom_attribute_already_exists&#34;: {
+        &#34;code&#34;: &#34;MU-EDC-004&#34;
+        , &#34;message&#34;: &#34;Custom Attribute already exists.&#34;
+        , &#34;level&#34;: &#34;ERROR&#34;
+    },
+    &#34;edc_status_not_200&#34;: {
+        &#34;code&#34;: &#34;MU-EDC-005&#34;
+        , &#34;message&#34;: &#34;EDC did not return status=200.&#34;
+        , &#34;level&#34;: &#34;ERROR&#34;
+    },
+    &#34;edc_status_401&#34;: {
+        &#34;code&#34;: &#34;MU-EDC-006&#34;
+        , &#34;message&#34;: &#34;EDC returned 401: unauthorized access. Please check the encoded Authorization value in edc.secrets.&#34;
+        , &#34;level&#34;: &#34;ERROR&#34;
+    },
+    &#34;edc_error_creating_custom_attribute&#34;: {
+        &#34;code&#34;: &#34;MU-EDC-007&#34;
+        , &#34;message&#34;: &#34;An error occurred creating the custom attribute&#34;
+        , &#34;level&#34;: &#34;ERROR&#34;
+    },
+    &#34;edc_custom_attribute_already_exists&#34;: {
+        &#34;code&#34;: &#34;MU-EDC-008&#34;
+        , &#34;message&#34;: &#34;Custom Attribute already exists&#34;
+        , &#34;level&#34;: &#34;ERROR&#34;
+    },
+    &#34;no_custom_attribute_provided&#34;: {
+        &#34;code&#34;: &#34;MU-EDC-009&#34;
+        , &#34;message&#34;: &#34;No Custom Attribute information provided&#34;
+        , &#34;level&#34;: &#34;ERROR&#34;
+    },
     &#34;MDL_GROUP&#34;: {
         &#34;code&#34;: &#34;MDL&#34;
         , &#34;message&#34;: &#34;Group for warnings and errors related to the Metadata Lake&#34;
@@ -206,6 +251,11 @@
     &#34;jinja_template_not_found&#34;: {
         &#34;code&#34;: &#34;MU-JIN-002&#34;
         , &#34;message&#34;: &#34;Jinja template not found. Check the Jinja directory settings&#34;
+        , &#34;level&#34;: &#34;ERROR&#34;
+    },
+    &#34;jinja_template_name_not_provided&#34;: {
+        &#34;code&#34;: &#34;MU-JIN-003&#34;
+        , &#34;message&#34;: &#34;No Jinja template name was provided.&#34;
         , &#34;level&#34;: &#34;ERROR&#34;
     }
 }</code></pre>

@@ -49,6 +49,7 @@ class MULogging:
 
     def __init__(self, log_configuration_file):
         self.log_setting = log_settings.LogSettings(log_configuration_file)
+        self.log_setting.get_config()
         self.area = None
         self.logger = self.setup_logger(self.log_setting.log_level
                                         , self.log_setting.log_filename_prefix
@@ -69,7 +70,7 @@ class MULogging:
         logger = logging.getLogger(&#34;metadata_utilities&#34;)
         if len(logger.handlers):
             return logger
-        print(&#34;Setting up logger&#34;)
+        # print(&#34;Setting up logger&#34;)
         logger.setLevel(log_level)
         right_now = datetime.now().isoformat(timespec=&#34;microseconds&#34;).replace(&#34;:&#34;, &#34;-&#34;)
         # add prefix. Allow for limited number of functions
@@ -154,6 +155,7 @@ class MULogging:
 
     def __init__(self, log_configuration_file):
         self.log_setting = log_settings.LogSettings(log_configuration_file)
+        self.log_setting.get_config()
         self.area = None
         self.logger = self.setup_logger(self.log_setting.log_level
                                         , self.log_setting.log_filename_prefix
@@ -174,7 +176,7 @@ class MULogging:
         logger = logging.getLogger(&#34;metadata_utilities&#34;)
         if len(logger.handlers):
             return logger
-        print(&#34;Setting up logger&#34;)
+        # print(&#34;Setting up logger&#34;)
         logger.setLevel(log_level)
         right_now = datetime.now().isoformat(timespec=&#34;microseconds&#34;).replace(&#34;:&#34;, &#34;-&#34;)
         # add prefix. Allow for limited number of functions
@@ -284,7 +286,7 @@ def setup_logger(log_level
     logger = logging.getLogger(&#34;metadata_utilities&#34;)
     if len(logger.handlers):
         return logger
-    print(&#34;Setting up logger&#34;)
+    # print(&#34;Setting up logger&#34;)
     logger.setLevel(log_level)
     right_now = datetime.now().isoformat(timespec=&#34;microseconds&#34;).replace(&#34;:&#34;, &#34;-&#34;)
     # add prefix. Allow for limited number of functions

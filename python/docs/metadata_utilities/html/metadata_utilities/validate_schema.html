@@ -37,7 +37,7 @@ from src.metadata_utilities import messages
 
 class ValidateSchema():
     default_version = &#34;0.2.0&#34;
-    default_schema_directory = &#34;metadata/schemas/interface/&#34; + default_version + &#34;/&#34;
+    default_schema_directory = &#34;metadata/schemas/interface/&#34;
     default_schema = &#34;physical_entity&#34;
     default_resource_directory = &#34;metadata/resources/&#34;
     default_filename = &#34;default.json&#34;
@@ -59,34 +59,129 @@ class ValidateSchema():
 
     def validate(self):
 
-        with open(self.verify_file) as file:
-            name = os.path.basename(file.name)
-            print(f&#34;Verifying {name}&#34;)
-            the_doc = json.load(file)
-
-            with open(self.against_schema) as structure:
-                struct = os.path.basename(structure.name)
-                print(f&#34;\t\t against {structure.name}&#34;)
+        try:
+            with open(self.verify_file) as file:
+                name = os.path.basename(file.name)
+                print(f&#34;Verifying {name}&#34;)
+                the_doc = json.load(file)
                 try:
-                    the_schema = json.load(structure)
-                    jsonschema.validate(the_doc, the_schema)
-                    return True, self.schema
-                except jsonschema.exceptions.ValidationError as e:
-                    print(f&#34;\t\t Validation error:{e.message} &#34;)
-                except json.decoder.JSONDecodeError as e:
-                    print(f&#34;\t\t ERROR parsing JSON:{e.msg} line {e.lineno} col {e.colno}&#34;)
+                    with open(self.against_schema) as structure:
+                        struct = os.path.basename(structure.name)
+                        print(f&#34;\t\t against {structure.name}&#34;)
+                        try:
+                            the_schema = json.load(structure)
+                            jsonschema.validate(the_doc, the_schema)
+                            return True, self.schema
+                        except jsonschema.exceptions.ValidationError as e:
+                            print(f&#34;\t\t Validation error:{e.message} &#34;)
+                        except json.decoder.JSONDecodeError as e:
+                            print(f&#34;\t\t ERROR parsing JSON:{e.msg} line {e.lineno} col {e.colno}&#34;)
+                except FileNotFoundError:
+                    print(f&#34;\t\t Schema file not found: &#34; + self.against_schema)
 
-        return False, &#34;None&#34;
+        except FileNotFoundError:
+            print(f&#34;\t\t File to be validated not found: &#34; + self.verify_file)
+
+        return False, None
 
 
-if __name__ == &#39;__main__&#39;:
-
+def main(config_file=&#34;resources/config.json&#34;):
     json_file = &#34;not provided&#34;
     meta_type = &#34;unknown&#34;
     result = messages.message[&#34;undetermined&#34;]
-    settings = generic_settings.GenericSettings()
-    settings.get_config()
-    generic = generic.Generic()
+    settings = generic_settings.GenericSettings(configuration_file=config_file)
+    result = settings.get_config()
+    if result != messages.message[&#34;ok&#34;]:
+        print(&#34;ERROR:&#34;, result[&#34;message&#34;])
+        exit(3)
+
+    json_directory = settings.json_directory
+    target = settings.target
+    data = &#34;&#34;
+
+    number_of_files = 0
+    number_of_errors = 0
+
+    # json_directory = &#34;resources/datalineage/input/&#34;
+    print(&#34;JSON directory is: &#34; + json_directory)
+
+    for file in glob.glob(json_directory + &#34;*.json&#34;):
+        number_of_files += 1
+        with open(file) as f:
+            the_schema = json.load(f)
+            try:
+                meta_type = the_schema[&#34;meta&#34;]
+                meta_version = the_schema[&#34;meta_version&#34;]
+                print(&#34;schema is &#34; + meta_type + &#34; version &#34; + meta_version)
+            except KeyError as e:
+                print(&#34;Key error. meta and meta_version must be in JSON file. That is not the case with &#34; + file)
+                number_of_errors += 1
+            except jsonschema.exceptions.SchemaError as e:
+                print(&#34;Schema error: &#34;, e.message)
+                number_of_errors += 1
+            except jsonschema.exceptions.ValidationError as e:
+                print(&#34;Validation error: &#34;, e.message)
+                number_of_errors += 1
+            except json.decoder.JSONDecodeError as e:
+                print(&#34;Error parsing JSON:&#34;, e.msg)
+                number_of_errors += 1
+
+        result, schema = ValidateSchema(
+            schema_directory=&#34;metadata-registry-interface-specifications/metadata/schemas/interface/&#34;
+            , resource_directory=json_directory
+            , filename=file
+            , schema=meta_type
+            , version=meta_version
+        ).validate()
+        name = os.path.basename(file)
+        if result:
+            type = os.path.basename(schema)
+            print(f&#34;VALID: File {name} is a valid {schema}&#34;)
+        else:
+            print(f&#34;INVALID: File {name} does not comply with any schema&#34;)
+            number_of_errors += 1
+
+    if number_of_files == 0:
+        print(&#34;No JSON files found in provided JSON directory&#34;)
+        exit(1)
+    else:
+        print(&#34;Verified &gt;&#34;, number_of_files, &#34;&lt; JSON files. Number of errors: &#34;, number_of_errors )
+        if number_of_errors &gt; 0:
+            exit(2)
+        else:
+            exit(0)
+
+
+if __name__ == &#39;__main__&#39;:
+    main()</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="metadata_utilities.validate_schema.main"><code class="name flex">
+<span>def <span class="ident">main</span></span>(<span>config_file='resources/config.json')</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def main(config_file=&#34;resources/config.json&#34;):
+    json_file = &#34;not provided&#34;
+    meta_type = &#34;unknown&#34;
+    result = messages.message[&#34;undetermined&#34;]
+    settings = generic_settings.GenericSettings(configuration_file=config_file)
+    result = settings.get_config()
+    if result != messages.message[&#34;ok&#34;]:
+        print(&#34;ERROR:&#34;, result[&#34;message&#34;])
+        exit(3)
+
     json_directory = settings.json_directory
     target = settings.target
     data = &#34;&#34;
@@ -143,19 +238,15 @@ if __name__ == &#39;__main__&#39;:
         else:
             exit(0)</code></pre>
 </details>
-</section>
-<section>
-</section>
-<section>
-</section>
-<section>
+</dd>
+</dl>
 </section>
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
 <dt id="metadata_utilities.validate_schema.ValidateSchema"><code class="flex name class">
 <span>class <span class="ident">ValidateSchema</span></span>
-<span>(</span><span>schema_directory='metadata/schemas/interface/0.2.0/', schema='physical_entity', version='0.2.0', resource_directory='metadata/resources/', filename='default.json')</span>
+<span>(</span><span>schema_directory='metadata/schemas/interface/', schema='physical_entity', version='0.2.0', resource_directory='metadata/resources/', filename='default.json')</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -165,7 +256,7 @@ if __name__ == &#39;__main__&#39;:
 </summary>
 <pre><code class="python">class ValidateSchema():
     default_version = &#34;0.2.0&#34;
-    default_schema_directory = &#34;metadata/schemas/interface/&#34; + default_version + &#34;/&#34;
+    default_schema_directory = &#34;metadata/schemas/interface/&#34;
     default_schema = &#34;physical_entity&#34;
     default_resource_directory = &#34;metadata/resources/&#34;
     default_filename = &#34;default.json&#34;
@@ -187,24 +278,30 @@ if __name__ == &#39;__main__&#39;:
 
     def validate(self):
 
-        with open(self.verify_file) as file:
-            name = os.path.basename(file.name)
-            print(f&#34;Verifying {name}&#34;)
-            the_doc = json.load(file)
-
-            with open(self.against_schema) as structure:
-                struct = os.path.basename(structure.name)
-                print(f&#34;\t\t against {structure.name}&#34;)
+        try:
+            with open(self.verify_file) as file:
+                name = os.path.basename(file.name)
+                print(f&#34;Verifying {name}&#34;)
+                the_doc = json.load(file)
                 try:
-                    the_schema = json.load(structure)
-                    jsonschema.validate(the_doc, the_schema)
-                    return True, self.schema
-                except jsonschema.exceptions.ValidationError as e:
-                    print(f&#34;\t\t Validation error:{e.message} &#34;)
-                except json.decoder.JSONDecodeError as e:
-                    print(f&#34;\t\t ERROR parsing JSON:{e.msg} line {e.lineno} col {e.colno}&#34;)
+                    with open(self.against_schema) as structure:
+                        struct = os.path.basename(structure.name)
+                        print(f&#34;\t\t against {structure.name}&#34;)
+                        try:
+                            the_schema = json.load(structure)
+                            jsonschema.validate(the_doc, the_schema)
+                            return True, self.schema
+                        except jsonschema.exceptions.ValidationError as e:
+                            print(f&#34;\t\t Validation error:{e.message} &#34;)
+                        except json.decoder.JSONDecodeError as e:
+                            print(f&#34;\t\t ERROR parsing JSON:{e.msg} line {e.lineno} col {e.colno}&#34;)
+                except FileNotFoundError:
+                    print(f&#34;\t\t Schema file not found: &#34; + self.against_schema)
 
-        return False, &#34;None&#34;</code></pre>
+        except FileNotFoundError:
+            print(f&#34;\t\t File to be validated not found: &#34; + self.verify_file)
+
+        return False, None</code></pre>
 </details>
 <h3>Class variables</h3>
 <dl>
@@ -242,24 +339,30 @@ if __name__ == &#39;__main__&#39;:
 </summary>
 <pre><code class="python">def validate(self):
 
-    with open(self.verify_file) as file:
-        name = os.path.basename(file.name)
-        print(f&#34;Verifying {name}&#34;)
-        the_doc = json.load(file)
-
-        with open(self.against_schema) as structure:
-            struct = os.path.basename(structure.name)
-            print(f&#34;\t\t against {structure.name}&#34;)
+    try:
+        with open(self.verify_file) as file:
+            name = os.path.basename(file.name)
+            print(f&#34;Verifying {name}&#34;)
+            the_doc = json.load(file)
             try:
-                the_schema = json.load(structure)
-                jsonschema.validate(the_doc, the_schema)
-                return True, self.schema
-            except jsonschema.exceptions.ValidationError as e:
-                print(f&#34;\t\t Validation error:{e.message} &#34;)
-            except json.decoder.JSONDecodeError as e:
-                print(f&#34;\t\t ERROR parsing JSON:{e.msg} line {e.lineno} col {e.colno}&#34;)
+                with open(self.against_schema) as structure:
+                    struct = os.path.basename(structure.name)
+                    print(f&#34;\t\t against {structure.name}&#34;)
+                    try:
+                        the_schema = json.load(structure)
+                        jsonschema.validate(the_doc, the_schema)
+                        return True, self.schema
+                    except jsonschema.exceptions.ValidationError as e:
+                        print(f&#34;\t\t Validation error:{e.message} &#34;)
+                    except json.decoder.JSONDecodeError as e:
+                        print(f&#34;\t\t ERROR parsing JSON:{e.msg} line {e.lineno} col {e.colno}&#34;)
+            except FileNotFoundError:
+                print(f&#34;\t\t Schema file not found: &#34; + self.against_schema)
 
-    return False, &#34;None&#34;</code></pre>
+    except FileNotFoundError:
+        print(f&#34;\t\t File to be validated not found: &#34; + self.verify_file)
+
+    return False, None</code></pre>
 </details>
 </dd>
 </dl>
@@ -276,6 +379,11 @@ if __name__ == &#39;__main__&#39;:
 <li><h3>Super-module</h3>
 <ul>
 <li><code><a title="metadata_utilities" href="index.html">metadata_utilities</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="metadata_utilities.validate_schema.main" href="#metadata_utilities.validate_schema.main">main</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>

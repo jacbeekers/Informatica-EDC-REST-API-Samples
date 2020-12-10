@@ -1,0 +1,10 @@
+{
+	"meta_version": "0.2.0",
+	"entity_type": "file",
+	"name": "TEST_FILE",
+	"description": "a test file",
+	"uid": "8b6d7895-9028-41a4-9f13-31cbce276ad8",
+	"LoGSID": "1",
+	"OARID": "TST.1",
+	"version": "1.0.0"
+}

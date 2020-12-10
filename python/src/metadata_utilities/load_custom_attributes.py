@@ -12,7 +12,7 @@ class LoadCustomAttributes:
     def __init__(self, configuration_file="resources/config.json"):
         self.init_ok = False
         self.config = configuration_file
-        self.settings = generic_settings.GenericSettings(configuration_file)
+        self.settings = generic_settings.GenericSettings(self.config)
         self.config_result = self.settings.get_config()
         self.edc_custom_attributes = edc_custom_attributes.EDCCustomAttribute()
 
@@ -29,11 +29,14 @@ class LoadCustomAttributes:
         else:
             print("FATAL:", "settings.get_config returned:",
                   self.config_result["code"] + " - " + self.config_result["message"])
-            raise EnvironmentError
+            self.init_ok = False
 
-    def main(self):
+    def main(self, attribute_file="resources/edc/custom_attributes/edc_defined_custom_attributes.json"):
         module = __name__ + ".main"
-        result, defined_custom_attributes = self.read_defined_custom_attributes()
+        if self.init_ok is False:
+            return messages.message["main_config_issue"]
+
+        result, defined_custom_attributes = self.read_defined_custom_attributes(attribute_file)
         overall_result = messages.message["ok"]
 
         nr_custom_attributes = 0
@@ -61,16 +64,16 @@ class LoadCustomAttributes:
 
         return overall_result
 
-    def read_defined_custom_attributes(self):
+    def read_defined_custom_attributes(self, custom_attributes_file):
         result = messages.message["ok"]
         defined_custom_attributes = []
         try:
-            with open("resources/edc/custom_attributes/edc_defined_custom_attributes.json") as attributes:
+            with open(custom_attributes_file) as attributes:
                 data = json.load(attributes)
                 if "defined_custom_attributes" in data:
                     defined_custom_attributes = data["defined_custom_attributes"]
         except FileNotFoundError:
             self.mu_log.log(self.mu_log.ERROR, "defined custom attribute file could not be found.")
-            result = messages.message["file_not_found"]
+            result = messages.message["custom_attribute_file_not_found"]
 
         return result, defined_custom_attributes

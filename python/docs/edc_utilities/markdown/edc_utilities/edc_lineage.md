@@ -32,8 +32,5 @@ Classes
     `get_edc_data_references(self)`
     :
 
-    `get_jinja_settings(self, generic_settings)`
-    :   Get the Jinja settings from the provided jinja configuration file: jinja_config key in main config.json
-
     `send_metadata_to_edc(self, suppress_edc_call=False)`
     :

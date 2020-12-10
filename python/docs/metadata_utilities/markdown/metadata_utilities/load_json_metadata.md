@@ -38,8 +38,5 @@ Classes
     `process_physical_entity_and_attribute(self)`
     :   Generate metadata files to be parsed by EDC
 
-    `send_metadata(self)`
-    :
-
     `send_metadata_to_metadata_lake(self)`
     :

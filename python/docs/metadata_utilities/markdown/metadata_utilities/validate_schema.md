@@ -1,10 +1,17 @@
 Module metadata_utilities.validate_schema
 =========================================
 
+Functions
+---------
+
+    
+`main(config_file='resources/config.json')`
+:   
+
 Classes
 -------
 
-`ValidateSchema(schema_directory='metadata/schemas/interface/0.2.0/', schema='physical_entity', version='0.2.0', resource_directory='metadata/resources/', filename='default.json')`
+`ValidateSchema(schema_directory='metadata/schemas/interface/', schema='physical_entity', version='0.2.0', resource_directory='metadata/resources/', filename='default.json')`
 :   
 
     ### Class variables

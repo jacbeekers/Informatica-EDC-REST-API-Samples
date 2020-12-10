@@ -11,3 +11,10 @@ the user will be prompted for an id and password and optional security domain
 & print the encoded result to the console
 
 @author: dwrigley
+
+Functions
+---------
+
+    
+`encode(security_domain=None, user_name=None, password=None)`
+:

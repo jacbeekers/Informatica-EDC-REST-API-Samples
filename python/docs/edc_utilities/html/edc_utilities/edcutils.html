@@ -78,34 +78,6 @@ def exportLineageLink(fromObject, toObject, linkType, csvFile):
     return
 
 
-def getAllResource(url, user, pWd):
-    &#34;&#34;&#34;
-    get the resource definition - given a resource name (and catalog url)
-    catalog url should stop at port (e.g. not have ldmadmin, ldmcatalog etc...
-    or have v2 anywhere
-    since we are using v1 api&#39;s
-
-    returns rc=200 (valid) &amp; other rc&#39;s from the get
-            resourceDef (json)
-
-    &#34;&#34;&#34;
-
-    print(&#34;getting resource for catalog:-&#34; + url + &#34; user=&#34; + user)
-    apiURL = url + &#34;/access/1/catalog/resources/&#34;
-    # print(&#34;\turl=&#34; + apiURL)
-    header = {&#34;Accept&#34;: &#34;application/json&#34;}
-    tResp = requests.get(
-        apiURL, params={}, headers=header, auth=HTTPBasicAuth(user, pWd), verify=False
-    )
-    print(&#34;\tresponse=&#34; + str(tResp.status_code))
-    if tResp.status_code == 200:
-        # valid - return the jsom
-        return tResp.status_code, json.loads(tResp.text)
-    else:
-        # not valid
-        return tResp.status_code, None
-
-
 def getResourceDefUsingSession(url, session, resourceName, sensitiveOptions=False):
     &#34;&#34;&#34;
     get the resource definition - given a resource name (and catalog url)
@@ -137,109 +109,6 @@ def getResourceDefUsingSession(url, session, resourceName, sensitiveOptions=Fals
     else:
         # not valid
         return tResp.status_code, None
-
-
-def getResourceDef(url, user, pWd, resourceName, sensitiveOptions=False):
-    &#34;&#34;&#34;
-    get the resource definition - given a resource name (and catalog url)
-    catalog url should stop at port (e.g. not have ldmadmin, ldmcatalog etc...
-    or have v2 anywhere
-    since we are using v1 api&#39;s
-
-    returns rc=200 (valid) &amp; other rc&#39;s from the get
-            resourceDef (json)
-
-    &#34;&#34;&#34;
-
-    print(
-        &#34;getting resource for catalog:-&#34;
-        + url
-        + &#34; resource=&#34;
-        + resourceName
-        + &#34; user=&#34;
-        + user
-    )
-    apiURL = url + &#34;/access/1/catalog/resources/&#34; + resourceName
-    if sensitiveOptions:
-        apiURL += &#34;?sensitiveOptions=true&#34;
-    # print(&#34;\turl=&#34; + apiURL)
-    header = {&#34;Accept&#34;: &#34;application/json&#34;}
-    tResp = requests.get(
-        apiURL, params={}, headers=header, auth=HTTPBasicAuth(user, pWd), verify=False
-    )
-    print(&#34;\tresponse=&#34; + str(tResp.status_code))
-    if tResp.status_code == 200:
-        # valid - return the jsom
-        return tResp.status_code, json.loads(tResp.text)
-    else:
-        # not valid
-        return tResp.status_code, None
-
-
-def updateResourceDef(url, user, pWd, resourceName, resJson):
-    &#34;&#34;&#34;
-    update a setting in an existing resource
-
-    returns rc=200 (valid) &amp; other rc&#39;s from the put
-            resourceDef (json)
-
-    &#34;&#34;&#34;
-
-    print(
-        &#34;\tupdating resource for catalog:-&#34;
-        + url
-        + &#34; resource=&#34;
-        + resourceName
-        + &#34; user=&#34;
-        + user
-    )
-    print(&#34;\t&#34; + json.dumps(resJson))
-    apiURL = url + &#34;/access/1/catalog/resources/&#34; + resourceName
-    print(&#34;\turl=&#34; + apiURL)
-    header = {&#34;Accept&#34;: &#34;application/json&#34;, &#34;Content-Type&#34;: &#34;application/json&#34;}
-    tResp = requests.put(
-        apiURL,
-        data=json.dumps(resJson),
-        headers=header,
-        auth=HTTPBasicAuth(user, pWd),
-        verify=False,
-    )
-    print(&#34;\tresponse=&#34; + str(tResp.status_code))
-    if tResp.status_code == 200:
-        # valid - return the jsom
-        print(&#34;\tyay - update resource worked...&#34;)
-        print(tResp)
-        return tResp.status_code
-    else:
-        # not valid
-        print(&#34;\tdarn - update resource failed...&#34;)
-        print(tResp)
-        return tResp.status_code
-
-
-def createResource(url, user, pWd, resourceName, resourceJson):
-    &#34;&#34;&#34;
-    create a new resource based on the provided JSON
-
-    returns rc=200 (valid) &amp; other rc&#39;s from the put
-            resourceDef (json)
-
-    &#34;&#34;&#34;
-    # create a new resource
-    apiURL = url + &#34;/access/1/catalog/resources/&#34;
-    header = {&#34;content-type&#34;: &#34;application/json&#34;}
-    print(&#34;\tcreating resource: &#34; + resourceName)
-    newResourceResp = requests.post(
-        apiURL,
-        data=json.dumps(resourceJson),
-        headers=header,
-        auth=HTTPBasicAuth(user, pWd),
-        verify=False,
-    )
-    print(&#34;\trc=&#34; + str(newResourceResp.status_code))
-    print(&#34;\tbody=&#34; + str(newResourceResp.text))
-
-    return newResourceResp.status_code
 
 
 def createResourceUsingSession(url, session, resourceName, resourceJson):
@@ -297,70 +166,20 @@ def uploadResourceFileUsingSession(url, session, resourceName, fileName, fullPat
     # file = {&#34;file&#34;: (fileName, open(fullPath, readMode), )}
     print(f&#34;\t{file}&#34;)
     # print(f&#34;session header:{session.headers}&#34;)
-    uploadResp = session.post(
-        apiURL,
-        data=params,
-        files=file,
-    )
+    try:
+        uploadResp = session.post(
+            apiURL,
+            data=params,
+            files=file,
+        )
+    except IOError:
+        mimic_error = requests.Response()
+        mimic_error.status_code = &#34;500&#34;
+        uploadResp = mimic_error
+
     print(&#34;\tresponse=&#34; + str(uploadResp.status_code))
     if uploadResp.status_code == 200:
         # valid - return the json
-        return uploadResp.status_code
-    else:
-        # not valid
-        print(&#34;\tupload file failed&#34;)
-        print(&#34;\t&#34; + str(uploadResp))
-        print(&#34;\t&#34; + str(uploadResp.text))
-        return uploadResp.status_code
-
-
-def uploadResourceFile(url, user, pWd, resourceName, fileName, fullPath, scannerId):
-    &#34;&#34;&#34;
-    upload a file for the resource - e.g. a custom lineage csv file
-    works with either csv for zip files  (.csv|.zip)
-
-    returns rc=200 (valid) &amp; other rc&#39;s from the post
-
-    &#34;&#34;&#34;
-    print(
-        &#34;uploading file for resource &#34;
-        + url
-        + &#34; resource=&#34;
-        + resourceName
-        + &#34; user=&#34;
-        + user
-    )
-    apiURL = url + &#34;/access/1/catalog/resources/&#34; + resourceName + &#34;/files&#34;
-    print(&#34;\turl=&#34; + apiURL)
-    # header = {&#34;accept&#34;: &#34;*/*&#34;, &#34;Content-Type&#34; : &#34;multipart/form-data&#34;}
-    header = {&#34;accept&#34;: &#34;*/*&#34;}
-    print(&#34;\t&#34; + str(header))
-    # params={&#34;scannerid&#34;: &#34;LineageScanner&#34;, &#34;filename&#34;: fileName, &#34;optionid&#34;: &#34;File&#34;}
-    params = {&#34;scannerid&#34;: scannerId, &#34;filename&#34;: fileName, &#34;optionid&#34;: &#34;File&#34;}
-    print(&#34;\t&#34; + str(params))
-    #     files = {&#39;file&#39;: fullPath}
-    mimeType = &#34;text/csv&#34;
-    readMode = &#34;rt&#34;
-    if fileName.endswith(&#34;.zip&#34;):
-        mimeType = &#34;application/zip&#34;
-        readMode = &#34;rb&#34;
-
-    if fileName.endswith(&#34;.dsx&#34;):
-        mimeType = &#34;text/plain&#34;
-
-    file = {&#34;file&#34;: (fileName, open(fullPath, readMode), mimeType)}
-    print(&#34;\t&#34; + str(file))
-    uploadResp = requests.post(
-        apiURL,
-        data=params,
-        files=file,
-        headers=header,
-        auth=HTTPBasicAuth(user, pWd),
-        verify=False,
-    )
-    print(&#34;\tresponse=&#34; + str(uploadResp.status_code))
-    if uploadResp.status_code == 200:
-        # valid - return the jsom
         return uploadResp.status_code
     else:
         # not valid
@@ -386,7 +205,13 @@ def executeResourceLoadUsingSession(url, session, resourceName):
     print(&#34;\t&#34; + str(header))
     params = {&#34;resourceName&#34;: resourceName}
     print(&#34;\t&#34; + str(params))
-    uploadResp = session.post(apiURL, data=json.dumps(params), headers=header)
+    try:
+        uploadResp = session.post(apiURL, data=json.dumps(params), headers=header)
+    except IOError:
+        mimic_error = requests.Response()
+        mimic_error.status_code = &#34;500&#34;
+        uploadResp = mimic_error
+
     print(&#34;\tresponse=&#34; + str(uploadResp.status_code))
     if uploadResp.status_code == 200:
         # valid - return the jsom
@@ -398,45 +223,6 @@ def executeResourceLoadUsingSession(url, session, resourceName):
         print(&#34;\t&#34; + str(uploadResp.text))
         return uploadResp.status_code, None
 
-
-def executeResourceLoad(url, user, pWd, resourceName):
-    &#34;&#34;&#34;
-    start a resource load
-
-    returns rc=200 (valid) &amp; other rc&#39;s from the get
-            json with the job details
-
-    &#34;&#34;&#34;
-
-    print(
-        &#34;starting scan resource &#34; + url + &#34; resource=&#34; + resourceName + &#34; user=&#34; + user
-    )
-    apiURL = url + &#34;/access/2/catalog/resources/jobs/loads&#34;
-    print(&#34;\turl=&#34; + apiURL)
-    header = {&#34;accept&#34;: &#34;application/json&#34;, &#34;Content-Type&#34;: &#34;application/json&#34;}
-    print(&#34;\t&#34; + str(header))
-    params = {&#34;resource_name&#34;: resourceName}
-    print(&#34;\t&#34; + str(params))
-    uploadResp = requests.post(
-        apiURL,
-        data=json.dumps(params),
-        headers=header,
-        auth=HTTPBasicAuth(user, pWd),
-        verify=False,
-    )
-    print(&#34;\tresponse=&#34; + str(uploadResp.status_code))
-    if uploadResp.status_code == 200:
-        # valid - return the jsom
-        return uploadResp.status_code, json.loads(uploadResp.text)
-    else:
-        # not valid
-        print(&#34;\tdarn - resource start failed&#34;)
-        print(&#34;\t&#34; + str(uploadResp))
-        print(&#34;\t&#34; + str(uploadResp.text))
-        return uploadResp.status_code, None
-
-
-# start
 
 def createOrUpdateAndExecuteResourceUsingSession(
         url,
@@ -584,338 +370,7 @@ def createOrUpdateAndExecuteResourceUsingSession(
             &#34;resource input file: &#34;
             + inputFileFullPath
             + &#34; invalid or does not exist, exiting&#34;
-        )
-
-
-# end
-
-
-def createOrUpdateAndExecuteResource(
-        url,
-        user,
-        pwd,
-        resourceName,
-        templateFileName,
-        fileName,
-        inputFileFullPath,
-        waitForComplete,
-        scannerId,
-):
-    &#34;&#34;&#34;
-    create or update resource_name   (note: old way - consider moving to sessions (better for id/pwd/ssl validation))
-    upload a file
-    execute the scan
-    optionally wait for the scan to complete
-
-    assumption - from the template, we are only changing the resource name,
-                 and filename options - all else is already in the template
-
-    @todo:  add a diff process to determine if the input file is different to last time
-            - assume last file ins in what folder???
-    &#34;&#34;&#34;
-    # check if the file to be uploaded exists
-    if os.path.isfile(inputFileFullPath):
-
-        # check if the file is different from /prev
-        # if /prev/&lt;file&gt; either does not exist, or is different
-        #   proceed
-        #
-        # else  (file content is the same)
-        #   do nothing
-
-        # get existing resource (so we know to create it or update it)
-        validResource = False
-        rc, rj = getResourceDef(url, user, pwd, resourceName)
-
-        if rc == 200:
-            validResource = True
-            # valid resource
-            print(&#34;\tresource is valid: &#34; + resourceName)
-            print(&#34;\tchecking for file name change...&#34;)
-            # print(rj)
-
-            # check the file name in the json results
-            isResChanged = False
-            # check if the resource file name is the same as the file we are uploading
-            for config in rj[&#34;scannerConfigurations&#34;]:
-                for opt in config[&#34;configOptions&#34;]:
-                    optId = opt.get(&#34;optionId&#34;)
-                    optVals = opt.get(&#34;optionValues&#34;)
-                    # print (opt)
-                    if optId == &#34;File&#34;:
-                        print(&#34;\t     file=&#34; + str(optVals))
-                        print(&#34;\tcheckiung:&#34; + fileName)
-                        if fileName in optVals:
-                            print(&#34;\t\tfile name is same...&#34;)
-                        else:
-                            print(&#34;\t\tfile name different&#34;)
-                            isResChanged = True
-                            # replace the optionValues content (the file name)
-                            opt[&#34;optionValues&#34;] = [fileName]
-
-            # if the properties of the resource changed, update it
-            if isResChanged:
-                # save the resource def
-                print(&#34;saving resource def...&#34;)
-                updRc = updateResourceDef(url, user, pwd, resourceName, rj)
-                print(updRc)
-                if updRc == 200:
-                    print(&#34;update succeeded&#34;)
-                else:
-                    print(&#34;update failed&#34;)
-                    print(&#34;resource could be out of sync - load might fail&#34;)
-            else:
-                print(&#34;\tno changes to resource def...&#34;)
-
-        else:
-            print(&#34;\tneed to create resource: %s&#34; % resourceName)
-            # check the template file exists
-            if os.path.isfile(templateFileName):
-                # create resource using this template
-                # newResourceJson = json.load(lineageResourceTemplate)
-                with open(templateFileName) as json_data:
-                    templateJson = json.load(json_data)
-
-                # print(templateJson)
-                # set the resource name
-                templateJson[&#34;resourceIdentifier&#34;][&#34;resource_name&#34;] = resourceName
-
-                # print(templateJson)
-                # set the File json_property (in configOptions)
-                for config in templateJson[&#34;scannerConfigurations&#34;]:
-                    for opt in config[&#34;configOptions&#34;]:
-                        optId = opt.get(&#34;optionId&#34;)
-                        optVals = opt.get(&#34;optionValues&#34;)
-                        if optId == &#34;File&#34;:
-                            opt[&#34;optionValues&#34;] = [fileName]
-
-                # print(templateJson)
-                createRc = createResource(url, user, pwd, resourceName, templateJson)
-                if createRc == 200:
-                    validResource = True
-                else:
-                    print(&#34;error creating resource: cannot upload file and scan&#34;)
-
-            else:
-                print(&#34;lineage template file does not exist: &#34; + templateFileName)
-
-        # if the resource is valid
-        # (either created as new, or updated with new file name)
-        if validResource:
-            # upload the new file
-            print(
-                &#34;uploading file&#34;
-                + &#34; &#34;
-                + inputFileFullPath
-                + &#34; to resource: &#34;
-                + resourceName
-            )
-            uploadRc = uploadResourceFile(
-                url, user, pwd, resourceName, fileName, inputFileFullPath, scannerId
-            )
-            # print(uploadRc)
-
-            # if the file was uploaded - start the resource load
-            if uploadRc == 200:
-                print(&#34;starting resource load: &#34; + resourceName)
-                loadRc, loadJson = executeResourceLoad(url, user, pwd, resourceName)
-                if loadRc == 200:
-                    # print(loadJson)
-                    print(&#34;\tJob Queued: &#34; + loadJson.get(&#34;jobId&#34;))
-                    print(&#34;\tJob def: &#34; + str(loadJson))
-
-                    if waitForComplete:
-                        print(&#34;waiting for job completion is not implemented yet&#34;)
-                else:
-                    print(&#34;\tjob not started &#34; + str(loadRc))
-            else:
-                print(&#34;file not uploaded - resource/scan will not be started&#34;)
-
-    else:
-        # file does not exist
-        print(
-            &#34;resource input file: &#34;
-            + inputFileFullPath
-            + &#34; invalid or does not exist, exiting&#34;
-        )
-
-
-def callGETRestEndpoint(apiURL, user, pWd):
-    &#34;&#34;&#34;
-    this function call the URL  with a GET method and return the status code
-    as well as the response body
-    returns rc=200 (valid) &amp; other rc&#39;s from the get
-            resourceDef (json)
-    &#34;&#34;&#34;
-    header = {&#34;Accept&#34;: &#34;application/json&#34;}
-    tResp = requests.get(
-        apiURL, params={}, headers=header, auth=HTTPBasicAuth(user, pWd), verify=False
-    )
-    print(&#34;\tresponse=&#34; + str(tResp.status_code))
-    if tResp.status_code == 200:
-        # valid - return the jsom
-        return tResp.status_code, json.loads(tResp.text)
-    else:
-        # not valid
-        return tResp.status_code, None
-
-
-def getResourceObjectCount(url, user, pWd, resourceName):
-    &#34;&#34;&#34;
-    get the resource object count - given a resource name (and catalog url)
-    &#34;&#34;&#34;
-
-    apiURL = url + &#34;/access/2/catalog/data/objects?q=core.resource_name:&#34; + resourceName
-    print(
-        &#34;getting object count for catalog resource:-&#34;
-        + apiURL
-        + &#34; resource=&#34;
-        + resourceName
-        + &#34; user=&#34;
-        + user
-    )
-    return callGETRestEndpoint(apiURL, user, pWd)
-
-
-def getCatalogObjectCount(url, user, pWd):
-    &#34;&#34;&#34;
-    get the resource object count - given a catalog url
-    &#34;&#34;&#34;
-
-    print(&#34;getting object count for catalog resource:-&#34; + url + &#34; user=&#34; + user)
-    apiURL = url + &#34;/access/2/catalog/data/objects&#34;
-    return callGETRestEndpoint(apiURL, user, pWd)
-
-
-def getCatalogResourceCount(url, user, pWd):
-    &#34;&#34;&#34;
-    get the resource count - given a catalog url
-    &#34;&#34;&#34;
-
-    apiURL = url + &#34;/access/2/catalog/data/objects?q=core.allclassTypes:core.Resource&#34;
-    print(&#34;getting object count for catalog resource:-&#34; + apiURL + &#34; user=&#34; + user)
-    return callGETRestEndpoint(apiURL, user, pWd)
-
-
-def getReusableScannerConfig(url, user, pWd):
-    &#34;&#34;&#34;
-    get the reusable configuration - given a catalog url
-    &#34;&#34;&#34;
-
-    apiURL = url + &#34;/access/1/catalog/resources/reusablescannerconfigs&#34;
-    print(&#34;getting the reusable configuration:-&#34; + apiURL + &#34; user=&#34; + user)
-    return callGETRestEndpoint(apiURL, user, pWd)
-
-
-def getCatalogCustomAttr(url, user, pWd):
-    &#34;&#34;&#34;
-    call GET /access/2/catalog/models/attributes
-    this returns all attributes (system + custom)
-    filter for only the custom attributes (id startswith &#34;com.infa.appmodels.ldm.&#34;
-    &#34;&#34;&#34;
-
-    resturl = url + &#34;/access/2/catalog/models/attributes&#34;
-    header = {&#34;Accept&#34;: &#34;application/json&#34;}
-
-    # set initial value for total to &gt; 0 - is over-written by the count of objects found
-    total = 1000
-    offset = 0
-    page = 0
-    pageSize = 200
-
-    customAttrs = []
-
-    while offset &lt; total:
-        page += 1
-        parameters = {&#34;offset&#34;: offset, &#34;pageSize&#34;: pageSize}
-
-        # execute catalog rest call, for a page of results
-        resp = requests.get(
-            resturl,
-            params=parameters,
-            headers=header,
-            auth=HTTPBasicAuth(user, pWd),
-            verify=False,
-        )
-        status = resp.status_code
-        if status != 200:
-            # some error - e.g. catalog not running, or bad credentials
-            print(&#34;error! &#34; + str(status) + str(resp.json()))
-            break
-
-        resultJson = resp.json()
-        total = resultJson[&#34;metadata&#34;][&#34;totalCount&#34;]
-        print(
-            &#34;objects found: &#34;
-            + str(total)
-            + &#34; processing:&#34;
-            + str(offset + 1)
-            + &#34;-&#34;
-            + str(offset + pageSize)
-            + &#34; pagesize=&#34;
-            + str(pageSize)
-            + &#34; currentPage=&#34;
-            + str(page)
-        )
-
-        # for next iteration
-        offset += pageSize
-
-        # for each attribute found...
-        for attrDef in resultJson[&#34;items&#34;]:
-            # attrCount+=1
-            attrId = attrDef[&#34;id&#34;]
-            if attrId.startswith(&#34;com.infa.appmodels.ldm.&#34;):
-                customAttrs.append(attrDef)
-
-    # end of while loop
-    # print(&#34;&#34;)
-    # print(&#34;Finished - run time = %s seconds ---&#34; % (time.time() - start_time))
-    return customAttrs
-
-
-def createAttribute(url, user, pWd, attrJson):
-    &#34;&#34;&#34;
-    create a new attribute
-    attrJSON must be in the form
-        {
-          &#34;items&#34;: [
-            {
-              &#34;analyzer&#34;: &#34;INT&#34;,
-              &#34;boost&#34;: &#34;LOWEST&#34;,
-              &#34;classes&#34;: [
-                {
-                  &#34;id&#34;: &#34;string&#34;
-                }
-              ],
-              &#34;dataTypeId&#34;: &#34;string&#34;,
-              &#34;description&#34;: &#34;string&#34;,
-              &#34;facetable&#34;: false,
-              &#34;multivalued&#34;: false,
-              &#34;name&#34;: &#34;string&#34;,
-              &#34;searchable&#34;: false,
-              &#34;sortable&#34;: false,
-              &#34;suggestable&#34;: false
-            }
-          ]
-        }
-
-    &#34;&#34;&#34;
-    apiURL = url + &#34;/access/2/catalog/models/attributes/&#34;
-    header = {&#34;content-type&#34;: &#34;application/json&#34;}
-    print(&#34;\tcreating custom attribute: &#34; + attrJson[&#34;items&#34;][0][&#34;name&#34;])
-    newAttrResp = requests.post(
-        apiURL,
-        data=json.dumps(attrJson),
-        headers=header,
-        auth=HTTPBasicAuth(user, pWd),
-        verify=False,
-    )
-    print(&#34;\trc=&#34; + str(newAttrResp.status_code))
-    print(&#34;\tbody=&#34; + str(newAttrResp.text))
-    print(attrJson)
-
-    return newAttrResp.status_code</code></pre>
+        )</code></pre>
 </details>
 </section>
 <section>
@@ -925,282 +380,6 @@ def createAttribute(url, user, pWd, attrJson):
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
-<dt id="edc_utilities.edcutils.callGETRestEndpoint"><code class="name flex">
-<span>def <span class="ident">callGETRestEndpoint</span></span>(<span>apiURL, user, pWd)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>this function call the URL
-with a GET method and return the status code
-as well as the response body
-returns rc=200 (valid) &amp; other rc's from the get
-resourceDef (json)</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def callGETRestEndpoint(apiURL, user, pWd):
-    &#34;&#34;&#34;
-    this function call the URL  with a GET method and return the status code
-    as well as the response body
-    returns rc=200 (valid) &amp; other rc&#39;s from the get
-            resourceDef (json)
-    &#34;&#34;&#34;
-    header = {&#34;Accept&#34;: &#34;application/json&#34;}
-    tResp = requests.get(
-        apiURL, params={}, headers=header, auth=HTTPBasicAuth(user, pWd), verify=False
-    )
-    print(&#34;\tresponse=&#34; + str(tResp.status_code))
-    if tResp.status_code == 200:
-        # valid - return the jsom
-        return tResp.status_code, json.loads(tResp.text)
-    else:
-        # not valid
-        return tResp.status_code, None</code></pre>
-</details>
-</dd>
-<dt id="edc_utilities.edcutils.createAttribute"><code class="name flex">
-<span>def <span class="ident">createAttribute</span></span>(<span>url, user, pWd, attrJson)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>create a new attribute
-attrJSON must be in the form
-{
-"items": [
-{
-"analyzer": "INT",
-"boost": "LOWEST",
-"classes": [
-{
-"id": "string"
-}
-],
-"dataTypeId": "string",
-"description": "string",
-"facetable": false,
-"multivalued": false,
-"name": "string",
-"searchable": false,
-"sortable": false,
-"suggestable": false
-}
-]
-}</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def createAttribute(url, user, pWd, attrJson):
-    &#34;&#34;&#34;
-    create a new attribute
-    attrJSON must be in the form
-        {
-          &#34;items&#34;: [
-            {
-              &#34;analyzer&#34;: &#34;INT&#34;,
-              &#34;boost&#34;: &#34;LOWEST&#34;,
-              &#34;classes&#34;: [
-                {
-                  &#34;id&#34;: &#34;string&#34;
-                }
-              ],
-              &#34;dataTypeId&#34;: &#34;string&#34;,
-              &#34;description&#34;: &#34;string&#34;,
-              &#34;facetable&#34;: false,
-              &#34;multivalued&#34;: false,
-              &#34;name&#34;: &#34;string&#34;,
-              &#34;searchable&#34;: false,
-              &#34;sortable&#34;: false,
-              &#34;suggestable&#34;: false
-            }
-          ]
-        }
-
-    &#34;&#34;&#34;
-    apiURL = url + &#34;/access/2/catalog/models/attributes/&#34;
-    header = {&#34;content-type&#34;: &#34;application/json&#34;}
-    print(&#34;\tcreating custom attribute: &#34; + attrJson[&#34;items&#34;][0][&#34;name&#34;])
-    newAttrResp = requests.post(
-        apiURL,
-        data=json.dumps(attrJson),
-        headers=header,
-        auth=HTTPBasicAuth(user, pWd),
-        verify=False,
-    )
-    print(&#34;\trc=&#34; + str(newAttrResp.status_code))
-    print(&#34;\tbody=&#34; + str(newAttrResp.text))
-    print(attrJson)
-
-    return newAttrResp.status_code</code></pre>
-</details>
-</dd>
-<dt id="edc_utilities.edcutils.createOrUpdateAndExecuteResource"><code class="name flex">
-<span>def <span class="ident">createOrUpdateAndExecuteResource</span></span>(<span>url, user, pwd, resourceName, templateFileName, fileName, inputFileFullPath, waitForComplete, scannerId)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>create or update resource_name
-(note: old way - consider moving to sessions (better for id/pwd/ssl validation))
-upload a file
-execute the scan
-optionally wait for the scan to complete</p>
-<p>assumption - from the template, we are only changing the resource name,
-and filename options - all else is already in the template</p>
-<p>@todo:
-add a diff process to determine if the input file is different to last time
-- assume last file ins in what folder???</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def createOrUpdateAndExecuteResource(
-        url,
-        user,
-        pwd,
-        resourceName,
-        templateFileName,
-        fileName,
-        inputFileFullPath,
-        waitForComplete,
-        scannerId,
-):
-    &#34;&#34;&#34;
-    create or update resource_name   (note: old way - consider moving to sessions (better for id/pwd/ssl validation))
-    upload a file
-    execute the scan
-    optionally wait for the scan to complete
-
-    assumption - from the template, we are only changing the resource name,
-                 and filename options - all else is already in the template
-
-    @todo:  add a diff process to determine if the input file is different to last time
-            - assume last file ins in what folder???
-    &#34;&#34;&#34;
-    # check if the file to be uploaded exists
-    if os.path.isfile(inputFileFullPath):
-
-        # check if the file is different from /prev
-        # if /prev/&lt;file&gt; either does not exist, or is different
-        #   proceed
-        #
-        # else  (file content is the same)
-        #   do nothing
-
-        # get existing resource (so we know to create it or update it)
-        validResource = False
-        rc, rj = getResourceDef(url, user, pwd, resourceName)
-
-        if rc == 200:
-            validResource = True
-            # valid resource
-            print(&#34;\tresource is valid: &#34; + resourceName)
-            print(&#34;\tchecking for file name change...&#34;)
-            # print(rj)
-
-            # check the file name in the json results
-            isResChanged = False
-            # check if the resource file name is the same as the file we are uploading
-            for config in rj[&#34;scannerConfigurations&#34;]:
-                for opt in config[&#34;configOptions&#34;]:
-                    optId = opt.get(&#34;optionId&#34;)
-                    optVals = opt.get(&#34;optionValues&#34;)
-                    # print (opt)
-                    if optId == &#34;File&#34;:
-                        print(&#34;\t     file=&#34; + str(optVals))
-                        print(&#34;\tcheckiung:&#34; + fileName)
-                        if fileName in optVals:
-                            print(&#34;\t\tfile name is same...&#34;)
-                        else:
-                            print(&#34;\t\tfile name different&#34;)
-                            isResChanged = True
-                            # replace the optionValues content (the file name)
-                            opt[&#34;optionValues&#34;] = [fileName]
-
-            # if the properties of the resource changed, update it
-            if isResChanged:
-                # save the resource def
-                print(&#34;saving resource def...&#34;)
-                updRc = updateResourceDef(url, user, pwd, resourceName, rj)
-                print(updRc)
-                if updRc == 200:
-                    print(&#34;update succeeded&#34;)
-                else:
-                    print(&#34;update failed&#34;)
-                    print(&#34;resource could be out of sync - load might fail&#34;)
-            else:
-                print(&#34;\tno changes to resource def...&#34;)
-
-        else:
-            print(&#34;\tneed to create resource: %s&#34; % resourceName)
-            # check the template file exists
-            if os.path.isfile(templateFileName):
-                # create resource using this template
-                # newResourceJson = json.load(lineageResourceTemplate)
-                with open(templateFileName) as json_data:
-                    templateJson = json.load(json_data)
-
-                # print(templateJson)
-                # set the resource name
-                templateJson[&#34;resourceIdentifier&#34;][&#34;resource_name&#34;] = resourceName
-
-                # print(templateJson)
-                # set the File json_property (in configOptions)
-                for config in templateJson[&#34;scannerConfigurations&#34;]:
-                    for opt in config[&#34;configOptions&#34;]:
-                        optId = opt.get(&#34;optionId&#34;)
-                        optVals = opt.get(&#34;optionValues&#34;)
-                        if optId == &#34;File&#34;:
-                            opt[&#34;optionValues&#34;] = [fileName]
-
-                # print(templateJson)
-                createRc = createResource(url, user, pwd, resourceName, templateJson)
-                if createRc == 200:
-                    validResource = True
-                else:
-                    print(&#34;error creating resource: cannot upload file and scan&#34;)
-
-            else:
-                print(&#34;lineage template file does not exist: &#34; + templateFileName)
-
-        # if the resource is valid
-        # (either created as new, or updated with new file name)
-        if validResource:
-            # upload the new file
-            print(
-                &#34;uploading file&#34;
-                + &#34; &#34;
-                + inputFileFullPath
-                + &#34; to resource: &#34;
-                + resourceName
-            )
-            uploadRc = uploadResourceFile(
-                url, user, pwd, resourceName, fileName, inputFileFullPath, scannerId
-            )
-            # print(uploadRc)
-
-            # if the file was uploaded - start the resource load
-            if uploadRc == 200:
-                print(&#34;starting resource load: &#34; + resourceName)
-                loadRc, loadJson = executeResourceLoad(url, user, pwd, resourceName)
-                if loadRc == 200:
-                    # print(loadJson)
-                    print(&#34;\tJob Queued: &#34; + loadJson.get(&#34;jobId&#34;))
-                    print(&#34;\tJob def: &#34; + str(loadJson))
-
-                    if waitForComplete:
-                        print(&#34;waiting for job completion is not implemented yet&#34;)
-                else:
-                    print(&#34;\tjob not started &#34; + str(loadRc))
-            else:
-                print(&#34;file not uploaded - resource/scan will not be started&#34;)
-
-    else:
-        # file does not exist
-        print(
-            &#34;resource input file: &#34;
-            + inputFileFullPath
-            + &#34; invalid or does not exist, exiting&#34;
-        )</code></pre>
-</details>
-</dd>
 <dt id="edc_utilities.edcutils.createOrUpdateAndExecuteResourceUsingSession"><code class="name flex">
 <span>def <span class="ident">createOrUpdateAndExecuteResourceUsingSession</span></span>(<span>url, session, resourceName, templateFileName, fileName, inputFileFullPath, waitForComplete, scannerId)</span>
 </code></dt>
@@ -1368,42 +547,6 @@ add a diff process to determine if the input file is different to last time
         )</code></pre>
 </details>
 </dd>
-<dt id="edc_utilities.edcutils.createResource"><code class="name flex">
-<span>def <span class="ident">createResource</span></span>(<span>url, user, pWd, resourceName, resourceJson)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>create a new resource based on the provided JSON</p>
-<p>returns rc=200 (valid) &amp; other rc's from the put
-resourceDef (json)</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def createResource(url, user, pWd, resourceName, resourceJson):
-    &#34;&#34;&#34;
-    create a new resource based on the provided JSON
-
-    returns rc=200 (valid) &amp; other rc&#39;s from the put
-            resourceDef (json)
-
-    &#34;&#34;&#34;
-    # create a new resource
-    apiURL = url + &#34;/access/1/catalog/resources/&#34;
-    header = {&#34;content-type&#34;: &#34;application/json&#34;}
-    print(&#34;\tcreating resource: &#34; + resourceName)
-    newResourceResp = requests.post(
-        apiURL,
-        data=json.dumps(resourceJson),
-        headers=header,
-        auth=HTTPBasicAuth(user, pWd),
-        verify=False,
-    )
-    print(&#34;\trc=&#34; + str(newResourceResp.status_code))
-    print(&#34;\tbody=&#34; + str(newResourceResp.text))
-
-    return newResourceResp.status_code</code></pre>
-</details>
-</dd>
 <dt id="edc_utilities.edcutils.createResourceUsingSession"><code class="name flex">
 <span>def <span class="ident">createResourceUsingSession</span></span>(<span>url, session, resourceName, resourceJson)</span>
 </code></dt>
@@ -1438,54 +581,6 @@ resourceDef (json)</p></div>
     return newResourceResp.status_code</code></pre>
 </details>
 </dd>
-<dt id="edc_utilities.edcutils.executeResourceLoad"><code class="name flex">
-<span>def <span class="ident">executeResourceLoad</span></span>(<span>url, user, pWd, resourceName)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>start a resource load</p>
-<p>returns rc=200 (valid) &amp; other rc's from the get
-json with the job details</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def executeResourceLoad(url, user, pWd, resourceName):
-    &#34;&#34;&#34;
-    start a resource load
-
-    returns rc=200 (valid) &amp; other rc&#39;s from the get
-            json with the job details
-
-    &#34;&#34;&#34;
-
-    print(
-        &#34;starting scan resource &#34; + url + &#34; resource=&#34; + resourceName + &#34; user=&#34; + user
-    )
-    apiURL = url + &#34;/access/2/catalog/resources/jobs/loads&#34;
-    print(&#34;\turl=&#34; + apiURL)
-    header = {&#34;accept&#34;: &#34;application/json&#34;, &#34;Content-Type&#34;: &#34;application/json&#34;}
-    print(&#34;\t&#34; + str(header))
-    params = {&#34;resource_name&#34;: resourceName}
-    print(&#34;\t&#34; + str(params))
-    uploadResp = requests.post(
-        apiURL,
-        data=json.dumps(params),
-        headers=header,
-        auth=HTTPBasicAuth(user, pWd),
-        verify=False,
-    )
-    print(&#34;\tresponse=&#34; + str(uploadResp.status_code))
-    if uploadResp.status_code == 200:
-        # valid - return the jsom
-        return uploadResp.status_code, json.loads(uploadResp.text)
-    else:
-        # not valid
-        print(&#34;\tdarn - resource start failed&#34;)
-        print(&#34;\t&#34; + str(uploadResp))
-        print(&#34;\t&#34; + str(uploadResp.text))
-        return uploadResp.status_code, None</code></pre>
-</details>
-</dd>
 <dt id="edc_utilities.edcutils.executeResourceLoadUsingSession"><code class="name flex">
 <span>def <span class="ident">executeResourceLoadUsingSession</span></span>(<span>url, session, resourceName)</span>
 </code></dt>
@@ -1513,7 +608,13 @@ json with the job details</p></div>
     print(&#34;\t&#34; + str(header))
     params = {&#34;resourceName&#34;: resourceName}
     print(&#34;\t&#34; + str(params))
-    uploadResp = session.post(apiURL, data=json.dumps(params), headers=header)
+    try:
+        uploadResp = session.post(apiURL, data=json.dumps(params), headers=header)
+    except IOError:
+        mimic_error = requests.Response()
+        mimic_error.status_code = &#34;500&#34;
+        uploadResp = mimic_error
+
     print(&#34;\tresponse=&#34; + str(uploadResp.status_code))
     if uploadResp.status_code == 200:
         # valid - return the jsom
@@ -1553,215 +654,6 @@ From Connection and To Connection will be empty</p></div>
     row = [linkType, &#34;&#34;, &#34;&#34;, fromObject, toObject]
     csvFile.writerow(row)
     return</code></pre>
-</details>
-</dd>
-<dt id="edc_utilities.edcutils.getAllResource"><code class="name flex">
-<span>def <span class="ident">getAllResource</span></span>(<span>url, user, pWd)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>get the resource definition - given a resource name (and catalog url)
-catalog url should stop at port (e.g. not have ldmadmin, ldmcatalog etc&hellip;
-or have v2 anywhere
-since we are using v1 api's</p>
-<p>returns rc=200 (valid) &amp; other rc's from the get
-resourceDef (json)</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def getAllResource(url, user, pWd):
-    &#34;&#34;&#34;
-    get the resource definition - given a resource name (and catalog url)
-    catalog url should stop at port (e.g. not have ldmadmin, ldmcatalog etc...
-    or have v2 anywhere
-    since we are using v1 api&#39;s
-
-    returns rc=200 (valid) &amp; other rc&#39;s from the get
-            resourceDef (json)
-
-    &#34;&#34;&#34;
-
-    print(&#34;getting resource for catalog:-&#34; + url + &#34; user=&#34; + user)
-    apiURL = url + &#34;/access/1/catalog/resources/&#34;
-    # print(&#34;\turl=&#34; + apiURL)
-    header = {&#34;Accept&#34;: &#34;application/json&#34;}
-    tResp = requests.get(
-        apiURL, params={}, headers=header, auth=HTTPBasicAuth(user, pWd), verify=False
-    )
-    print(&#34;\tresponse=&#34; + str(tResp.status_code))
-    if tResp.status_code == 200:
-        # valid - return the jsom
-        return tResp.status_code, json.loads(tResp.text)
-    else:
-        # not valid
-        return tResp.status_code, None</code></pre>
-</details>
-</dd>
-<dt id="edc_utilities.edcutils.getCatalogCustomAttr"><code class="name flex">
-<span>def <span class="ident">getCatalogCustomAttr</span></span>(<span>url, user, pWd)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>call GET /access/2/catalog/models/attributes
-this returns all attributes (system + custom)
-filter for only the custom attributes (id startswith "com.infa.appmodels.ldm."</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def getCatalogCustomAttr(url, user, pWd):
-    &#34;&#34;&#34;
-    call GET /access/2/catalog/models/attributes
-    this returns all attributes (system + custom)
-    filter for only the custom attributes (id startswith &#34;com.infa.appmodels.ldm.&#34;
-    &#34;&#34;&#34;
-
-    resturl = url + &#34;/access/2/catalog/models/attributes&#34;
-    header = {&#34;Accept&#34;: &#34;application/json&#34;}
-
-    # set initial value for total to &gt; 0 - is over-written by the count of objects found
-    total = 1000
-    offset = 0
-    page = 0
-    pageSize = 200
-
-    customAttrs = []
-
-    while offset &lt; total:
-        page += 1
-        parameters = {&#34;offset&#34;: offset, &#34;pageSize&#34;: pageSize}
-
-        # execute catalog rest call, for a page of results
-        resp = requests.get(
-            resturl,
-            params=parameters,
-            headers=header,
-            auth=HTTPBasicAuth(user, pWd),
-            verify=False,
-        )
-        status = resp.status_code
-        if status != 200:
-            # some error - e.g. catalog not running, or bad credentials
-            print(&#34;error! &#34; + str(status) + str(resp.json()))
-            break
-
-        resultJson = resp.json()
-        total = resultJson[&#34;metadata&#34;][&#34;totalCount&#34;]
-        print(
-            &#34;objects found: &#34;
-            + str(total)
-            + &#34; processing:&#34;
-            + str(offset + 1)
-            + &#34;-&#34;
-            + str(offset + pageSize)
-            + &#34; pagesize=&#34;
-            + str(pageSize)
-            + &#34; currentPage=&#34;
-            + str(page)
-        )
-
-        # for next iteration
-        offset += pageSize
-
-        # for each attribute found...
-        for attrDef in resultJson[&#34;items&#34;]:
-            # attrCount+=1
-            attrId = attrDef[&#34;id&#34;]
-            if attrId.startswith(&#34;com.infa.appmodels.ldm.&#34;):
-                customAttrs.append(attrDef)
-
-    # end of while loop
-    # print(&#34;&#34;)
-    # print(&#34;Finished - run time = %s seconds ---&#34; % (time.time() - start_time))
-    return customAttrs</code></pre>
-</details>
-</dd>
-<dt id="edc_utilities.edcutils.getCatalogObjectCount"><code class="name flex">
-<span>def <span class="ident">getCatalogObjectCount</span></span>(<span>url, user, pWd)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>get the resource object count - given a catalog url</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def getCatalogObjectCount(url, user, pWd):
-    &#34;&#34;&#34;
-    get the resource object count - given a catalog url
-    &#34;&#34;&#34;
-
-    print(&#34;getting object count for catalog resource:-&#34; + url + &#34; user=&#34; + user)
-    apiURL = url + &#34;/access/2/catalog/data/objects&#34;
-    return callGETRestEndpoint(apiURL, user, pWd)</code></pre>
-</details>
-</dd>
-<dt id="edc_utilities.edcutils.getCatalogResourceCount"><code class="name flex">
-<span>def <span class="ident">getCatalogResourceCount</span></span>(<span>url, user, pWd)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>get the resource count - given a catalog url</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def getCatalogResourceCount(url, user, pWd):
-    &#34;&#34;&#34;
-    get the resource count - given a catalog url
-    &#34;&#34;&#34;
-
-    apiURL = url + &#34;/access/2/catalog/data/objects?q=core.allclassTypes:core.Resource&#34;
-    print(&#34;getting object count for catalog resource:-&#34; + apiURL + &#34; user=&#34; + user)
-    return callGETRestEndpoint(apiURL, user, pWd)</code></pre>
-</details>
-</dd>
-<dt id="edc_utilities.edcutils.getResourceDef"><code class="name flex">
-<span>def <span class="ident">getResourceDef</span></span>(<span>url, user, pWd, resourceName, sensitiveOptions=False)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>get the resource definition - given a resource name (and catalog url)
-catalog url should stop at port (e.g. not have ldmadmin, ldmcatalog etc&hellip;
-or have v2 anywhere
-since we are using v1 api's</p>
-<p>returns rc=200 (valid) &amp; other rc's from the get
-resourceDef (json)</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def getResourceDef(url, user, pWd, resourceName, sensitiveOptions=False):
-    &#34;&#34;&#34;
-    get the resource definition - given a resource name (and catalog url)
-    catalog url should stop at port (e.g. not have ldmadmin, ldmcatalog etc...
-    or have v2 anywhere
-    since we are using v1 api&#39;s
-
-    returns rc=200 (valid) &amp; other rc&#39;s from the get
-            resourceDef (json)
-
-    &#34;&#34;&#34;
-
-    print(
-        &#34;getting resource for catalog:-&#34;
-        + url
-        + &#34; resource=&#34;
-        + resourceName
-        + &#34; user=&#34;
-        + user
-    )
-    apiURL = url + &#34;/access/1/catalog/resources/&#34; + resourceName
-    if sensitiveOptions:
-        apiURL += &#34;?sensitiveOptions=true&#34;
-    # print(&#34;\turl=&#34; + apiURL)
-    header = {&#34;Accept&#34;: &#34;application/json&#34;}
-    tResp = requests.get(
-        apiURL, params={}, headers=header, auth=HTTPBasicAuth(user, pWd), verify=False
-    )
-    print(&#34;\tresponse=&#34; + str(tResp.status_code))
-    if tResp.status_code == 200:
-        # valid - return the jsom
-        return tResp.status_code, json.loads(tResp.text)
-    else:
-        # not valid
-        return tResp.status_code, None</code></pre>
 </details>
 </dd>
 <dt id="edc_utilities.edcutils.getResourceDefUsingSession"><code class="name flex">
@@ -1811,51 +703,6 @@ resourceDef (json)</p></div>
         return tResp.status_code, None</code></pre>
 </details>
 </dd>
-<dt id="edc_utilities.edcutils.getResourceObjectCount"><code class="name flex">
-<span>def <span class="ident">getResourceObjectCount</span></span>(<span>url, user, pWd, resourceName)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>get the resource object count - given a resource name (and catalog url)</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def getResourceObjectCount(url, user, pWd, resourceName):
-    &#34;&#34;&#34;
-    get the resource object count - given a resource name (and catalog url)
-    &#34;&#34;&#34;
-
-    apiURL = url + &#34;/access/2/catalog/data/objects?q=core.resource_name:&#34; + resourceName
-    print(
-        &#34;getting object count for catalog resource:-&#34;
-        + apiURL
-        + &#34; resource=&#34;
-        + resourceName
-        + &#34; user=&#34;
-        + user
-    )
-    return callGETRestEndpoint(apiURL, user, pWd)</code></pre>
-</details>
-</dd>
-<dt id="edc_utilities.edcutils.getReusableScannerConfig"><code class="name flex">
-<span>def <span class="ident">getReusableScannerConfig</span></span>(<span>url, user, pWd)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>get the reusable configuration - given a catalog url</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def getReusableScannerConfig(url, user, pWd):
-    &#34;&#34;&#34;
-    get the reusable configuration - given a catalog url
-    &#34;&#34;&#34;
-
-    apiURL = url + &#34;/access/1/catalog/resources/reusablescannerconfigs&#34;
-    print(&#34;getting the reusable configuration:-&#34; + apiURL + &#34; user=&#34; + user)
-    return callGETRestEndpoint(apiURL, user, pWd)</code></pre>
-</details>
-</dd>
 <dt id="edc_utilities.edcutils.get_fact_value"><code class="name flex">
 <span>def <span class="ident">get_fact_value</span></span>(<span>item, attribute_name, json_property)</span>
 </code></dt>
@@ -1885,126 +732,6 @@ returns the "value" json_property or ""</p></div>
                 value = &#34;&#34;
             break
     return value</code></pre>
-</details>
-</dd>
-<dt id="edc_utilities.edcutils.updateResourceDef"><code class="name flex">
-<span>def <span class="ident">updateResourceDef</span></span>(<span>url, user, pWd, resourceName, resJson)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>update a setting in an existing resource</p>
-<p>returns rc=200 (valid) &amp; other rc's from the put
-resourceDef (json)</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def updateResourceDef(url, user, pWd, resourceName, resJson):
-    &#34;&#34;&#34;
-    update a setting in an existing resource
-
-    returns rc=200 (valid) &amp; other rc&#39;s from the put
-            resourceDef (json)
-
-    &#34;&#34;&#34;
-
-    print(
-        &#34;\tupdating resource for catalog:-&#34;
-        + url
-        + &#34; resource=&#34;
-        + resourceName
-        + &#34; user=&#34;
-        + user
-    )
-    print(&#34;\t&#34; + json.dumps(resJson))
-    apiURL = url + &#34;/access/1/catalog/resources/&#34; + resourceName
-    print(&#34;\turl=&#34; + apiURL)
-    header = {&#34;Accept&#34;: &#34;application/json&#34;, &#34;Content-Type&#34;: &#34;application/json&#34;}
-    tResp = requests.put(
-        apiURL,
-        data=json.dumps(resJson),
-        headers=header,
-        auth=HTTPBasicAuth(user, pWd),
-        verify=False,
-    )
-    print(&#34;\tresponse=&#34; + str(tResp.status_code))
-    if tResp.status_code == 200:
-        # valid - return the jsom
-        print(&#34;\tyay - update resource worked...&#34;)
-        print(tResp)
-        return tResp.status_code
-    else:
-        # not valid
-        print(&#34;\tdarn - update resource failed...&#34;)
-        print(tResp)
-        return tResp.status_code</code></pre>
-</details>
-</dd>
-<dt id="edc_utilities.edcutils.uploadResourceFile"><code class="name flex">
-<span>def <span class="ident">uploadResourceFile</span></span>(<span>url, user, pWd, resourceName, fileName, fullPath, scannerId)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>upload a file for the resource - e.g. a custom lineage csv file
-works with either csv for zip files
-(.csv|.zip)</p>
-<p>returns rc=200 (valid) &amp; other rc's from the post</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def uploadResourceFile(url, user, pWd, resourceName, fileName, fullPath, scannerId):
-    &#34;&#34;&#34;
-    upload a file for the resource - e.g. a custom lineage csv file
-    works with either csv for zip files  (.csv|.zip)
-
-    returns rc=200 (valid) &amp; other rc&#39;s from the post
-
-    &#34;&#34;&#34;
-    print(
-        &#34;uploading file for resource &#34;
-        + url
-        + &#34; resource=&#34;
-        + resourceName
-        + &#34; user=&#34;
-        + user
-    )
-    apiURL = url + &#34;/access/1/catalog/resources/&#34; + resourceName + &#34;/files&#34;
-    print(&#34;\turl=&#34; + apiURL)
-    # header = {&#34;accept&#34;: &#34;*/*&#34;, &#34;Content-Type&#34; : &#34;multipart/form-data&#34;}
-    header = {&#34;accept&#34;: &#34;*/*&#34;}
-    print(&#34;\t&#34; + str(header))
-    # params={&#34;scannerid&#34;: &#34;LineageScanner&#34;, &#34;filename&#34;: fileName, &#34;optionid&#34;: &#34;File&#34;}
-    params = {&#34;scannerid&#34;: scannerId, &#34;filename&#34;: fileName, &#34;optionid&#34;: &#34;File&#34;}
-    print(&#34;\t&#34; + str(params))
-    #     files = {&#39;file&#39;: fullPath}
-    mimeType = &#34;text/csv&#34;
-    readMode = &#34;rt&#34;
-    if fileName.endswith(&#34;.zip&#34;):
-        mimeType = &#34;application/zip&#34;
-        readMode = &#34;rb&#34;
-
-    if fileName.endswith(&#34;.dsx&#34;):
-        mimeType = &#34;text/plain&#34;
-
-    file = {&#34;file&#34;: (fileName, open(fullPath, readMode), mimeType)}
-    print(&#34;\t&#34; + str(file))
-    uploadResp = requests.post(
-        apiURL,
-        data=params,
-        files=file,
-        headers=header,
-        auth=HTTPBasicAuth(user, pWd),
-        verify=False,
-    )
-    print(&#34;\tresponse=&#34; + str(uploadResp.status_code))
-    if uploadResp.status_code == 200:
-        # valid - return the jsom
-        return uploadResp.status_code
-    else:
-        # not valid
-        print(&#34;\tupload file failed&#34;)
-        print(&#34;\t&#34; + str(uploadResp))
-        print(&#34;\t&#34; + str(uploadResp.text))
-        return uploadResp.status_code</code></pre>
 </details>
 </dd>
 <dt id="edc_utilities.edcutils.uploadResourceFileUsingSession"><code class="name flex">
@@ -2052,11 +779,17 @@ works with either csv for zip files
     # file = {&#34;file&#34;: (fileName, open(fullPath, readMode), )}
     print(f&#34;\t{file}&#34;)
     # print(f&#34;session header:{session.headers}&#34;)
-    uploadResp = session.post(
-        apiURL,
-        data=params,
-        files=file,
-    )
+    try:
+        uploadResp = session.post(
+            apiURL,
+            data=params,
+            files=file,
+        )
+    except IOError:
+        mimic_error = requests.Response()
+        mimic_error.status_code = &#34;500&#34;
+        uploadResp = mimic_error
+
     print(&#34;\tresponse=&#34; + str(uploadResp.status_code))
     if uploadResp.status_code == 200:
         # valid - return the json
@@ -2087,26 +820,12 @@ works with either csv for zip files
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
-<li><code><a title="edc_utilities.edcutils.callGETRestEndpoint" href="#edc_utilities.edcutils.callGETRestEndpoint">callGETRestEndpoint</a></code></li>
-<li><code><a title="edc_utilities.edcutils.createAttribute" href="#edc_utilities.edcutils.createAttribute">createAttribute</a></code></li>
-<li><code><a title="edc_utilities.edcutils.createOrUpdateAndExecuteResource" href="#edc_utilities.edcutils.createOrUpdateAndExecuteResource">createOrUpdateAndExecuteResource</a></code></li>
 <li><code><a title="edc_utilities.edcutils.createOrUpdateAndExecuteResourceUsingSession" href="#edc_utilities.edcutils.createOrUpdateAndExecuteResourceUsingSession">createOrUpdateAndExecuteResourceUsingSession</a></code></li>
-<li><code><a title="edc_utilities.edcutils.createResource" href="#edc_utilities.edcutils.createResource">createResource</a></code></li>
 <li><code><a title="edc_utilities.edcutils.createResourceUsingSession" href="#edc_utilities.edcutils.createResourceUsingSession">createResourceUsingSession</a></code></li>
-<li><code><a title="edc_utilities.edcutils.executeResourceLoad" href="#edc_utilities.edcutils.executeResourceLoad">executeResourceLoad</a></code></li>
 <li><code><a title="edc_utilities.edcutils.executeResourceLoadUsingSession" href="#edc_utilities.edcutils.executeResourceLoadUsingSession">executeResourceLoadUsingSession</a></code></li>
 <li><code><a title="edc_utilities.edcutils.exportLineageLink" href="#edc_utilities.edcutils.exportLineageLink">exportLineageLink</a></code></li>
-<li><code><a title="edc_utilities.edcutils.getAllResource" href="#edc_utilities.edcutils.getAllResource">getAllResource</a></code></li>
-<li><code><a title="edc_utilities.edcutils.getCatalogCustomAttr" href="#edc_utilities.edcutils.getCatalogCustomAttr">getCatalogCustomAttr</a></code></li>
-<li><code><a title="edc_utilities.edcutils.getCatalogObjectCount" href="#edc_utilities.edcutils.getCatalogObjectCount">getCatalogObjectCount</a></code></li>
-<li><code><a title="edc_utilities.edcutils.getCatalogResourceCount" href="#edc_utilities.edcutils.getCatalogResourceCount">getCatalogResourceCount</a></code></li>
-<li><code><a title="edc_utilities.edcutils.getResourceDef" href="#edc_utilities.edcutils.getResourceDef">getResourceDef</a></code></li>
 <li><code><a title="edc_utilities.edcutils.getResourceDefUsingSession" href="#edc_utilities.edcutils.getResourceDefUsingSession">getResourceDefUsingSession</a></code></li>
-<li><code><a title="edc_utilities.edcutils.getResourceObjectCount" href="#edc_utilities.edcutils.getResourceObjectCount">getResourceObjectCount</a></code></li>
-<li><code><a title="edc_utilities.edcutils.getReusableScannerConfig" href="#edc_utilities.edcutils.getReusableScannerConfig">getReusableScannerConfig</a></code></li>
 <li><code><a title="edc_utilities.edcutils.get_fact_value" href="#edc_utilities.edcutils.get_fact_value">get_fact_value</a></code></li>
-<li><code><a title="edc_utilities.edcutils.updateResourceDef" href="#edc_utilities.edcutils.updateResourceDef">updateResourceDef</a></code></li>
-<li><code><a title="edc_utilities.edcutils.uploadResourceFile" href="#edc_utilities.edcutils.uploadResourceFile">uploadResourceFile</a></code></li>
 <li><code><a title="edc_utilities.edcutils.uploadResourceFileUsingSession" href="#edc_utilities.edcutils.uploadResourceFileUsingSession">uploadResourceFileUsingSession</a></code></li>
 </ul>
 </li>

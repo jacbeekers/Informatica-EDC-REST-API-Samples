@@ -9,7 +9,7 @@ from src.metadata_utilities import messages
 
 class ValidateSchema():
     default_version = "0.2.0"
-    default_schema_directory = "metadata/schemas/interface/" + default_version + "/"
+    default_schema_directory = "metadata/schemas/interface/"
     default_schema = "physical_entity"
     default_resource_directory = "metadata/resources/"
     default_filename = "default.json"
@@ -57,14 +57,16 @@ class ValidateSchema():
         return False, None
 
 
-if __name__ == '__main__':
-
+def main(config_file="resources/config.json"):
     json_file = "not provided"
     meta_type = "unknown"
     result = messages.message["undetermined"]
-    settings = generic_settings.GenericSettings()
-    settings.get_config()
-    generic = generic.Generic()
+    settings = generic_settings.GenericSettings(configuration_file=config_file)
+    result = settings.get_config()
+    if result != messages.message["ok"]:
+        print("ERROR:", result["message"])
+        exit(3)
+
     json_directory = settings.json_directory
     target = settings.target
     data = ""
@@ -120,3 +122,7 @@ if __name__ == '__main__':
             exit(2)
         else:
             exit(0)
+
+
+if __name__ == '__main__':
+    main()

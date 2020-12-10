@@ -41,14 +41,6 @@ def test_exportLineageLink():
     pass
 
 
-def test_getAllResource():
-    try:
-        edcutils.getAllResource(test_url, "dummy", "dummy")
-    except IOError:
-        pass
-    pass
-
-
 def test_getResourceDefUsingSession():
     try:
         edcutils.getResourceDefUsingSession(test_url
@@ -117,3 +109,19 @@ def test_execute_resource_load_using_session():
 def test_encode_user():
 
     encodeUser.encode(security_domain="", user_name="test", password="test")
+
+
+def test_create_update_execute_resource_using_session():
+    try:
+        edcutils.createOrUpdateAndExecuteResourceUsingSession(test_url
+                                                              ,session=requests.session()
+                                                              ,resourceName="test-resource"
+                                                              ,templateFileName="/tmp"
+                                                              ,fileName="dummy"
+                                                              ,inputFileFullPath="tests/__init__.py"
+                                                              ,waitForComplete=True
+                                                              ,scannerId="1-1"
+                                                              )
+    except IOError:
+        pass
+

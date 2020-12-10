@@ -51,34 +51,49 @@ the user will be prompted for an id and password and optional security domain
 import base64
 import getpass
 
-# assume python 3.x (input vs raw_input)
-print(&#34;&#34;)
-print(&#34;Enter values for Security Domain (optional), User and Password&#34;)
-secDomain = input(&#34;security domain &lt;empty&gt; for Native:&#34;)
-u = input(&#34;User Name for catalog:&#34;)
-p = getpass.getpass(prompt=&#34;password for user=&#34; + u + &#34;:&#34;)
-if secDomain == &#34;&#34;:
-    auth_str = f&#34;{u}:{p}&#34;
-else:
-    auth_str = f&#34;{secDomain}\\{u}:{p}&#34;
-b64_auth_str = base64.b64encode(bytes(auth_str, &#34;utf-8&#34;))
 
-# print result of encoding to console
-# print(b64_auth_str.decode(&#34;utf-8&#34;))
-print(&#34;header settings:&#34;)
-print(f&#39;\t&#34;Authorization&#34;: Basic {b64_auth_str.decode(&#34;utf-8&#34;)}&#39;)
+def encode(security_domain=None, user_name=None, password=None):
+    if security_domain is None:
+        print(&#34;&#34;)
+        print(&#34;Enter values for Security Domain (optional), User and Password&#34;)
+        secDomain = input(&#34;security domain &lt;empty&gt; for Native:&#34;)
+    else:
+        secDomain = security_domain
+    if user_name is None:
+        u = input(&#34;User Name for catalog:&#34;)
+    else:
+        u = user_name
+    if password is None:
+        p = getpass.getpass(prompt=&#34;password for user=&#34; + u + &#34;:&#34;)
+    else:
+        p = password
+    if secDomain == &#34;&#34;:
+        auth_str = f&#34;{u}:{p}&#34;
+    else:
+        auth_str = f&#34;{secDomain}\\{u}:{p}&#34;
+    b64_auth_str = base64.b64encode(bytes(auth_str, &#34;utf-8&#34;))
 
-print(&#34;\nto set an env variable - linux/mac:&#34;)
-print(f&#39;\texport INFA_EDC_AUTH=&#34;Basic {b64_auth_str.decode(&#34;utf-8&#34;)}&#34;&#39;)
-print(&#34;&#34;)
-print(&#34;for Powershell:&#34;)
-print(f&#39;\t$env:INFA_EDC_AUTH=&#34;Basic {b64_auth_str.decode(&#34;utf-8&#34;)}&#34;&#39;)
-print(&#34;&#34;)
-print(&#34;for windows cmd:&#34;)
-print(f&#39;\tset INFA_EDC_AUTH=Basic {b64_auth_str.decode(&#34;utf-8&#34;)}&#39;)
-print(&#34;&#34;)
+    # print result of encoding to console
+    # print(b64_auth_str.decode(&#34;utf-8&#34;))
+    print(&#34;header settings:&#34;)
+    print(f&#39;\t&#34;Authorization&#34;: Basic {b64_auth_str.decode(&#34;utf-8&#34;)}&#39;)
 
-print(&#34;finished&#34;)</code></pre>
+    print(&#34;\nto set an env variable - linux/mac:&#34;)
+    print(f&#39;\texport INFA_EDC_AUTH=&#34;Basic {b64_auth_str.decode(&#34;utf-8&#34;)}&#34;&#39;)
+    print(&#34;&#34;)
+    print(&#34;for Powershell:&#34;)
+    print(f&#39;\t$env:INFA_EDC_AUTH=&#34;Basic {b64_auth_str.decode(&#34;utf-8&#34;)}&#34;&#39;)
+    print(&#34;&#34;)
+    print(&#34;for windows cmd:&#34;)
+    print(f&#39;\tset INFA_EDC_AUTH=Basic {b64_auth_str.decode(&#34;utf-8&#34;)}&#39;)
+    print(&#34;&#34;)
+
+    print(&#34;finished&#34;)
+    return b64_auth_str.decode(&#34;utf-8&#34;)
+
+
+if __name__ == &#39;__main__&#39;:
+    encode()</code></pre>
 </details>
 </section>
 <section>
@@ -86,6 +101,58 @@ print(&#34;finished&#34;)</code></pre>
 <section>
 </section>
 <section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="edc_utilities.encodeUser.encode"><code class="name flex">
+<span>def <span class="ident">encode</span></span>(<span>security_domain=None, user_name=None, password=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def encode(security_domain=None, user_name=None, password=None):
+    if security_domain is None:
+        print(&#34;&#34;)
+        print(&#34;Enter values for Security Domain (optional), User and Password&#34;)
+        secDomain = input(&#34;security domain &lt;empty&gt; for Native:&#34;)
+    else:
+        secDomain = security_domain
+    if user_name is None:
+        u = input(&#34;User Name for catalog:&#34;)
+    else:
+        u = user_name
+    if password is None:
+        p = getpass.getpass(prompt=&#34;password for user=&#34; + u + &#34;:&#34;)
+    else:
+        p = password
+    if secDomain == &#34;&#34;:
+        auth_str = f&#34;{u}:{p}&#34;
+    else:
+        auth_str = f&#34;{secDomain}\\{u}:{p}&#34;
+    b64_auth_str = base64.b64encode(bytes(auth_str, &#34;utf-8&#34;))
+
+    # print result of encoding to console
+    # print(b64_auth_str.decode(&#34;utf-8&#34;))
+    print(&#34;header settings:&#34;)
+    print(f&#39;\t&#34;Authorization&#34;: Basic {b64_auth_str.decode(&#34;utf-8&#34;)}&#39;)
+
+    print(&#34;\nto set an env variable - linux/mac:&#34;)
+    print(f&#39;\texport INFA_EDC_AUTH=&#34;Basic {b64_auth_str.decode(&#34;utf-8&#34;)}&#34;&#39;)
+    print(&#34;&#34;)
+    print(&#34;for Powershell:&#34;)
+    print(f&#39;\t$env:INFA_EDC_AUTH=&#34;Basic {b64_auth_str.decode(&#34;utf-8&#34;)}&#34;&#39;)
+    print(&#34;&#34;)
+    print(&#34;for windows cmd:&#34;)
+    print(f&#39;\tset INFA_EDC_AUTH=Basic {b64_auth_str.decode(&#34;utf-8&#34;)}&#39;)
+    print(&#34;&#34;)
+
+    print(&#34;finished&#34;)
+    return b64_auth_str.decode(&#34;utf-8&#34;)</code></pre>
+</details>
+</dd>
+</dl>
 </section>
 <section>
 </section>
@@ -99,6 +166,11 @@ print(&#34;finished&#34;)</code></pre>
 <li><h3>Super-module</h3>
 <ul>
 <li><code><a title="edc_utilities" href="index.html">edc_utilities</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="edc_utilities.encodeUser.encode" href="#edc_utilities.encodeUser.encode">encode</a></code></li>
 </ul>
 </li>
 </ul>

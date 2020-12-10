@@ -1,4 +1,8 @@
 from pathlib import Path
+
+import pytest
+
+from src import run_edc_lineage
 from src.metadata_utilities import load_json_metadata
 from src.metadata_utilities import messages
 import os
@@ -51,3 +55,10 @@ def test_env_edc_http_proxy():
 def test_env_edc_https_proxy():
     with set_env(HTTPS_PROXY=u'https://my-proxy.org'):
         test_load_json_metadata()
+
+
+def test_main_run_edc_lineage():
+    with pytest.raises(SystemExit) as pytest_wrapped_e:
+        run_edc_lineage.main()
+    assert pytest_wrapped_e.type == SystemExit
+    assert pytest_wrapped_e.value.code == 0

@@ -8,10 +8,10 @@ Sub-modules
 * metadata_utilities.generic
 * metadata_utilities.generic_settings
 * metadata_utilities.json_file_utilities
+* metadata_utilities.load_custom_attributes
 * metadata_utilities.load_json_metadata
 * metadata_utilities.log_settings
 * metadata_utilities.messages
 * metadata_utilities.mu_logging
 * metadata_utilities.services
-* metadata_utilities.tryout
 * metadata_utilities.validate_schema

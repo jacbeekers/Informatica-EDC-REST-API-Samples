@@ -41,28 +41,28 @@ class GenericSettings:
     def __init__(self, configuration_file=&#34;resources/config.json&#34;):
         # config.json settings
         self.main_config_file = configuration_file
-        self.base_schema_folder = &#34;unknown&#34;
-        self.meta_version = &#34;unknown&#34;
-        self.schema_directory = &#34;unknown&#34;
-        self.json_directory = &#34;unknown&#34;
-        self.target = &#34;unknown&#34;
-        self.output_directory = &#34;unknown&#34;
-        self.metadata_store = &#34;unknown&#34;
+        self.base_schema_folder = None
+        self.meta_version = None
+        self.schema_directory = None
+        self.json_directory = None
+        self.target = None
+        self.output_directory = None
+        self.metadata_store = None
         self.mu_log = None
         self.log_config = None
         self.log_directory = None
         self.log_filename = None
         self.log_filename_prefix = None
         self.log_level = None
-        self.edc_config = &#34;unknown&#34;
+        self.edc_config = None
         self.edc_config_data = {}
         self.edc_url = &#34;http://localhost:8888&#34;
-        self.edc_secrets = &#34;unknown&#34;
-        self.jinja_config = &#34;unknown&#34;
+        self.edc_secrets = None
+        self.jinja_config = None
         self.azure_monitor_config = None
         self.azure_monitor_requests = None
         self.instrumentation_key = None
-        self.suppress_edc_call = &#34;False&#34;
+        self.suppress_edc_call = False
         self.edc_http_proxy = None
         self.edc_https_proxy = None
         self.edc_auth = None
@@ -98,18 +98,18 @@ class GenericSettings:
                         print(&#34;Incorrect config value &gt;&#34; + data[&#34;suppress_edc_call&#34;]
                               + &#34;&lt; for suppress_edc_call. Must be True or False. Will default to False&#34;)
                         self.suppress_edc_call = False
-                if &#34;http_proxy&#34; in data:
-                    self.http_proxy = data[&#34;http_proxy&#34;]
-                    if self.http_proxy == &#34;None&#34;:
-                        self.http_proxy = None
+                if &#34;edc_http_proxy&#34; in data:
+                    self.edc_http_proxy = data[&#34;edc_http_proxy&#34;]
+                    if self.edc_http_proxy == &#34;None&#34;:
+                        self.edc_http_proxy = None
                 else:
-                    self.http_proxy = None
-                if &#34;https_proxy&#34; in data:
-                    self.https_proxy = data[&#34;https_proxy&#34;]
-                    if self.https_proxy == &#34;None&#34;:
-                        self.https_proxy = None
+                    self.edc_http_proxy = None
+                if &#34;edc_https_proxy&#34; in data:
+                    self.edc_https_proxy = data[&#34;edc_https_proxy&#34;]
+                    if self.edc_https_proxy == &#34;None&#34;:
+                        self.edc_https_proxy = None
                 else:
-                    self.https_proxy = None
+                    self.edc_https_proxy = None
                 if &#34;log_config&#34; in data:
                     self.log_config = data[&#34;log_config&#34;]
                 else:
@@ -127,10 +127,10 @@ class GenericSettings:
 
             result = messages.message[&#34;ok&#34;]
         except FileNotFoundError:
-            print(&#34;FATAL:&#34;, module, &#34;could find main configuration file &gt;&#34; + self.main_config_file + &#34;&lt;.&#34;)
+            print(&#34;FATAL:&#34;, module, &#34;could find not main configuration file &gt;&#34; + self.main_config_file + &#34;&lt;.&#34;)
             return messages.message[&#34;main_config_not_found&#34;]
 
-        if self.edc_config != &#34;unknown&#34;:
+        if self.edc_config is not None:
             try:
                 with open(self.edc_config) as edc:
                     self.edc_config_data = json.load(edc)
@@ -141,7 +141,7 @@ class GenericSettings:
                                 , module)
                 return messages.message[&#34;edc_config_not_found&#34;]
 
-        if self.edc_secrets == &#34;unknown&#34;:
+        if self.edc_secrets is None:
             self.mu_log.log(self.mu_log.DEBUG, &#34;edc_secrets is unknown&#34;)
         else:
             edc_secrets_result = self.get_edc_secrets(self.edc_secrets)
@@ -151,7 +151,7 @@ class GenericSettings:
                 self.mu_log.log(self.mu_log.ERROR, &#34;get_edc_secrets returned: &#34; + edc_secrets_result[&#34;code&#34;], module)
                 return edc_secrets_result
 
-        if self.azure_monitor_config != &#34;unknown&#34;:
+        if self.azure_monitor_config is not None:
             try:
                 with open(self.azure_monitor_config) as az_monitor:
                     data = json.load(az_monitor)
@@ -182,7 +182,7 @@ class GenericSettings:
         module = &#34;get_edc_secrets&#34;
 
         try:
-            with open(self.edc_secrets) as edc:
+            with open(edc_secrets) as edc:
                 data = json.load(edc)
                 result = self.determine_edc_secrets(data)
                 if result == messages.message[&#34;ok&#34;]:
@@ -204,12 +204,14 @@ class GenericSettings:
         if &#34;meta_version&#34; in data:
             main_meta_version = data[&#34;meta_version&#34;][:3]
             if main_meta_version == &#34;0.3&#34;:
-                self.mu_log.log(self.mu_log.INFO, &#34;main_meta_version of edc secrets is &gt;&#34; + main_meta_version + &#34;&lt;.&#34;)
+                self.mu_log.log(self.mu_log.INFO, &#34;main_meta_version of edc secrets is &gt;&#34; + main_meta_version + &#34;&lt;.&#34;
+                                , module)
             else:
-                self.mu_log.log(self.mu_log.ERROR, &#34;Unsupported meta_version &gt;&#34; + data[&#34;meta_version&#34;] + &#34;&lt;.&#34;)
+                self.mu_log.log(self.mu_log.ERROR, &#34;Unsupported meta_version &gt;&#34; + data[&#34;meta_version&#34;] + &#34;&lt;.&#34;
+                                , module)
                 return messages.message[&#34;unsupported_meta_version_edc_secrets&#34;]
         else:
-            self.mu_log.log(self.mu_log.WARNING, &#34;Backward compatible edc secrets file detected. Please updata to a later version.&#34;
+            self.mu_log.log(self.mu_log.WARNING, &#34;Backward compatible edc secrets file detected. Please update to a later version.&#34;
                             , module)
 
         # The following is true for version 0.3 as well as the configuration before introduction of meta_version
@@ -227,17 +229,17 @@ class GenericSettings:
                             , module)
 
         if &#34;edc_http_proxy&#34; in data:
-            self.http_proxy = data[&#34;edc_http_proxy&#34;]
+            self.edc_http_proxy = data[&#34;edc_http_proxy&#34;]
             self.mu_log.log(self.mu_log.INFO, &#34;HTTP Proxy for EDC taken from edc secrets file: &#34;
-                            + self.http_proxy, module)
+                            + self.edc_http_proxy, module)
         else:
             self.mu_log.log(self.mu_log.INFO, &#34;No HTTP Proxy for EDC found in edc secrets file. &#34;
                             + &#34;This is OK if no proxy is needed or has been set through the environment variable HTTP_PROXY&#34;
                             , module)
         if &#34;edc_https_proxy&#34; in data:
-            self.https_proxy = data[&#34;edc_https_proxy&#34;]
+            self.edc_https_proxy = data[&#34;edc_https_proxy&#34;]
             self.mu_log.log(self.mu_log.INFO, &#34;HTTPS Proxy for EDC taken from edc secrets file: &#34;
-                            + self.https_proxy, module)
+                            + self.edc_https_proxy, module)
         else:
             self.mu_log.log(self.mu_log.INFO, &#34;No HTTPS Proxy for EDC found in edc secrets file. &#34;
                             + &#34;This is OK if no proxy is needed or has been set through the environment variable HTTPS_PROXY&#34;
@@ -273,28 +275,28 @@ class GenericSettings:
     def __init__(self, configuration_file=&#34;resources/config.json&#34;):
         # config.json settings
         self.main_config_file = configuration_file
-        self.base_schema_folder = &#34;unknown&#34;
-        self.meta_version = &#34;unknown&#34;
-        self.schema_directory = &#34;unknown&#34;
-        self.json_directory = &#34;unknown&#34;
-        self.target = &#34;unknown&#34;
-        self.output_directory = &#34;unknown&#34;
-        self.metadata_store = &#34;unknown&#34;
+        self.base_schema_folder = None
+        self.meta_version = None
+        self.schema_directory = None
+        self.json_directory = None
+        self.target = None
+        self.output_directory = None
+        self.metadata_store = None
         self.mu_log = None
         self.log_config = None
         self.log_directory = None
         self.log_filename = None
         self.log_filename_prefix = None
         self.log_level = None
-        self.edc_config = &#34;unknown&#34;
+        self.edc_config = None
         self.edc_config_data = {}
         self.edc_url = &#34;http://localhost:8888&#34;
-        self.edc_secrets = &#34;unknown&#34;
-        self.jinja_config = &#34;unknown&#34;
+        self.edc_secrets = None
+        self.jinja_config = None
         self.azure_monitor_config = None
         self.azure_monitor_requests = None
         self.instrumentation_key = None
-        self.suppress_edc_call = &#34;False&#34;
+        self.suppress_edc_call = False
         self.edc_http_proxy = None
         self.edc_https_proxy = None
         self.edc_auth = None
@@ -330,18 +332,18 @@ class GenericSettings:
                         print(&#34;Incorrect config value &gt;&#34; + data[&#34;suppress_edc_call&#34;]
                               + &#34;&lt; for suppress_edc_call. Must be True or False. Will default to False&#34;)
                         self.suppress_edc_call = False
-                if &#34;http_proxy&#34; in data:
-                    self.http_proxy = data[&#34;http_proxy&#34;]
-                    if self.http_proxy == &#34;None&#34;:
-                        self.http_proxy = None
+                if &#34;edc_http_proxy&#34; in data:
+                    self.edc_http_proxy = data[&#34;edc_http_proxy&#34;]
+                    if self.edc_http_proxy == &#34;None&#34;:
+                        self.edc_http_proxy = None
                 else:
-                    self.http_proxy = None
-                if &#34;https_proxy&#34; in data:
-                    self.https_proxy = data[&#34;https_proxy&#34;]
-                    if self.https_proxy == &#34;None&#34;:
-                        self.https_proxy = None
+                    self.edc_http_proxy = None
+                if &#34;edc_https_proxy&#34; in data:
+                    self.edc_https_proxy = data[&#34;edc_https_proxy&#34;]
+                    if self.edc_https_proxy == &#34;None&#34;:
+                        self.edc_https_proxy = None
                 else:
-                    self.https_proxy = None
+                    self.edc_https_proxy = None
                 if &#34;log_config&#34; in data:
                     self.log_config = data[&#34;log_config&#34;]
                 else:
@@ -359,10 +361,10 @@ class GenericSettings:
 
             result = messages.message[&#34;ok&#34;]
         except FileNotFoundError:
-            print(&#34;FATAL:&#34;, module, &#34;could find main configuration file &gt;&#34; + self.main_config_file + &#34;&lt;.&#34;)
+            print(&#34;FATAL:&#34;, module, &#34;could find not main configuration file &gt;&#34; + self.main_config_file + &#34;&lt;.&#34;)
             return messages.message[&#34;main_config_not_found&#34;]
 
-        if self.edc_config != &#34;unknown&#34;:
+        if self.edc_config is not None:
             try:
                 with open(self.edc_config) as edc:
                     self.edc_config_data = json.load(edc)
@@ -373,7 +375,7 @@ class GenericSettings:
                                 , module)
                 return messages.message[&#34;edc_config_not_found&#34;]
 
-        if self.edc_secrets == &#34;unknown&#34;:
+        if self.edc_secrets is None:
             self.mu_log.log(self.mu_log.DEBUG, &#34;edc_secrets is unknown&#34;)
         else:
             edc_secrets_result = self.get_edc_secrets(self.edc_secrets)
@@ -383,7 +385,7 @@ class GenericSettings:
                 self.mu_log.log(self.mu_log.ERROR, &#34;get_edc_secrets returned: &#34; + edc_secrets_result[&#34;code&#34;], module)
                 return edc_secrets_result
 
-        if self.azure_monitor_config != &#34;unknown&#34;:
+        if self.azure_monitor_config is not None:
             try:
                 with open(self.azure_monitor_config) as az_monitor:
                     data = json.load(az_monitor)
@@ -414,7 +416,7 @@ class GenericSettings:
         module = &#34;get_edc_secrets&#34;
 
         try:
-            with open(self.edc_secrets) as edc:
+            with open(edc_secrets) as edc:
                 data = json.load(edc)
                 result = self.determine_edc_secrets(data)
                 if result == messages.message[&#34;ok&#34;]:
@@ -436,12 +438,14 @@ class GenericSettings:
         if &#34;meta_version&#34; in data:
             main_meta_version = data[&#34;meta_version&#34;][:3]
             if main_meta_version == &#34;0.3&#34;:
-                self.mu_log.log(self.mu_log.INFO, &#34;main_meta_version of edc secrets is &gt;&#34; + main_meta_version + &#34;&lt;.&#34;)
+                self.mu_log.log(self.mu_log.INFO, &#34;main_meta_version of edc secrets is &gt;&#34; + main_meta_version + &#34;&lt;.&#34;
+                                , module)
             else:
-                self.mu_log.log(self.mu_log.ERROR, &#34;Unsupported meta_version &gt;&#34; + data[&#34;meta_version&#34;] + &#34;&lt;.&#34;)
+                self.mu_log.log(self.mu_log.ERROR, &#34;Unsupported meta_version &gt;&#34; + data[&#34;meta_version&#34;] + &#34;&lt;.&#34;
+                                , module)
                 return messages.message[&#34;unsupported_meta_version_edc_secrets&#34;]
         else:
-            self.mu_log.log(self.mu_log.WARNING, &#34;Backward compatible edc secrets file detected. Please updata to a later version.&#34;
+            self.mu_log.log(self.mu_log.WARNING, &#34;Backward compatible edc secrets file detected. Please update to a later version.&#34;
                             , module)
 
         # The following is true for version 0.3 as well as the configuration before introduction of meta_version
@@ -459,17 +463,17 @@ class GenericSettings:
                             , module)
 
         if &#34;edc_http_proxy&#34; in data:
-            self.http_proxy = data[&#34;edc_http_proxy&#34;]
+            self.edc_http_proxy = data[&#34;edc_http_proxy&#34;]
             self.mu_log.log(self.mu_log.INFO, &#34;HTTP Proxy for EDC taken from edc secrets file: &#34;
-                            + self.http_proxy, module)
+                            + self.edc_http_proxy, module)
         else:
             self.mu_log.log(self.mu_log.INFO, &#34;No HTTP Proxy for EDC found in edc secrets file. &#34;
                             + &#34;This is OK if no proxy is needed or has been set through the environment variable HTTP_PROXY&#34;
                             , module)
         if &#34;edc_https_proxy&#34; in data:
-            self.https_proxy = data[&#34;edc_https_proxy&#34;]
+            self.edc_https_proxy = data[&#34;edc_https_proxy&#34;]
             self.mu_log.log(self.mu_log.INFO, &#34;HTTPS Proxy for EDC taken from edc secrets file: &#34;
-                            + self.https_proxy, module)
+                            + self.edc_https_proxy, module)
         else:
             self.mu_log.log(self.mu_log.INFO, &#34;No HTTPS Proxy for EDC found in edc secrets file. &#34;
                             + &#34;This is OK if no proxy is needed or has been set through the environment variable HTTPS_PROXY&#34;
@@ -500,12 +504,14 @@ class GenericSettings:
     if &#34;meta_version&#34; in data:
         main_meta_version = data[&#34;meta_version&#34;][:3]
         if main_meta_version == &#34;0.3&#34;:
-            self.mu_log.log(self.mu_log.INFO, &#34;main_meta_version of edc secrets is &gt;&#34; + main_meta_version + &#34;&lt;.&#34;)
+            self.mu_log.log(self.mu_log.INFO, &#34;main_meta_version of edc secrets is &gt;&#34; + main_meta_version + &#34;&lt;.&#34;
+                            , module)
         else:
-            self.mu_log.log(self.mu_log.ERROR, &#34;Unsupported meta_version &gt;&#34; + data[&#34;meta_version&#34;] + &#34;&lt;.&#34;)
+            self.mu_log.log(self.mu_log.ERROR, &#34;Unsupported meta_version &gt;&#34; + data[&#34;meta_version&#34;] + &#34;&lt;.&#34;
+                            , module)
             return messages.message[&#34;unsupported_meta_version_edc_secrets&#34;]
     else:
-        self.mu_log.log(self.mu_log.WARNING, &#34;Backward compatible edc secrets file detected. Please updata to a later version.&#34;
+        self.mu_log.log(self.mu_log.WARNING, &#34;Backward compatible edc secrets file detected. Please update to a later version.&#34;
                         , module)
 
     # The following is true for version 0.3 as well as the configuration before introduction of meta_version
@@ -523,17 +529,17 @@ class GenericSettings:
                         , module)
 
     if &#34;edc_http_proxy&#34; in data:
-        self.http_proxy = data[&#34;edc_http_proxy&#34;]
+        self.edc_http_proxy = data[&#34;edc_http_proxy&#34;]
         self.mu_log.log(self.mu_log.INFO, &#34;HTTP Proxy for EDC taken from edc secrets file: &#34;
-                        + self.http_proxy, module)
+                        + self.edc_http_proxy, module)
     else:
         self.mu_log.log(self.mu_log.INFO, &#34;No HTTP Proxy for EDC found in edc secrets file. &#34;
                         + &#34;This is OK if no proxy is needed or has been set through the environment variable HTTP_PROXY&#34;
                         , module)
     if &#34;edc_https_proxy&#34; in data:
-        self.https_proxy = data[&#34;edc_https_proxy&#34;]
+        self.edc_https_proxy = data[&#34;edc_https_proxy&#34;]
         self.mu_log.log(self.mu_log.INFO, &#34;HTTPS Proxy for EDC taken from edc secrets file: &#34;
-                        + self.https_proxy, module)
+                        + self.edc_https_proxy, module)
     else:
         self.mu_log.log(self.mu_log.INFO, &#34;No HTTPS Proxy for EDC found in edc secrets file. &#34;
                         + &#34;This is OK if no proxy is needed or has been set through the environment variable HTTPS_PROXY&#34;
@@ -581,18 +587,18 @@ class GenericSettings:
                     print(&#34;Incorrect config value &gt;&#34; + data[&#34;suppress_edc_call&#34;]
                           + &#34;&lt; for suppress_edc_call. Must be True or False. Will default to False&#34;)
                     self.suppress_edc_call = False
-            if &#34;http_proxy&#34; in data:
-                self.http_proxy = data[&#34;http_proxy&#34;]
-                if self.http_proxy == &#34;None&#34;:
-                    self.http_proxy = None
+            if &#34;edc_http_proxy&#34; in data:
+                self.edc_http_proxy = data[&#34;edc_http_proxy&#34;]
+                if self.edc_http_proxy == &#34;None&#34;:
+                    self.edc_http_proxy = None
             else:
-                self.http_proxy = None
-            if &#34;https_proxy&#34; in data:
-                self.https_proxy = data[&#34;https_proxy&#34;]
-                if self.https_proxy == &#34;None&#34;:
-                    self.https_proxy = None
+                self.edc_http_proxy = None
+            if &#34;edc_https_proxy&#34; in data:
+                self.edc_https_proxy = data[&#34;edc_https_proxy&#34;]
+                if self.edc_https_proxy == &#34;None&#34;:
+                    self.edc_https_proxy = None
             else:
-                self.https_proxy = None
+                self.edc_https_proxy = None
             if &#34;log_config&#34; in data:
                 self.log_config = data[&#34;log_config&#34;]
             else:
@@ -610,10 +616,10 @@ class GenericSettings:
 
         result = messages.message[&#34;ok&#34;]
     except FileNotFoundError:
-        print(&#34;FATAL:&#34;, module, &#34;could find main configuration file &gt;&#34; + self.main_config_file + &#34;&lt;.&#34;)
+        print(&#34;FATAL:&#34;, module, &#34;could find not main configuration file &gt;&#34; + self.main_config_file + &#34;&lt;.&#34;)
         return messages.message[&#34;main_config_not_found&#34;]
 
-    if self.edc_config != &#34;unknown&#34;:
+    if self.edc_config is not None:
         try:
             with open(self.edc_config) as edc:
                 self.edc_config_data = json.load(edc)
@@ -624,7 +630,7 @@ class GenericSettings:
                             , module)
             return messages.message[&#34;edc_config_not_found&#34;]
 
-    if self.edc_secrets == &#34;unknown&#34;:
+    if self.edc_secrets is None:
         self.mu_log.log(self.mu_log.DEBUG, &#34;edc_secrets is unknown&#34;)
     else:
         edc_secrets_result = self.get_edc_secrets(self.edc_secrets)
@@ -634,7 +640,7 @@ class GenericSettings:
             self.mu_log.log(self.mu_log.ERROR, &#34;get_edc_secrets returned: &#34; + edc_secrets_result[&#34;code&#34;], module)
             return edc_secrets_result
 
-    if self.azure_monitor_config != &#34;unknown&#34;:
+    if self.azure_monitor_config is not None:
         try:
             with open(self.azure_monitor_config) as az_monitor:
                 data = json.load(az_monitor)
@@ -685,7 +691,7 @@ class GenericSettings:
     module = &#34;get_edc_secrets&#34;
 
     try:
-        with open(self.edc_secrets) as edc:
+        with open(edc_secrets) as edc:
             data = json.load(edc)
             result = self.determine_edc_secrets(data)
             if result == messages.message[&#34;ok&#34;]:

@@ -1,0 +1,926 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2" />
+<title>edc_utilities.edc_custom_attributes API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>edc_utilities.edc_custom_attributes</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">from src.metadata_utilities import messages
+from src.metadata_utilities import generic_settings, mu_logging, generic
+import logging
+import time
+from src.edc_utilities import edc_session_helper
+import requests
+import time
+import json
+import urllib3
+urllib3.disable_warnings()
+
+
+class EDCCustomAttribute:
+    &#34;&#34;&#34;
+    Class to get, add, update, delete custom attributes
+    &#34;&#34;&#34;
+
+    def __init__(self, settings_ref=None, configuration_file=None):
+        &#34;&#34;&#34;
+        Instance initialization
+            settings_ref is a reference to an existing generic_settings object. If None, the settings will be collected
+            from the configuration_file mentioned in the configuration_file argument
+            If both settings_ref and configuration_file are set, the configuration_file argument will be ignored.
+        &#34;&#34;&#34;
+        module = __name__ + &#34;.__init__&#34;
+        self.timeout = 10
+
+        self.settings = None
+        self.settings_found = False
+        self.mu_log = None
+
+        if configuration_file is None:
+            current_configuration_file = &#34;resources/config.json&#34;
+        else:
+            current_configuration_file = configuration_file
+
+        if settings_ref is None:
+            # print(module, &#34;settings_ref is None. Getting them myself.&#34;)
+            self.settings = generic_settings.GenericSettings(configuration_file=current_configuration_file)
+            result = self.settings.get_config()
+            if result != messages.message[&#34;ok&#34;]:
+                self.settings_found = False
+                print(module, &#34;Could not get main config. Error:&#34;, result[&#34;code&#34;])
+            else:
+                self.mu_log = self.settings.mu_log
+                self.mu_log.log(self.mu_log.DEBUG, &#34;Generic settings loaded.&#34;, module)
+                self.settings_found = True
+        else:
+            self.settings = settings_ref
+            self.settings_found = True
+
+        if self.mu_log is None:
+            self.mu_log = mu_logging.MULogging(&#34;resources/log_config.json&#34;)
+            self.mu_log.setup_logger(logging.DEBUG)
+            self.mu_log.log(self.mu_log.DEBUG, &#34;mu_log was None. Logger has been setup now.&#34;, module)
+            self.settings.mu_log = self.mu_log
+
+        self.generic = generic.Generic(self.settings, self.mu_log)
+        self.generic.get_jinja_settings()
+        self.edc_helper = edc_session_helper.EDCSession(self.settings)
+        self.session = self.edc_helper.init_edc_session(self.settings.mu_log)
+        # self.mu_log.log(self.mu_log.DEBUG, &#34;headers: &#34; + str(self.session.headers.items()), module)
+        self.proxies = self.settings.get_edc_proxy()
+        self.retries = 0
+        self.max_retries = 3
+
+    def reconnect(self):
+        self.session = self.edc_helper.init_edc_session(self.mu_log)
+        self.retries += 1
+
+    def get_custom_attribute(self, name=&#34;dummy&#34;, expect_to_exist=True):
+        &#34;&#34;&#34;
+        Get the EDC attribute
+        This is an expensive operation, so we should cache it
+        &#34;&#34;&#34;
+        module = __name__+&#34;.get_custom_attribute&#34;
+        start_time = time.time()
+        url = self.settings.edc_url + &#34;/access/2/catalog/data/objects&#34;
+        total = 100000
+        offset = 0
+        page = 0
+        page_size = 500
+        timeout = self.timeout
+
+        attribute_count = 0
+        custom_attribute_count = 0
+        resp = None
+
+        found = False
+        from_scratch = True
+        self.mu_log.log(self.mu_log.DEBUG, &#34;URL used: &#34; + url, module)
+
+        items_found = True
+        while offset &lt; total and self.retries &lt; self.max_retries and items_found:
+            if from_scratch:
+                offset = 0
+                page = 0
+                from_scratch = False
+
+            page += 1
+            parameters = {&#34;offset&#34;: offset, &#34;pageSize&#34;: page_size}
+            self.mu_log.log(self.mu_log.DEBUG, &#34;Getting page#&#34; + str(page), module)
+
+            # execute catalog rest call, for a page of results
+            if self.settings.suppress_edc_call:
+                self.mu_log.log(self.mu_log.WARNING, &#34;suppress_edc_call is True. Skipping EDC call...&#34;, module)
+                status = 200
+                result_json = json.dumps({}, indent=4)
+            else:
+                try:
+                    resp = self.session.get(url, params=parameters, timeout=timeout, headers=self.session.headers
+                                       , proxies=self.session.proxies)
+                    status = resp.status_code
+                    result_json = resp.json()
+                    # store the total, so we know when the last page of results is read
+                    total = result_json[&#34;metadata&#34;][&#34;totalCount&#34;]
+                except requests.exceptions.RequestException as e:
+                    self.mu_log.log(self.mu_log.ERROR, &#34;An error occurred: &#34; + str(e), module)
+                    self.mu_log.log(self.mu_log.WARNING, &#34;retry#&#34; + str(self.retries+1), module)
+                    self.reconnect()
+                    from_scratch=True
+                    continue
+
+            # no execption rasied - so we can check the status/return-code
+            if status != 200:
+                self.mu_log.log(self.mu_log.ERROR, &#34;EDC returned: &#34; + str(status), module)
+                return messages.message[&#34;edc_status_not_200&#34;]
+            else:
+                self.mu_log.log(self.mu_log.DEBUG, &#34;EDC returned 200 = ok.&#34;, module)
+
+            # self.mu_log.log(self.mu_log.INFO, &#34;Total number of items: &#34; + str(total), module)
+            # for next iteration
+            offset += page_size
+
+            # for each attribute found...
+            attrId = &#34;&#34;
+            if &#34;items&#34; not in result_json:
+                self.mu_log.log(self.mu_log.INFO, &#34;No items in JSON response.&#34;, module)
+                items_found = False
+            else:
+                items_found = True
+                for attrDef in result_json[&#34;items&#34;]:
+                    attribute_count += 1
+                    attrId = attrDef[&#34;id&#34;]
+                    # self.mu_log.log(self.mu_log.VERBOSE, &#34;Found id: &#34; + attrId, module)
+                    if &#34;name&#34; in attrDef:
+                        attrName = attrDef[&#34;name&#34;]
+                    else:
+                        attrName = &#34;&lt;undefined&gt;&#34;
+                    if &#34;dataTypeId&#34; in attrDef:
+                        dataType = attrDef[&#34;dataTypeId&#34;]
+                    if attrId.startswith(&#34;com.infa.appmodels.ldm.*&#34;):
+                        custom_attribute_count += 1
+                    # self.mu_log.log(self.mu_log.VERBOSE, &#34;Found Custom Attribute #&#34; + str(custom_attribute_count)
+                    #        + &#34;, name: &#34; + attrName + &#34; id: &#34; + attrId, module)
+                    if attrName == name:
+                        self.mu_log.log(self.mu_log.INFO, &#34;Found the attribute we were looking for!&#34;, module)
+                        found = True
+                    # else:
+                        # self.mu_log.log(self.mu_log.VERBOSE, &#34;This is not the attribute we are looking for.&#34;, module)
+
+        end_time = time.time()
+        self.mu_log.log(self.mu_log.INFO, &#34;Processing time: &#34; + str(end_time - start_time), module)
+
+        if self.settings.suppress_edc_call and expect_to_exist:
+            found = True
+
+        if found:
+            return messages.message[&#34;ok&#34;]
+        else:
+            return messages.message[&#34;custom_attribute_not_found&#34;]
+
+    def create_custom_attribute(self, custom_attribute_values=None):
+        &#34;&#34;&#34;
+        Create new custom attribute
+        Will fail if attribute already exists
+        &#34;&#34;&#34;
+        module = __name__ + &#34;.create_custom_attribute&#34;
+        start_time = time.time()
+
+        if custom_attribute_values is None:
+            result = messages.message[&#34;no_custom_attribute_provided&#34;]
+            return result
+
+        name = custom_attribute_values[&#34;items&#34;][0][&#34;name&#34;]
+        # result, the_template = self.generic.get_jinja_template(&#34;edc_create_attributes.jinja2&#34;)
+        # custom_attribute_json = self.fill_in_jinja_template_custom_attributes(the_template, custom_attribute_values)
+        custom_attribute_json = json.dumps(custom_attribute_values, indent=4)
+        self.mu_log.log(self.mu_log.DEBUG, &#34;JSON for custom attribute &gt;&#34; + name + &#34;&lt; is: &#34; + str(custom_attribute_json)
+                        ,module)
+
+        url = self.settings.edc_url + &#34;/access/2/catalog/models/attributes&#34;
+        resp = None
+        result = messages.message[&#34;undetermined&#34;]
+
+        try:
+            if self.settings.suppress_edc_call:
+                self.mu_log.log(self.mu_log.WARNING, &#34;suppress_edc_call is True. Skipping EDC call...&#34;, module)
+                status = 200
+            else:
+                resp = self.session.post(url, custom_attribute_json, timeout=self.timeout, headers=self.session.headers
+                                    , proxies=self.session.proxies)
+                status = resp.status_code
+            if status == 200:
+                # TODO: Check response body on &#34;metadata&#34;: { &#34;totalCount&#34;: 1 }
+                self.mu_log.log(self.mu_log.INFO, &#34;Custom Attribute successfully created.&#34;, module)
+                result = messages.message[&#34;ok&#34;]
+            elif resp.status_code == 400:
+                if &#34;already exists&#34; in str(resp.content) and name in str(resp.content):
+                    self.mu_log.log(self.mu_log.ERROR, &#34;Custom attribute &gt;&#34; + name + &#34;&lt; already exists.&#34;, module)
+                    result = messages.message[&#34;edc_custom_attribute_already_exists&#34;]
+                else:
+                    self.mu_log.log(self.mu_log.ERROR, &#34;HTTP 400 occurred, but not because attribute already exists.&#34;
+                                    , module)
+                    result = messages.message[&#34;edc_error_creating_custom_attribute&#34;]
+            else:
+                self.mu_log.log(self.mu_log.ERROR,
+                                &#34;Error creating custom attribute. HTTP Response code: &#34; + str(resp.status_code)
+                                , module)
+                result = messages.message[&#34;edc_error_creating_custom_attribute&#34;]
+        except requests.exceptions.RequestException as e:
+            self.mu_log.log(self.mu_log.ERROR, &#34;An error occurred: &#34; + str(e), module)
+            result = messages.message[&#34;edc_error_creating_custom_attribute&#34;]
+
+        end_time = time.time()
+        self.mu_log.log(self.mu_log.INFO, &#34;Processing time: &#34; + str(end_time - start_time), module)
+
+        return result
+
+    def update_custom_attribute(self, name=&#34;dummy&#34;):
+        &#34;&#34;&#34;
+        Update a give custom attribute
+        &#34;&#34;&#34;
+        module = __name__ + &#34;.update_custom_attribute&#34;
+        result = self.get_custom_attribute(name)
+        if result == messages.message[&#34;ok&#34;]:
+            # attribute exists and we can go ahead
+            self.mu_log.log(self.mu_log.INFO, &#34;Found Custom Attribute &gt;&#34; + name + &#34;&lt;.&#34;, module)
+        else:
+            self.mu_log.log(self.mu_log.ERROR, &#34;Custom Attribute &gt;&#34; + name + &#34;&lt; not found.&#34;, module)
+            return result
+
+        if self.settings.suppress_edc_call:
+            self.mu_log.log(self.mu_log.WARNING, &#34;suppress_edc_call is True. Skipping EDC call...&#34;, module)
+            status = 200
+            result = messages.message[&#34;ok&#34;]
+        else:
+            # TODO: Call EDC to update the custom attribute
+            result = messages.message[&#34;not_implemented&#34;]
+
+        return result
+
+    def delete_custom_attribute(self, name=&#34;dummy&#34;, ignore_already_gone=True):
+        &#34;&#34;&#34;
+        Delete a give custom attribute
+        &#34;&#34;&#34;
+        module = __name__ + &#34;.delete_custom_attribute&#34;
+
+        if self.settings.suppress_edc_call:
+            self.mu_log.log(self.mu_log.WARNING, &#34;suppress_edc_call is True. Skipping EDC call...&#34;, module)
+            status = 200
+            result = messages.message[&#34;ok&#34;]
+        else:
+            # TODO: Call EDC to remove the custom attribute
+            result = messages.message[&#34;not_implemented&#34;]
+
+        return result
+
+    def fill_in_jinja_template_custom_attributes(self
+                                                 ,the_template
+                                                 ,custom_attribute_values
+                                                 ):
+        &#34;&#34;&#34;
+        the_template must be a Template object as retrieved through get_jinja_template
+        &#34;&#34;&#34;
+
+        return the_template.render(allowed_classes=custom_attribute_values[&#34;classes_list&#34;]
+                                        ,attribute_description=custom_attribute_values[&#34;description&#34;]
+                                        ,attribute_name=custom_attribute_values[&#34;attribute_name&#34;]
+                                        ,type_allowed_resources=custom_attribute_values[&#34;assignment_type&#34;]
+                                        ,attribute_allowed_resources=custom_attribute_values[&#34;allowed_resources&#34;]
+                                   )</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="edc_utilities.edc_custom_attributes.EDCCustomAttribute"><code class="flex name class">
+<span>class <span class="ident">EDCCustomAttribute</span></span>
+<span>(</span><span>settings_ref=None, configuration_file=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Class to get, add, update, delete custom attributes</p>
+<p>Instance initialization
+settings_ref is a reference to an existing generic_settings object. If None, the settings will be collected
+from the configuration_file mentioned in the configuration_file argument
+If both settings_ref and configuration_file are set, the configuration_file argument will be ignored.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class EDCCustomAttribute:
+    &#34;&#34;&#34;
+    Class to get, add, update, delete custom attributes
+    &#34;&#34;&#34;
+
+    def __init__(self, settings_ref=None, configuration_file=None):
+        &#34;&#34;&#34;
+        Instance initialization
+            settings_ref is a reference to an existing generic_settings object. If None, the settings will be collected
+            from the configuration_file mentioned in the configuration_file argument
+            If both settings_ref and configuration_file are set, the configuration_file argument will be ignored.
+        &#34;&#34;&#34;
+        module = __name__ + &#34;.__init__&#34;
+        self.timeout = 10
+
+        self.settings = None
+        self.settings_found = False
+        self.mu_log = None
+
+        if configuration_file is None:
+            current_configuration_file = &#34;resources/config.json&#34;
+        else:
+            current_configuration_file = configuration_file
+
+        if settings_ref is None:
+            # print(module, &#34;settings_ref is None. Getting them myself.&#34;)
+            self.settings = generic_settings.GenericSettings(configuration_file=current_configuration_file)
+            result = self.settings.get_config()
+            if result != messages.message[&#34;ok&#34;]:
+                self.settings_found = False
+                print(module, &#34;Could not get main config. Error:&#34;, result[&#34;code&#34;])
+            else:
+                self.mu_log = self.settings.mu_log
+                self.mu_log.log(self.mu_log.DEBUG, &#34;Generic settings loaded.&#34;, module)
+                self.settings_found = True
+        else:
+            self.settings = settings_ref
+            self.settings_found = True
+
+        if self.mu_log is None:
+            self.mu_log = mu_logging.MULogging(&#34;resources/log_config.json&#34;)
+            self.mu_log.setup_logger(logging.DEBUG)
+            self.mu_log.log(self.mu_log.DEBUG, &#34;mu_log was None. Logger has been setup now.&#34;, module)
+            self.settings.mu_log = self.mu_log
+
+        self.generic = generic.Generic(self.settings, self.mu_log)
+        self.generic.get_jinja_settings()
+        self.edc_helper = edc_session_helper.EDCSession(self.settings)
+        self.session = self.edc_helper.init_edc_session(self.settings.mu_log)
+        # self.mu_log.log(self.mu_log.DEBUG, &#34;headers: &#34; + str(self.session.headers.items()), module)
+        self.proxies = self.settings.get_edc_proxy()
+        self.retries = 0
+        self.max_retries = 3
+
+    def reconnect(self):
+        self.session = self.edc_helper.init_edc_session(self.mu_log)
+        self.retries += 1
+
+    def get_custom_attribute(self, name=&#34;dummy&#34;, expect_to_exist=True):
+        &#34;&#34;&#34;
+        Get the EDC attribute
+        This is an expensive operation, so we should cache it
+        &#34;&#34;&#34;
+        module = __name__+&#34;.get_custom_attribute&#34;
+        start_time = time.time()
+        url = self.settings.edc_url + &#34;/access/2/catalog/data/objects&#34;
+        total = 100000
+        offset = 0
+        page = 0
+        page_size = 500
+        timeout = self.timeout
+
+        attribute_count = 0
+        custom_attribute_count = 0
+        resp = None
+
+        found = False
+        from_scratch = True
+        self.mu_log.log(self.mu_log.DEBUG, &#34;URL used: &#34; + url, module)
+
+        items_found = True
+        while offset &lt; total and self.retries &lt; self.max_retries and items_found:
+            if from_scratch:
+                offset = 0
+                page = 0
+                from_scratch = False
+
+            page += 1
+            parameters = {&#34;offset&#34;: offset, &#34;pageSize&#34;: page_size}
+            self.mu_log.log(self.mu_log.DEBUG, &#34;Getting page#&#34; + str(page), module)
+
+            # execute catalog rest call, for a page of results
+            if self.settings.suppress_edc_call:
+                self.mu_log.log(self.mu_log.WARNING, &#34;suppress_edc_call is True. Skipping EDC call...&#34;, module)
+                status = 200
+                result_json = json.dumps({}, indent=4)
+            else:
+                try:
+                    resp = self.session.get(url, params=parameters, timeout=timeout, headers=self.session.headers
+                                       , proxies=self.session.proxies)
+                    status = resp.status_code
+                    result_json = resp.json()
+                    # store the total, so we know when the last page of results is read
+                    total = result_json[&#34;metadata&#34;][&#34;totalCount&#34;]
+                except requests.exceptions.RequestException as e:
+                    self.mu_log.log(self.mu_log.ERROR, &#34;An error occurred: &#34; + str(e), module)
+                    self.mu_log.log(self.mu_log.WARNING, &#34;retry#&#34; + str(self.retries+1), module)
+                    self.reconnect()
+                    from_scratch=True
+                    continue
+
+            # no execption rasied - so we can check the status/return-code
+            if status != 200:
+                self.mu_log.log(self.mu_log.ERROR, &#34;EDC returned: &#34; + str(status), module)
+                return messages.message[&#34;edc_status_not_200&#34;]
+            else:
+                self.mu_log.log(self.mu_log.DEBUG, &#34;EDC returned 200 = ok.&#34;, module)
+
+            # self.mu_log.log(self.mu_log.INFO, &#34;Total number of items: &#34; + str(total), module)
+            # for next iteration
+            offset += page_size
+
+            # for each attribute found...
+            attrId = &#34;&#34;
+            if &#34;items&#34; not in result_json:
+                self.mu_log.log(self.mu_log.INFO, &#34;No items in JSON response.&#34;, module)
+                items_found = False
+            else:
+                items_found = True
+                for attrDef in result_json[&#34;items&#34;]:
+                    attribute_count += 1
+                    attrId = attrDef[&#34;id&#34;]
+                    # self.mu_log.log(self.mu_log.VERBOSE, &#34;Found id: &#34; + attrId, module)
+                    if &#34;name&#34; in attrDef:
+                        attrName = attrDef[&#34;name&#34;]
+                    else:
+                        attrName = &#34;&lt;undefined&gt;&#34;
+                    if &#34;dataTypeId&#34; in attrDef:
+                        dataType = attrDef[&#34;dataTypeId&#34;]
+                    if attrId.startswith(&#34;com.infa.appmodels.ldm.*&#34;):
+                        custom_attribute_count += 1
+                    # self.mu_log.log(self.mu_log.VERBOSE, &#34;Found Custom Attribute #&#34; + str(custom_attribute_count)
+                    #        + &#34;, name: &#34; + attrName + &#34; id: &#34; + attrId, module)
+                    if attrName == name:
+                        self.mu_log.log(self.mu_log.INFO, &#34;Found the attribute we were looking for!&#34;, module)
+                        found = True
+                    # else:
+                        # self.mu_log.log(self.mu_log.VERBOSE, &#34;This is not the attribute we are looking for.&#34;, module)
+
+        end_time = time.time()
+        self.mu_log.log(self.mu_log.INFO, &#34;Processing time: &#34; + str(end_time - start_time), module)
+
+        if self.settings.suppress_edc_call and expect_to_exist:
+            found = True
+
+        if found:
+            return messages.message[&#34;ok&#34;]
+        else:
+            return messages.message[&#34;custom_attribute_not_found&#34;]
+
+    def create_custom_attribute(self, custom_attribute_values=None):
+        &#34;&#34;&#34;
+        Create new custom attribute
+        Will fail if attribute already exists
+        &#34;&#34;&#34;
+        module = __name__ + &#34;.create_custom_attribute&#34;
+        start_time = time.time()
+
+        if custom_attribute_values is None:
+            result = messages.message[&#34;no_custom_attribute_provided&#34;]
+            return result
+
+        name = custom_attribute_values[&#34;items&#34;][0][&#34;name&#34;]
+        # result, the_template = self.generic.get_jinja_template(&#34;edc_create_attributes.jinja2&#34;)
+        # custom_attribute_json = self.fill_in_jinja_template_custom_attributes(the_template, custom_attribute_values)
+        custom_attribute_json = json.dumps(custom_attribute_values, indent=4)
+        self.mu_log.log(self.mu_log.DEBUG, &#34;JSON for custom attribute &gt;&#34; + name + &#34;&lt; is: &#34; + str(custom_attribute_json)
+                        ,module)
+
+        url = self.settings.edc_url + &#34;/access/2/catalog/models/attributes&#34;
+        resp = None
+        result = messages.message[&#34;undetermined&#34;]
+
+        try:
+            if self.settings.suppress_edc_call:
+                self.mu_log.log(self.mu_log.WARNING, &#34;suppress_edc_call is True. Skipping EDC call...&#34;, module)
+                status = 200
+            else:
+                resp = self.session.post(url, custom_attribute_json, timeout=self.timeout, headers=self.session.headers
+                                    , proxies=self.session.proxies)
+                status = resp.status_code
+            if status == 200:
+                # TODO: Check response body on &#34;metadata&#34;: { &#34;totalCount&#34;: 1 }
+                self.mu_log.log(self.mu_log.INFO, &#34;Custom Attribute successfully created.&#34;, module)
+                result = messages.message[&#34;ok&#34;]
+            elif resp.status_code == 400:
+                if &#34;already exists&#34; in str(resp.content) and name in str(resp.content):
+                    self.mu_log.log(self.mu_log.ERROR, &#34;Custom attribute &gt;&#34; + name + &#34;&lt; already exists.&#34;, module)
+                    result = messages.message[&#34;edc_custom_attribute_already_exists&#34;]
+                else:
+                    self.mu_log.log(self.mu_log.ERROR, &#34;HTTP 400 occurred, but not because attribute already exists.&#34;
+                                    , module)
+                    result = messages.message[&#34;edc_error_creating_custom_attribute&#34;]
+            else:
+                self.mu_log.log(self.mu_log.ERROR,
+                                &#34;Error creating custom attribute. HTTP Response code: &#34; + str(resp.status_code)
+                                , module)
+                result = messages.message[&#34;edc_error_creating_custom_attribute&#34;]
+        except requests.exceptions.RequestException as e:
+            self.mu_log.log(self.mu_log.ERROR, &#34;An error occurred: &#34; + str(e), module)
+            result = messages.message[&#34;edc_error_creating_custom_attribute&#34;]
+
+        end_time = time.time()
+        self.mu_log.log(self.mu_log.INFO, &#34;Processing time: &#34; + str(end_time - start_time), module)
+
+        return result
+
+    def update_custom_attribute(self, name=&#34;dummy&#34;):
+        &#34;&#34;&#34;
+        Update a give custom attribute
+        &#34;&#34;&#34;
+        module = __name__ + &#34;.update_custom_attribute&#34;
+        result = self.get_custom_attribute(name)
+        if result == messages.message[&#34;ok&#34;]:
+            # attribute exists and we can go ahead
+            self.mu_log.log(self.mu_log.INFO, &#34;Found Custom Attribute &gt;&#34; + name + &#34;&lt;.&#34;, module)
+        else:
+            self.mu_log.log(self.mu_log.ERROR, &#34;Custom Attribute &gt;&#34; + name + &#34;&lt; not found.&#34;, module)
+            return result
+
+        if self.settings.suppress_edc_call:
+            self.mu_log.log(self.mu_log.WARNING, &#34;suppress_edc_call is True. Skipping EDC call...&#34;, module)
+            status = 200
+            result = messages.message[&#34;ok&#34;]
+        else:
+            # TODO: Call EDC to update the custom attribute
+            result = messages.message[&#34;not_implemented&#34;]
+
+        return result
+
+    def delete_custom_attribute(self, name=&#34;dummy&#34;, ignore_already_gone=True):
+        &#34;&#34;&#34;
+        Delete a give custom attribute
+        &#34;&#34;&#34;
+        module = __name__ + &#34;.delete_custom_attribute&#34;
+
+        if self.settings.suppress_edc_call:
+            self.mu_log.log(self.mu_log.WARNING, &#34;suppress_edc_call is True. Skipping EDC call...&#34;, module)
+            status = 200
+            result = messages.message[&#34;ok&#34;]
+        else:
+            # TODO: Call EDC to remove the custom attribute
+            result = messages.message[&#34;not_implemented&#34;]
+
+        return result
+
+    def fill_in_jinja_template_custom_attributes(self
+                                                 ,the_template
+                                                 ,custom_attribute_values
+                                                 ):
+        &#34;&#34;&#34;
+        the_template must be a Template object as retrieved through get_jinja_template
+        &#34;&#34;&#34;
+
+        return the_template.render(allowed_classes=custom_attribute_values[&#34;classes_list&#34;]
+                                        ,attribute_description=custom_attribute_values[&#34;description&#34;]
+                                        ,attribute_name=custom_attribute_values[&#34;attribute_name&#34;]
+                                        ,type_allowed_resources=custom_attribute_values[&#34;assignment_type&#34;]
+                                        ,attribute_allowed_resources=custom_attribute_values[&#34;allowed_resources&#34;]
+                                   )</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="edc_utilities.edc_custom_attributes.EDCCustomAttribute.create_custom_attribute"><code class="name flex">
+<span>def <span class="ident">create_custom_attribute</span></span>(<span>self, custom_attribute_values=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create new custom attribute
+Will fail if attribute already exists</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def create_custom_attribute(self, custom_attribute_values=None):
+    &#34;&#34;&#34;
+    Create new custom attribute
+    Will fail if attribute already exists
+    &#34;&#34;&#34;
+    module = __name__ + &#34;.create_custom_attribute&#34;
+    start_time = time.time()
+
+    if custom_attribute_values is None:
+        result = messages.message[&#34;no_custom_attribute_provided&#34;]
+        return result
+
+    name = custom_attribute_values[&#34;items&#34;][0][&#34;name&#34;]
+    # result, the_template = self.generic.get_jinja_template(&#34;edc_create_attributes.jinja2&#34;)
+    # custom_attribute_json = self.fill_in_jinja_template_custom_attributes(the_template, custom_attribute_values)
+    custom_attribute_json = json.dumps(custom_attribute_values, indent=4)
+    self.mu_log.log(self.mu_log.DEBUG, &#34;JSON for custom attribute &gt;&#34; + name + &#34;&lt; is: &#34; + str(custom_attribute_json)
+                    ,module)
+
+    url = self.settings.edc_url + &#34;/access/2/catalog/models/attributes&#34;
+    resp = None
+    result = messages.message[&#34;undetermined&#34;]
+
+    try:
+        if self.settings.suppress_edc_call:
+            self.mu_log.log(self.mu_log.WARNING, &#34;suppress_edc_call is True. Skipping EDC call...&#34;, module)
+            status = 200
+        else:
+            resp = self.session.post(url, custom_attribute_json, timeout=self.timeout, headers=self.session.headers
+                                , proxies=self.session.proxies)
+            status = resp.status_code
+        if status == 200:
+            # TODO: Check response body on &#34;metadata&#34;: { &#34;totalCount&#34;: 1 }
+            self.mu_log.log(self.mu_log.INFO, &#34;Custom Attribute successfully created.&#34;, module)
+            result = messages.message[&#34;ok&#34;]
+        elif resp.status_code == 400:
+            if &#34;already exists&#34; in str(resp.content) and name in str(resp.content):
+                self.mu_log.log(self.mu_log.ERROR, &#34;Custom attribute &gt;&#34; + name + &#34;&lt; already exists.&#34;, module)
+                result = messages.message[&#34;edc_custom_attribute_already_exists&#34;]
+            else:
+                self.mu_log.log(self.mu_log.ERROR, &#34;HTTP 400 occurred, but not because attribute already exists.&#34;
+                                , module)
+                result = messages.message[&#34;edc_error_creating_custom_attribute&#34;]
+        else:
+            self.mu_log.log(self.mu_log.ERROR,
+                            &#34;Error creating custom attribute. HTTP Response code: &#34; + str(resp.status_code)
+                            , module)
+            result = messages.message[&#34;edc_error_creating_custom_attribute&#34;]
+    except requests.exceptions.RequestException as e:
+        self.mu_log.log(self.mu_log.ERROR, &#34;An error occurred: &#34; + str(e), module)
+        result = messages.message[&#34;edc_error_creating_custom_attribute&#34;]
+
+    end_time = time.time()
+    self.mu_log.log(self.mu_log.INFO, &#34;Processing time: &#34; + str(end_time - start_time), module)
+
+    return result</code></pre>
+</details>
+</dd>
+<dt id="edc_utilities.edc_custom_attributes.EDCCustomAttribute.delete_custom_attribute"><code class="name flex">
+<span>def <span class="ident">delete_custom_attribute</span></span>(<span>self, name='dummy', ignore_already_gone=True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Delete a give custom attribute</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def delete_custom_attribute(self, name=&#34;dummy&#34;, ignore_already_gone=True):
+    &#34;&#34;&#34;
+    Delete a give custom attribute
+    &#34;&#34;&#34;
+    module = __name__ + &#34;.delete_custom_attribute&#34;
+
+    if self.settings.suppress_edc_call:
+        self.mu_log.log(self.mu_log.WARNING, &#34;suppress_edc_call is True. Skipping EDC call...&#34;, module)
+        status = 200
+        result = messages.message[&#34;ok&#34;]
+    else:
+        # TODO: Call EDC to remove the custom attribute
+        result = messages.message[&#34;not_implemented&#34;]
+
+    return result</code></pre>
+</details>
+</dd>
+<dt id="edc_utilities.edc_custom_attributes.EDCCustomAttribute.fill_in_jinja_template_custom_attributes"><code class="name flex">
+<span>def <span class="ident">fill_in_jinja_template_custom_attributes</span></span>(<span>self, the_template, custom_attribute_values)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>the_template must be a Template object as retrieved through get_jinja_template</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def fill_in_jinja_template_custom_attributes(self
+                                             ,the_template
+                                             ,custom_attribute_values
+                                             ):
+    &#34;&#34;&#34;
+    the_template must be a Template object as retrieved through get_jinja_template
+    &#34;&#34;&#34;
+
+    return the_template.render(allowed_classes=custom_attribute_values[&#34;classes_list&#34;]
+                                    ,attribute_description=custom_attribute_values[&#34;description&#34;]
+                                    ,attribute_name=custom_attribute_values[&#34;attribute_name&#34;]
+                                    ,type_allowed_resources=custom_attribute_values[&#34;assignment_type&#34;]
+                                    ,attribute_allowed_resources=custom_attribute_values[&#34;allowed_resources&#34;]
+                               )</code></pre>
+</details>
+</dd>
+<dt id="edc_utilities.edc_custom_attributes.EDCCustomAttribute.get_custom_attribute"><code class="name flex">
+<span>def <span class="ident">get_custom_attribute</span></span>(<span>self, name='dummy', expect_to_exist=True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get the EDC attribute
+This is an expensive operation, so we should cache it</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_custom_attribute(self, name=&#34;dummy&#34;, expect_to_exist=True):
+    &#34;&#34;&#34;
+    Get the EDC attribute
+    This is an expensive operation, so we should cache it
+    &#34;&#34;&#34;
+    module = __name__+&#34;.get_custom_attribute&#34;
+    start_time = time.time()
+    url = self.settings.edc_url + &#34;/access/2/catalog/data/objects&#34;
+    total = 100000
+    offset = 0
+    page = 0
+    page_size = 500
+    timeout = self.timeout
+
+    attribute_count = 0
+    custom_attribute_count = 0
+    resp = None
+
+    found = False
+    from_scratch = True
+    self.mu_log.log(self.mu_log.DEBUG, &#34;URL used: &#34; + url, module)
+
+    items_found = True
+    while offset &lt; total and self.retries &lt; self.max_retries and items_found:
+        if from_scratch:
+            offset = 0
+            page = 0
+            from_scratch = False
+
+        page += 1
+        parameters = {&#34;offset&#34;: offset, &#34;pageSize&#34;: page_size}
+        self.mu_log.log(self.mu_log.DEBUG, &#34;Getting page#&#34; + str(page), module)
+
+        # execute catalog rest call, for a page of results
+        if self.settings.suppress_edc_call:
+            self.mu_log.log(self.mu_log.WARNING, &#34;suppress_edc_call is True. Skipping EDC call...&#34;, module)
+            status = 200
+            result_json = json.dumps({}, indent=4)
+        else:
+            try:
+                resp = self.session.get(url, params=parameters, timeout=timeout, headers=self.session.headers
+                                   , proxies=self.session.proxies)
+                status = resp.status_code
+                result_json = resp.json()
+                # store the total, so we know when the last page of results is read
+                total = result_json[&#34;metadata&#34;][&#34;totalCount&#34;]
+            except requests.exceptions.RequestException as e:
+                self.mu_log.log(self.mu_log.ERROR, &#34;An error occurred: &#34; + str(e), module)
+                self.mu_log.log(self.mu_log.WARNING, &#34;retry#&#34; + str(self.retries+1), module)
+                self.reconnect()
+                from_scratch=True
+                continue
+
+        # no execption rasied - so we can check the status/return-code
+        if status != 200:
+            self.mu_log.log(self.mu_log.ERROR, &#34;EDC returned: &#34; + str(status), module)
+            return messages.message[&#34;edc_status_not_200&#34;]
+        else:
+            self.mu_log.log(self.mu_log.DEBUG, &#34;EDC returned 200 = ok.&#34;, module)
+
+        # self.mu_log.log(self.mu_log.INFO, &#34;Total number of items: &#34; + str(total), module)
+        # for next iteration
+        offset += page_size
+
+        # for each attribute found...
+        attrId = &#34;&#34;
+        if &#34;items&#34; not in result_json:
+            self.mu_log.log(self.mu_log.INFO, &#34;No items in JSON response.&#34;, module)
+            items_found = False
+        else:
+            items_found = True
+            for attrDef in result_json[&#34;items&#34;]:
+                attribute_count += 1
+                attrId = attrDef[&#34;id&#34;]
+                # self.mu_log.log(self.mu_log.VERBOSE, &#34;Found id: &#34; + attrId, module)
+                if &#34;name&#34; in attrDef:
+                    attrName = attrDef[&#34;name&#34;]
+                else:
+                    attrName = &#34;&lt;undefined&gt;&#34;
+                if &#34;dataTypeId&#34; in attrDef:
+                    dataType = attrDef[&#34;dataTypeId&#34;]
+                if attrId.startswith(&#34;com.infa.appmodels.ldm.*&#34;):
+                    custom_attribute_count += 1
+                # self.mu_log.log(self.mu_log.VERBOSE, &#34;Found Custom Attribute #&#34; + str(custom_attribute_count)
+                #        + &#34;, name: &#34; + attrName + &#34; id: &#34; + attrId, module)
+                if attrName == name:
+                    self.mu_log.log(self.mu_log.INFO, &#34;Found the attribute we were looking for!&#34;, module)
+                    found = True
+                # else:
+                    # self.mu_log.log(self.mu_log.VERBOSE, &#34;This is not the attribute we are looking for.&#34;, module)
+
+    end_time = time.time()
+    self.mu_log.log(self.mu_log.INFO, &#34;Processing time: &#34; + str(end_time - start_time), module)
+
+    if self.settings.suppress_edc_call and expect_to_exist:
+        found = True
+
+    if found:
+        return messages.message[&#34;ok&#34;]
+    else:
+        return messages.message[&#34;custom_attribute_not_found&#34;]</code></pre>
+</details>
+</dd>
+<dt id="edc_utilities.edc_custom_attributes.EDCCustomAttribute.reconnect"><code class="name flex">
+<span>def <span class="ident">reconnect</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def reconnect(self):
+    self.session = self.edc_helper.init_edc_session(self.mu_log)
+    self.retries += 1</code></pre>
+</details>
+</dd>
+<dt id="edc_utilities.edc_custom_attributes.EDCCustomAttribute.update_custom_attribute"><code class="name flex">
+<span>def <span class="ident">update_custom_attribute</span></span>(<span>self, name='dummy')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Update a give custom attribute</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def update_custom_attribute(self, name=&#34;dummy&#34;):
+    &#34;&#34;&#34;
+    Update a give custom attribute
+    &#34;&#34;&#34;
+    module = __name__ + &#34;.update_custom_attribute&#34;
+    result = self.get_custom_attribute(name)
+    if result == messages.message[&#34;ok&#34;]:
+        # attribute exists and we can go ahead
+        self.mu_log.log(self.mu_log.INFO, &#34;Found Custom Attribute &gt;&#34; + name + &#34;&lt;.&#34;, module)
+    else:
+        self.mu_log.log(self.mu_log.ERROR, &#34;Custom Attribute &gt;&#34; + name + &#34;&lt; not found.&#34;, module)
+        return result
+
+    if self.settings.suppress_edc_call:
+        self.mu_log.log(self.mu_log.WARNING, &#34;suppress_edc_call is True. Skipping EDC call...&#34;, module)
+        status = 200
+        result = messages.message[&#34;ok&#34;]
+    else:
+        # TODO: Call EDC to update the custom attribute
+        result = messages.message[&#34;not_implemented&#34;]
+
+    return result</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="edc_utilities" href="index.html">edc_utilities</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="edc_utilities.edc_custom_attributes.EDCCustomAttribute" href="#edc_utilities.edc_custom_attributes.EDCCustomAttribute">EDCCustomAttribute</a></code></h4>
+<ul class="">
+<li><code><a title="edc_utilities.edc_custom_attributes.EDCCustomAttribute.create_custom_attribute" href="#edc_utilities.edc_custom_attributes.EDCCustomAttribute.create_custom_attribute">create_custom_attribute</a></code></li>
+<li><code><a title="edc_utilities.edc_custom_attributes.EDCCustomAttribute.delete_custom_attribute" href="#edc_utilities.edc_custom_attributes.EDCCustomAttribute.delete_custom_attribute">delete_custom_attribute</a></code></li>
+<li><code><a title="edc_utilities.edc_custom_attributes.EDCCustomAttribute.fill_in_jinja_template_custom_attributes" href="#edc_utilities.edc_custom_attributes.EDCCustomAttribute.fill_in_jinja_template_custom_attributes">fill_in_jinja_template_custom_attributes</a></code></li>
+<li><code><a title="edc_utilities.edc_custom_attributes.EDCCustomAttribute.get_custom_attribute" href="#edc_utilities.edc_custom_attributes.EDCCustomAttribute.get_custom_attribute">get_custom_attribute</a></code></li>
+<li><code><a title="edc_utilities.edc_custom_attributes.EDCCustomAttribute.reconnect" href="#edc_utilities.edc_custom_attributes.EDCCustomAttribute.reconnect">reconnect</a></code></li>
+<li><code><a title="edc_utilities.edc_custom_attributes.EDCCustomAttribute.update_custom_attribute" href="#edc_utilities.edc_custom_attributes.EDCCustomAttribute.update_custom_attribute">update_custom_attribute</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
+</footer>
+</body>
+</html>

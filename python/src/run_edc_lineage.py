@@ -1,6 +1,7 @@
 from src.metadata_utilities import load_json_metadata
 
-if __name__ == '__main__':
+
+def main():
     result = load_json_metadata.ConvertJSONtoEDCLineage("resources/config.json").main()
     if result["code"] == "OK":
         exit(0)
@@ -8,4 +9,6 @@ if __name__ == '__main__':
         print("NOTOK:", result["code"], result["message"])
         exit(1)
 
-run_edc_lineage.py
+
+if __name__ == '__main__':
+    main()

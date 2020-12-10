@@ -47,34 +47,6 @@ def exportLineageLink(fromObject, toObject, linkType, csvFile):
     return
 
 
-def getAllResource(url, user, pWd):
-    """
-    get the resource definition - given a resource name (and catalog url)
-    catalog url should stop at port (e.g. not have ldmadmin, ldmcatalog etc...
-    or have v2 anywhere
-    since we are using v1 api's
-
-    returns rc=200 (valid) & other rc's from the get
-            resourceDef (json)
-
-    """
-
-    print("getting resource for catalog:-" + url + " user=" + user)
-    apiURL = url + "/access/1/catalog/resources/"
-    # print("\turl=" + apiURL)
-    header = {"Accept": "application/json"}
-    tResp = requests.get(
-        apiURL, params={}, headers=header, auth=HTTPBasicAuth(user, pWd), verify=False
-    )
-    print("\tresponse=" + str(tResp.status_code))
-    if tResp.status_code == 200:
-        # valid - return the jsom
-        return tResp.status_code, json.loads(tResp.text)
-    else:
-        # not valid
-        return tResp.status_code, None
-
-
 def getResourceDefUsingSession(url, session, resourceName, sensitiveOptions=False):
     """
     get the resource definition - given a resource name (and catalog url)
@@ -106,6 +78,7 @@ def getResourceDefUsingSession(url, session, resourceName, sensitiveOptions=Fals
     else:
         # not valid
         return tResp.status_code, None
+
 
 def createResourceUsingSession(url, session, resourceName, resourceJson):
     """
@@ -184,6 +157,7 @@ def uploadResourceFileUsingSession(url, session, resourceName, fileName, fullPat
         print("\t" + str(uploadResp.text))
         return uploadResp.status_code
 
+
 def executeResourceLoadUsingSession(url, session, resourceName):
     """
     start a resource load
@@ -217,6 +191,7 @@ def executeResourceLoadUsingSession(url, session, resourceName):
         print("\t" + str(uploadResp))
         print("\t" + str(uploadResp.text))
         return uploadResp.status_code, None
+
 
 def createOrUpdateAndExecuteResourceUsingSession(
         url,

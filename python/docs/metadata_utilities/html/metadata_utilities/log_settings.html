@@ -47,14 +47,14 @@ class LogSettings:
     def __init__(self, configuration_file=&#34;resources/log_config.json&#34;):
         # log_config.json settings
         self.log_config = configuration_file
-        self.log_directory = &#34;unknown&#34;
-        self.log_filename = &#34;unknown&#34;
-        self.log_filename_prefix = &#34;unknown&#34;
+        self.log_directory = None
+        self.log_filename = None
+        self.log_filename_prefix = None
         self.configured_log_level = &#34;DEBUG&#34;
         self.log_level = self.DEBUG
-        self.azure_monitor_config = &#34;unknown&#34;
-        self.azure_monitor_requests = &#34;False&#34;
-        self.instrumentation_key = &#34;unknown&#34;
+        self.azure_monitor_config = None
+        self.azure_monitor_requests = False
+        self.instrumentation_key = None
         self.get_config()
 
     def get_config(self):
@@ -150,14 +150,14 @@ class LogSettings:
     def __init__(self, configuration_file=&#34;resources/log_config.json&#34;):
         # log_config.json settings
         self.log_config = configuration_file
-        self.log_directory = &#34;unknown&#34;
-        self.log_filename = &#34;unknown&#34;
-        self.log_filename_prefix = &#34;unknown&#34;
+        self.log_directory = None
+        self.log_filename = None
+        self.log_filename_prefix = None
         self.configured_log_level = &#34;DEBUG&#34;
         self.log_level = self.DEBUG
-        self.azure_monitor_config = &#34;unknown&#34;
-        self.azure_monitor_requests = &#34;False&#34;
-        self.instrumentation_key = &#34;unknown&#34;
+        self.azure_monitor_config = None
+        self.azure_monitor_requests = False
+        self.instrumentation_key = None
         self.get_config()
 
     def get_config(self):

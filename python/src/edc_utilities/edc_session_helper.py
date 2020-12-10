@@ -27,7 +27,7 @@ import argparse
 import os
 import warnings
 from urllib.parse import urljoin
-
+from src.metadata_utilities import messages
 import requests
 
 warnings.filterwarnings('ignore', message='Unverified HTTPS request')
@@ -115,7 +115,7 @@ class EDCSession:
         returns:
             url, auth
         """
-        module = __name__ +".init_edc_session"
+        module = __name__ + ".init_edc_session"
         auth = None
         verify = None
 
@@ -184,6 +184,7 @@ class EDCSession:
         if verify is None:
             verify = False
         self.session.verify = verify
+        return messages.message["ok"]
 
     def validate_edc_connection(self):
         """
