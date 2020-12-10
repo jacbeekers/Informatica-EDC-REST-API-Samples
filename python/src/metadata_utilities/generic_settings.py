@@ -30,11 +30,11 @@ class GenericSettings:
         self.edc_config_data = {}
         self.edc_url = "http://localhost:8888"
         self.edc_secrets = "unknown"
-        self.jinja_config = "unknown"
+        self.jinja_config = None
         self.azure_monitor_config = None
         self.azure_monitor_requests = None
         self.instrumentation_key = None
-        self.suppress_edc_call = "False"
+        self.suppress_edc_call = False
         self.edc_http_proxy = None
         self.edc_https_proxy = None
         self.edc_auth = None
@@ -70,18 +70,18 @@ class GenericSettings:
                         print("Incorrect config value >" + data["suppress_edc_call"]
                               + "< for suppress_edc_call. Must be True or False. Will default to False")
                         self.suppress_edc_call = False
-                if "http_proxy" in data:
-                    self.http_proxy = data["http_proxy"]
-                    if self.http_proxy == "None":
-                        self.http_proxy = None
+                if "edc_http_proxy" in data:
+                    self.edc_http_proxy = data["edc_http_proxy"]
+                    if self.edc_http_proxy == "None":
+                        self.edc_http_proxy = None
                 else:
-                    self.http_proxy = None
-                if "https_proxy" in data:
-                    self.https_proxy = data["https_proxy"]
-                    if self.https_proxy == "None":
-                        self.https_proxy = None
+                    self.edc_http_proxy = None
+                if "edc_https_proxy" in data:
+                    self.edc_https_proxy = data["edc_https_proxy"]
+                    if self.edc_https_proxy == "None":
+                        self.edc_https_proxy = None
                 else:
-                    self.https_proxy = None
+                    self.edc_https_proxy = None
                 if "log_config" in data:
                     self.log_config = data["log_config"]
                 else:
@@ -201,17 +201,17 @@ class GenericSettings:
                             , module)
 
         if "edc_http_proxy" in data:
-            self.http_proxy = data["edc_http_proxy"]
+            self.edc_http_proxy = data["edc_http_proxy"]
             self.mu_log.log(self.mu_log.INFO, "HTTP Proxy for EDC taken from edc secrets file: "
-                            + self.http_proxy, module)
+                            + self.edc_http_proxy, module)
         else:
             self.mu_log.log(self.mu_log.INFO, "No HTTP Proxy for EDC found in edc secrets file. "
                             + "This is OK if no proxy is needed or has been set through the environment variable HTTP_PROXY"
                             , module)
         if "edc_https_proxy" in data:
-            self.https_proxy = data["edc_https_proxy"]
+            self.edc_https_proxy = data["edc_https_proxy"]
             self.mu_log.log(self.mu_log.INFO, "HTTPS Proxy for EDC taken from edc secrets file: "
-                            + self.https_proxy, module)
+                            + self.edc_https_proxy, module)
         else:
             self.mu_log.log(self.mu_log.INFO, "No HTTPS Proxy for EDC found in edc secrets file. "
                             + "This is OK if no proxy is needed or has been set through the environment variable HTTPS_PROXY"

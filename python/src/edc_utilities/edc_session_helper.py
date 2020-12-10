@@ -16,7 +16,7 @@ uses command-line args to easily define common connection properties for edc
 
 Usage:
     edcSession = EDCSession()
-    edcSession.initUrlAndSessionFromEDCSettings()
+    edcSession.init_edc_session()
 
     ...
     resp = edcSession.session.get(resourceUrl, params=(), timeout=10)
@@ -39,7 +39,7 @@ class EDCSession:
     for easy re-use for multiple scripts
     """
 
-    def __init__(self, settings, mu_log):
+    def __init__(self, settings):
         self.baseUrl = settings.edc_url
         self.session: requests.session = None
         self.argparser = argparse.ArgumentParser(add_help=False)
@@ -50,7 +50,7 @@ class EDCSession:
         self.https_proxy = None
         self.settings = settings
         self.mu_log = self.settings.mu_log
-        self.initUrlAndSessionFromEDCSettings()
+        self.init_edc_session(mu_log=self.mu_log)
 
     def __setup_standard_cmdargs__(self):
         # check for args overriding the env vars
@@ -107,7 +107,7 @@ class EDCSession:
             type=str,
         )
 
-    def initUrlAndSessionFromEDCSettings(self):
+    def init_edc_session(self, mu_log):
         """
         reads the env vars and any command-line parameters & creates an edc session
         with auth and optionally verify attributes populated (shared so no need to use
@@ -115,7 +115,7 @@ class EDCSession:
         returns:
             url, auth
         """
-        module = __name__ +".initUrlAndSessionFromEDCSettings"
+        module = __name__ +".init_edc_session"
         auth = None
         verify = None
 
@@ -172,7 +172,7 @@ class EDCSession:
         self.session.baseUrl = self.baseUrl
         return self.session
 
-    def initSession(self, catalog_url, catalog_auth, verify):
+    def configure_edc_session(self, catalog_url, catalog_auth, verify):
         """
         given a valid URL and auth - setup a requests session to use
         for subsequent calls, verify can be False
@@ -185,7 +185,7 @@ class EDCSession:
             verify = False
         self.session.verify = verify
 
-    def validateConnection(self):
+    def validate_edc_connection(self):
         """
         validate that the connection informatioon (url + auth credentials)
         are correct.

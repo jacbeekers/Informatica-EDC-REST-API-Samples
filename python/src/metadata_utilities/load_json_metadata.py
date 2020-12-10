@@ -219,9 +219,6 @@ class ConvertJSONtoEDCLineage:
             target = self.settings.metadata_store
             self.mu_log.log(self.mu_log.DEBUG, "sending lineage info to " + target, module)
             if target == "edc":
-                # TODO: Create custom attributes, if not already exist
-                send_result = self.edc_custom_attributes.create_custom_attribute("UUID")
-                send_result = self.edc_custom_attributes.create_custom_attribute("formula")
                 send_result = self.edc_lineage.send_metadata_to_edc(self.settings.suppress_edc_call)
             elif target == "metadata_lake":
                 send_result = self.send_metadata_to_metadata_lake()

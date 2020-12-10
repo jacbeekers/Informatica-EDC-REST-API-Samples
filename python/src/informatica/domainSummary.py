@@ -28,7 +28,7 @@ import requests
 import urllib3
 from openpyxl import Workbook
 
-from src.edc_utilities.edcSessionHelper import EDCSession
+from src.edc_utilities.edc_session_helper import EDCSession
 
 urllib3.disable_warnings()
 
@@ -203,7 +203,7 @@ def main():
     print("\treading command-line specific to domainSummary extractor")
     args, unknown = parser.parse_known_args()
     # initialize http session to EDC, storing the baseurl
-    MemVariables.edcSession.initUrlAndSessionFromEDCSettings()
+    MemVariables.edcSession.init_edc_session()
     # print(
     #     f"args from cmdline/env vars: url={MemVariables.edcSession.baseUrl}"
     #     f"  session={MemVariables.edcSession.session}"

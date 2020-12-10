@@ -53,11 +53,11 @@ def main():
 
     edcSession: EDCSession = EDCSession()
 
-    edcSession.initSession(catalog_url=catalog_url, catalog_auth=auth, verify=None)
+    edcSession.configure_edc_session(catalog_url=catalog_url, catalog_auth=auth, verify=None)
 
     print(&#34;\nvalidating that the information you entered is valid...&#34;)
 
-    rc, rs_json = edcSession.validateConnection()
+    rc, rs_json = edcSession.validate_edc_connection()
     if rc == 200:
         print(f&#34;valid connection\n\t{rs_json}\n&#34;)
         print(&#34;to make this a repeatable process - you can set the following enviroment variables, or an .env* file&#34;)
@@ -138,11 +138,11 @@ if __name__ == &#34;__main__&#34;:
 
     edcSession: EDCSession = EDCSession()
 
-    edcSession.initSession(catalog_url=catalog_url, catalog_auth=auth, verify=None)
+    edcSession.configure_edc_session(catalog_url=catalog_url, catalog_auth=auth, verify=None)
 
     print(&#34;\nvalidating that the information you entered is valid...&#34;)
 
-    rc, rs_json = edcSession.validateConnection()
+    rc, rs_json = edcSession.validate_edc_connection()
     if rc == 200:
         print(f&#34;valid connection\n\t{rs_json}\n&#34;)
         print(&#34;to make this a repeatable process - you can set the following enviroment variables, or an .env* file&#34;)

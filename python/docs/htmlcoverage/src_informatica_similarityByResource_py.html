@@ -3,7 +3,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=emulateIE7" />
-    <title>Coverage for src\informatica\similarityByResource.py: 0%</title>
+    <title>Coverage for src/informatica/similarityByResource.py: 0%</title>
     <link rel="stylesheet" href="style.css" type="text/css">
     <script type="text/javascript" src="jquery.min.js"></script>
     <script type="text/javascript" src="jquery.hotkeys.js"></script>
@@ -16,7 +16,7 @@
 <body class="pyfile">
 <div id="header">
     <div class="content">
-        <h1>Coverage for <b>src\informatica\similarityByResource.py</b> :
+        <h1>Coverage for <b>src/informatica/similarityByResource.py</b> :
             <span class="pc_cov">0%</span>
         </h1>
         <img id="keyboard_icon" src="keybd_closed.png" alt="Show keyboard shortcuts" />
@@ -66,7 +66,7 @@
     <p id="t13" class="mis show_mis"><span class="n"><a href="#t13">13</a></span><span class="t"><span class="key">import</span> <span class="nam">sys</span>&nbsp;</span><span class="r"></span></p>
     <p id="t14" class="mis show_mis"><span class="n"><a href="#t14">14</a></span><span class="t"><span class="key">import</span> <span class="nam">urllib3</span>&nbsp;</span><span class="r"></span></p>
     <p id="t15" class="mis show_mis"><span class="n"><a href="#t15">15</a></span><span class="t"><span class="key">import</span> <span class="nam">csv</span>&nbsp;</span><span class="r"></span></p>
-    <p id="t16" class="mis show_mis"><span class="n"><a href="#t16">16</a></span><span class="t"><span class="key">from</span> <span class="nam">src</span><span class="op">.</span><span class="nam">edc_utilities</span> <span class="key">import</span> <span class="nam">edcSessionHelper</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t16" class="mis show_mis"><span class="n"><a href="#t16">16</a></span><span class="t"><span class="key">from</span> <span class="nam">src</span><span class="op">.</span><span class="nam">edc_utilities</span> <span class="key">import</span> <span class="nam">edc_session_helper</span>&nbsp;</span><span class="r"></span></p>
     <p id="t17" class="mis show_mis"><span class="n"><a href="#t17">17</a></span><span class="t"><span class="key">import</span> <span class="nam">argparse</span>&nbsp;</span><span class="r"></span></p>
     <p id="t18" class="mis show_mis"><span class="n"><a href="#t18">18</a></span><span class="t"><span class="key">import</span> <span class="nam">os</span>&nbsp;</span><span class="r"></span></p>
     <p id="t19" class="pln"><span class="n"><a href="#t19">19</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
@@ -79,7 +79,7 @@
     <p id="t26" class="mis show_mis"><span class="n"><a href="#t26">26</a></span><span class="t">    <span class="key">pass</span>&nbsp;</span><span class="r"></span></p>
     <p id="t27" class="pln"><span class="n"><a href="#t27">27</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p id="t28" class="pln"><span class="n"><a href="#t28">28</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p id="t29" class="mis show_mis"><span class="n"><a href="#t29">29</a></span><span class="t"><span class="nam">edcHelper</span> <span class="op">=</span> <span class="nam">edcSessionHelper</span><span class="op">.</span><span class="nam">EDCSession</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t29" class="mis show_mis"><span class="n"><a href="#t29">29</a></span><span class="t"><span class="nam">edcHelper</span> <span class="op">=</span> <span class="nam">edc_session_helper</span><span class="op">.</span><span class="nam">EDCSession</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p id="t30" class="pln"><span class="n"><a href="#t30">30</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p id="t31" class="mis show_mis"><span class="n"><a href="#t31">31</a></span><span class="t"><span class="nam">argparser</span> <span class="op">=</span> <span class="nam">argparse</span><span class="op">.</span><span class="nam">ArgumentParser</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p id="t32" class="pln"><span class="n"><a href="#t32">32</a></span><span class="t">    <span class="nam">parents</span><span class="op">=</span><span class="op">[</span><span class="nam">edcHelper</span><span class="op">.</span><span class="nam">argparser</span><span class="op">]</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
@@ -432,7 +432,7 @@
     <p id="t379" class="pln"><span class="n"><a href="#t379">379</a></span><span class="t">    <span class="com"># initialize the edc session and common connection parms</span>&nbsp;</span><span class="r"></span></p>
     <p id="t380" class="mis show_mis"><span class="n"><a href="#t380">380</a></span><span class="t">    <span class="nam">print</span><span class="op">(</span><span class="str">"similarityByResource - starting"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p id="t381" class="mis show_mis"><span class="n"><a href="#t381">381</a></span><span class="t">    <span class="nam">print</span><span class="op">(</span><span class="nam">os</span><span class="op">.</span><span class="nam">getcwd</span><span class="op">(</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p id="t382" class="mis show_mis"><span class="n"><a href="#t382">382</a></span><span class="t">    <span class="nam">edcHelper</span><span class="op">.</span><span class="nam">initUrlAndSessionFromEDCSettings</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t382" class="mis show_mis"><span class="n"><a href="#t382">382</a></span><span class="t">    <span class="nam">edcHelper</span><span class="op">.</span><span class="nam">init_edc_session</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p id="t383" class="pln"><span class="n"><a href="#t383">383</a></span><span class="t">    <span class="com"># parse the script specific parameters</span>&nbsp;</span><span class="r"></span></p>
     <p id="t384" class="mis show_mis"><span class="n"><a href="#t384">384</a></span><span class="t">    <span class="nam">args</span><span class="op">,</span> <span class="nam">unknown</span> <span class="op">=</span> <span class="nam">argparser</span><span class="op">.</span><span class="nam">parse_known_args</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p id="t385" class="mis show_mis"><span class="n"><a href="#t385">385</a></span><span class="t">    <span class="nam">mem</span><span class="op">.</span><span class="nam">pageSize</span> <span class="op">=</span> <span class="nam">args</span><span class="op">.</span><span class="nam">pageSize</span>&nbsp;</span><span class="r"></span></p>
@@ -485,7 +485,7 @@
     <div class="content">
         <p>
             <a class="nav" href="index.html">&#xab; index</a> &nbsp; &nbsp; <a class="nav" href="https://coverage.readthedocs.io">coverage.py v5.3</a>,
-            created at 2020-12-08 21:21 +0100
+            created at 2020-12-10 12:02 +0100
         </p>
     </div>
 </div>

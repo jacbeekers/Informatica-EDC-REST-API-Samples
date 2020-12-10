@@ -13,7 +13,7 @@ import time
 import sys
 import urllib3
 import csv
-from src.edc_utilities import edcSessionHelper
+from src.edc_utilities import edc_session_helper
 import argparse
 import os
 
@@ -26,7 +26,7 @@ class mem:
     pass
 
 
-edcHelper = edcSessionHelper.EDCSession()
+edcHelper = edc_session_helper.EDCSession()
 
 argparser = argparse.ArgumentParser(
     parents=[edcHelper.argparser],
@@ -379,7 +379,7 @@ def main():
     # initialize the edc session and common connection parms
     print("similarityByResource - starting")
     print(os.getcwd())
-    edcHelper.initUrlAndSessionFromEDCSettings()
+    edcHelper.init_edc_session()
     # parse the script specific parameters
     args, unknown = argparser.parse_known_args()
     mem.pageSize = args.pageSize

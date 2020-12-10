@@ -190,6 +190,11 @@ message = {
         , "message": "Custom Attribute already exists"
         , "level": "ERROR"
     },
+    "no_custom_attribute_provided": {
+        "code": "MU-EDC-009"
+        , "message": "No Custom Attribute information provided"
+        , "level": "ERROR"
+    },
     "MDL_GROUP": {
         "code": "MDL"
         , "message": "Group for warnings and errors related to the Metadata Lake"

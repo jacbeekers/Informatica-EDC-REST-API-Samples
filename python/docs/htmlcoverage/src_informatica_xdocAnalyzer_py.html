@@ -3,7 +3,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=emulateIE7" />
-    <title>Coverage for src\informatica\xdocAnalyzer.py: 0%</title>
+    <title>Coverage for src/informatica/xdocAnalyzer.py: 0%</title>
     <link rel="stylesheet" href="style.css" type="text/css">
     <script type="text/javascript" src="jquery.min.js"></script>
     <script type="text/javascript" src="jquery.hotkeys.js"></script>
@@ -16,7 +16,7 @@
 <body class="pyfile">
 <div id="header">
     <div class="content">
-        <h1>Coverage for <b>src\informatica\xdocAnalyzer.py</b> :
+        <h1>Coverage for <b>src/informatica/xdocAnalyzer.py</b> :
             <span class="pc_cov">0%</span>
         </h1>
         <img id="keyboard_icon" src="keybd_closed.png" alt="Show keyboard shortcuts" />
@@ -69,9 +69,9 @@
     <p id="t16" class="mis show_mis"><span class="n"><a href="#t16">16</a></span><span class="t"><span class="key">import</span> <span class="nam">requests</span>&nbsp;</span><span class="r"></span></p>
     <p id="t17" class="mis show_mis"><span class="n"><a href="#t17">17</a></span><span class="t"><span class="key">import</span> <span class="nam">sys</span>&nbsp;</span><span class="r"></span></p>
     <p id="t18" class="mis show_mis"><span class="n"><a href="#t18">18</a></span><span class="t"><span class="key">import</span> <span class="nam">argparse</span>&nbsp;</span><span class="r"></span></p>
-    <p id="t19" class="mis show_mis"><span class="n"><a href="#t19">19</a></span><span class="t"><span class="key">from</span> <span class="nam">src</span><span class="op">.</span><span class="nam">edc_utilities</span> <span class="key">import</span> <span class="nam">edcSessionHelper</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t19" class="mis show_mis"><span class="n"><a href="#t19">19</a></span><span class="t"><span class="key">from</span> <span class="nam">src</span><span class="op">.</span><span class="nam">edc_utilities</span> <span class="key">import</span> <span class="nam">edc_session_helper</span>&nbsp;</span><span class="r"></span></p>
     <p id="t20" class="pln"><span class="n"><a href="#t20">20</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p id="t21" class="mis show_mis"><span class="n"><a href="#t21">21</a></span><span class="t"><span class="nam">edcHelper</span> <span class="op">=</span> <span class="nam">edcSessionHelper</span><span class="op">.</span><span class="nam">EDCSession</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t21" class="mis show_mis"><span class="n"><a href="#t21">21</a></span><span class="t"><span class="nam">edcHelper</span> <span class="op">=</span> <span class="nam">edc_session_helper</span><span class="op">.</span><span class="nam">EDCSession</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p id="t22" class="pln"><span class="n"><a href="#t22">22</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p id="t23" class="pln"><span class="n"><a href="#t23">23</a></span><span class="t"><span class="com"># define script command-line parameters (in global scope for gooey/wooey)</span>&nbsp;</span><span class="r"></span></p>
     <p id="t24" class="mis show_mis"><span class="n"><a href="#t24">24</a></span><span class="t"><span class="nam">parser</span> <span class="op">=</span> <span class="nam">argparse</span><span class="op">.</span><span class="nam">ArgumentParser</span><span class="op">(</span><span class="nam">parents</span><span class="op">=</span><span class="op">[</span><span class="nam">edcHelper</span><span class="op">.</span><span class="nam">argparser</span><span class="op">]</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
@@ -124,7 +124,7 @@
     <p id="t71" class="mis show_mis"><span class="n"><a href="#t71">71</a></span><span class="t">    <span class="nam">args</span> <span class="op">=</span> <span class="nam">args</span><span class="op">,</span> <span class="nam">unknown</span> <span class="op">=</span> <span class="nam">parser</span><span class="op">.</span><span class="nam">parse_known_args</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p id="t72" class="pln"><span class="n"><a href="#t72">72</a></span><span class="t">    <span class="com"># setup edc session and catalog url - with auth in the session header,</span>&nbsp;</span><span class="r"></span></p>
     <p id="t73" class="pln"><span class="n"><a href="#t73">73</a></span><span class="t">    <span class="com"># by using system vars or command-line args</span>&nbsp;</span><span class="r"></span></p>
-    <p id="t74" class="mis show_mis"><span class="n"><a href="#t74">74</a></span><span class="t">    <span class="nam">edcHelper</span><span class="op">.</span><span class="nam">initUrlAndSessionFromEDCSettings</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t74" class="mis show_mis"><span class="n"><a href="#t74">74</a></span><span class="t">    <span class="nam">edcHelper</span><span class="op">.</span><span class="nam">init_edc_session</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p id="t75" class="pln"><span class="n"><a href="#t75">75</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p id="t76" class="mis show_mis"><span class="n"><a href="#t76">76</a></span><span class="t">    <span class="nam">print</span><span class="op">(</span><span class="str">f"command-line args parsed = {args} "</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p id="t77" class="mis show_mis"><span class="n"><a href="#t77">77</a></span><span class="t">    <span class="nam">print</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
@@ -441,7 +441,7 @@
     <div class="content">
         <p>
             <a class="nav" href="index.html">&#xab; index</a> &nbsp; &nbsp; <a class="nav" href="https://coverage.readthedocs.io">coverage.py v5.3</a>,
-            created at 2020-12-08 21:21 +0100
+            created at 2020-12-10 12:02 +0100
         </p>
     </div>
 </div>

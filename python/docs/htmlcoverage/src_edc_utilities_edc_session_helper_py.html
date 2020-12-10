@@ -3,7 +3,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=emulateIE7" />
-    <title>Coverage for src/edc_utilities/edcSessionHelper.py: 60%</title>
+    <title>Coverage for src/edc_utilities/edc_session_helper.py: 60%</title>
     <link rel="stylesheet" href="style.css" type="text/css">
     <script type="text/javascript" src="jquery.min.js"></script>
     <script type="text/javascript" src="jquery.hotkeys.js"></script>
@@ -16,7 +16,7 @@
 <body class="pyfile">
 <div id="header">
     <div class="content">
-        <h1>Coverage for <b>src/edc_utilities/edcSessionHelper.py</b> :
+        <h1>Coverage for <b>src/edc_utilities/edc_session_helper.py</b> :
             <span class="pc_cov">60%</span>
         </h1>
         <img id="keyboard_icon" src="keybd_closed.png" alt="Show keyboard shortcuts" />
@@ -103,7 +103,7 @@
     <p id="t50" class="run"><span class="n"><a href="#t50">50</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">https_proxy</span> <span class="op">=</span> <span class="key">None</span>&nbsp;</span><span class="r"></span></p>
     <p id="t51" class="run"><span class="n"><a href="#t51">51</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">settings</span> <span class="op">=</span> <span class="nam">settings</span>&nbsp;</span><span class="r"></span></p>
     <p id="t52" class="run"><span class="n"><a href="#t52">52</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">mu_log</span> <span class="op">=</span> <span class="nam">self</span><span class="op">.</span><span class="nam">settings</span><span class="op">.</span><span class="nam">mu_log</span>&nbsp;</span><span class="r"></span></p>
-    <p id="t53" class="run"><span class="n"><a href="#t53">53</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">init_edc_session</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t53" class="run"><span class="n"><a href="#t53">53</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">init_edc_session</span><span class="op">(</span><span class="nam">mu_log</span><span class="op">=</span><span class="nam">self</span><span class="op">.</span><span class="nam">mu_log</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p id="t54" class="pln"><span class="n"><a href="#t54">54</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p id="t55" class="run"><span class="n"><a href="#t55">55</a></span><span class="t">    <span class="key">def</span> <span class="nam">__setup_standard_cmdargs__</span><span class="op">(</span><span class="nam">self</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p id="t56" class="pln"><span class="n"><a href="#t56">56</a></span><span class="t">        <span class="com"># check for args overriding the env vars</span>&nbsp;</span><span class="r"></span></p>
@@ -160,7 +160,7 @@
     <p id="t107" class="pln"><span class="n"><a href="#t107">107</a></span><span class="t">            <span class="nam">type</span><span class="op">=</span><span class="nam">str</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p id="t108" class="pln"><span class="n"><a href="#t108">108</a></span><span class="t">        <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p id="t109" class="pln"><span class="n"><a href="#t109">109</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p id="t110" class="run"><span class="n"><a href="#t110">110</a></span><span class="t">    <span class="key">def</span> <span class="nam">init_edc_session</span><span class="op">(</span><span class="nam">self</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t110" class="run"><span class="n"><a href="#t110">110</a></span><span class="t">    <span class="key">def</span> <span class="nam">init_edc_session</span><span class="op">(</span><span class="nam">self</span><span class="op">,</span> <span class="nam">mu_log</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p id="t111" class="pln"><span class="n"><a href="#t111">111</a></span><span class="t">        <span class="str">"""</span>&nbsp;</span><span class="r"></span></p>
     <p id="t112" class="pln"><span class="n"><a href="#t112">112</a></span><span class="t"><span class="str">        reads the env vars and any command-line parameters &amp; creates an edc session</span>&nbsp;</span><span class="r"></span></p>
     <p id="t113" class="pln"><span class="n"><a href="#t113">113</a></span><span class="t"><span class="str">        with auth and optionally verify attributes populated (shared so no need to use</span>&nbsp;</span><span class="r"></span></p>
@@ -285,7 +285,7 @@
     <div class="content">
         <p>
             <a class="nav" href="index.html">&#xab; index</a> &nbsp; &nbsp; <a class="nav" href="https://coverage.readthedocs.io">coverage.py v5.3</a>,
-            created at 2020-12-10 10:19 +0100
+            created at 2020-12-10 15:40 +0100
         </p>
     </div>
 </div>

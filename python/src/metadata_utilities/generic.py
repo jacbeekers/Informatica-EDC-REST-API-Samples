@@ -12,7 +12,7 @@ class Generic:
     code_version = "0.3.9"
 
     def __init__(self, settings, mu_log_ref):
-        module = "Generic.__init__"
+        module = __name__ + ".__init__"
         self.attribute_list = []
         self.json_file = ""
         self.data = {}
@@ -48,7 +48,7 @@ class Generic:
         find the JSON file that has the source_uuid in the value of the property.
         The JSON schema of the file must be 'target_schema_type'.
         """
-        module = "Generic.find_json"
+        module = __name__ + ".find_json"
         if not self.settings_found:
             self.mu_log.log(self.mu_log.ERROR, log_prefix + " settings were not found. Skipping processing.", module)
             return messages.message["main_config_not_found"]
@@ -166,7 +166,7 @@ class Generic:
 
     def write_local_file(self, filename, to_write):
         # local file system
-        module = "Generic.write_local_file"
+        module = __name__ + ".write_local_file"
         file_result = messages.message["ok"]
         path = self.settings.output_directory + filename
         os.makedirs(self.settings.output_directory, exist_ok=True)
@@ -182,7 +182,7 @@ class Generic:
         return file_result
 
     def convert_list_into_string(self, list):
-        module = "Generic.convert_list_into_string"
+        module = __name__ + ".convert_list_into_string"
         concatenated = ""
         nr_cols = 0
         for item in list:
@@ -200,8 +200,13 @@ class Generic:
         """
             Get the Jinja settings from the provided jinja configuration file: jinja_config key in main config.json
         """
-        module = "edc_lineage.get_jinja_settings"
+        module = __name__ + ".get_jinja_settings"
         result = messages.message["ok"]
+        if self.jinja_configuration_file is None:
+            self.mu_log.log(self.mu_log.ERROR, "No jinja configuration file configured in main configuration",
+                            module)
+            return messages.message["jinja_config_file_not_found"]
+        self.mu_log.log(self.mu_log.DEBUG, "Provided jinja config file: " + self.jinja_configuration_file, module)
         try:
             with open(self.jinja_configuration_file) as jinja:
                 data = json.load(jinja)

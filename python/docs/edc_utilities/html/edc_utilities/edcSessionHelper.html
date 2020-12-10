@@ -40,7 +40,7 @@ base64 encoded credentials see encodeUser.py
 -s &ndash;sslcert https certificate if needed</p>
 <h2 id="usage">Usage</h2>
 <p>edcSession = EDCSession()
-edcSession.initUrlAndSessionFromEDCSettings()</p>
+edcSession.init_edc_session()</p>
 <p>&hellip;
 resp = edcSession.session.get(resourceUrl, params=(), timeout=10)</p>
 <p>Note: this is syncronyous version - not async</p>
@@ -66,7 +66,7 @@ uses command-line args to easily define common connection properties for edc
 
 Usage:
     edcSession = EDCSession()
-    edcSession.initUrlAndSessionFromEDCSettings()
+    edcSession.init_edc_session()
 
     ...
     resp = edcSession.session.get(resourceUrl, params=(), timeout=10)
@@ -155,7 +155,7 @@ class EDCSession:
             type=str,
         )
 
-    def initUrlAndSessionFromEDCSettings(self, edc_secrets=&#34;resources/edc.secrets&#34;):
+    def init_edc_session(self, edc_secrets=&#34;resources/edc.secrets&#34;):
         &#34;&#34;&#34;
         reads the env vars and any command-line parameters &amp; creates an edc session
         with auth and optionally verify attributes populated (shared so no need to use
@@ -216,7 +216,7 @@ class EDCSession:
         self.session.headers.update({&#34;Authorization&#34;: auth})
         self.session.baseUrl = self.baseUrl
 
-    def initSession(self, catalog_url, catalog_auth, verify):
+    def configure_edc_session(self, catalog_url, catalog_auth, verify):
         &#34;&#34;&#34;
         given a valid URL and auth - setup a requests session to use
         for subsequent calls, verify can be False
@@ -229,7 +229,7 @@ class EDCSession:
             verify = False
         self.session.verify = verify
 
-    def validateConnection(self):
+    def validate_edc_connection(self):
         &#34;&#34;&#34;
         validate that the connection informatioon (url + auth credentials)
         are correct.
@@ -365,7 +365,7 @@ for easy re-use for multiple scripts</p></div>
             type=str,
         )
 
-    def initUrlAndSessionFromEDCSettings(self, edc_secrets=&#34;resources/edc.secrets&#34;):
+    def init_edc_session(self, edc_secrets=&#34;resources/edc.secrets&#34;):
         &#34;&#34;&#34;
         reads the env vars and any command-line parameters &amp; creates an edc session
         with auth and optionally verify attributes populated (shared so no need to use
@@ -426,7 +426,7 @@ for easy re-use for multiple scripts</p></div>
         self.session.headers.update({&#34;Authorization&#34;: auth})
         self.session.baseUrl = self.baseUrl
 
-    def initSession(self, catalog_url, catalog_auth, verify):
+    def configure_edc_session(self, catalog_url, catalog_auth, verify):
         &#34;&#34;&#34;
         given a valid URL and auth - setup a requests session to use
         for subsequent calls, verify can be False
@@ -439,7 +439,7 @@ for easy re-use for multiple scripts</p></div>
             verify = False
         self.session.verify = verify
 
-    def validateConnection(self):
+    def validate_edc_connection(self):
         &#34;&#34;&#34;
         validate that the connection informatioon (url + auth credentials)
         are correct.
@@ -485,7 +485,7 @@ for easy re-use for multiple scripts</p></div>
 <h3>Methods</h3>
 <dl>
 <dt id="edc_utilities.edcSessionHelper.EDCSession.initSession"><code class="name flex">
-<span>def <span class="ident">initSession</span></span>(<span>self, catalog_url, catalog_auth, verify)</span>
+<span>def <span class="ident">configure_edc_session</span></span>(<span>self, catalog_url, catalog_auth, verify)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>given a valid URL and auth - setup a requests session to use
@@ -494,7 +494,7 @@ for subsequent calls, verify can be False</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def initSession(self, catalog_url, catalog_auth, verify):
+<pre><code class="python">def configure_edc_session(self, catalog_url, catalog_auth, verify):
     &#34;&#34;&#34;
     given a valid URL and auth - setup a requests session to use
     for subsequent calls, verify can be False
@@ -509,7 +509,7 @@ for subsequent calls, verify can be False</p></div>
 </details>
 </dd>
 <dt id="edc_utilities.edcSessionHelper.EDCSession.initUrlAndSessionFromEDCSettings"><code class="name flex">
-<span>def <span class="ident">initUrlAndSessionFromEDCSettings</span></span>(<span>self, edc_secrets='resources/edc.secrets')</span>
+<span>def <span class="ident">init_edc_session</span></span>(<span>self, edc_secrets='resources/edc.secrets')</span>
 </code></dt>
 <dd>
 <div class="desc"><p>reads the env vars and any command-line parameters &amp; creates an edc session
@@ -521,7 +521,7 @@ url, auth</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def initUrlAndSessionFromEDCSettings(self, edc_secrets=&#34;resources/edc.secrets&#34;):
+<pre><code class="python">def init_edc_session(self, edc_secrets=&#34;resources/edc.secrets&#34;):
     &#34;&#34;&#34;
     reads the env vars and any command-line parameters &amp; creates an edc session
     with auth and optionally verify attributes populated (shared so no need to use
@@ -584,7 +584,7 @@ url, auth</p></div>
 </details>
 </dd>
 <dt id="edc_utilities.edcSessionHelper.EDCSession.validateConnection"><code class="name flex">
-<span>def <span class="ident">validateConnection</span></span>(<span>self)</span>
+<span>def <span class="ident">validate_edc_connection</span></span>(<span>self)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>validate that the connection informatioon (url + auth credentials)
@@ -596,7 +596,7 @@ json message ()</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def validateConnection(self):
+<pre><code class="python">def validate_edc_connection(self):
     &#34;&#34;&#34;
     validate that the connection informatioon (url + auth credentials)
     are correct.
@@ -661,9 +661,9 @@ json message ()</p></div>
 <li>
 <h4><code><a title="edc_utilities.edcSessionHelper.EDCSession" href="#edc_utilities.edcSessionHelper.EDCSession">EDCSession</a></code></h4>
 <ul class="">
-<li><code><a title="edc_utilities.edcSessionHelper.EDCSession.initSession" href="#edc_utilities.edcSessionHelper.EDCSession.initSession">initSession</a></code></li>
-<li><code><a title="edc_utilities.edcSessionHelper.EDCSession.initUrlAndSessionFromEDCSettings" href="#edc_utilities.edcSessionHelper.EDCSession.initUrlAndSessionFromEDCSettings">initUrlAndSessionFromEDCSettings</a></code></li>
-<li><code><a title="edc_utilities.edcSessionHelper.EDCSession.validateConnection" href="#edc_utilities.edcSessionHelper.EDCSession.validateConnection">validateConnection</a></code></li>
+<li><code><a title="edc_utilities.edcSessionHelper.EDCSession.configure_edc_session" href="#edc_utilities.edcSessionHelper.EDCSession.initSession">configure_edc_session</a></code></li>
+<li><code><a title="edc_utilities.edcSessionHelper.EDCSession.init_edc_session" href="#edc_utilities.edcSessionHelper.EDCSession.initUrlAndSessionFromEDCSettings">init_edc_session</a></code></li>
+<li><code><a title="edc_utilities.edcSessionHelper.EDCSession.validate_edc_connection" href="#edc_utilities.edcSessionHelper.EDCSession.validateConnection">validate_edc_connection</a></code></li>
 </ul>
 </li>
 </ul>

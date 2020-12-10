@@ -3,7 +3,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=emulateIE7" />
-    <title>Coverage for src\informatica\compositeDomainAnyN.py: 0%</title>
+    <title>Coverage for src/informatica/compositeDomainAnyN.py: 0%</title>
     <link rel="stylesheet" href="style.css" type="text/css">
     <script type="text/javascript" src="jquery.min.js"></script>
     <script type="text/javascript" src="jquery.hotkeys.js"></script>
@@ -16,14 +16,14 @@
 <body class="pyfile">
 <div id="header">
     <div class="content">
-        <h1>Coverage for <b>src\informatica\compositeDomainAnyN.py</b> :
+        <h1>Coverage for <b>src/informatica/compositeDomainAnyN.py</b> :
             <span class="pc_cov">0%</span>
         </h1>
         <img id="keyboard_icon" src="keybd_closed.png" alt="Show keyboard shortcuts" />
         <h2 class="stats">
-            129 statements &nbsp;
+            127 statements &nbsp;
             <button type="button" class="run shortkey_r button_toggle_run" title="Toggle lines run">0 run</button>
-            <button type="button" class="mis show_mis shortkey_m button_toggle_mis" title="Toggle lines missing">129 missing</button>
+            <button type="button" class="mis show_mis shortkey_m button_toggle_mis" title="Toggle lines missing">127 missing</button>
             <button type="button" class="exc show_exc shortkey_x button_toggle_exc" title="Toggle lines excluded">0 excluded</button>
         </h2>
     </div>
@@ -81,7 +81,7 @@
     <p id="t28" class="mis show_mis"><span class="n"><a href="#t28">28</a></span><span class="t"><span class="key">import</span> <span class="nam">urllib3</span>&nbsp;</span><span class="r"></span></p>
     <p id="t29" class="mis show_mis"><span class="n"><a href="#t29">29</a></span><span class="t"><span class="key">from</span> <span class="nam">itertools</span> <span class="key">import</span> <span class="nam">combinations</span>&nbsp;</span><span class="r"></span></p>
     <p id="t30" class="mis show_mis"><span class="n"><a href="#t30">30</a></span><span class="t"><span class="key">import</span> <span class="nam">argparse</span>&nbsp;</span><span class="r"></span></p>
-    <p id="t31" class="mis show_mis"><span class="n"><a href="#t31">31</a></span><span class="t"><span class="key">from</span> <span class="nam">src</span><span class="op">.</span><span class="nam">edc_utilities</span><span class="op">.</span><span class="nam">edcSessionHelper</span> <span class="key">import</span> <span class="nam">EDCSession</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t31" class="mis show_mis"><span class="n"><a href="#t31">31</a></span><span class="t"><span class="key">from</span> <span class="nam">src</span><span class="op">.</span><span class="nam">edc_utilities</span><span class="op">.</span><span class="nam">edc_session_helper</span> <span class="key">import</span> <span class="nam">EDCSession</span>&nbsp;</span><span class="r"></span></p>
     <p id="t32" class="mis show_mis"><span class="n"><a href="#t32">32</a></span><span class="t"><span class="key">import</span> <span class="nam">json</span>&nbsp;</span><span class="r"></span></p>
     <p id="t33" class="pln"><span class="n"><a href="#t33">33</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p id="t34" class="pln"><span class="n"><a href="#t34">34</a></span><span class="t"><span class="com"># global var declaration (with type hinting)</span>&nbsp;</span><span class="r"></span></p>
@@ -110,14 +110,14 @@
     <p id="t57" class="pln"><span class="n"><a href="#t57">57</a></span><span class="t"><span class="str">    """</span>&nbsp;</span><span class="r"></span></p>
     <p id="t58" class="mis show_mis"><span class="n"><a href="#t58">58</a></span><span class="t">    <span class="nam">args</span><span class="op">,</span> <span class="nam">unknown</span> <span class="op">=</span> <span class="nam">parser</span><span class="op">.</span><span class="nam">parse_known_args</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p id="t59" class="pln"><span class="n"><a href="#t59">59</a></span><span class="t">    <span class="com"># initialize http session to EDC, storeing the baseurl</span>&nbsp;</span><span class="r"></span></p>
-    <p id="t60" class="mis show_mis"><span class="n"><a href="#t60">60</a></span><span class="t">    <span class="nam">edcSession</span><span class="op">.</span><span class="nam">initUrlAndSessionFromEDCSettings</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t60" class="mis show_mis"><span class="n"><a href="#t60">60</a></span><span class="t">    <span class="nam">edcSession</span><span class="op">.</span><span class="nam">init_edc_session</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p id="t61" class="mis show_mis"><span class="n"><a href="#t61">61</a></span><span class="t">    <span class="nam">print</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p id="t62" class="pln"><span class="n"><a href="#t62">62</a></span><span class="t">        <span class="str">f"args from cmdline/env vars: url={edcSession.baseUrl}"</span>&nbsp;</span><span class="r"></span></p>
     <p id="t63" class="pln"><span class="n"><a href="#t63">63</a></span><span class="t">        <span class="str">f"  session={edcSession.session}"</span>&nbsp;</span><span class="r"></span></p>
     <p id="t64" class="pln"><span class="n"><a href="#t64">64</a></span><span class="t">    <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p id="t65" class="pln"><span class="n"><a href="#t65">65</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p id="t66" class="pln"><span class="n"><a href="#t66">66</a></span><span class="t">    <span class="com"># test the connection - see if the version is 10.4.0 or later</span>&nbsp;</span><span class="r"></span></p>
-    <p id="t67" class="mis show_mis"><span class="n"><a href="#t67">67</a></span><span class="t">    <span class="nam">rc</span><span class="op">,</span> <span class="nam">json_resp</span> <span class="op">=</span> <span class="nam">edcSession</span><span class="op">.</span><span class="nam">validateConnection</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t67" class="mis show_mis"><span class="n"><a href="#t67">67</a></span><span class="t">    <span class="nam">rc</span><span class="op">,</span> <span class="nam">json_resp</span> <span class="op">=</span> <span class="nam">edcSession</span><span class="op">.</span><span class="nam">validate_edc_connection</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p id="t68" class="mis show_mis"><span class="n"><a href="#t68">68</a></span><span class="t">    <span class="nam">print</span><span class="op">(</span><span class="str">f"validated connection: {rc} {json_resp}"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p id="t69" class="pln"><span class="n"><a href="#t69">69</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p id="t70" class="pln"><span class="n"><a href="#t70">70</a></span><span class="t">    <span class="com"># check the composite-domain arg - if not entered, prompt the user</span>&nbsp;</span><span class="r"></span></p>
@@ -210,7 +210,7 @@
     <p id="t157" class="pln"><span class="n"><a href="#t157">157</a></span><span class="t"><span class="str">    input a valid number from 1 through max</span>&nbsp;</span><span class="r"></span></p>
     <p id="t158" class="pln"><span class="n"><a href="#t158">158</a></span><span class="t"><span class="str">    anything else is rejected and asked for again</span>&nbsp;</span><span class="r"></span></p>
     <p id="t159" class="pln"><span class="n"><a href="#t159">159</a></span><span class="t"><span class="str">    """</span>&nbsp;</span><span class="r"></span></p>
-    <p id="t160" class="mis show_mis"><span class="n"><a href="#t160">160</a></span><span class="t">    <span class="key">while</span> <span class="key">True</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t160" class="pln"><span class="n"><a href="#t160">160</a></span><span class="t">    <span class="key">while</span> <span class="key">True</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p id="t161" class="mis show_mis"><span class="n"><a href="#t161">161</a></span><span class="t">        <span class="key">try</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p id="t162" class="mis show_mis"><span class="n"><a href="#t162">162</a></span><span class="t">            <span class="nam">nbr</span> <span class="op">=</span> <span class="nam">int</span><span class="op">(</span><span class="nam">input</span><span class="op">(</span><span class="str">f"Enter the number of counted domains : (1-{max}): "</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p id="t163" class="mis show_mis"><span class="n"><a href="#t163">163</a></span><span class="t">        <span class="key">except</span> <span class="nam">ValueError</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
@@ -233,7 +233,7 @@
     <p id="t180" class="pln"><span class="n"><a href="#t180">180</a></span><span class="t">    <span class="str">"""</span>&nbsp;</span><span class="r"></span></p>
     <p id="t181" class="pln"><span class="n"><a href="#t181">181</a></span><span class="t"><span class="str">    input a name - that cannot have spaces - empty string returned is ok</span>&nbsp;</span><span class="r"></span></p>
     <p id="t182" class="pln"><span class="n"><a href="#t182">182</a></span><span class="t"><span class="str">    """</span>&nbsp;</span><span class="r"></span></p>
-    <p id="t183" class="mis show_mis"><span class="n"><a href="#t183">183</a></span><span class="t">    <span class="key">while</span> <span class="key">True</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t183" class="pln"><span class="n"><a href="#t183">183</a></span><span class="t">    <span class="key">while</span> <span class="key">True</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p id="t184" class="mis show_mis"><span class="n"><a href="#t184">184</a></span><span class="t">        <span class="nam">entered_name</span> <span class="op">=</span> <span class="nam">input</span><span class="op">(</span><span class="str">f"{prompt_message}: "</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p id="t185" class="pln"><span class="n"><a href="#t185">185</a></span><span class="t">        <span class="com"># print(f"value entered >>>{entered_name}&lt;&lt;&lt;")</span>&nbsp;</span><span class="r"></span></p>
     <p id="t186" class="mis show_mis"><span class="n"><a href="#t186">186</a></span><span class="t">        <span class="key">if</span> <span class="str">' '</span> <span class="key">in</span> <span class="nam">entered_name</span> <span class="key">or</span> <span class="str">'\t'</span> <span class="key">in</span> <span class="nam">entered_name</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
@@ -312,7 +312,7 @@
     <div class="content">
         <p>
             <a class="nav" href="index.html">&#xab; index</a> &nbsp; &nbsp; <a class="nav" href="https://coverage.readthedocs.io">coverage.py v5.3</a>,
-            created at 2020-12-08 21:21 +0100
+            created at 2020-12-10 12:02 +0100
         </p>
     </div>
 </div>

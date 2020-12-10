@@ -21,6 +21,7 @@ class MULogging:
 
     def __init__(self, log_configuration_file):
         self.log_setting = log_settings.LogSettings(log_configuration_file)
+        self.log_setting.get_config()
         self.area = None
         self.logger = self.setup_logger(self.log_setting.log_level
                                         , self.log_setting.log_filename_prefix
@@ -41,7 +42,7 @@ class MULogging:
         logger = logging.getLogger("metadata_utilities")
         if len(logger.handlers):
             return logger
-        print("Setting up logger")
+        # print("Setting up logger")
         logger.setLevel(log_level)
         right_now = datetime.now().isoformat(timespec="microseconds").replace(":", "-")
         # add prefix. Allow for limited number of functions

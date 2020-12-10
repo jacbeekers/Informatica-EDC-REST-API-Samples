@@ -38,7 +38,7 @@ scannerId = &#34;LineageScanner&#34;
 def upload_csv():
 
     edc_helper = edcSessionHelper.EDCSession()
-    edc_helper.initUrlAndSessionFromEDCSettings()
+    edc_helper.init_edc_session()
 
     url = edc_helper.baseUrl
           #+ &#34;/access/1/catalog/data/objects&#34;
@@ -71,7 +71,7 @@ if __name__ == &#34;__main__&#34;:
 <pre><code class="python">def upload_csv():
 
     edc_helper = edcSessionHelper.EDCSession()
-    edc_helper.initUrlAndSessionFromEDCSettings()
+    edc_helper.init_edc_session()
 
     url = edc_helper.baseUrl
           #+ &#34;/access/1/catalog/data/objects&#34;

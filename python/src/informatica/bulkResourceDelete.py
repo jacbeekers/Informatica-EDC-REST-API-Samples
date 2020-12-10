@@ -6,12 +6,15 @@ import os
 import argparse
 import sys
 import requests
-from src.edc_utilities.edcSessionHelper import EDCSession
+from src.edc_utilities.edc_session_helper import EDCSession
+from src.metadata_utilities import generic_settings, mu_logging
 import urllib3
 
 
+gen = generic_settings.GenericSettings()
+gen.get_config()
 # global var declaration (with type hinting)
-edcSession: EDCSession = None
+edcSession: EDCSession = EDCSession(settings=gen)
 urllib3.disable_warnings()
 
 
@@ -94,8 +97,9 @@ def main():
     for each property in databaseFile (arg) - try to create/execute a resource
     """
     global edcSession
-    edcSession = EDCSession()
-    edcSession.initUrlAndSessionFromEDCSettings()
+    gen.get_config()
+    edcSession = EDCSession(settings=gen)
+    edcSession.init_edc_session(mu_log=gen.mu_log)
     print(edcSession.baseUrl)
 
     # read any command-line args
@@ -103,6 +107,10 @@ def main():
     print(f"args={args}")
 
     # check that both files exist (database file and resource template json file)
+    if args.resourceFile is None:
+        print(f"resource file not provided.")
+        return
+
     if not os.path.isfile(args.resourceFile):
         print(f"resource file not found {args.resourceFile}, exiting")
         return

@@ -51,7 +51,7 @@
     </div>
 </div>
 <div id="source">
-    <p id="t1" class="mis show_mis"><span class="n"><a href="#t1">1</a></span><span class="t"><span class="key">from</span> <span class="nam">src</span><span class="op">.</span><span class="nam">edc_utilities</span> <span class="key">import</span> <span class="nam">edcSessionHelper</span><span class="op">,</span> <span class="nam">edcutils</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t1" class="mis show_mis"><span class="n"><a href="#t1">1</a></span><span class="t"><span class="key">from</span> <span class="nam">src</span><span class="op">.</span><span class="nam">edc_utilities</span> <span class="key">import</span> <span class="nam">edc_session_helper</span><span class="op">,</span> <span class="nam">edcutils</span>&nbsp;</span><span class="r"></span></p>
     <p id="t2" class="pln"><span class="n"><a href="#t2">2</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p id="t3" class="mis show_mis"><span class="n"><a href="#t3">3</a></span><span class="t"><span class="nam">url</span> <span class="op">=</span> <span class="str">"https://infaserveril26zi7vnj4uo.westeurope.cloudapp.azure.com:9085"</span>&nbsp;</span><span class="r"></span></p>
     <p id="t4" class="mis show_mis"><span class="n"><a href="#t4">4</a></span><span class="t"><span class="nam">resourceName</span> <span class="op">=</span> <span class="str">"demo_custom_lineage"</span>&nbsp;</span><span class="r"></span></p>
@@ -62,8 +62,8 @@
     <p id="t9" class="pln"><span class="n"><a href="#t9">9</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p id="t10" class="mis show_mis"><span class="n"><a href="#t10">10</a></span><span class="t"><span class="key">def</span> <span class="nam">upload_csv</span><span class="op">(</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p id="t11" class="pln"><span class="n"><a href="#t11">11</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p id="t12" class="mis show_mis"><span class="n"><a href="#t12">12</a></span><span class="t">    <span class="nam">edc_helper</span> <span class="op">=</span> <span class="nam">edcSessionHelper</span><span class="op">.</span><span class="nam">EDCSession</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p id="t13" class="mis show_mis"><span class="n"><a href="#t13">13</a></span><span class="t">    <span class="nam">edc_helper</span><span class="op">.</span><span class="nam">initUrlAndSessionFromEDCSettings</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t12" class="mis show_mis"><span class="n"><a href="#t12">12</a></span><span class="t">    <span class="nam">edc_helper</span> <span class="op">=</span> <span class="nam">edc_session_helper</span><span class="op">.</span><span class="nam">EDCSession</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t13" class="mis show_mis"><span class="n"><a href="#t13">13</a></span><span class="t">    <span class="nam">edc_helper</span><span class="op">.</span><span class="nam">init_edc_session</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p id="t14" class="pln"><span class="n"><a href="#t14">14</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p id="t15" class="mis show_mis"><span class="n"><a href="#t15">15</a></span><span class="t">    <span class="nam">url</span> <span class="op">=</span> <span class="nam">edc_helper</span><span class="op">.</span><span class="nam">baseUrl</span>&nbsp;</span><span class="r"></span></p>
     <p id="t16" class="pln"><span class="n"><a href="#t16">16</a></span><span class="t">          <span class="com">#+ "/access/1/catalog/data/objects"</span>&nbsp;</span><span class="r"></span></p>
@@ -80,7 +80,7 @@
     <div class="content">
         <p>
             <a class="nav" href="index.html">&#xab; index</a> &nbsp; &nbsp; <a class="nav" href="https://coverage.readthedocs.io">coverage.py v5.3</a>,
-            created at 2020-12-06 18:03 +0100
+            created at 2020-12-10 12:02 +0100
         </p>
     </div>
 </div>

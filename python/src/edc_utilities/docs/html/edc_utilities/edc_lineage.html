@@ -298,7 +298,7 @@ class EDCLineage:
         module = &#34;EDCLineage.send_metadata_to_edc&#34;
         self.mu_log.log(self.mu_log.VERBOSE, &#34;sending payload &gt;&#34; + self.payload + &#34;&lt;.&#34;, module)
         start_time = time.time()
-        self.edc_helper.initUrlAndSessionFromEDCSettings()
+        self.edc_helper.init_edc_session()
 
         self.mu_log.log(self.mu_log.DEBUG, &#34;EDC base URL: &#34; + self.settings.edc_url, module)
         url = self.settings.edc_url + &#34;/access/1/catalog/data/objects&#34;
@@ -621,7 +621,7 @@ class EDCLineage:
         module = &#34;EDCLineage.send_metadata_to_edc&#34;
         self.mu_log.log(self.mu_log.VERBOSE, &#34;sending payload &gt;&#34; + self.payload + &#34;&lt;.&#34;, module)
         start_time = time.time()
-        self.edc_helper.initUrlAndSessionFromEDCSettings()
+        self.edc_helper.init_edc_session()
 
         self.mu_log.log(self.mu_log.DEBUG, &#34;EDC base URL: &#34; + self.settings.edc_url, module)
         url = self.settings.edc_url + &#34;/access/1/catalog/data/objects&#34;
@@ -953,7 +953,7 @@ class EDCLineage:
     module = &#34;EDCLineage.send_metadata_to_edc&#34;
     self.mu_log.log(self.mu_log.VERBOSE, &#34;sending payload &gt;&#34; + self.payload + &#34;&lt;.&#34;, module)
     start_time = time.time()
-    self.edc_helper.initUrlAndSessionFromEDCSettings()
+    self.edc_helper.init_edc_session()
 
     self.mu_log.log(self.mu_log.DEBUG, &#34;EDC base URL: &#34; + self.settings.edc_url, module)
     url = self.settings.edc_url + &#34;/access/1/catalog/data/objects&#34;

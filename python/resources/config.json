@@ -14,7 +14,7 @@
   "edc_secrets": "resources/edc_connectivity.secrets",
   "jinja_config": "resources/jinja_config.json",
   "suppress_edc_call": "True",
-  "http_proxy": "None",
-  "https_proxy": "None",
+  "edc_http_proxy": "None",
+  "edc_https_proxy": "None",
   "log_config": "resources/log_config.json"
 }

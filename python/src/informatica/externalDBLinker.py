@@ -11,7 +11,7 @@ options include to create links directly (via API) - via -i switch (or --edcImpo
 """
 import json
 import csv
-from src.edc_utilities import edcSessionHelper, edcutils
+from src.edc_utilities import edc_session_helper, edcutils
 import time
 import sys
 import argparse
@@ -21,7 +21,7 @@ import os
 urllib3.disable_warnings()
 
 # set edc helper session + variables (easy/re-useable connection to edc api)
-edcHelper = edcSessionHelper.EDCSession()
+edcHelper = edc_session_helper.EDCSession()
 
 # define script command-line parameters (in global scope for gooey/wooey)
 parser = argparse.ArgumentParser(parents=[edcHelper.argparser])
@@ -339,7 +339,7 @@ def main():
     args = args, unknown = parser.parse_known_args()
     # setup edc session and catalog url - with auth in the session header,
     # by using system vars or command-line args
-    edcHelper.initUrlAndSessionFromEDCSettings()
+    edcHelper.init_edc_session()
     print(f"command-line args parsed = {args} ")
 
     tableLinksCreated = 0

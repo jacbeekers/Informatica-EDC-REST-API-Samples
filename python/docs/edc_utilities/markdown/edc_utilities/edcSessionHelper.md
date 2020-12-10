@@ -17,7 +17,7 @@ uses command-line args to easily define common connection properties for edc
 
 Usage:
     edcSession = EDCSession()
-    edcSession.initUrlAndSessionFromEDCSettings()
+    edcSession.init_edc_session()
 
     ...
     resp = edcSession.session.get(resourceUrl, params=(), timeout=10)
@@ -33,18 +33,18 @@ Classes
 
     ### Methods
 
-    `initSession(self, catalog_url, catalog_auth, verify)`
+    `configure_edc_session(self, catalog_url, catalog_auth, verify)`
     :   given a valid URL and auth - setup a requests session to use
         for subsequent calls, verify can be False
 
-    `initUrlAndSessionFromEDCSettings(self, edc_secrets='resources/edc.secrets')`
+    `init_edc_session(self, edc_secrets='resources/edc.secrets')`
     :   reads the env vars and any command-line parameters & creates an edc session
         with auth and optionally verify attributes populated (shared so no need to use
         on individual calls)
         returns:
             url, auth
 
-    `validateConnection(self)`
+    `validate_edc_connection(self)`
     :   validate that the connection informatioon (url + auth credentials)
         are correct.
         returns:

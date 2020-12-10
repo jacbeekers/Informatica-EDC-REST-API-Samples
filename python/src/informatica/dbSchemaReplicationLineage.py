@@ -43,10 +43,10 @@ import csv
 import json
 import time
 
-from src.edc_utilities import edcSessionHelper, edcutils
+from src.edc_utilities import edc_session_helper, edcutils
 
 # set edc helper session + variables (easy/re-usable connection to edc api)
-edcHelper = edcSessionHelper.EDCSession()
+edcHelper = edc_session_helper.EDCSession()
 
 # define script command-line parameters (in global scope for gooey/wooey)
 parser = argparse.ArgumentParser(parents=[edcHelper.argparser])
@@ -249,7 +249,7 @@ def main():
     args = args, unknown = parser.parse_known_args()
     # setup edc session and catalog url - with auth in the session header,
     # by using system vars or command-line args
-    edcHelper.initUrlAndSessionFromEDCSettings()
+    edcHelper.init_edc_session()
 
     print(f"command-line args parsed = {args} ")
 

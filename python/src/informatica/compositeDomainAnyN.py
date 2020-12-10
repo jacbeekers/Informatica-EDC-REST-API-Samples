@@ -28,7 +28,7 @@ import sys
 import urllib3
 from itertools import combinations
 import argparse
-from src.edc_utilities.edcSessionHelper import EDCSession
+from src.edc_utilities.edc_session_helper import EDCSession
 import json
 
 # global var declaration (with type hinting)
@@ -57,14 +57,14 @@ def main():
     """
     args, unknown = parser.parse_known_args()
     # initialize http session to EDC, storeing the baseurl
-    edcSession.initUrlAndSessionFromEDCSettings()
+    edcSession.init_edc_session()
     print(
         f"args from cmdline/env vars: url={edcSession.baseUrl}"
         f"  session={edcSession.session}"
     )
 
     # test the connection - see if the version is 10.4.0 or later
-    rc, json_resp = edcSession.validateConnection()
+    rc, json_resp = edcSession.validate_edc_connection()
     print(f"validated connection: {rc} {json_resp}")
 
     # check the composite-domain arg - if not entered, prompt the user

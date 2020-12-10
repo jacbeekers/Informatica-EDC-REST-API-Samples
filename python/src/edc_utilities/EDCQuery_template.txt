@@ -43,7 +43,7 @@ def main():
     offset = 0
     page = 0
 
-    edcHelper.initUrlAndSessionFromEDCSettings()
+    edcHelper.init_edc_session()
     print("EDC_query_template:start")
     print(f"Catalog={edcHelper.baseUrl}")
 

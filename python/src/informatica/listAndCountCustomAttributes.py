@@ -22,7 +22,7 @@ import csv
 import argparse
 import os
 from pathlib import PurePath
-from src.edc_utilities.edcSessionHelper import EDCSession
+from src.edc_utilities.edc_session_helper import EDCSession
 
 # global var declaration (with type hinting)
 edcSession: EDCSession = None
@@ -62,14 +62,14 @@ def main():
 
     args, unknown = parser.parse_known_args()
     # initialize http session to EDC, storeing the baseurl
-    edcSession.initUrlAndSessionFromEDCSettings()
+    edcSession.init_edc_session()
     print(
         f"args from cmdline/env vars: url={edcSession.baseUrl}"
         f"  session={edcSession.session}"
     )
 
     # test the connection - see if the version is 10.4.0 or later
-    rc, json = edcSession.validateConnection()
+    rc, json = edcSession.validate_edc_connection()
     print(f"validated connection: {rc} {json}")
 
     # create the output path if it does not exist

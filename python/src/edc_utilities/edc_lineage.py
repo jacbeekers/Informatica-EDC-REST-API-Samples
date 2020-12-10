@@ -1,9 +1,8 @@
-import json
 import time
 
 import jinja2
 
-from src.edc_utilities import edcSessionHelper
+from src.edc_utilities import edc_session_helper
 from src.metadata_utilities import messages, generic
 
 
@@ -12,8 +11,8 @@ class EDCLineage:
     EDLineage: Call Informatica EDC APIs to add lineage information for existing objects
     """
 
-    code_version = "0.3.5"
-    total = 1000
+    code_version = "0.3.11"
+    total = 10000
 
     def __init__(self, settings, mu_log_ref):
         self.offset = 0
@@ -28,17 +27,16 @@ class EDCLineage:
         self.edc_target_datasource = "unknown"
         self.edc_target_folder = "unknown"
         self.head = {'Content-Type': 'application/json'}
-        self.edc_helper = edcSessionHelper.EDCSession(self.settings)
+        self.edc_helper = edc_session_helper.EDCSession(self.settings)
         self.proxies = "unknown"
         self.jinja_base_directory = None
         self.jinja_application = None
         self.jinja_templates = None
         self.jinja_template_directory = None
-        self.jinja_environment = None
         self.meta_type = "unknown"
         self.payload = {}
         self.data = None
-        self.jinja_configuration_file = self.settings.jinja_config
+        self.template = None
 
     def get_edc_data_references(self):
         module = __name__ + ".get_edc_data_references"
@@ -72,7 +70,7 @@ class EDCLineage:
         return messages.message["ok"]
 
     def generate_lineage(self, output_type, metadata_type, data, generic_settings):
-        module = "EDCLineage.generate_lineage"
+        module = __name__ + ".generate_lineage"
         if generic_settings is None:
             self.mu_log.log(self.mu_log.DEBUG, "Loading generic settings.", module)
             result = self.settings.get_config()
@@ -85,21 +83,26 @@ class EDCLineage:
             self.mu_log.log(self.mu_log.DEBUG, "Generic settings already loaded.", module)
             self.settings = generic_settings
 
+        self.generic = generic.Generic(settings=self.settings, mu_log_ref=self.mu_log)
+        self.proxies = self.settings.get_edc_proxy()
+
         # Get jinja configuration
-        result = self.settings.jinja_config.get_jinja_settings(self.settings)
+        if self.settings.jinja_config is None:
+            result = self.settings.get_config()
+            self.mu_log.log(self.mu_log.DEBUG, "settings.get_config returned: " + result["code"], module)
+        result = self.generic.get_jinja_settings()
         if result == messages.message["ok"]:
             self.mu_log.log(self.mu_log.INFO, "Jinja configuration file found and read.", module)
         else:
             self.mu_log.log(self.mu_log.ERROR, "get_jinja_settings returned: " + result["code"], module)
             return result
 
-        self.generic = generic.Generic(settings=self.settings, mu_log_ref=self.mu_log)
-        self.proxies = self.settings.get_edc_proxy()
         result = self.get_edc_data_references()
         if result == messages.message["ok"]:
             self.mu_log.log(self.mu_log.DEBUG, "EDC Data references for scanned objects determined.", module)
         else:
-            self.mu_log.log(self.mu_log.ERROR, "EDC Data references for scanned objects returned: " + result["code"], module)
+            self.mu_log.log(self.mu_log.ERROR, "EDC Data references for scanned objects returned: " + result["code"],
+                            module)
             return result
 
         self.meta_type = metadata_type
@@ -117,9 +120,9 @@ class EDCLineage:
         return lineage_result
 
     def build_api_load(self):
-        module = "EDCLineage.build_api_load"
+        module = __name__ + ".build_api_load"
         try:
-            self.template = self.jinja_environment.get_template(self.meta_type + ".json")
+            self.template = self.generic.jinja_environment.get_template(self.meta_type + ".json")
             self.mu_log.log(self.mu_log.DEBUG, "Found jinja template: " + self.meta_type + ".json", module)
         except jinja2.exceptions.TemplateNotFound:
             self.mu_log.log(self.mu_log.ERROR, "Could not find jinja template >" + self.meta_type + ".json<."
@@ -143,15 +146,15 @@ class EDCLineage:
         """
         Loop through the list of source_target_entities
         """
-        module = "EDCLineage.build_api_load_entity_association"
+        module = __name__ + ".build_api_load_entity_association"
         build_result = messages.message["ok"]
         source_target_links = self.data["source_target_entity_links"]
         source_target_list = []
         update_entry_list = []
 
-        template_updates = self.jinja_environment.get_template("physical_association_updates.jinja2")
-        template_update_entry = self.jinja_environment.get_template("physical_association_update_entry.jinja2")
-        template_new_sourcelinks = self.jinja_environment.get_template("physical_association_source_link.jinja2")
+        template_updates = self.generic.jinja_environment.get_template("physical_association_updates.jinja2")
+        template_update_entry = self.generic.jinja_environment.get_template("physical_association_update_entry.jinja2")
+        template_new_source_links = self.generic.jinja_environment.get_template("physical_association_source_link.jinja2")
         target = ""
         for source_target_entity in source_target_links:
             self.mu_log.log(self.mu_log.DEBUG, "entity link from >" + source_target_entity["from"] + "< to >"
@@ -170,7 +173,7 @@ class EDCLineage:
                            + self.edc_source_datasource \
                            + self.edc_source_folder \
                            + source_name
-            new_entry = template_new_sourcelinks.render(source_object_id=from_dataset, data_flow="core.DataSetDataFlow")
+            new_entry = template_new_source_links.render(source_object_id=from_dataset, data_flow="core.DataSetDataFlow")
             self.mu_log.log(self.mu_log.VERBOSE, "new entry: " + new_entry, module)
             source_target_list.append(new_entry)
 
@@ -204,15 +207,15 @@ class EDCLineage:
         """
         Loop through the list of source_target_attributes
         """
-        module = "EDCLineage.build_api_load_attribute_association"
+        module = __name__ + ".build_api_load_attribute_association"
         build_result = messages.message["ok"]
         source_target_links = self.data["source_target_attribute_links"]
         source_target_list = []
         update_entry_list = []
 
-        template_updates = self.jinja_environment.get_template("physical_association_updates.jinja2")
-        template_update_entry = self.jinja_environment.get_template("physical_association_update_entry.jinja2")
-        template_new_source_links = self.jinja_environment.get_template("physical_association_source_link.jinja2")
+        template_updates = self.generic.jinja_environment.get_template("physical_association_updates.jinja2")
+        template_update_entry = self.generic.jinja_environment.get_template("physical_association_update_entry.jinja2")
+        template_new_source_links = self.generic.jinja_environment.get_template("physical_association_source_link.jinja2")
 
         to_entity_name = "NONE"
         source_target_nr = 0
@@ -326,10 +329,10 @@ class EDCLineage:
         return build_result, self.payload
 
     def send_metadata_to_edc(self, suppress_edc_call=False):
-        module = "EDCLineage.send_metadata_to_edc"
+        module = __name__ + ".send_metadata_to_edc"
         self.mu_log.log(self.mu_log.VERBOSE, "sending payload >" + str(self.payload) + "<.", module)
         start_time = time.time()
-        self.edc_helper.initUrlAndSessionFromEDCSettings()
+        self.edc_helper.init_edc_session(self.mu_log)
 
         self.mu_log.log(self.mu_log.DEBUG, "EDC base URL: " + self.settings.edc_url, module)
         url = self.settings.edc_url + "/access/1/catalog/data/objects"
@@ -345,10 +348,11 @@ class EDCLineage:
 
         if suppress_edc_call:
             self.mu_log.log(self.mu_log.WARNING
-                            , "'suppress_edc_call' is set to True in config.json. EDC call NOT exucuted", module)
+                            , "'suppress_edc_call' is set to True in config.json. EDC call NOT executed", module)
             send_result = messages.message["ok"]
         else:
-            response = self.edc_helper.session.patch(url, self.payload, timeout=3, headers=self.head, proxies=self.proxies)
+            response = self.edc_helper.session.patch(url, self.payload, timeout=3, headers=self.head,
+                                                     proxies=self.proxies)
             status = response.status_code
             if status != 200:
                 # some error - e.g. catalog not running, or bad credentials
