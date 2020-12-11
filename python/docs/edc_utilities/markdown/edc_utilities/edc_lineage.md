@@ -29,6 +29,12 @@ Classes
     `generate_lineage(self, output_type, metadata_type, data, generic_settings)`
     :
 
+    `get_data_references_before_v_0_3(self)`
+    :
+
+    `get_data_references_v0_3(self)`
+    :
+
     `get_edc_data_references(self)`
     :
 

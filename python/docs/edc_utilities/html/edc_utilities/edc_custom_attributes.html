@@ -143,6 +143,7 @@ class EDCCustomAttribute:
                     # store the total, so we know when the last page of results is read
                     total = result_json[&#34;metadata&#34;][&#34;totalCount&#34;]
                 except requests.exceptions.RequestException as e:
+                    print(module, str(e))
                     self.mu_log.log(self.mu_log.ERROR, &#34;An error occurred: &#34; + str(e), module)
                     self.mu_log.log(self.mu_log.WARNING, &#34;retry#&#34; + str(self.retries+1), module)
                     self.reconnect()
@@ -260,13 +261,6 @@ class EDCCustomAttribute:
         Update a give custom attribute
         &#34;&#34;&#34;
         module = __name__ + &#34;.update_custom_attribute&#34;
-        result = self.get_custom_attribute(name)
-        if result == messages.message[&#34;ok&#34;]:
-            # attribute exists and we can go ahead
-            self.mu_log.log(self.mu_log.INFO, &#34;Found Custom Attribute &gt;&#34; + name + &#34;&lt;.&#34;, module)
-        else:
-            self.mu_log.log(self.mu_log.ERROR, &#34;Custom Attribute &gt;&#34; + name + &#34;&lt; not found.&#34;, module)
-            return result
 
         if self.settings.suppress_edc_call:
             self.mu_log.log(self.mu_log.WARNING, &#34;suppress_edc_call is True. Skipping EDC call...&#34;, module)
@@ -438,6 +432,7 @@ If both settings_ref and configuration_file are set, the configuration_file argu
                     # store the total, so we know when the last page of results is read
                     total = result_json[&#34;metadata&#34;][&#34;totalCount&#34;]
                 except requests.exceptions.RequestException as e:
+                    print(module, str(e))
                     self.mu_log.log(self.mu_log.ERROR, &#34;An error occurred: &#34; + str(e), module)
                     self.mu_log.log(self.mu_log.WARNING, &#34;retry#&#34; + str(self.retries+1), module)
                     self.reconnect()
@@ -555,13 +550,6 @@ If both settings_ref and configuration_file are set, the configuration_file argu
         Update a give custom attribute
         &#34;&#34;&#34;
         module = __name__ + &#34;.update_custom_attribute&#34;
-        result = self.get_custom_attribute(name)
-        if result == messages.message[&#34;ok&#34;]:
-            # attribute exists and we can go ahead
-            self.mu_log.log(self.mu_log.INFO, &#34;Found Custom Attribute &gt;&#34; + name + &#34;&lt;.&#34;, module)
-        else:
-            self.mu_log.log(self.mu_log.ERROR, &#34;Custom Attribute &gt;&#34; + name + &#34;&lt; not found.&#34;, module)
-            return result
 
         if self.settings.suppress_edc_call:
             self.mu_log.log(self.mu_log.WARNING, &#34;suppress_edc_call is True. Skipping EDC call...&#34;, module)
@@ -782,6 +770,7 @@ This is an expensive operation, so we should cache it</p></div>
                 # store the total, so we know when the last page of results is read
                 total = result_json[&#34;metadata&#34;][&#34;totalCount&#34;]
             except requests.exceptions.RequestException as e:
+                print(module, str(e))
                 self.mu_log.log(self.mu_log.ERROR, &#34;An error occurred: &#34; + str(e), module)
                 self.mu_log.log(self.mu_log.WARNING, &#34;retry#&#34; + str(self.retries+1), module)
                 self.reconnect()
@@ -866,13 +855,6 @@ This is an expensive operation, so we should cache it</p></div>
     Update a give custom attribute
     &#34;&#34;&#34;
     module = __name__ + &#34;.update_custom_attribute&#34;
-    result = self.get_custom_attribute(name)
-    if result == messages.message[&#34;ok&#34;]:
-        # attribute exists and we can go ahead
-        self.mu_log.log(self.mu_log.INFO, &#34;Found Custom Attribute &gt;&#34; + name + &#34;&lt;.&#34;, module)
-    else:
-        self.mu_log.log(self.mu_log.ERROR, &#34;Custom Attribute &gt;&#34; + name + &#34;&lt; not found.&#34;, module)
-        return result
 
     if self.settings.suppress_edc_call:
         self.mu_log.log(self.mu_log.WARNING, &#34;suppress_edc_call is True. Skipping EDC call...&#34;, module)

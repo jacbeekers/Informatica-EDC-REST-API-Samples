@@ -62,6 +62,10 @@ class LogSettings:
         result = messages.message[&#34;undetermined&#34;]
 
         try:
+            if self.log_config is None:
+                print(module, &#34;log_config is None, i.e. an empty value was provided for the log configuration file.&#34;)
+                return messages.message[&#34;log_config_is_none&#34;]
+
             with open(self.log_config) as config:
                 data = json.load(config)
                 self.log_directory = data[&#34;log_directory&#34;]
@@ -71,18 +75,23 @@ class LogSettings:
                     self.configured_log_level = data[&#34;log_level&#34;]
                 else:
                     self.configured_log_level = &#34;DEBUG&#34;
+                    print(&#34;module, Missing log_level. Set to default=\&#34;DEBUG\&#34;&#34;)
                 self.log_level = self.determine_log_level(self.configured_log_level)
                 if &#34;azure_monitor_config&#34; in data:
                     self.azure_monitor_config = data[&#34;azure_monitor_config&#34;]
                 if &#34;azure_monitor_requests&#34; in data:
                     if data[&#34;azure_monitor_requests&#34;] == &#34;True&#34;:
                         self.azure_monitor_requests = True
+                        print(module, &#34;azure_monitor_requests has been set to True&#34;)
                     elif data[&#34;azure_monitor_requests&#34;] == &#34;False&#34;:
                         self.azure_monitor_requests = False
+                        print(module, &#34;azure_monitor_requests has been set to False&#34;)
                     else:
                         print(module, &#34;Incorrect config value &gt;&#34; + data[&#34;azure_monitor_requests&#34;]
                               + &#34;&lt; for azure_monitor_requests. Must be True or False&#34;)
                         self.azure_monitor_requests = False
+                else:
+                    print(module, &#34;azure_monitor_requests not found. Not logging to Azure.&#34;)
 
             result = messages.message[&#34;ok&#34;]
         except FileNotFoundError:
@@ -92,23 +101,30 @@ class LogSettings:
         return result
 
     def determine_log_level(self, configured_log_level):
+        module = __name__ + &#34;.determine_log_level&#34;
         if configured_log_level == &#34;VERBOSE&#34;:
             self.log_level = self.VERBOSE
+            print(module, &#34;Log level has been set to VERBOSE.&#34;)
             return self.log_level
         elif configured_log_level == logging.getLevelName(logging.DEBUG):
             self.log_level = self.DEBUG
+            print(module, &#34;Log level has been set to DEBUG.&#34;)
             return self.log_level
         elif configured_log_level == logging.getLevelName(logging.INFO):
             self.log_level = self.INFO
+            print(module, &#34;Log level has been set to INFO.&#34;)
             return self.log_level
         elif configured_log_level == logging.getLevelName(logging.WARNING):
             self.log_level = self.WARNING
+            print(module, &#34;Log level has been set to WARNING.&#34;)
             return self.log_level
         elif configured_log_level == logging.getLevelName(logging.ERROR):
             self.log_level = self.ERROR
+            print(module, &#34;Log level has been set to ERROR.&#34;)
             return self.log_level
         elif configured_log_level == logging.getLevelName(logging.FATAL):
             self.log_level = self.FATAL
+            print(module, &#34;Log level has been set to FATAL.&#34;)
             return self.log_level
         else:
             print(f&#34;invalid log level &gt;{configured_log_level}&lt; in config.json. Defaulting to DEBUG&#34;)
@@ -165,6 +181,10 @@ class LogSettings:
         result = messages.message[&#34;undetermined&#34;]
 
         try:
+            if self.log_config is None:
+                print(module, &#34;log_config is None, i.e. an empty value was provided for the log configuration file.&#34;)
+                return messages.message[&#34;log_config_is_none&#34;]
+
             with open(self.log_config) as config:
                 data = json.load(config)
                 self.log_directory = data[&#34;log_directory&#34;]
@@ -174,18 +194,23 @@ class LogSettings:
                     self.configured_log_level = data[&#34;log_level&#34;]
                 else:
                     self.configured_log_level = &#34;DEBUG&#34;
+                    print(&#34;module, Missing log_level. Set to default=\&#34;DEBUG\&#34;&#34;)
                 self.log_level = self.determine_log_level(self.configured_log_level)
                 if &#34;azure_monitor_config&#34; in data:
                     self.azure_monitor_config = data[&#34;azure_monitor_config&#34;]
                 if &#34;azure_monitor_requests&#34; in data:
                     if data[&#34;azure_monitor_requests&#34;] == &#34;True&#34;:
                         self.azure_monitor_requests = True
+                        print(module, &#34;azure_monitor_requests has been set to True&#34;)
                     elif data[&#34;azure_monitor_requests&#34;] == &#34;False&#34;:
                         self.azure_monitor_requests = False
+                        print(module, &#34;azure_monitor_requests has been set to False&#34;)
                     else:
                         print(module, &#34;Incorrect config value &gt;&#34; + data[&#34;azure_monitor_requests&#34;]
                               + &#34;&lt; for azure_monitor_requests. Must be True or False&#34;)
                         self.azure_monitor_requests = False
+                else:
+                    print(module, &#34;azure_monitor_requests not found. Not logging to Azure.&#34;)
 
             result = messages.message[&#34;ok&#34;]
         except FileNotFoundError:
@@ -195,23 +220,30 @@ class LogSettings:
         return result
 
     def determine_log_level(self, configured_log_level):
+        module = __name__ + &#34;.determine_log_level&#34;
         if configured_log_level == &#34;VERBOSE&#34;:
             self.log_level = self.VERBOSE
+            print(module, &#34;Log level has been set to VERBOSE.&#34;)
             return self.log_level
         elif configured_log_level == logging.getLevelName(logging.DEBUG):
             self.log_level = self.DEBUG
+            print(module, &#34;Log level has been set to DEBUG.&#34;)
             return self.log_level
         elif configured_log_level == logging.getLevelName(logging.INFO):
             self.log_level = self.INFO
+            print(module, &#34;Log level has been set to INFO.&#34;)
             return self.log_level
         elif configured_log_level == logging.getLevelName(logging.WARNING):
             self.log_level = self.WARNING
+            print(module, &#34;Log level has been set to WARNING.&#34;)
             return self.log_level
         elif configured_log_level == logging.getLevelName(logging.ERROR):
             self.log_level = self.ERROR
+            print(module, &#34;Log level has been set to ERROR.&#34;)
             return self.log_level
         elif configured_log_level == logging.getLevelName(logging.FATAL):
             self.log_level = self.FATAL
+            print(module, &#34;Log level has been set to FATAL.&#34;)
             return self.log_level
         else:
             print(f&#34;invalid log level &gt;{configured_log_level}&lt; in config.json. Defaulting to DEBUG&#34;)
@@ -261,23 +293,30 @@ class LogSettings:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def determine_log_level(self, configured_log_level):
+    module = __name__ + &#34;.determine_log_level&#34;
     if configured_log_level == &#34;VERBOSE&#34;:
         self.log_level = self.VERBOSE
+        print(module, &#34;Log level has been set to VERBOSE.&#34;)
         return self.log_level
     elif configured_log_level == logging.getLevelName(logging.DEBUG):
         self.log_level = self.DEBUG
+        print(module, &#34;Log level has been set to DEBUG.&#34;)
         return self.log_level
     elif configured_log_level == logging.getLevelName(logging.INFO):
         self.log_level = self.INFO
+        print(module, &#34;Log level has been set to INFO.&#34;)
         return self.log_level
     elif configured_log_level == logging.getLevelName(logging.WARNING):
         self.log_level = self.WARNING
+        print(module, &#34;Log level has been set to WARNING.&#34;)
         return self.log_level
     elif configured_log_level == logging.getLevelName(logging.ERROR):
         self.log_level = self.ERROR
+        print(module, &#34;Log level has been set to ERROR.&#34;)
         return self.log_level
     elif configured_log_level == logging.getLevelName(logging.FATAL):
         self.log_level = self.FATAL
+        print(module, &#34;Log level has been set to FATAL.&#34;)
         return self.log_level
     else:
         print(f&#34;invalid log level &gt;{configured_log_level}&lt; in config.json. Defaulting to DEBUG&#34;)
@@ -299,6 +338,10 @@ class LogSettings:
     result = messages.message[&#34;undetermined&#34;]
 
     try:
+        if self.log_config is None:
+            print(module, &#34;log_config is None, i.e. an empty value was provided for the log configuration file.&#34;)
+            return messages.message[&#34;log_config_is_none&#34;]
+
         with open(self.log_config) as config:
             data = json.load(config)
             self.log_directory = data[&#34;log_directory&#34;]
@@ -308,18 +351,23 @@ class LogSettings:
                 self.configured_log_level = data[&#34;log_level&#34;]
             else:
                 self.configured_log_level = &#34;DEBUG&#34;
+                print(&#34;module, Missing log_level. Set to default=\&#34;DEBUG\&#34;&#34;)
             self.log_level = self.determine_log_level(self.configured_log_level)
             if &#34;azure_monitor_config&#34; in data:
                 self.azure_monitor_config = data[&#34;azure_monitor_config&#34;]
             if &#34;azure_monitor_requests&#34; in data:
                 if data[&#34;azure_monitor_requests&#34;] == &#34;True&#34;:
                     self.azure_monitor_requests = True
+                    print(module, &#34;azure_monitor_requests has been set to True&#34;)
                 elif data[&#34;azure_monitor_requests&#34;] == &#34;False&#34;:
                     self.azure_monitor_requests = False
+                    print(module, &#34;azure_monitor_requests has been set to False&#34;)
                 else:
                     print(module, &#34;Incorrect config value &gt;&#34; + data[&#34;azure_monitor_requests&#34;]
                           + &#34;&lt; for azure_monitor_requests. Must be True or False&#34;)
                     self.azure_monitor_requests = False
+            else:
+                print(module, &#34;azure_monitor_requests not found. Not logging to Azure.&#34;)
 
         result = messages.message[&#34;ok&#34;]
     except FileNotFoundError:
