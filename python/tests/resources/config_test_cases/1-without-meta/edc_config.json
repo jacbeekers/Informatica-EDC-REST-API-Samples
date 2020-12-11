@@ -1,0 +1,9 @@
+{
+  "testfile_for": "backward compatibility",
+  "edc_source_filesystem": "test_localfs://",
+  "edc_source_datasource": "FileServer",
+  "edc_source_folder": "/tmp/files/source/",
+  "edc_target_filesystem": "test_localfs://",
+  "edc_target_datasource": "FileServer",
+  "edc_target_folder": "/tmp/files/target/"
+}

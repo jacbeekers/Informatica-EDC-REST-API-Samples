@@ -59,9 +59,10 @@ def test_validate_schema_main_empty_json_directory():
     assert pytest_wrapped_e.value.code == 1
 
 
-def test_validate_schema_main_with_json_files():
+@pytest.mark.usefixtures("default_config")
+def test_validate_schema_main_with_json_files(default_config):
     with pytest.raises(SystemExit) as pytest_wrapped_e:
-        validate_schema.main(config_file="tests/resources/config.json")
+        validate_schema.main(config_file=default_config)
     assert pytest_wrapped_e.type == SystemExit
     assert pytest_wrapped_e.value.code == 0
 

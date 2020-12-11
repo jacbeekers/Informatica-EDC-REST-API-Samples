@@ -1,0 +1,10 @@
+{
+  "meta": "log_configuration",
+  "meta_version": "0.3.0",
+  "log_directory": "log/",
+  "log_filename": "metadata_utilities.log",
+  "log_filename_prefix": "{{timestamp}}",
+  "log_level": "ERROR",
+  "azure_monitor_config": "TEST",
+  "azure_monitor_requests": "True"
+}

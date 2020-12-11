@@ -3,7 +3,7 @@ import time
 import jinja2
 
 from src.edc_utilities import edc_session_helper
-from src.metadata_utilities import messages, generic
+from src.metadata_utilities import messages, generic, generic_settings, mu_logging
 
 
 class EDCLineage:
@@ -17,8 +17,19 @@ class EDCLineage:
     def __init__(self, settings, mu_log_ref):
         self.offset = 0
         self.page = 0
-        self.settings = settings
-        self.mu_log = mu_log_ref
+        if settings is not None:
+            self.settings = settings
+        else:
+            self.settings = generic_settings.GenericSettings()
+            # TODO: Check result
+            self.settings.get_config()
+        if mu_log_ref is None:
+            if self.settings.mu_log is None:
+                self.mu_log = mu_logging.MULogging("resources/log_config.json")
+            else:
+                self.mu_log = self.settings.mu_log
+        else:
+            self.mu_log = mu_log_ref
         self.generic = None
         self.edc_source_resource_name = "unknown"
         self.edc_source_datasource = "unknown"
@@ -38,6 +49,22 @@ class EDCLineage:
         self.data = None
         self.template = None
 
+    def get_data_references_v0_3(self):
+        self.edc_source_resource_name = self.settings.edc_config_data["edc_source_resource_name"]
+        self.edc_source_datasource = self.settings.edc_config_data["edc_source_datasource"]
+        self.edc_source_folder = self.settings.edc_config_data["edc_source_container"]
+        self.edc_target_filesystem = self.settings.edc_config_data["edc_target_resource_name"]
+        self.edc_target_datasource = self.settings.edc_config_data["edc_target_datasource"]
+        self.edc_target_folder = self.settings.edc_config_data["edc_target_container"]
+
+    def get_data_references_before_v_0_3(self):
+        self.edc_source_resource_name = self.settings.edc_config_data["edc_source_filesystem"]
+        self.edc_source_datasource = self.settings.edc_config_data["edc_source_datasource"]
+        self.edc_source_folder = self.settings.edc_config_data["edc_source_folder"]
+        self.edc_target_filesystem = self.settings.edc_config_data["edc_target_filesystem"]
+        self.edc_target_datasource = self.settings.edc_config_data["edc_target_datasource"]
+        self.edc_target_folder = self.settings.edc_config_data["edc_target_folder"]
+
     def get_edc_data_references(self):
         module = __name__ + ".get_edc_data_references"
         # support old config files
@@ -46,12 +73,7 @@ class EDCLineage:
             self.mu_log.log(self.mu_log.INFO, "provided meta_version >" + self.settings.edc_config_data["meta_version"]
                             + "< is main_meta_version >" + main_meta_version + "<.", module)
             if main_meta_version == "0.3":
-                self.edc_source_resource_name = self.settings.edc_config_data["edc_source_resource_name"]
-                self.edc_source_datasource = self.settings.edc_config_data["edc_source_datasource"]
-                self.edc_source_folder = self.settings.edc_config_data["edc_source_container"]
-                self.edc_target_filesystem = self.settings.edc_config_data["edc_target_resource_name"]
-                self.edc_target_datasource = self.settings.edc_config_data["edc_target_datasource"]
-                self.edc_target_folder = self.settings.edc_config_data["edc_target_container"]
+                self.get_data_references_v0_3()
             else:
                 self.mu_log.log(self.mu_log.ERROR, "meta_version >" + self.settings.edc_config_data["meta_version"]
                                 + "< not supported.", module)
@@ -60,12 +82,7 @@ class EDCLineage:
             self.mu_log.log(self.mu_log.WARNING, "Backward compatibility used for EDC configuration file. "
                             + "Please update it to a later version."
                             , module)
-            self.edc_source_resource_name = self.settings.edc_config_data["edc_source_filesystem"]
-            self.edc_source_datasource = self.settings.edc_config_data["edc_source_datasource"]
-            self.edc_source_folder = self.settings.edc_config_data["edc_source_folder"]
-            self.edc_target_filesystem = self.settings.edc_config_data["edc_target_filesystem"]
-            self.edc_target_datasource = self.settings.edc_config_data["edc_target_datasource"]
-            self.edc_target_folder = self.settings.edc_config_data["edc_target_folder"]
+            self.get_data_references_before_v_0_3()
 
         return messages.message["ok"]
 

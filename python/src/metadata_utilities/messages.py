@@ -80,6 +80,11 @@ message = {
         , "message": "Custom attribute file not found."
         , "level": "ERROR"
     },
+    "log_config_is_none": {
+        "code": "MU-GEN-013"
+        ,"message": "The log_config settings is None (empty)"
+        , "level": "FATAL"
+    },
     "CONV_GROUP": {
         "code": "CONV"
         , "message": "Group for conversion and schema warnings and errors"
