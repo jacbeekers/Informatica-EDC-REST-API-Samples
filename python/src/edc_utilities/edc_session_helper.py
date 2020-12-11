@@ -50,7 +50,7 @@ class EDCSession:
         self.https_proxy = None
         self.settings = settings
         self.mu_log = self.settings.mu_log
-        self.init_edc_session(mu_log=self.mu_log)
+        self.session = self.init_edc_session(mu_log=self.mu_log)
 
     def __setup_standard_cmdargs__(self):
         # check for args overriding the env vars
@@ -170,6 +170,7 @@ class EDCSession:
         self.session.headers.update({"Authorization": auth})
         self.mu_log.log(self.mu_log.DEBUG, "Authorization header was set.", module)
         self.session.baseUrl = self.baseUrl
+        self.validate_edc_connection()
         return self.session
 
     def configure_edc_session(self, catalog_url, catalog_auth, verify):
@@ -187,6 +188,7 @@ class EDCSession:
         return messages.message["ok"]
 
     def validate_edc_connection(self):
+        module = __name__ + ".validate_edc_connection"
         """
         validate that the connection informatioon (url + auth credentials)
         are correct.
@@ -194,14 +196,14 @@ class EDCSession:
             status code (e.g. 200 for ok)
             json message ()
         """
-        print(f"validating connection to {self.session.baseUrl}")
+        self.mu_log.log(self.mu_log.DEBUG, "validating connection to: " + self.session.baseUrl, module)
         try:
             url = urljoin(self.baseUrl, "access/2/catalog/data/productInformation")
             proxies = {"http": self.http_proxy
                 , "https": self.https_proxy}
             # url = self.baseUrl + "access/2/catalog/data/productInformation"
             resp = self.session.get(url, timeout=self.timeout, proxies=proxies)
-            print(f"\tapi status code={resp.status_code}")
+            self.mu_log.log(self.mu_log.DEBUG, "api status code=>" + str(resp.status_code) + "<.", module)
             if resp.status_code == 200:
                 # valid and 10.4+, get the actual version
                 rel_version = resp.json().get("releaseVersion")
@@ -210,21 +212,22 @@ class EDCSession:
                     # but we need to make it a 4 part name like 10.4.0.0
                     rel_version = rel_version + ".0"
                 # remove the "." from the version
-                rel_nbr = int(rel_version.replace(".", ""))
+                rel_nbr = rel_version.replace(".", "")
                 self.edcversion = rel_nbr
-                # print(f"release version={rel_version} {rel_nbr}")
+                self.mu_log.log(self.mu_log.INFO, "EDC Release version=" + rel_version, module)
+                self.mu_log.log(self.mu_log.DEBUG, "Response headers: " + str(resp.headers), module)
                 return resp.status_code, resp.json()
             elif resp.status_code == 400:
-                print("catalog server is not v10.4 or later - trying another method...")
+                self.mu_log.log(self.mu_log.WARNING, "catalog server is not v10.4 or later - trying another method..."
+                                , module)
                 # invalid request - try another api call
                 url = urljoin(self.baseUrl, "access/1/catalog/data")
                 resp = self.session.get(url, timeout=3)
-                print(f"\t2nd try status code = {resp.status_code}")
+                self.mu_log.log(self.mu_log.DEBUG, "2nd try status code: " + str(resp.status_code), module)
             else:
-                print(f"error connecting {resp.json()}")
+                self.mu_log.log(self.mu_log.ERROR, "error connecting: " + str(resp.json()), module)
             return resp.status_code, resp.json()
         except requests.exceptions.RequestException as e:
-            print("Error connecting to : " + self.session.baseUrl)
-            print(e.strerror)
+            self.mu_log.log(self.mu_log.ERROR, "Error connecting to : " + self.session.baseUrl, module)
             # exit if we can't connect
             return 0, None

@@ -85,6 +85,11 @@ message = {
         ,"message": "The log_config settings is None (empty)"
         , "level": "FATAL"
     },
+    "no_data_provided_for_formulas": {
+        "code": "MU-GEN-014"
+        , "message": "No data provided for formulas"
+        , "level": "ERROR"
+    },
     "CONV_GROUP": {
         "code": "CONV"
         , "message": "Group for conversion and schema warnings and errors"
@@ -233,6 +238,16 @@ message = {
     "jinja_template_name_not_provided": {
         "code": "MU-JIN-003"
         , "message": "No Jinja template name was provided."
+        , "level": "ERROR"
+    },
+    "INTERNAL_GROUP": {
+        "code": "INT"
+        , "message": "Group for internal warnings and errors, i.e. there is a code issue (aka Bug)"
+        , "level:": "INFO"
+    },
+    "invalid_http_method": {
+        "code": "INT-001"
+        , "message": "Internal error in call to requests. An invalid / unsupported method was used."
         , "level": "ERROR"
     }
 }

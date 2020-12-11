@@ -1,0 +1,23 @@
+{
+  "items": [
+    {
+      "id": "{{ object_id }}",
+      "facts": [
+        {
+          "attributeId": "com.infa.ldm.ootb.enrichments.businessDescription",
+          "value": "{{ object_description }}",
+          "readOnly": false,
+          "providerId": "enrichment"
+        }
+      ],
+      "srcLinks": [{
+          "id": "{{ parent_object_id }}",
+          "readOnly": false,
+          "association": "com.infa.ldm.file.delimited.DelimitedFileField",
+          "linkProperties": []
+        }
+      ],
+      "businessTerms": []
+    }
+  ]
+}

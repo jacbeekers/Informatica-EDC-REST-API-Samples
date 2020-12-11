@@ -1,0 +1,13 @@
+{
+  "meta": "physical_entity_association",
+  "meta_version": "0.2.0",
+  "uid": "d9a474f7-8924-42ed-be2e-fc6779ff3363",
+  "name": "ambari to ambari properties",
+  "version": "1.0.0",
+  "source_target_entity_links": [
+    {
+      "from": "1137faba-24d3-4e5d-9d28-a0d8fcddacb5",
+      "to": "8b6d7895-9028-41a4-9f13-31cbce276ad8"
+    }
+  ]
+}

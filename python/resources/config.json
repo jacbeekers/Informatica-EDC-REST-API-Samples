@@ -1,6 +1,6 @@
 {
   "schema_directory": "metadata-registry-interface-specifications/metadata/schemas/interface/",
-  "json_directory": "resources/datalineage/tmp/",
+  "json_directory": "resources/datalineage/dummy/",
   "output_directory": "out/",
   "target": "local",
   "other_targets": [
@@ -13,7 +13,7 @@
   "edc_config": "resources/edc_config.json",
   "edc_secrets": "resources/edc_connectivity.secrets",
   "jinja_config": "resources/jinja_config.json",
-  "suppress_edc_call": "True",
+  "suppress_edc_call": "False",
   "edc_http_proxy": "None",
   "edc_https_proxy": "None",
   "log_config": "resources/log_config.json"

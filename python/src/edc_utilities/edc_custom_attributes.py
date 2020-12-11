@@ -58,7 +58,8 @@ class EDCCustomAttribute:
         self.generic = generic.Generic(self.settings, self.mu_log)
         self.generic.get_jinja_settings()
         self.edc_helper = edc_session_helper.EDCSession(self.settings)
-        self.session = self.edc_helper.init_edc_session(self.settings.mu_log)
+        # edc_helper already initializes a session
+        self.session = self.edc_helper.session
         # self.mu_log.log(self.mu_log.DEBUG, "headers: " + str(self.session.headers.items()), module)
         self.proxies = self.settings.get_edc_proxy()
         self.retries = 0

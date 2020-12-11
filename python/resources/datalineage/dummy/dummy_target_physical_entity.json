@@ -1,0 +1,11 @@
+{
+	"meta": "physical_entity",
+	"meta_version": "0.2.0",
+	"entity_type": "file",
+	"name": "ambari.properties.6",
+	"description": "6th ambari properties file",
+	"uid": "8b6d7895-9028-41a4-9f13-31cbce276ad8",
+	"LoGSID": "w48r78wetc81",
+	"OARID": "DUMMY.TEST.001",
+	"version": "1.0.0"
+}

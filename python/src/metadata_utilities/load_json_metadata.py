@@ -9,6 +9,7 @@ from src.metadata_utilities import messages
 from src.metadata_utilities import mu_logging, json_file_utilities
 from src.edc_utilities import edc_custom_attributes
 
+
 class ConvertJSONtoEDCLineage:
     """
     Converts JSON file to a JSON payload that can be send to Informatica EDC using its APIs
@@ -35,7 +36,8 @@ class ConvertJSONtoEDCLineage:
             self.data = ""
             self.edc_lineage = edc_lineage.EDCLineage(self.settings, mu_log_ref=self.mu_log)
         else:
-            print("FATAL:", "settings.get_config returned:", self.config_result["code"] + " - " +  self.config_result["message"])
+            print("FATAL:", "settings.get_config returned:",
+                  self.config_result["code"] + " - " + self.config_result["message"])
 
     def generate_file_structure(self):
         """
@@ -141,24 +143,32 @@ class ConvertJSONtoEDCLineage:
             file_result = self.generate_file_structure()
             return file_result
 
-        if self.meta_type == "physical_attribute_association":
-            file_result = self.generate_transformations()
-            self.mu_log.log(self.mu_log.DEBUG, "The generation of transformation files returned >"
-                            + file_result['code'] + "<"
-                            , module)
+        # if self.meta_type == "physical_attribute_association":
+        #    file_result = self.generate_transformations()
+        #    self.mu_log.log(self.mu_log.DEBUG, "The generation of transformation files returned >"
+        #                    + file_result['code'] + "<"
+        #                    , module)
 
         if self.meta_type in ("physical_attribute_association", "physical_entity_association"):
             file_result = self.process_lineage_request()
             self.mu_log.log(self.mu_log.DEBUG, "lineage processing completed with code >"
                             + file_result['code'] + "<" + " - " + file_result["message"]
                             , module)
+
+        if self.meta_type == "physical_attribute_association":
+            result = self.edc_lineage.update_formulas(entity_type=self.meta_type
+                                                      , data=self.data
+                                                      , settings=self.settings)
+            self.mu_log.log(self.mu_log.DEBUG, "update_formulas returned: " + result["code"], module)
+            file_result = result
+
         return file_result
 
     def generate_transformations(self):
         """
         generate a transformation file for each encountered transformation in the attribute_association json
         """
-        module = "ConvertJSONtoEDCLineage.generate_transformations"
+        module = __name__ + ".generate_transformations"
         overall_result = messages.message["ok"]
         if not "source_target_attribute_links" in self.data:
             self.mu_log.log(self.mu_log.DEBUG,
@@ -193,6 +203,7 @@ class ConvertJSONtoEDCLineage:
                         self.mu_log.log(self.mu_log.DEBUG, "No description provided, which is ok.", module)
                     if "formula" in link:
                         self.mu_log.log(self.mu_log.VERBOSE, "formula: " + link["formula"], module)
+
                     else:
                         self.mu_log.log(self.mu_log.INFO, "No formula provided, which is ok.", module)
                 else:
@@ -208,7 +219,7 @@ class ConvertJSONtoEDCLineage:
 
     def process_lineage_request(self):
         # Generate the lineage file or payload
-        module = "ConvertJSONtoEDCLineage.process_lineage_request"
+        module = __name__ + ".process_lineage_request"
         # TODO: generate json payload for the Metadata Interface APIs for lineage
         #       something like this:
         #           json_result = self.metadata_lake_lineage.generate_lineage("json_payload", self.meta_type, self.data)
