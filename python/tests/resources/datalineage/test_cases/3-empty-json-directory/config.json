@@ -1,0 +1,20 @@
+{
+  "schema_directory": "tests/resources/schemas/interface/",
+  "json_directory": "tests/resources/datalineage/test_cases/3-empty-json-directory/jsons/",
+  "output_directory": "out/",
+  "target": "local",
+  "other_targets": [
+    "azure_blob"
+  ],
+  "metadata_store": "edc",
+  "other_metadata_stores": [
+    "metadata_lake"
+  ],
+  "edc_config": "tests/resources/edc_config.json",
+  "edc_secrets": "tests/resources/edc_connectivity.secrets",
+  "jinja_config": "tests/resources/jinja_config.json",
+  "suppress_edc_call": "True",
+  "edc_http_proxy": "None",
+  "edc_https_proxy": "None",
+  "log_config": "tests/resources/log_config.json"
+}

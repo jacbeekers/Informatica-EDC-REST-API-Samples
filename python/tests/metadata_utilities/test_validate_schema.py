@@ -54,7 +54,7 @@ def test_validate_schema_faulty_json_and_correct_schema():
 
 def test_validate_schema_main_empty_json_directory():
     with pytest.raises(SystemExit) as pytest_wrapped_e:
-        validate_schema.main()
+        validate_schema.main(config_file="tests/resources/datalineage/test_cases/3-empty-json-directory/config.json")
     assert pytest_wrapped_e.type == SystemExit
     assert pytest_wrapped_e.value.code == 1
 

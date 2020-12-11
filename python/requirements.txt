@@ -5,4 +5,5 @@
 # unit tests
 pytest
 pytest-cov
+pytest-xdist
 
