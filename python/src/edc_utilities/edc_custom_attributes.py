@@ -115,6 +115,7 @@ class EDCCustomAttribute:
                     # store the total, so we know when the last page of results is read
                     total = result_json["metadata"]["totalCount"]
                 except requests.exceptions.RequestException as e:
+                    print(module, str(e))
                     self.mu_log.log(self.mu_log.ERROR, "An error occurred: " + str(e), module)
                     self.mu_log.log(self.mu_log.WARNING, "retry#" + str(self.retries+1), module)
                     self.reconnect()
@@ -232,13 +233,6 @@ class EDCCustomAttribute:
         Update a give custom attribute
         """
         module = __name__ + ".update_custom_attribute"
-        result = self.get_custom_attribute(name)
-        if result == messages.message["ok"]:
-            # attribute exists and we can go ahead
-            self.mu_log.log(self.mu_log.INFO, "Found Custom Attribute >" + name + "<.", module)
-        else:
-            self.mu_log.log(self.mu_log.ERROR, "Custom Attribute >" + name + "< not found.", module)
-            return result
 
         if self.settings.suppress_edc_call:
             self.mu_log.log(self.mu_log.WARNING, "suppress_edc_call is True. Skipping EDC call...", module)

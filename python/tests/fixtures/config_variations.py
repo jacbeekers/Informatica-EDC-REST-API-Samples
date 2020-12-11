@@ -7,6 +7,11 @@ def default_config():
 
 
 @pytest.fixture
+def main_config_does_not_exist():
+    return "no-no-no-no-no-no.json"
+
+
+@pytest.fixture
 def config_without_meta():
     return "tests/resources/config_test_cases/1-without-meta/config.json"
 
@@ -74,3 +79,9 @@ def log_level_fatal():
 @pytest.fixture
 def log_level_wrong():
     return "tests/resources/config_test_cases/6-log-levels/log_level_wrong.json"
+
+
+@pytest.fixture
+def config_suppress_edc_calls_false():
+    return "tests/resources/config_test_cases/7-suppress-edc-calls-false/config.json"
+

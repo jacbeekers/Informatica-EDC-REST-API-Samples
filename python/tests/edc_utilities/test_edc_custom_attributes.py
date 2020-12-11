@@ -76,3 +76,22 @@ def test_delete_custom_attribute(default_config):
     )
     assert result == messages.message["ok"]
 
+
+@pytest.mark.usefixtures("main_config_does_not_exist")
+def test_init_settings_not_found(capsys, main_config_does_not_exist):
+    # settings = test_get_settings(main_config_does_not_exist)
+    edc_test = edc_custom_attributes.EDCCustomAttribute(configuration_file=main_config_does_not_exist)
+    captured = capsys.readouterr()
+    assert "Could not get main config." in captured.out
+
+
+@pytest.mark.usefixtures("config_suppress_edc_calls_false")
+def test_get_custom_attribute_suppress_edc_false_server_not_reachable(capsys, config_suppress_edc_calls_false):
+    name = "dummy"
+    settings, mu_log, generic_ref = test_get_settings(config_suppress_edc_calls_false)
+    result = edc_custom_attributes.EDCCustomAttribute(settings).get_custom_attribute(name, expect_to_exist=True)
+    assert result == messages.message["custom_attribute_not_found"]
+    captured = capsys.readouterr()
+    assert "Failed to establish a new connection" in captured.out
+
+
