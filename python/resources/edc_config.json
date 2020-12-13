@@ -1,10 +1,10 @@
 {
   "meta": "edc_configuration",
   "meta_version": "0.3.0",
-  "edc_source_resource_name": "DIAL://",
-  "edc_source_datasource": "FileServer",
-  "edc_source_container": "/tmp/",
-  "edc_target_resource_name": "DIAL://",
-  "edc_target_datasource": "FileServer",
-  "edc_target_container": "/tmp/"
+  "edc_source_resource_name": "Enterprise_Data_Lake://",
+  "edc_source_datasource": "adls",
+  "edc_source_container": "/datalake/4-consumerzone/RechnungsAbgrenzungsPosten/dummy/",
+  "edc_target_resource_name": "Rock_Anthems_Playlist://",
+  "edc_target_datasource": "adls",
+  "edc_target_container": "/consumerdatastore/landingzone/incoming_from_dummy/"
 }
