@@ -19,7 +19,7 @@ Usage:
     edcSession.init_edc_session()
 
     ...
-    resp = edcSession.session.get(resourceUrl, params=(), timeout=10)
+    resp = edcSession.session.get(resourceUrl, params=(), edc_timeout=10)
 
 Note: this is syncronyous version - not async
 """
@@ -27,8 +27,10 @@ import argparse
 import os
 import warnings
 from urllib.parse import urljoin
-from src.metadata_utilities import messages
+
 import requests
+
+from src.metadata_utilities import messages
 
 warnings.filterwarnings('ignore', message='Unverified HTTPS request')
 
@@ -45,12 +47,12 @@ class EDCSession:
         self.argparser = argparse.ArgumentParser(add_help=False)
         self.__setup_standard_cmdargs__()
         self.edcversion = 0
-        self.timeout = 10
         self.http_proxy = None
         self.https_proxy = None
         self.settings = settings
+        self.timeout = settings.edc_timeout
         self.mu_log = self.settings.mu_log
-        self.session = self.init_edc_session(mu_log=self.mu_log)
+        self.session = self.init_edc_session()
 
     def __setup_standard_cmdargs__(self):
         # check for args overriding the env vars
@@ -107,7 +109,7 @@ class EDCSession:
             type=str,
         )
 
-    def init_edc_session(self, mu_log):
+    def init_edc_session(self):
         """
         reads the env vars and any command-line parameters & creates an edc session
         with auth and optionally verify attributes populated (shared so no need to use
@@ -166,7 +168,8 @@ class EDCSession:
         self.session = requests.Session()
         self.session.verify = verify
         self.session.headers.update({"Accept": "application/json"})
-        self.session.headers.update({"Content-Type": "application/json; charset=utf8"})
+        # self.session.headers.update({"Content-Type": "application/json; charset=utf8"})
+        self.session.headers.update({"Content-Type": "application/json"})
         self.session.headers.update({"Authorization": auth})
         self.mu_log.log(self.mu_log.DEBUG, "Authorization header was set.", module)
         self.session.baseUrl = self.baseUrl
@@ -222,7 +225,7 @@ class EDCSession:
                                 , module)
                 # invalid request - try another api call
                 url = urljoin(self.baseUrl, "access/1/catalog/data")
-                resp = self.session.get(url, timeout=3)
+                resp = self.session.get(url, timeout=self.timeout)
                 self.mu_log.log(self.mu_log.DEBUG, "2nd try status code: " + str(resp.status_code), module)
             else:
                 self.mu_log.log(self.mu_log.ERROR, "error connecting: " + str(resp.json()), module)

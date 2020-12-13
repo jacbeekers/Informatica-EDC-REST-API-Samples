@@ -2,12 +2,12 @@ import glob
 import json
 import os
 
+from src.edc_utilities import edc_custom_attributes
 from src.edc_utilities import edc_lineage
 from src.metadata_utilities import check_schema
 from src.metadata_utilities import generic_settings, generic
 from src.metadata_utilities import messages
 from src.metadata_utilities import mu_logging, json_file_utilities
-from src.edc_utilities import edc_custom_attributes
 
 
 class ConvertJSONtoEDCLineage:
@@ -156,10 +156,10 @@ class ConvertJSONtoEDCLineage:
                             , module)
 
         if self.meta_type == "physical_attribute_association":
-            result = self.edc_lineage.update_formulas(entity_type=self.meta_type
-                                                      , data=self.data
-                                                      , settings=self.settings)
-            self.mu_log.log(self.mu_log.DEBUG, "update_formulas returned: " + result["code"], module)
+            result = self.edc_lineage.update_object_attributes(entity_type=self.meta_type
+                                                               , data=self.data
+                                                               , settings=self.settings)
+            self.mu_log.log(self.mu_log.DEBUG, "update_object_attributes returned: " + result["code"], module)
             file_result = result
 
         return file_result
@@ -224,24 +224,36 @@ class ConvertJSONtoEDCLineage:
         #       something like this:
         #           json_result = self.metadata_lake_lineage.generate_lineage("json_payload", self.meta_type, self.data)
         self.edc_lineage.mu_log.area = self.mu_log.area
-        json_result = self.edc_lineage.generate_lineage("json_payload", self.meta_type, self.data, self.settings)
-        if json_result == messages.message["ok"]:
-            # Send lineage info to metadata target
-            target = self.settings.metadata_store
-            self.mu_log.log(self.mu_log.DEBUG, "sending lineage info to " + target, module)
-            if target == "edc":
-                send_result = self.edc_lineage.send_metadata_to_edc(self.settings.suppress_edc_call)
-            elif target == "metadata_lake":
-                send_result = self.send_metadata_to_metadata_lake()
+        response = None
+
+        result, payload = self.edc_lineage.generate_lineage(
+            output_type="json_payload"
+            , metadata_type=self.meta_type
+            , data=self.data
+            , generic_settings=self.settings)
+
+        # payload was generated
+        if result == messages.message["ok"]:
+            self.mu_log.log(self.mu_log.DEBUG, "sending lineage info to " + self.settings.metadata_store, module)
+            # In 2020 only EDC is supported. Later, other targets can be included
+            if self.settings.metadata_store == "edc":
+                result, response = self.edc_lineage.send_metadata_to_edc(
+                    suppress_edc_call=self.settings.suppress_edc_call
+                    , method="PATCH"
+                    , uri="/access/1/catalog/data/objects"
+                    , payload=payload
+                )
+            elif self.settings.metadata_store == "metadata_lake":
+                result = self.send_metadata_to_metadata_lake()
             else:
-                self.mu_log.log(self.mu_log.ERROR, "Invalid target specified: " + target, module)
-                return messages.message["unknown_metadata_target"]
-            self.mu_log.log(self.mu_log.DEBUG, "lineage creation completed with >" + send_result['code'] + "<", module)
+                self.mu_log.log(self.mu_log.ERROR, "Invalid target specified: " + self.settings.metadata_store, module)
+                send_result = messages.message["unknown_metadata_target"]
+            self.mu_log.log(self.mu_log.DEBUG, "lineage creation completed with >" + result['code'] + "<", module)
         else:
-            self.mu_log.log(self.mu_log.ERROR, "json_payload lineage creation completed with >" + json_result['code']
+            self.mu_log.log(self.mu_log.ERROR, "json_payload lineage creation completed with >" + result['code']
                             + "<", module)
 
-        return json_result
+        return result
 
     def send_metadata_to_metadata_lake(self):
         module = "ConvertJSONtoEDCLineage.send_metadata_to_metadata_lake"

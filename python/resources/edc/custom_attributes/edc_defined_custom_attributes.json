@@ -14,7 +14,7 @@
           "deprecated": false,
           "derived": false,
           "description": "Unique Identifier",
-          "facetable": false,
+          "facetable": true,
           "indexed": true,
           "multivalued": false,
           "name": "UUID",
@@ -35,14 +35,14 @@
           "boost": "HIGH",
           "classes": [
             {
-              "id": "core.DataElement"
+              "id": "com.infa.ldm.file.delimited.DelimitedField"
             }
           ],
           "dataTypeId": "core.String",
           "deprecated": false,
           "derived": false,
           "description": "Formula used that results in the value of this element",
-          "facetable": false,
+          "facetable": true,
           "indexed": true,
           "multivalued": false,
           "name": "Formula",

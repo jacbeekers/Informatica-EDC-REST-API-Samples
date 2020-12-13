@@ -8,5 +8,5 @@ def test_generate_lineage():
     mu_log = settings.mu_log
 
     edc_test = edc_lineage.EDCLineage(settings=settings, mu_log_ref=mu_log)
-    edc_test.update_formulas(entity_type="physical_attribute_association", data=edc_test.data, settings=settings)
+    edc_test.update_object_attributes(entity_type="physical_attribute_association", data=edc_test.data, settings=settings)
     assert 0
