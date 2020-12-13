@@ -2,7 +2,7 @@
   "meta": "physical_entity_association",
   "meta_version": "0.2.0",
   "uid": "d9a474f7-8924-42ed-be2e-fc6779ff3363",
-  "name": "ambari to ambari properties",
+  "name": "dummy_source_file to dummy_target_file",
   "version": "1.0.0",
   "source_target_entity_links": [
     {

@@ -4,23 +4,23 @@
   "attribute_list": [
     {
       "uid": "38f6eecb-cc1b-4224-ac4a-7f982703f328",
-      "name": "Column1",
-      "description": "id"
+      "name": "Id",
+      "description": "Unique identifier"
     },
     {
       "uid": "402cfcb3-0d69-4d09-84a3-f56dd154c4a2",
-      "name": "Column2",
-      "description": "second column"
+      "name": "Origin",
+      "description": "Origin"
     },
     {
       "uid": "abd4e3b3-6161-43dd-8f2f-52aeb685c51b",
-      "name": "Column3",
-      "description": "third column"
+      "name": "Website",
+      "description": "Website"
     },
     {
       "uid": "737b40a1-2da2-43d2-9294-47b3e8154f38",
-      "name": "Column4",
-      "description": "fourth column"
+      "name": "Description",
+      "description": "A description"
     }
   ],
   "physical_entity": "1137faba-24d3-4e5d-9d28-a0d8fcddacb5",

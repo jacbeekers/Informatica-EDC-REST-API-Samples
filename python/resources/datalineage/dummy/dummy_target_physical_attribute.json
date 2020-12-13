@@ -4,23 +4,23 @@
 	"attribute_list": [
 		{
 			"uid": "e5732433-da86-4b44-b0bc-df063cf5e7d2",
-			"name": "Column1",
-			"description": "id"
+			"name": "Id",
+			"description": "Our own unique identifier"
 		},
 		{
 			"uid": "ca695ed0-9d50-4a5e-923d-f707733ca03d",
-			"name": "Column2",
-			"description": "Column2"
+			"name": "Origin",
+			"description": "Origin of the record"
 		},
 		{
 			"uid": "f5bd6c82-c5e8-4ec5-8ca5-f6b4b983af93",
-			"name": "Column3",
-			"description": "3rd"
+			"name": "Output",
+			"description": "Some calculations happen here"
 		},
 		{
 			"uid": "4e9c59f9-cb84-44bf-b30a-194b9be64f2c",
-			"name": "Column4",
-			"description": "4th"
+			"name": "Created_Timestamp",
+			"description": "Output-only attribute"
 		}
 	],
 	"physical_entity": "8b6d7895-9028-41a4-9f13-31cbce276ad8",

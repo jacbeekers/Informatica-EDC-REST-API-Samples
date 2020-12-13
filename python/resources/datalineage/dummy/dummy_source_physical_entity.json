@@ -2,10 +2,10 @@
 	"meta": "physical_entity",
 	"meta_version": "0.2.0",
 	"entity_type": "file",
-	"name": "ambari.properties.13",
-	"description": "13th ambari properties file",
+	"name": "dummy_source_file",
+	"description": "Source file from \"Of A Revolution\" (an American rock band)",
 	"uid": "1137faba-24d3-4e5d-9d28-a0d8fcddacb5",
-	"LoGSID": "w48r78wetc81",
-	"OARID": "DUMMY.TEST.001",
+	"LoGSID": "London Olympic Games Summer Id #1",
+	"OARID": "O.A.R. #11",
 	"version": "1.0.0"
 }
