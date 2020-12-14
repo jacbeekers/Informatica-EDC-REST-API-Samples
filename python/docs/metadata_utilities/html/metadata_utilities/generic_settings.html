@@ -36,7 +36,7 @@ class GenericSettings:
     &#34;&#34;&#34;
     Some generic utilities, e.g. reading the config.json
     &#34;&#34;&#34;
-    code_version = &#34;0.2.12&#34;
+    code_version = &#34;0.3.12&#34;
 
     def __init__(self, configuration_file=&#34;resources/config.json&#34;):
         # config.json settings
@@ -66,6 +66,7 @@ class GenericSettings:
         self.edc_http_proxy = None
         self.edc_https_proxy = None
         self.edc_auth = None
+        self.edc_timeout = 10
 
     def get_config(self):
         &#34;&#34;&#34;
@@ -211,7 +212,8 @@ class GenericSettings:
                                 , module)
                 return messages.message[&#34;unsupported_meta_version_edc_secrets&#34;]
         else:
-            self.mu_log.log(self.mu_log.WARNING, &#34;Backward compatible edc secrets file detected. Please update to a later version.&#34;
+            self.mu_log.log(self.mu_log.WARNING,
+                            &#34;Backward compatible edc secrets file detected. Please update to a later version.&#34;
                             , module)
 
         # The following is true for version 0.3 as well as the configuration before introduction of meta_version
@@ -244,6 +246,15 @@ class GenericSettings:
             self.mu_log.log(self.mu_log.INFO, &#34;No HTTPS Proxy for EDC found in edc secrets file. &#34;
                             + &#34;This is OK if no proxy is needed or has been set through the environment variable HTTPS_PROXY&#34;
                             , module)
+
+        if &#34;edc_timeout&#34; in data:
+            self.edc_timeout = data[&#34;edc_timeout&#34;]
+            self.mu_log.log(self.mu_log.INFO, &#34;Timeout taken from edc secrets file: &#34; + str(self.edc_timeout), module)
+        else:
+            self.edc_timeout = 10
+            self.mu_log.log(self.mu_log.INFO, &#34;No edc_timeout setting found edc secrets file. Using default value: &#34;
+                            + str(self.edc_timeout), module)
+
         return messages.message[&#34;ok&#34;]</code></pre>
 </details>
 </section>
@@ -270,7 +281,7 @@ class GenericSettings:
     &#34;&#34;&#34;
     Some generic utilities, e.g. reading the config.json
     &#34;&#34;&#34;
-    code_version = &#34;0.2.12&#34;
+    code_version = &#34;0.3.12&#34;
 
     def __init__(self, configuration_file=&#34;resources/config.json&#34;):
         # config.json settings
@@ -300,6 +311,7 @@ class GenericSettings:
         self.edc_http_proxy = None
         self.edc_https_proxy = None
         self.edc_auth = None
+        self.edc_timeout = 10
 
     def get_config(self):
         &#34;&#34;&#34;
@@ -445,7 +457,8 @@ class GenericSettings:
                                 , module)
                 return messages.message[&#34;unsupported_meta_version_edc_secrets&#34;]
         else:
-            self.mu_log.log(self.mu_log.WARNING, &#34;Backward compatible edc secrets file detected. Please update to a later version.&#34;
+            self.mu_log.log(self.mu_log.WARNING,
+                            &#34;Backward compatible edc secrets file detected. Please update to a later version.&#34;
                             , module)
 
         # The following is true for version 0.3 as well as the configuration before introduction of meta_version
@@ -478,6 +491,15 @@ class GenericSettings:
             self.mu_log.log(self.mu_log.INFO, &#34;No HTTPS Proxy for EDC found in edc secrets file. &#34;
                             + &#34;This is OK if no proxy is needed or has been set through the environment variable HTTPS_PROXY&#34;
                             , module)
+
+        if &#34;edc_timeout&#34; in data:
+            self.edc_timeout = data[&#34;edc_timeout&#34;]
+            self.mu_log.log(self.mu_log.INFO, &#34;Timeout taken from edc secrets file: &#34; + str(self.edc_timeout), module)
+        else:
+            self.edc_timeout = 10
+            self.mu_log.log(self.mu_log.INFO, &#34;No edc_timeout setting found edc secrets file. Using default value: &#34;
+                            + str(self.edc_timeout), module)
+
         return messages.message[&#34;ok&#34;]</code></pre>
 </details>
 <h3>Class variables</h3>
@@ -511,7 +533,8 @@ class GenericSettings:
                             , module)
             return messages.message[&#34;unsupported_meta_version_edc_secrets&#34;]
     else:
-        self.mu_log.log(self.mu_log.WARNING, &#34;Backward compatible edc secrets file detected. Please update to a later version.&#34;
+        self.mu_log.log(self.mu_log.WARNING,
+                        &#34;Backward compatible edc secrets file detected. Please update to a later version.&#34;
                         , module)
 
     # The following is true for version 0.3 as well as the configuration before introduction of meta_version
@@ -544,6 +567,15 @@ class GenericSettings:
         self.mu_log.log(self.mu_log.INFO, &#34;No HTTPS Proxy for EDC found in edc secrets file. &#34;
                         + &#34;This is OK if no proxy is needed or has been set through the environment variable HTTPS_PROXY&#34;
                         , module)
+
+    if &#34;edc_timeout&#34; in data:
+        self.edc_timeout = data[&#34;edc_timeout&#34;]
+        self.mu_log.log(self.mu_log.INFO, &#34;Timeout taken from edc secrets file: &#34; + str(self.edc_timeout), module)
+    else:
+        self.edc_timeout = 10
+        self.mu_log.log(self.mu_log.INFO, &#34;No edc_timeout setting found edc secrets file. Using default value: &#34;
+                        + str(self.edc_timeout), module)
+
     return messages.message[&#34;ok&#34;]</code></pre>
 </details>
 </dd>

@@ -30,12 +30,13 @@
 import json
 import os
 
+from src.edc_utilities import edc_custom_attributes
 from src.edc_utilities import edc_lineage
 from src.metadata_utilities import check_schema
 from src.metadata_utilities import generic_settings, generic
 from src.metadata_utilities import messages
 from src.metadata_utilities import mu_logging, json_file_utilities
-from src.edc_utilities import edc_custom_attributes
+
 
 class ConvertJSONtoEDCLineage:
     &#34;&#34;&#34;
@@ -63,7 +64,8 @@ class ConvertJSONtoEDCLineage:
             self.data = &#34;&#34;
             self.edc_lineage = edc_lineage.EDCLineage(self.settings, mu_log_ref=self.mu_log)
         else:
-            print(&#34;FATAL:&#34;, &#34;settings.get_config returned:&#34;, self.config_result[&#34;code&#34;] + &#34; - &#34; +  self.config_result[&#34;message&#34;])
+            print(&#34;FATAL:&#34;, &#34;settings.get_config returned:&#34;,
+                  self.config_result[&#34;code&#34;] + &#34; - &#34; + self.config_result[&#34;message&#34;])
 
     def generate_file_structure(self):
         &#34;&#34;&#34;
@@ -169,24 +171,32 @@ class ConvertJSONtoEDCLineage:
             file_result = self.generate_file_structure()
             return file_result
 
-        if self.meta_type == &#34;physical_attribute_association&#34;:
-            file_result = self.generate_transformations()
-            self.mu_log.log(self.mu_log.DEBUG, &#34;The generation of transformation files returned &gt;&#34;
-                            + file_result[&#39;code&#39;] + &#34;&lt;&#34;
-                            , module)
+        # if self.meta_type == &#34;physical_attribute_association&#34;:
+        #    file_result = self.generate_transformations()
+        #    self.mu_log.log(self.mu_log.DEBUG, &#34;The generation of transformation files returned &gt;&#34;
+        #                    + file_result[&#39;code&#39;] + &#34;&lt;&#34;
+        #                    , module)
 
         if self.meta_type in (&#34;physical_attribute_association&#34;, &#34;physical_entity_association&#34;):
             file_result = self.process_lineage_request()
             self.mu_log.log(self.mu_log.DEBUG, &#34;lineage processing completed with code &gt;&#34;
                             + file_result[&#39;code&#39;] + &#34;&lt;&#34; + &#34; - &#34; + file_result[&#34;message&#34;]
                             , module)
+
+        if self.meta_type == &#34;physical_attribute_association&#34;:
+            result = self.edc_lineage.update_object_attributes(entity_type=self.meta_type
+                                                               , data=self.data
+                                                               , settings=self.settings)
+            self.mu_log.log(self.mu_log.DEBUG, &#34;update_object_attributes returned: &#34; + result[&#34;code&#34;], module)
+            file_result = result
+
         return file_result
 
     def generate_transformations(self):
         &#34;&#34;&#34;
         generate a transformation file for each encountered transformation in the attribute_association json
         &#34;&#34;&#34;
-        module = &#34;ConvertJSONtoEDCLineage.generate_transformations&#34;
+        module = __name__ + &#34;.generate_transformations&#34;
         overall_result = messages.message[&#34;ok&#34;]
         if not &#34;source_target_attribute_links&#34; in self.data:
             self.mu_log.log(self.mu_log.DEBUG,
@@ -221,6 +231,7 @@ class ConvertJSONtoEDCLineage:
                         self.mu_log.log(self.mu_log.DEBUG, &#34;No description provided, which is ok.&#34;, module)
                     if &#34;formula&#34; in link:
                         self.mu_log.log(self.mu_log.VERBOSE, &#34;formula: &#34; + link[&#34;formula&#34;], module)
+
                     else:
                         self.mu_log.log(self.mu_log.INFO, &#34;No formula provided, which is ok.&#34;, module)
                 else:
@@ -236,29 +247,41 @@ class ConvertJSONtoEDCLineage:
 
     def process_lineage_request(self):
         # Generate the lineage file or payload
-        module = &#34;ConvertJSONtoEDCLineage.process_lineage_request&#34;
+        module = __name__ + &#34;.process_lineage_request&#34;
         # TODO: generate json payload for the Metadata Interface APIs for lineage
         #       something like this:
         #           json_result = self.metadata_lake_lineage.generate_lineage(&#34;json_payload&#34;, self.meta_type, self.data)
         self.edc_lineage.mu_log.area = self.mu_log.area
-        json_result = self.edc_lineage.generate_lineage(&#34;json_payload&#34;, self.meta_type, self.data, self.settings)
-        if json_result == messages.message[&#34;ok&#34;]:
-            # Send lineage info to metadata target
-            target = self.settings.metadata_store
-            self.mu_log.log(self.mu_log.DEBUG, &#34;sending lineage info to &#34; + target, module)
-            if target == &#34;edc&#34;:
-                send_result = self.edc_lineage.send_metadata_to_edc(self.settings.suppress_edc_call)
-            elif target == &#34;metadata_lake&#34;:
-                send_result = self.send_metadata_to_metadata_lake()
+        response = None
+
+        result, payload = self.edc_lineage.generate_lineage(
+            output_type=&#34;json_payload&#34;
+            , metadata_type=self.meta_type
+            , data=self.data
+            , generic_settings=self.settings)
+
+        # payload was generated
+        if result == messages.message[&#34;ok&#34;]:
+            self.mu_log.log(self.mu_log.DEBUG, &#34;sending lineage info to &#34; + self.settings.metadata_store, module)
+            # In 2020 only EDC is supported. Later, other targets can be included
+            if self.settings.metadata_store == &#34;edc&#34;:
+                result, response = self.edc_lineage.send_metadata_to_edc(
+                    suppress_edc_call=self.settings.suppress_edc_call
+                    , method=&#34;PATCH&#34;
+                    , uri=&#34;/access/1/catalog/data/objects&#34;
+                    , payload=payload
+                )
+            elif self.settings.metadata_store == &#34;metadata_lake&#34;:
+                result = self.send_metadata_to_metadata_lake()
             else:
-                self.mu_log.log(self.mu_log.ERROR, &#34;Invalid target specified: &#34; + target, module)
-                return messages.message[&#34;unknown_metadata_target&#34;]
-            self.mu_log.log(self.mu_log.DEBUG, &#34;lineage creation completed with &gt;&#34; + send_result[&#39;code&#39;] + &#34;&lt;&#34;, module)
+                self.mu_log.log(self.mu_log.ERROR, &#34;Invalid target specified: &#34; + self.settings.metadata_store, module)
+                send_result = messages.message[&#34;unknown_metadata_target&#34;]
+            self.mu_log.log(self.mu_log.DEBUG, &#34;lineage creation completed with &gt;&#34; + result[&#39;code&#39;] + &#34;&lt;&#34;, module)
         else:
-            self.mu_log.log(self.mu_log.ERROR, &#34;json_payload lineage creation completed with &gt;&#34; + json_result[&#39;code&#39;]
+            self.mu_log.log(self.mu_log.ERROR, &#34;json_payload lineage creation completed with &gt;&#34; + result[&#39;code&#39;]
                             + &#34;&lt;&#34;, module)
 
-        return json_result
+        return result
 
     def send_metadata_to_metadata_lake(self):
         module = &#34;ConvertJSONtoEDCLineage.send_metadata_to_metadata_lake&#34;
@@ -332,7 +355,8 @@ if __name__ == &#34;__main__&#34;:
             self.data = &#34;&#34;
             self.edc_lineage = edc_lineage.EDCLineage(self.settings, mu_log_ref=self.mu_log)
         else:
-            print(&#34;FATAL:&#34;, &#34;settings.get_config returned:&#34;, self.config_result[&#34;code&#34;] + &#34; - &#34; +  self.config_result[&#34;message&#34;])
+            print(&#34;FATAL:&#34;, &#34;settings.get_config returned:&#34;,
+                  self.config_result[&#34;code&#34;] + &#34; - &#34; + self.config_result[&#34;message&#34;])
 
     def generate_file_structure(self):
         &#34;&#34;&#34;
@@ -438,24 +462,32 @@ if __name__ == &#34;__main__&#34;:
             file_result = self.generate_file_structure()
             return file_result
 
-        if self.meta_type == &#34;physical_attribute_association&#34;:
-            file_result = self.generate_transformations()
-            self.mu_log.log(self.mu_log.DEBUG, &#34;The generation of transformation files returned &gt;&#34;
-                            + file_result[&#39;code&#39;] + &#34;&lt;&#34;
-                            , module)
+        # if self.meta_type == &#34;physical_attribute_association&#34;:
+        #    file_result = self.generate_transformations()
+        #    self.mu_log.log(self.mu_log.DEBUG, &#34;The generation of transformation files returned &gt;&#34;
+        #                    + file_result[&#39;code&#39;] + &#34;&lt;&#34;
+        #                    , module)
 
         if self.meta_type in (&#34;physical_attribute_association&#34;, &#34;physical_entity_association&#34;):
             file_result = self.process_lineage_request()
             self.mu_log.log(self.mu_log.DEBUG, &#34;lineage processing completed with code &gt;&#34;
                             + file_result[&#39;code&#39;] + &#34;&lt;&#34; + &#34; - &#34; + file_result[&#34;message&#34;]
                             , module)
+
+        if self.meta_type == &#34;physical_attribute_association&#34;:
+            result = self.edc_lineage.update_object_attributes(entity_type=self.meta_type
+                                                               , data=self.data
+                                                               , settings=self.settings)
+            self.mu_log.log(self.mu_log.DEBUG, &#34;update_object_attributes returned: &#34; + result[&#34;code&#34;], module)
+            file_result = result
+
         return file_result
 
     def generate_transformations(self):
         &#34;&#34;&#34;
         generate a transformation file for each encountered transformation in the attribute_association json
         &#34;&#34;&#34;
-        module = &#34;ConvertJSONtoEDCLineage.generate_transformations&#34;
+        module = __name__ + &#34;.generate_transformations&#34;
         overall_result = messages.message[&#34;ok&#34;]
         if not &#34;source_target_attribute_links&#34; in self.data:
             self.mu_log.log(self.mu_log.DEBUG,
@@ -490,6 +522,7 @@ if __name__ == &#34;__main__&#34;:
                         self.mu_log.log(self.mu_log.DEBUG, &#34;No description provided, which is ok.&#34;, module)
                     if &#34;formula&#34; in link:
                         self.mu_log.log(self.mu_log.VERBOSE, &#34;formula: &#34; + link[&#34;formula&#34;], module)
+
                     else:
                         self.mu_log.log(self.mu_log.INFO, &#34;No formula provided, which is ok.&#34;, module)
                 else:
@@ -505,29 +538,41 @@ if __name__ == &#34;__main__&#34;:
 
     def process_lineage_request(self):
         # Generate the lineage file or payload
-        module = &#34;ConvertJSONtoEDCLineage.process_lineage_request&#34;
+        module = __name__ + &#34;.process_lineage_request&#34;
         # TODO: generate json payload for the Metadata Interface APIs for lineage
         #       something like this:
         #           json_result = self.metadata_lake_lineage.generate_lineage(&#34;json_payload&#34;, self.meta_type, self.data)
         self.edc_lineage.mu_log.area = self.mu_log.area
-        json_result = self.edc_lineage.generate_lineage(&#34;json_payload&#34;, self.meta_type, self.data, self.settings)
-        if json_result == messages.message[&#34;ok&#34;]:
-            # Send lineage info to metadata target
-            target = self.settings.metadata_store
-            self.mu_log.log(self.mu_log.DEBUG, &#34;sending lineage info to &#34; + target, module)
-            if target == &#34;edc&#34;:
-                send_result = self.edc_lineage.send_metadata_to_edc(self.settings.suppress_edc_call)
-            elif target == &#34;metadata_lake&#34;:
-                send_result = self.send_metadata_to_metadata_lake()
+        response = None
+
+        result, payload = self.edc_lineage.generate_lineage(
+            output_type=&#34;json_payload&#34;
+            , metadata_type=self.meta_type
+            , data=self.data
+            , generic_settings=self.settings)
+
+        # payload was generated
+        if result == messages.message[&#34;ok&#34;]:
+            self.mu_log.log(self.mu_log.DEBUG, &#34;sending lineage info to &#34; + self.settings.metadata_store, module)
+            # In 2020 only EDC is supported. Later, other targets can be included
+            if self.settings.metadata_store == &#34;edc&#34;:
+                result, response = self.edc_lineage.send_metadata_to_edc(
+                    suppress_edc_call=self.settings.suppress_edc_call
+                    , method=&#34;PATCH&#34;
+                    , uri=&#34;/access/1/catalog/data/objects&#34;
+                    , payload=payload
+                )
+            elif self.settings.metadata_store == &#34;metadata_lake&#34;:
+                result = self.send_metadata_to_metadata_lake()
             else:
-                self.mu_log.log(self.mu_log.ERROR, &#34;Invalid target specified: &#34; + target, module)
-                return messages.message[&#34;unknown_metadata_target&#34;]
-            self.mu_log.log(self.mu_log.DEBUG, &#34;lineage creation completed with &gt;&#34; + send_result[&#39;code&#39;] + &#34;&lt;&#34;, module)
+                self.mu_log.log(self.mu_log.ERROR, &#34;Invalid target specified: &#34; + self.settings.metadata_store, module)
+                send_result = messages.message[&#34;unknown_metadata_target&#34;]
+            self.mu_log.log(self.mu_log.DEBUG, &#34;lineage creation completed with &gt;&#34; + result[&#39;code&#39;] + &#34;&lt;&#34;, module)
         else:
-            self.mu_log.log(self.mu_log.ERROR, &#34;json_payload lineage creation completed with &gt;&#34; + json_result[&#39;code&#39;]
+            self.mu_log.log(self.mu_log.ERROR, &#34;json_payload lineage creation completed with &gt;&#34; + result[&#39;code&#39;]
                             + &#34;&lt;&#34;, module)
 
-        return json_result
+        return result
 
     def send_metadata_to_metadata_lake(self):
         module = &#34;ConvertJSONtoEDCLineage.send_metadata_to_metadata_lake&#34;
@@ -627,7 +672,7 @@ if __name__ == &#34;__main__&#34;:
     &#34;&#34;&#34;
     generate a transformation file for each encountered transformation in the attribute_association json
     &#34;&#34;&#34;
-    module = &#34;ConvertJSONtoEDCLineage.generate_transformations&#34;
+    module = __name__ + &#34;.generate_transformations&#34;
     overall_result = messages.message[&#34;ok&#34;]
     if not &#34;source_target_attribute_links&#34; in self.data:
         self.mu_log.log(self.mu_log.DEBUG,
@@ -662,6 +707,7 @@ if __name__ == &#34;__main__&#34;:
                     self.mu_log.log(self.mu_log.DEBUG, &#34;No description provided, which is ok.&#34;, module)
                 if &#34;formula&#34; in link:
                     self.mu_log.log(self.mu_log.VERBOSE, &#34;formula: &#34; + link[&#34;formula&#34;], module)
+
                 else:
                     self.mu_log.log(self.mu_log.INFO, &#34;No formula provided, which is ok.&#34;, module)
             else:
@@ -765,29 +811,41 @@ For each file: Validate its schema and generate the metadata definition file or 
 </summary>
 <pre><code class="python">def process_lineage_request(self):
     # Generate the lineage file or payload
-    module = &#34;ConvertJSONtoEDCLineage.process_lineage_request&#34;
+    module = __name__ + &#34;.process_lineage_request&#34;
     # TODO: generate json payload for the Metadata Interface APIs for lineage
     #       something like this:
     #           json_result = self.metadata_lake_lineage.generate_lineage(&#34;json_payload&#34;, self.meta_type, self.data)
     self.edc_lineage.mu_log.area = self.mu_log.area
-    json_result = self.edc_lineage.generate_lineage(&#34;json_payload&#34;, self.meta_type, self.data, self.settings)
-    if json_result == messages.message[&#34;ok&#34;]:
-        # Send lineage info to metadata target
-        target = self.settings.metadata_store
-        self.mu_log.log(self.mu_log.DEBUG, &#34;sending lineage info to &#34; + target, module)
-        if target == &#34;edc&#34;:
-            send_result = self.edc_lineage.send_metadata_to_edc(self.settings.suppress_edc_call)
-        elif target == &#34;metadata_lake&#34;:
-            send_result = self.send_metadata_to_metadata_lake()
+    response = None
+
+    result, payload = self.edc_lineage.generate_lineage(
+        output_type=&#34;json_payload&#34;
+        , metadata_type=self.meta_type
+        , data=self.data
+        , generic_settings=self.settings)
+
+    # payload was generated
+    if result == messages.message[&#34;ok&#34;]:
+        self.mu_log.log(self.mu_log.DEBUG, &#34;sending lineage info to &#34; + self.settings.metadata_store, module)
+        # In 2020 only EDC is supported. Later, other targets can be included
+        if self.settings.metadata_store == &#34;edc&#34;:
+            result, response = self.edc_lineage.send_metadata_to_edc(
+                suppress_edc_call=self.settings.suppress_edc_call
+                , method=&#34;PATCH&#34;
+                , uri=&#34;/access/1/catalog/data/objects&#34;
+                , payload=payload
+            )
+        elif self.settings.metadata_store == &#34;metadata_lake&#34;:
+            result = self.send_metadata_to_metadata_lake()
         else:
-            self.mu_log.log(self.mu_log.ERROR, &#34;Invalid target specified: &#34; + target, module)
-            return messages.message[&#34;unknown_metadata_target&#34;]
-        self.mu_log.log(self.mu_log.DEBUG, &#34;lineage creation completed with &gt;&#34; + send_result[&#39;code&#39;] + &#34;&lt;&#34;, module)
+            self.mu_log.log(self.mu_log.ERROR, &#34;Invalid target specified: &#34; + self.settings.metadata_store, module)
+            send_result = messages.message[&#34;unknown_metadata_target&#34;]
+        self.mu_log.log(self.mu_log.DEBUG, &#34;lineage creation completed with &gt;&#34; + result[&#39;code&#39;] + &#34;&lt;&#34;, module)
     else:
-        self.mu_log.log(self.mu_log.ERROR, &#34;json_payload lineage creation completed with &gt;&#34; + json_result[&#39;code&#39;]
+        self.mu_log.log(self.mu_log.ERROR, &#34;json_payload lineage creation completed with &gt;&#34; + result[&#39;code&#39;]
                         + &#34;&lt;&#34;, module)
 
-    return json_result</code></pre>
+    return result</code></pre>
 </details>
 </dd>
 <dt id="metadata_utilities.load_json_metadata.ConvertJSONtoEDCLineage.process_physical_entity_and_attribute"><code class="name flex">
@@ -816,17 +874,25 @@ For each file: Validate its schema and generate the metadata definition file or 
         file_result = self.generate_file_structure()
         return file_result
 
-    if self.meta_type == &#34;physical_attribute_association&#34;:
-        file_result = self.generate_transformations()
-        self.mu_log.log(self.mu_log.DEBUG, &#34;The generation of transformation files returned &gt;&#34;
-                        + file_result[&#39;code&#39;] + &#34;&lt;&#34;
-                        , module)
+    # if self.meta_type == &#34;physical_attribute_association&#34;:
+    #    file_result = self.generate_transformations()
+    #    self.mu_log.log(self.mu_log.DEBUG, &#34;The generation of transformation files returned &gt;&#34;
+    #                    + file_result[&#39;code&#39;] + &#34;&lt;&#34;
+    #                    , module)
 
     if self.meta_type in (&#34;physical_attribute_association&#34;, &#34;physical_entity_association&#34;):
         file_result = self.process_lineage_request()
         self.mu_log.log(self.mu_log.DEBUG, &#34;lineage processing completed with code &gt;&#34;
                         + file_result[&#39;code&#39;] + &#34;&lt;&#34; + &#34; - &#34; + file_result[&#34;message&#34;]
                         , module)
+
+    if self.meta_type == &#34;physical_attribute_association&#34;:
+        result = self.edc_lineage.update_object_attributes(entity_type=self.meta_type
+                                                           , data=self.data
+                                                           , settings=self.settings)
+        self.mu_log.log(self.mu_log.DEBUG, &#34;update_object_attributes returned: &#34; + result[&#34;code&#34;], module)
+        file_result = result
+
     return file_result</code></pre>
 </details>
 </dd>

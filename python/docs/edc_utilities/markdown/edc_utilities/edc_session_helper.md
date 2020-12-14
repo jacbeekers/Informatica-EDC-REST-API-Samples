@@ -20,7 +20,7 @@ Usage:
     edcSession.init_edc_session()
 
     ...
-    resp = edcSession.session.get(resourceUrl, params=(), timeout=10)
+    resp = edcSession.session.get(resourceUrl, params=(), edc_timeout=10)
 
 Note: this is syncronyous version - not async
 
@@ -37,7 +37,7 @@ Classes
     :   given a valid URL and auth - setup a requests session to use
         for subsequent calls, verify can be False
 
-    `init_edc_session(self, mu_log)`
+    `init_edc_session(self)`
     :   reads the env vars and any command-line parameters & creates an edc session
         with auth and optionally verify attributes populated (shared so no need to use
         on individual calls)
@@ -45,8 +45,4 @@ Classes
             url, auth
 
     `validate_edc_connection(self)`
-    :   validate that the connection informatioon (url + auth credentials)
-        are correct.
-        returns:
-            status code (e.g. 200 for ok)
-            json message ()
+    :

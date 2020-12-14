@@ -113,6 +113,11 @@
         ,&#34;message&#34;: &#34;The log_config settings is None (empty)&#34;
         , &#34;level&#34;: &#34;FATAL&#34;
     },
+    &#34;no_data_provided_for_formulas&#34;: {
+        &#34;code&#34;: &#34;MU-GEN-014&#34;
+        , &#34;message&#34;: &#34;No data provided for formulas&#34;
+        , &#34;level&#34;: &#34;ERROR&#34;
+    },
     &#34;CONV_GROUP&#34;: {
         &#34;code&#34;: &#34;CONV&#34;
         , &#34;message&#34;: &#34;Group for conversion and schema warnings and errors&#34;
@@ -261,6 +266,16 @@
     &#34;jinja_template_name_not_provided&#34;: {
         &#34;code&#34;: &#34;MU-JIN-003&#34;
         , &#34;message&#34;: &#34;No Jinja template name was provided.&#34;
+        , &#34;level&#34;: &#34;ERROR&#34;
+    },
+    &#34;INTERNAL_GROUP&#34;: {
+        &#34;code&#34;: &#34;INT&#34;
+        , &#34;message&#34;: &#34;Group for internal warnings and errors, i.e. there is a code issue (aka Bug)&#34;
+        , &#34;level:&#34;: &#34;INFO&#34;
+    },
+    &#34;invalid_http_method&#34;: {
+        &#34;code&#34;: &#34;INT-001&#34;
+        , &#34;message&#34;: &#34;Internal error in call to requests. An invalid / unsupported method was used.&#34;
         , &#34;level&#34;: &#34;ERROR&#34;
     }
 }</code></pre>
