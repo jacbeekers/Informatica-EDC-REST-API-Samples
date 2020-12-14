@@ -1,7 +1,8 @@
-from src.metadata_utilities import generic_settings, generic
-from src.edc_utilities import edc_custom_attributes
-from src.metadata_utilities import messages, mu_logging
 import json
+
+from src.edc_utilities import edc_custom_attributes
+from src.metadata_utilities import generic_settings, generic
+from src.metadata_utilities import messages, mu_logging
 
 
 class LoadCustomAttributes:
@@ -9,12 +10,14 @@ class LoadCustomAttributes:
     Load Custom Attributes
     """
 
-    def __init__(self, configuration_file="resources/config.json"):
+    def __init__(self, configuration_file="resources/config.json"
+                 , defined_custom_attribute_file="resources/edc/custom_attributes/edc_defined_custom_attributes.json"):
         self.init_ok = False
         self.config = configuration_file
         self.settings = generic_settings.GenericSettings(self.config)
         self.config_result = self.settings.get_config()
-        self.edc_custom_attributes = edc_custom_attributes.EDCCustomAttribute()
+        self.edc_custom_attributes = edc_custom_attributes.EDCCustomAttribute(settings_ref=self.settings)
+        self.attribute_file = defined_custom_attribute_file
 
         self.mu_log = None
         self.generic = None
@@ -31,12 +34,12 @@ class LoadCustomAttributes:
                   self.config_result["code"] + " - " + self.config_result["message"])
             self.init_ok = False
 
-    def main(self, attribute_file="resources/edc/custom_attributes/edc_defined_custom_attributes.json"):
+    def main(self):
         module = __name__ + ".main"
         if self.init_ok is False:
             return messages.message["main_config_issue"]
 
-        result, defined_custom_attributes = self.read_defined_custom_attributes(attribute_file)
+        result, defined_custom_attributes = self.read_defined_custom_attributes(self.attribute_file)
         overall_result = messages.message["ok"]
 
         nr_custom_attributes = 0
@@ -65,6 +68,7 @@ class LoadCustomAttributes:
         return overall_result
 
     def read_defined_custom_attributes(self, custom_attributes_file):
+        module = __name__ + ".read_defined_custom_attributes"
         result = messages.message["ok"]
         defined_custom_attributes = []
         try:
@@ -73,7 +77,8 @@ class LoadCustomAttributes:
                 if "defined_custom_attributes" in data:
                     defined_custom_attributes = data["defined_custom_attributes"]
         except FileNotFoundError:
-            self.mu_log.log(self.mu_log.ERROR, "defined custom attribute file could not be found.")
+            self.mu_log.log(self.mu_log.ERROR, "defined custom attribute file >" + custom_attributes_file
+                            + "< could not be found.", module)
             result = messages.message["custom_attribute_file_not_found"]
 
         return result, defined_custom_attributes
