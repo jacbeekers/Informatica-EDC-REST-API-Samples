@@ -20,6 +20,8 @@ Check the *.secrets.example files for, well, examples.
 
 * Setup your virtual environment and install informatica-edc-rest-api-samples. You may want to get it from test.pypi.org if you want a preview and test that.
 ```shell script
+   mkdir log
+   mkdir out
    python3 -m venv venv
    source venv/bin/activate
    # on Windows: venv\Scripts\activate
