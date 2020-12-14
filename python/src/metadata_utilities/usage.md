@@ -31,18 +31,21 @@ Check the *.secrets.example files for, well, examples.
 
 * Create a small python code, e.g. run_edc_lineage.py similar to the example:
 ```python
-   from src.metadata_utilities import load_json_metadata
-   
-   def main():
-       result = load_json_metadata.ConvertJSONtoEDCLineage("resources/config.json).main()
-       if result["code"] == "OK":
-          exit(0)
-       else
-          exit(1)
+from src.metadata_utilities import load_json_metadata
+
+
+def main():
+    # Change the path+file to the main configuration file you want the code to use
+    result = load_json_metadata.ConvertJSONtoEDCLineage("/tmp/resources/config.json").main()
+    if result["code"] == "OK":
+       exit(0)
+    else:
+       exit(1)
           
 
 if __name__ == "__main__":
    main()
+
 ```
 
 
