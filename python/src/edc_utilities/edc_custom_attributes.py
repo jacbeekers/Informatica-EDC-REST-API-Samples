@@ -61,12 +61,11 @@ class EDCCustomAttribute:
         # edc_helper already initializes a session
         self.session = self.edc_helper.session
         # self.mu_log.log(self.mu_log.DEBUG, "headers: " + str(self.session.headers.items()), module)
-        self.proxies = self.settings.get_edc_proxy()
         self.retries = 0
         self.max_retries = 3
 
     def reconnect(self):
-        self.session = self.edc_helper.init_edc_session(self.mu_log)
+        self.session = self.edc_helper.init_edc_session()
         self.retries += 1
 
     def get_custom_attribute(self, name="dummy", expect_to_exist=True):
@@ -109,8 +108,7 @@ class EDCCustomAttribute:
                 result_json = json.dumps({}, indent=4)
             else:
                 try:
-                    resp = self.session.get(url, params=parameters, timeout=timeout, headers=self.session.headers
-                                       , proxies=self.session.proxies)
+                    resp = self.session.get(url, params=parameters, timeout=timeout, headers=self.session.headers)
                     status = resp.status_code
                     result_json = resp.json()
                     # store the total, so we know when the last page of results is read
@@ -200,8 +198,7 @@ class EDCCustomAttribute:
                 self.mu_log.log(self.mu_log.WARNING, "suppress_edc_call is True. Skipping EDC call...", module)
                 status = 200
             else:
-                resp = self.session.post(url, custom_attribute_json, timeout=self.timeout, headers=self.session.headers
-                                    , proxies=self.session.proxies)
+                resp = self.session.post(url, custom_attribute_json, timeout=self.timeout, headers=self.session.headers)
                 status = resp.status_code
             if status == 200:
                 # TODO: Check response body on "metadata": { "totalCount": 1 }

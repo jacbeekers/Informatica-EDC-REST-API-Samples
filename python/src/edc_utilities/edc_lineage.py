@@ -1,11 +1,11 @@
 import re
-import time
-import json
+from time import time
+from datetime import datetime
 import jinja2
 
 from src.edc_utilities import edc_session_helper
 from src.metadata_utilities import messages, generic, generic_settings, mu_logging
-
+import os
 # warnings.filterwarnings('ignore', message='Unverified HTTPS request')
 
 
@@ -16,6 +16,10 @@ class EDCLineage:
 
     code_version = "0.3.11"
     total = 10000
+    this_run = datetime.now().isoformat(timespec="microseconds").replace(":", "-")
+    this_run_dir = "out/" + this_run
+    os.makedirs(this_run_dir, exist_ok=True)
+    patch_payload_file = this_run_dir + "/patch_payloads.txt"
 
     def __init__(self, settings, mu_log_ref):
         self.offset = 0
@@ -42,7 +46,6 @@ class EDCLineage:
         self.edc_target_folder = "unknown"
         self.head = {'Content-Type': 'application/json'}
         self.edc_helper = edc_session_helper.EDCSession(self.settings)
-        self.proxies = "unknown"
         self.jinja_base_directory = None
         self.jinja_application = None
         self.jinja_templates = None
@@ -104,7 +107,6 @@ class EDCLineage:
             self.settings = generic_settings
 
         self.generic = generic.Generic(settings=self.settings, mu_log_ref=self.mu_log)
-        self.proxies = self.settings.get_edc_proxy()
 
         # Get jinja configuration
         if self.settings.jinja_config is None:
@@ -360,12 +362,12 @@ class EDCLineage:
     def send_metadata_to_edc(self, suppress_edc_call=False, method="PATCH", uri="/access/1/catalog/data/objects"
                              , etag=None, parameters=None, payload=None):
         module = __name__ + ".send_metadata_to_edc"
-        start_time = time.time()
+        start_time = time()
 
         self.mu_log.log(self.mu_log.DEBUG, "EDC base URL: " + self.settings.edc_url, module)
         url = self.settings.edc_url + uri
         self.mu_log.log(self.mu_log.DEBUG, "Used URL >" + url + "<.", module)
-        self.mu_log.log(self.mu_log.VERBOSE, "Proxies: " + str(self.proxies), module)
+        self.mu_log.log(self.mu_log.VERBOSE, "Proxies (from session): " + str(self.edc_helper.session.proxies), module)
         if self.settings.edc_auth is None:
             self.mu_log.log(self.mu_log.WARNING
                             , "Auth not set. Add edc_auth to the edc.secrets file or set INFA_EDC_AUTH"
@@ -387,8 +389,18 @@ class EDCLineage:
                 self.mu_log.log(self.mu_log.VERBOSE, "sending PATCH payload >" + str(payload) + "<.", module)
                 self.mu_log.log(self.mu_log.VERBOSE, "PATCH Request Headers: " + str(self.head.items()), module)
                 self.mu_log.log(self.mu_log.VERBOSE, "Session PATCH Request headers: " + str(self.edc_helper.session.headers.items()), module)
-                response = self.edc_helper.session.patch(url, payload, timeout=self.settings.edc_timeout,
-                                                         proxies=self.proxies, headers=self.head)
+                try:
+                    with open(self.patch_payload_file, "a") as payloads:
+                        payloads.write("##START##\n")
+                        payloads.write(payload + "\n")
+                        payloads.write("##END##\n")
+                except IOError:
+                    self.mu_log.log(self.mu_log.WARNING, "Could not write payload to payloads file >"
+                                    + self.patch_payload_file + "<", module)
+
+                response = self.edc_helper.session.patch(url, data=payload, timeout=self.settings.edc_timeout,
+                                                         headers=self.head)
+
                 self.mu_log.log(self.mu_log.VERBOSE, "PATCH Response headers: " + str(response.headers), module)
             elif method == "PUT":
                 if etag is None:
@@ -398,14 +410,12 @@ class EDCLineage:
                 self.mu_log.log(self.mu_log.VERBOSE, "sending PUT payload >" + str(payload) + "<.", module)
                 self.mu_log.log(self.mu_log.VERBOSE, "PUT Request Headers: " + str(self.head.items()), module)
                 response = self.edc_helper.session.put(url=url, data=payload, timeout=self.settings.edc_timeout,
-                                                       headers=self.head,
-                                                       proxies=self.proxies)
+                                                       headers=self.head)
                 self.mu_log.log(self.mu_log.VERBOSE, "PUT Response headers: " + str(response.headers), module)
             elif method == "GET":
                 self.mu_log.log(self.mu_log.VERBOSE, "GET Request Headers: " + str(self.head.items())
                                 , module)
                 response = self.edc_helper.session.get(url, timeout=self.settings.edc_timeout,
-                                                       proxies=self.proxies,
                                                        headers=self.head,
                                                        params=parameters)
                 self.mu_log.log(self.mu_log.VERBOSE, "GET Response headers: " + str(response.headers), module)
@@ -428,7 +438,7 @@ class EDCLineage:
                     self.mu_log.log(self.mu_log.ERROR, "EDC API did not return a JSON payload", module)
                     send_result = messages.message["invalid_api_response"]
 
-        run_time = time.time() - start_time
+        run_time = time() - start_time
         self.mu_log.log(self.mu_log.DEBUG,
                         "send to EDC completed with " + send_result["code"] + ". run time: " + str(run_time), module)
         return send_result, response

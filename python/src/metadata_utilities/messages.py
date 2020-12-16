@@ -215,6 +215,11 @@ message = {
         , "message": "No Custom Attribute information provided"
         , "level": "ERROR"
     },
+    "edc_connection_validation_failed": {
+        "code": "MU-EDC-010"
+        , "message": "EDC connection validation failed."
+        , "level": "ERROR"
+    },
     "MDL_GROUP": {
         "code": "MDL"
         , "message": "Group for warnings and errors related to the Metadata Lake"

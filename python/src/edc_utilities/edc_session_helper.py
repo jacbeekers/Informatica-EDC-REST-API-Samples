@@ -53,6 +53,13 @@ class EDCSession:
         self.timeout = settings.edc_timeout
         self.mu_log = self.settings.mu_log
         self.session = self.init_edc_session()
+        status_code, response = self.validate_edc_connection()
+        if status_code == 200:
+            self.mu_log.log(self.mu_log.INFO, "Connection to EDC successfully validated.")
+            self.edc_connection_is_valid = True
+        else:
+            self.mu_log.log(self.mu_log.ERROR, "Connection to EDC (" + self.baseUrl + ") failed.")
+            self.edc_connection_is_valid = False
 
     def __setup_standard_cmdargs__(self):
         # check for args overriding the env vars
@@ -173,7 +180,9 @@ class EDCSession:
         self.session.headers.update({"Authorization": auth})
         self.mu_log.log(self.mu_log.DEBUG, "Authorization header was set.", module)
         self.session.baseUrl = self.baseUrl
-        self.validate_edc_connection()
+        proxies = self.settings.get_edc_proxy()
+        self.session.proxies.update(proxies)
+
         return self.session
 
     def configure_edc_session(self, catalog_url, catalog_auth, verify):
@@ -181,14 +190,18 @@ class EDCSession:
         given a valid URL and auth - setup a requests session to use
         for subsequent calls, verify can be False
         """
-        self.session = requests.Session()
+        self.init_edc_session()
         self.baseUrl = catalog_url
         self.session.baseUrl = self.baseUrl
         self.session.headers.update({"Authorization": catalog_auth})
         if verify is None:
             verify = False
         self.session.verify = verify
-        return messages.message["ok"]
+        status_code, response = self.validate_edc_connection()
+        if status_code == 200:
+            return messages.message["ok"]
+        else:
+            return messages.message["edc_connection_validation_failed"]
 
     def validate_edc_connection(self):
         module = __name__ + ".validate_edc_connection"
@@ -199,13 +212,11 @@ class EDCSession:
             status code (e.g. 200 for ok)
             json message ()
         """
-        self.mu_log.log(self.mu_log.DEBUG, "validating connection to: " + self.session.baseUrl, module)
+        self.mu_log.log(self.mu_log.DEBUG, "validating connection to: " + self.baseUrl, module)
         try:
             url = urljoin(self.baseUrl, "access/2/catalog/data/productInformation")
-            proxies = {"http": self.http_proxy
-                , "https": self.https_proxy}
             # url = self.baseUrl + "access/2/catalog/data/productInformation"
-            resp = self.session.get(url, timeout=self.timeout, proxies=proxies)
+            resp = self.session.get(url, timeout=self.timeout)
             self.mu_log.log(self.mu_log.DEBUG, "api status code=>" + str(resp.status_code) + "<.", module)
             if resp.status_code == 200:
                 # valid and 10.4+, get the actual version
@@ -231,6 +242,6 @@ class EDCSession:
                 self.mu_log.log(self.mu_log.ERROR, "error connecting: " + str(resp.json()), module)
             return resp.status_code, resp.json()
         except requests.exceptions.RequestException as e:
-            self.mu_log.log(self.mu_log.ERROR, "Error connecting to : " + self.session.baseUrl, module)
+            self.mu_log.log(self.mu_log.ERROR, "Error connecting to : " + self.baseUrl, module)
             # exit if we can't connect
             return 0, None
