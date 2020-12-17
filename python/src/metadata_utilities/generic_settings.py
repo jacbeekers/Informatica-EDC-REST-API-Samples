@@ -39,6 +39,7 @@ class GenericSettings:
         self.edc_https_proxy = None
         self.edc_auth = None
         self.edc_timeout = 10
+        self.trust_env = True
 
     def get_config(self):
         """
@@ -226,5 +227,14 @@ class GenericSettings:
             self.edc_timeout = 10
             self.mu_log.log(self.mu_log.INFO, "No edc_timeout setting found edc secrets file. Using default value: "
                             + str(self.edc_timeout), module)
+
+        if "trust_env" in data:
+            self.trust_env = False if data["trust_env"] == "False" else True
+            self.mu_log.log(self.mu_log.INFO, "trust_env taken from edc secrets file. It now has been set to: "
+                            + str(self.trust_env), module)
+        else:
+            self.trust_env = True
+            self.mu_log.log(self.mu_log.INFO, "No trust_env setting found edc secrets file. Using default value: True"
+                            , module)
 
         return messages.message["ok"]
