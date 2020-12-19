@@ -220,6 +220,11 @@ message = {
         , "message": "EDC connection validation failed."
         , "level": "ERROR"
     },
+    "edc_connection_failed": {
+        "code": "MU-EDC-011"
+        , "message": "Connection to EDC failed."
+        , "level": "ERROR"
+    },
     "MDL_GROUP": {
         "code": "MDL"
         , "message": "Group for warnings and errors related to the Metadata Lake"

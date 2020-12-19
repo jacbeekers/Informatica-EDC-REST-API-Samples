@@ -40,6 +40,7 @@ class GenericSettings:
         self.edc_auth = None
         self.edc_timeout = 10
         self.trust_env = True
+        self.encoding = None
 
     def get_config(self):
         """
@@ -235,6 +236,16 @@ class GenericSettings:
         else:
             self.trust_env = True
             self.mu_log.log(self.mu_log.INFO, "No trust_env setting found edc secrets file. Using default value: True"
+                            , module)
+
+        if "encoding" in data:
+            self.encoding = data["encoding"]
+            self.mu_log.log(self.mu_log.INFO, "encoding taken from edc secrets file. It now has been set to: "
+                            + str(self.encoding), module)
+        else:
+            self.encoding = None
+            self.mu_log.log(self.mu_log.INFO
+                            , "No encoding setting found edc secrets file. Will not add any encoding to requests."
                             , module)
 
         return messages.message["ok"]

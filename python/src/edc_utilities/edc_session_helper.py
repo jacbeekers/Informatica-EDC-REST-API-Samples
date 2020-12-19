@@ -42,6 +42,7 @@ class EDCSession:
     """
 
     def __init__(self, settings):
+        module = __name__ + ".__init__"
         self.baseUrl = settings.edc_url
         self.session: requests.session = None
         self.argparser = argparse.ArgumentParser(add_help=False)
@@ -58,7 +59,7 @@ class EDCSession:
             self.mu_log.log(self.mu_log.INFO, "Connection to EDC successfully validated.")
             self.edc_connection_is_valid = True
         else:
-            self.mu_log.log(self.mu_log.ERROR, "Connection to EDC (" + self.baseUrl + ") failed.")
+            self.mu_log.log(self.mu_log.ERROR, "Connection to EDC (" + self.baseUrl + ") failed.", module)
             self.edc_connection_is_valid = False
 
     def __setup_standard_cmdargs__(self):
@@ -182,26 +183,10 @@ class EDCSession:
         self.session.baseUrl = self.baseUrl
         proxies = self.settings.get_edc_proxy()
         self.session.proxies.update(proxies)
+        # just in case it's needed
+        self.session.headers.update({"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36"})
 
         return self.session
-
-    def configure_edc_session(self, catalog_url, catalog_auth, verify):
-        """
-        given a valid URL and auth - setup a requests session to use
-        for subsequent calls, verify can be False
-        """
-        self.init_edc_session()
-        self.baseUrl = catalog_url
-        self.session.baseUrl = self.baseUrl
-        self.session.headers.update({"Authorization": catalog_auth})
-        if verify is None:
-            verify = False
-        self.session.verify = verify
-        status_code, response = self.validate_edc_connection()
-        if status_code == 200:
-            return messages.message["ok"]
-        else:
-            return messages.message["edc_connection_validation_failed"]
 
     def validate_edc_connection(self):
         module = __name__ + ".validate_edc_connection"

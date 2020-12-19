@@ -51,7 +51,7 @@ class EDCCustomAttribute:
 
         if self.mu_log is None:
             self.mu_log = mu_logging.MULogging("resources/log_config.json")
-            self.mu_log.setup_logger(logging.DEBUG)
+            self.mu_log.setup_logger(logging.DEBUG, logging.INFO)
             self.mu_log.log(self.mu_log.DEBUG, "mu_log was None. Logger has been setup now.", module)
             self.settings.mu_log = self.mu_log
 

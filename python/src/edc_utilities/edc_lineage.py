@@ -1,13 +1,14 @@
+# warnings.filterwarnings('ignore', message='Unverified HTTPS request')
+import json
+import os
 import re
-from time import time
 from datetime import datetime
+from time import time
 import jinja2
-
+from requests import exceptions
 from src.edc_utilities import edc_session_helper
 from src.metadata_utilities import messages, generic, generic_settings, mu_logging
-import os
-# warnings.filterwarnings('ignore', message='Unverified HTTPS request')
-
+import textwrap
 
 class EDCLineage:
     """
@@ -352,9 +353,9 @@ class EDCLineage:
         payload = template_updates.render(update_entries=the_entries)
         # TODO: Find a good solution for this
         payload = payload.replace("<<NONE>>", self.edc_target_filesystem
-                                            + self.edc_target_datasource
-                                            + self.edc_target_folder
-                                            + to_entity_name)
+                                  + self.edc_target_datasource
+                                  + self.edc_target_folder
+                                  + to_entity_name)
         self.mu_log.log(self.mu_log.VERBOSE, "payload: " + payload, module)
 
         return build_result, payload
@@ -386,9 +387,12 @@ class EDCLineage:
         else:
             if method == "PATCH":
                 # re-init: self.edc_helper.session = self.edc_helper.init_edc_session()
-                self.mu_log.log(self.mu_log.VERBOSE, "sending PATCH payload >" + str(payload) + "<.", module)
+                self.mu_log.log(self.mu_log.VERBOSE, "PATCH payload >" + payload + "<.", module)
+                self.mu_log.log(self.mu_log.VERBOSE,
+                                "sending PATCH payload (as json object) >" + str(json.loads(payload)) + "<.", module)
                 self.mu_log.log(self.mu_log.VERBOSE, "PATCH Request Headers: " + str(self.head.items()), module)
-                self.mu_log.log(self.mu_log.VERBOSE, "Session PATCH Request headers: " + str(self.edc_helper.session.headers.items()), module)
+                self.mu_log.log(self.mu_log.VERBOSE, "Session PATCH Request headers: "
+                                + str(self.edc_helper.session.headers.items()), module)
                 try:
                     with open(self.patch_payload_file, "a") as payloads:
                         payloads.write("##START##\n")
@@ -397,11 +401,17 @@ class EDCLineage:
                 except IOError:
                     self.mu_log.log(self.mu_log.WARNING, "Could not write payload to payloads file >"
                                     + self.patch_payload_file + "<", module)
+                try:
+                    response = self.edc_helper.session.patch(url
+                                                             , json=json.loads(payload)
+                                                             , timeout=self.settings.edc_timeout
+                                                             , headers=self.head
+                                                             , hooks={'response': self.print_roundtrip})
+                    self.mu_log.log(self.mu_log.VERBOSE, "PATCH Response headers: " + str(response.headers), module)
+                except exceptions.ConnectTimeout:
+                    self.mu_log.log(self.mu_log.ERROR, "Connection to EDC failed due to a timeout.", module)
+                    response = None
 
-                response = self.edc_helper.session.patch(url, data=payload, timeout=self.settings.edc_timeout,
-                                                         headers=self.head)
-
-                self.mu_log.log(self.mu_log.VERBOSE, "PATCH Response headers: " + str(response.headers), module)
             elif method == "PUT":
                 if etag is None:
                     self.mu_log.log(self.mu_log.WARNING, "eTag is None. This should not happen.", module)
@@ -409,21 +419,32 @@ class EDCLineage:
                     self.head.update({"If-Match": etag})
                 self.mu_log.log(self.mu_log.VERBOSE, "sending PUT payload >" + str(payload) + "<.", module)
                 self.mu_log.log(self.mu_log.VERBOSE, "PUT Request Headers: " + str(self.head.items()), module)
-                response = self.edc_helper.session.put(url=url, data=payload, timeout=self.settings.edc_timeout,
-                                                       headers=self.head)
-                self.mu_log.log(self.mu_log.VERBOSE, "PUT Response headers: " + str(response.headers), module)
+                try:
+                    response = self.edc_helper.session.put(url=url, data=payload, timeout=self.settings.edc_timeout,
+                                                           headers=self.head)
+                    self.mu_log.log(self.mu_log.VERBOSE, "PUT Response headers: " + str(response.headers), module)
+                except exceptions.ConnectTimeout:
+                    self.mu_log.log(self.mu_log.ERROR, "Connection to EDC failed due to a timeout.", module)
+                    response = None
             elif method == "GET":
                 self.mu_log.log(self.mu_log.VERBOSE, "GET Request Headers: " + str(self.head.items())
                                 , module)
-                response = self.edc_helper.session.get(url, timeout=self.settings.edc_timeout,
-                                                       headers=self.head,
-                                                       params=parameters)
-                self.mu_log.log(self.mu_log.VERBOSE, "GET Response headers: " + str(response.headers), module)
+                try:
+                    response = self.edc_helper.session.get(url, timeout=self.settings.edc_timeout,
+                                                           headers=self.head,
+                                                           params=parameters)
+                    self.mu_log.log(self.mu_log.VERBOSE, "GET Response headers: " + str(response.headers), module)
+                except exceptions.ConnectTimeout:
+                    self.mu_log.log(self.mu_log.ERROR, "Connection to EDC failed due to a timeout.", module)
+                    response = None
             else:
                 self.mu_log.log(self.mu_log.ERROR, "Invalid HTTP Method in call. Internal error.", module)
                 return messages.message["invalid_http_method"]
 
             # TODO: Success is not always 200, but maybe for Informatica API calls it is...
+            if response is None:
+                return messages.message["edc_connection_failed"], None
+
             status = response.status_code
             if status != 200:
                 # some error - e.g. catalog not running, or bad credentials
@@ -442,6 +463,26 @@ class EDCLineage:
         self.mu_log.log(self.mu_log.DEBUG,
                         "send to EDC completed with " + send_result["code"] + ". run time: " + str(run_time), module)
         return send_result, response
+
+    def print_roundtrip(self, response, *args, **kwargs):
+        format_headers = lambda d: '\n'.join(f'{k}: {v}' for k, v in d.items())
+        print(textwrap.dedent('''
+            ---------------- request ----------------
+            {req.method} {req.url}
+            {reqhdrs}
+
+            {req.body}
+            ---------------- response ----------------
+            {res.status_code} {res.reason} {res.url}
+            {reshdrs}
+
+            {res.text}
+        ''').format(
+            req=response.request,
+            res=response,
+            reqhdrs=format_headers(response.request.headers),
+            reshdrs=format_headers(response.headers),
+        ))
 
     def update_object_attributes(self, entity_type, data, settings):
         """
@@ -608,6 +649,7 @@ class EDCLineage:
         attribute_count = 0
         found_attribute = False
         attribute_id = None
+        json_response = None
 
         while offset < total and not found_attribute:
             page += 1
@@ -618,14 +660,15 @@ class EDCLineage:
                                                          , method="GET"
                                                          , uri="/access/2/catalog/models/attributes"
                                                          , parameters=paging_params)
-            json_response = response.json()
+
             if result == messages.message["ok"]:
+                json_response = response.json()
                 self.mu_log.log(self.mu_log.VERBOSE, "Call to EDC returned OK.", module)
             else:
                 self.mu_log.log(self.mu_log.ERROR, "Call to EDC returned: " + result["code"]
-                                + " - " + json_response["message"]
                                 , module)
-                return messages.message["custom_attribute_not_found"], None
+                return result, None
+
             total = json_response["metadata"]["totalCount"]
             self.mu_log.log(self.mu_log.VERBOSE, "There are >" + str(total) + "< attributes in the response."
                             , module)

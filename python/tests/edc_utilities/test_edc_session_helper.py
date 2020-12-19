@@ -9,14 +9,10 @@ edc_session = edc_session_helper.EDCSession(settings=settings)
 
 
 def test_configure_edc():
-    result = edc_session.configure_edc_session(catalog_url=test_url,
-                                      catalog_auth=auth
-                                      ,verify=False)
+    result = edc_session.init_edc_session()
     assert result == messages.message["ok"]
 
-    result = edc_session.configure_edc_session(catalog_url=test_url,
-                                      catalog_auth=auth
-                                      ,verify=None)
+    result = edc_session.init_edc_session()
     assert result == messages.message["ok"]
 
 

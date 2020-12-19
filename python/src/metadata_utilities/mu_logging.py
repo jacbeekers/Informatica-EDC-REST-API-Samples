@@ -3,7 +3,7 @@ from datetime import datetime
 from opencensus.ext.azure.log_exporter import AzureLogHandler
 from src.metadata_utilities import log_settings
 import os
-
+import requests
 
 class MULogging:
     """
@@ -23,7 +23,7 @@ class MULogging:
         self.log_setting = log_settings.LogSettings(log_configuration_file)
         self.log_setting.get_config()
         self.area = None
-        self.logger = self.setup_logger(self.log_setting.log_level
+        self.logger = self.setup_logger(self.log_setting.log_level, self.log_setting.log_level_console
                                         , self.log_setting.log_filename_prefix
                                         , self.log_setting.log_directory
                                         , self.log_setting.log_filename
@@ -32,7 +32,7 @@ class MULogging:
                                         )
 
     @staticmethod
-    def setup_logger(log_level
+    def setup_logger(log_level, log_level_console
                      , log_filename_prefix=""
                      , log_directory="log/"
                      , log_filename="some.log"
@@ -54,7 +54,7 @@ class MULogging:
         fh = logging.FileHandler(log_path)
         fh.setLevel(log_level)
         ch = logging.StreamHandler()
-        ch.setLevel(log_level)
+        ch.setLevel(log_level_console)
         formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
         fh.setFormatter(formatter)
         ch.setFormatter(formatter)
@@ -65,6 +65,8 @@ class MULogging:
         if instrumentation_key != "unknown" and azure_monitor_requests == "True":
             logger.addHandler(
                 AzureLogHandler(connection_string="InstrumentationKey=" + instrumentation_key))
+        logger.propagate = True
+
         return logger
 
     def log(self, level=DEBUG, msg="no_message", method="undetermined", extra=None):
