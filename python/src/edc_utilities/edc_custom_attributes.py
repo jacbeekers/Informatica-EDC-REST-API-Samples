@@ -29,12 +29,11 @@ class EDCCustomAttribute:
         self.settings_found = False
         self.mu_log = None
 
-        if configuration_file is None:
-            current_configuration_file = "resources/config.json"
-        else:
-            current_configuration_file = configuration_file
-
         if settings_ref is None:
+            if configuration_file is None:
+                current_configuration_file = "resources/config.json"
+            else:
+                current_configuration_file = configuration_file
             # print(module, "settings_ref is None. Getting them myself.")
             self.settings = generic_settings.GenericSettings(configuration_file=current_configuration_file)
             result = self.settings.get_config()

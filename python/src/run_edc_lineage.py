@@ -2,7 +2,7 @@ from src.metadata_utilities import load_json_metadata
 
 
 def main():
-    result = load_json_metadata.ConvertJSONtoEDCLineage("resources/config.json").main()
+    result = load_json_metadata.ConvertJSONtoEDCLineage("resources/config.json").main(metafiles_only=False)
     if result["code"] == "OK":
         exit(0)
     else:

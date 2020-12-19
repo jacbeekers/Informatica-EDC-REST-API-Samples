@@ -8,7 +8,7 @@ import jinja2
 from requests import exceptions
 from src.edc_utilities import edc_session_helper
 from src.metadata_utilities import messages, generic, generic_settings, mu_logging
-import textwrap
+
 
 class EDCLineage:
     """
@@ -38,19 +38,15 @@ class EDCLineage:
                 self.mu_log = self.settings.mu_log
         else:
             self.mu_log = mu_log_ref
-        self.generic = None
+        self.generic = generic.Generic(settings=self.settings, mu_log_ref=self.mu_log)
         self.edc_source_resource_name = "unknown"
         self.edc_source_datasource = "unknown"
         self.edc_source_folder = "unknown"
-        self.edc_target_filesystem = "unknown"
+        self.edc_target_resource_name = "unknown"
         self.edc_target_datasource = "unknown"
         self.edc_target_folder = "unknown"
-        self.head = {'Content-Type': 'application/json'}
+        # self.head = {'Content-Type': 'application/json'}
         self.edc_helper = edc_session_helper.EDCSession(self.settings)
-        self.jinja_base_directory = None
-        self.jinja_application = None
-        self.jinja_templates = None
-        self.jinja_template_directory = None
         self.meta_type = "unknown"
         self.data = None
         self.template = None
@@ -59,7 +55,7 @@ class EDCLineage:
         self.edc_source_resource_name = self.settings.edc_config_data["edc_source_resource_name"]
         self.edc_source_datasource = self.settings.edc_config_data["edc_source_datasource"]
         self.edc_source_folder = self.settings.edc_config_data["edc_source_container"]
-        self.edc_target_filesystem = self.settings.edc_config_data["edc_target_resource_name"]
+        self.edc_target_resource_name = self.settings.edc_config_data["edc_target_resource_name"]
         self.edc_target_datasource = self.settings.edc_config_data["edc_target_datasource"]
         self.edc_target_folder = self.settings.edc_config_data["edc_target_container"]
 
@@ -67,7 +63,7 @@ class EDCLineage:
         self.edc_source_resource_name = self.settings.edc_config_data["edc_source_filesystem"]
         self.edc_source_datasource = self.settings.edc_config_data["edc_source_datasource"]
         self.edc_source_folder = self.settings.edc_config_data["edc_source_folder"]
-        self.edc_target_filesystem = self.settings.edc_config_data["edc_target_filesystem"]
+        self.edc_target_resource_name = self.settings.edc_config_data["edc_target_filesystem"]
         self.edc_target_datasource = self.settings.edc_config_data["edc_target_datasource"]
         self.edc_target_folder = self.settings.edc_config_data["edc_target_folder"]
 
@@ -107,20 +103,6 @@ class EDCLineage:
             self.mu_log.log(self.mu_log.DEBUG, "Generic settings already loaded.", module)
             self.settings = generic_settings
 
-        self.generic = generic.Generic(settings=self.settings, mu_log_ref=self.mu_log)
-
-        # Get jinja configuration
-        if self.settings.jinja_config is None:
-            result = self.settings.get_config()
-            self.mu_log.log(self.mu_log.DEBUG, "settings.get_config returned: " + result["code"], module)
-
-        result = self.generic.get_jinja_settings()
-        if result == messages.message["ok"]:
-            self.mu_log.log(self.mu_log.INFO, "Jinja configuration file found and read.", module)
-        else:
-            self.mu_log.log(self.mu_log.ERROR, "get_jinja_settings returned: " + result["code"], module)
-            return result
-
         result = self.get_edc_data_references()
         if result == messages.message["ok"]:
             self.mu_log.log(self.mu_log.DEBUG, "EDC Data references for scanned objects determined.", module)
@@ -153,7 +135,7 @@ class EDCLineage:
             self.mu_log.log(self.mu_log.DEBUG, "Found jinja template: " + self.meta_type + ".json", module)
         except jinja2.exceptions.TemplateNotFound:
             self.mu_log.log(self.mu_log.ERROR, "Could not find jinja template >" + self.meta_type + ".json<."
-                            + " in directory >" + self.jinja_template_directory + "<."
+                            + " in directory >" + self.generic.jinja_template_directory + "<."
                             , module)
             return messages.message["jinja_template_not_found"], None
 
@@ -218,7 +200,7 @@ class EDCLineage:
                 return build_result, "{}"
 
             target_name = self.generic.found_data["name"]
-            target = self.edc_target_filesystem \
+            target = self.edc_target_resource_name \
                      + self.edc_target_datasource \
                      + self.edc_target_folder \
                      + target_name
@@ -283,7 +265,7 @@ class EDCLineage:
 
             to_entity_data = self.generic.found_data
             to_entity_name = to_entity_data["name"]
-            to_attribute = self.edc_target_filesystem \
+            to_attribute = self.edc_target_resource_name \
                            + self.edc_target_datasource \
                            + self.edc_target_folder \
                            + to_entity_name \
@@ -298,10 +280,11 @@ class EDCLineage:
             self.mu_log.log(self.mu_log.DEBUG, "number of entries in attribute list: " + str(len(from_attribute_list)),
                             module)
             if len(from_attribute_list) == 0:
-                new_entry = template_new_source_links.render(source_object_id=to_attribute,
-                                                             data_flow="core.DirectionalDataFlow")
-                self.mu_log.log(self.mu_log.VERBOSE, "new entry: " + new_entry, module)
-                source_target_list.append(new_entry)
+                self.mu_log.log(self.mu_log.INFO, "No source attributes for >" + to_attribute + "<.", module)
+                # new_entry = template_new_source_links.render(source_object_id=to_attribute,
+                #                                             data_flow="core.DirectionalDataFlow")
+                # self.mu_log.log(self.mu_log.VERBOSE, "new entry: " + new_entry, module)
+                # source_target_list.append(new_entry)
 
             i = 0
             for attribute in from_attribute_list:
@@ -352,7 +335,7 @@ class EDCLineage:
         the_entries = ",".join(update_entry_list)
         payload = template_updates.render(update_entries=the_entries)
         # TODO: Find a good solution for this
-        payload = payload.replace("<<NONE>>", self.edc_target_filesystem
+        payload = payload.replace("<<NONE>>", self.edc_target_resource_name
                                   + self.edc_target_datasource
                                   + self.edc_target_folder
                                   + to_entity_name)
@@ -387,10 +370,10 @@ class EDCLineage:
         else:
             if method == "PATCH":
                 # re-init: self.edc_helper.session = self.edc_helper.init_edc_session()
+                self.mu_log.log(self.mu_log.VERBOSE, "PATCH URL >" + url + "<.", module)
                 self.mu_log.log(self.mu_log.VERBOSE, "PATCH payload >" + payload + "<.", module)
                 self.mu_log.log(self.mu_log.VERBOSE,
-                                "sending PATCH payload (as json object) >" + str(json.loads(payload)) + "<.", module)
-                self.mu_log.log(self.mu_log.VERBOSE, "PATCH Request Headers: " + str(self.head.items()), module)
+                                "sending PATCH payload (as data object) >" + str(payload) + "<.", module)
                 self.mu_log.log(self.mu_log.VERBOSE, "Session PATCH Request headers: "
                                 + str(self.edc_helper.session.headers.items()), module)
                 try:
@@ -402,40 +385,49 @@ class EDCLineage:
                     self.mu_log.log(self.mu_log.WARNING, "Could not write payload to payloads file >"
                                     + self.patch_payload_file + "<", module)
                 try:
+                    # https://requests.readthedocs.io/en/master/_modules/requests/sessions/
+                    # patch uses data=, although json= can be part of **kwargs
                     response = self.edc_helper.session.patch(url
-                                                             , json=json.loads(payload)
-                                                             , timeout=self.settings.edc_timeout
-                                                             , headers=self.head
-                                                             , hooks={'response': self.print_roundtrip})
+                                                             , data=payload
+                                                             )
                     self.mu_log.log(self.mu_log.VERBOSE, "PATCH Response headers: " + str(response.headers), module)
                 except exceptions.ConnectTimeout:
                     self.mu_log.log(self.mu_log.ERROR, "Connection to EDC failed due to a timeout.", module)
+                    response = None
+                except exceptions.ConnectionError:
+                    self.mu_log.log(self.mu_log.ERROR, "Connection error connecting to EDC.", module)
                     response = None
 
             elif method == "PUT":
                 if etag is None:
                     self.mu_log.log(self.mu_log.WARNING, "eTag is None. This should not happen.", module)
                 else:
-                    self.head.update({"If-Match": etag})
+                    self.edc_helper.session.headers.update({"If-Match": etag})
                 self.mu_log.log(self.mu_log.VERBOSE, "sending PUT payload >" + str(payload) + "<.", module)
-                self.mu_log.log(self.mu_log.VERBOSE, "PUT Request Headers: " + str(self.head.items()), module)
+                self.mu_log.log(self.mu_log.VERBOSE, "PUT Request Headers: "
+                                + str(self.edc_helper.session.headers.items()), module)
                 try:
-                    response = self.edc_helper.session.put(url=url, data=payload, timeout=self.settings.edc_timeout,
-                                                           headers=self.head)
+                    response = self.edc_helper.session.put(url=url, data=payload)
                     self.mu_log.log(self.mu_log.VERBOSE, "PUT Response headers: " + str(response.headers), module)
                 except exceptions.ConnectTimeout:
                     self.mu_log.log(self.mu_log.ERROR, "Connection to EDC failed due to a timeout.", module)
                     response = None
+                except exceptions.ConnectionError:
+                    self.mu_log.log(self.mu_log.ERROR, "Connection error connecting to EDC.", module)
+                    response = None
             elif method == "GET":
-                self.mu_log.log(self.mu_log.VERBOSE, "GET Request Headers: " + str(self.head.items())
+                self.mu_log.log(self.mu_log.VERBOSE, "GET Request Headers: "
+                                + str(self.edc_helper.session.headers.items())
                                 , module)
                 try:
-                    response = self.edc_helper.session.get(url, timeout=self.settings.edc_timeout,
-                                                           headers=self.head,
+                    response = self.edc_helper.session.get(url,
                                                            params=parameters)
                     self.mu_log.log(self.mu_log.VERBOSE, "GET Response headers: " + str(response.headers), module)
                 except exceptions.ConnectTimeout:
                     self.mu_log.log(self.mu_log.ERROR, "Connection to EDC failed due to a timeout.", module)
+                    response = None
+                except exceptions.ConnectionError:
+                    self.mu_log.log(self.mu_log.ERROR, "Connection error connecting to EDC.", module)
                     response = None
             else:
                 self.mu_log.log(self.mu_log.ERROR, "Invalid HTTP Method in call. Internal error.", module)
@@ -463,26 +455,6 @@ class EDCLineage:
         self.mu_log.log(self.mu_log.DEBUG,
                         "send to EDC completed with " + send_result["code"] + ". run time: " + str(run_time), module)
         return send_result, response
-
-    def print_roundtrip(self, response, *args, **kwargs):
-        format_headers = lambda d: '\n'.join(f'{k}: {v}' for k, v in d.items())
-        print(textwrap.dedent('''
-            ---------------- request ----------------
-            {req.method} {req.url}
-            {reqhdrs}
-
-            {req.body}
-            ---------------- response ----------------
-            {res.status_code} {res.reason} {res.url}
-            {reshdrs}
-
-            {res.text}
-        ''').format(
-            req=response.request,
-            res=response,
-            reqhdrs=format_headers(response.request.headers),
-            reshdrs=format_headers(response.headers),
-        ))
 
     def update_object_attributes(self, entity_type, data, settings):
         """
@@ -764,11 +736,11 @@ class EDCLineage:
 
         to_entity_data = self.generic.found_data
         to_entity_name = to_entity_data["name"]
-        to_entity_id = self.edc_target_filesystem \
+        to_entity_id = self.edc_target_resource_name \
                        + self.edc_target_datasource \
                        + self.edc_target_folder \
                        + to_entity_name
-        to_attribute_id = self.edc_target_filesystem \
+        to_attribute_id = self.edc_target_resource_name \
                           + self.edc_target_datasource \
                           + self.edc_target_folder \
                           + to_entity_name \

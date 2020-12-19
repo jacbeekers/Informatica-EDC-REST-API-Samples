@@ -8,7 +8,7 @@ class GenericSettings:
     """
     Some generic utilities, e.g. reading the config.json
     """
-    code_version = "0.3.12"
+    code_version = "0.3.35"
 
     def __init__(self, configuration_file="resources/config.json"):
         # config.json settings
@@ -25,7 +25,6 @@ class GenericSettings:
         self.log_directory = None
         self.log_filename = None
         self.log_filename_prefix = None
-        self.log_level = None
         self.edc_config = None
         self.edc_config_data = {}
         self.edc_url = "http://localhost:8888"
@@ -41,12 +40,13 @@ class GenericSettings:
         self.edc_timeout = 10
         self.trust_env = True
         self.encoding = None
+        self.base_location_for_metafiles = None
 
     def get_config(self):
         """
             get the main configuration settings. default file is resources/config.json
         """
-        module = "get_config"
+        module = __name__ + ".get_config"
         result = messages.message["undetermined"]
 
         try:
@@ -58,6 +58,10 @@ class GenericSettings:
                 self.target = data["target"]
                 self.output_directory = data["output_directory"]
                 self.metadata_store = data["metadata_store"]
+                if "base_location_for_metafiles" in data:
+                    self.base_location_for_metafiles = data["base_location_for_metafiles"]
+                else:
+                    self.base_location_for_metafiles = self.output_directory
                 if "edc_config" in data:
                     self.edc_config = data["edc_config"]
                 if "edc_secrets" in data:
@@ -90,15 +94,8 @@ class GenericSettings:
                 else:
                     self.log_config = "resources/log_config.json"
                 self.mu_log = mu_logging.MULogging(self.log_config)
-                self.log_directory = self.mu_log.log_setting.log_directory
-                self.log_filename = self.mu_log.log_setting.log_filename
-                self.log_filename_prefix = self.mu_log.log_setting.log_filename_prefix
-                self.log_level = self.mu_log.log_setting.log_level
-                self.azure_monitor_config = self.mu_log.log_setting.azure_monitor_config
-                self.azure_monitor_requests = self.mu_log.log_setting.azure_monitor_requests
-                self.instrumentation_key = self.mu_log.log_setting.instrumentation_key
                 self.mu_log.log(self.mu_log.DEBUG, "Configuration file >" + self.main_config_file
-                                + "< found and read.", module)
+                                + "< found and read. log_config is >" + self.log_config + "<.", module)
 
             result = messages.message["ok"]
         except FileNotFoundError:
@@ -126,18 +123,6 @@ class GenericSettings:
                 self.mu_log.log(self.mu_log.ERROR, "get_edc_secrets returned: " + edc_secrets_result["code"], module)
                 return edc_secrets_result
 
-        if self.azure_monitor_config is not None:
-            try:
-                with open(self.azure_monitor_config) as az_monitor:
-                    data = json.load(az_monitor)
-                    if "instrumentation_key" in data:
-                        self.instrumentation_key = data["instrumentation_key"]
-            except FileNotFoundError:
-                self.mu_log.log(self.mu_log.FATAL
-                                , "Cannot find Azure configuration file, which is needed to get the instrumentation key"
-                                , module)
-                return messages.message["azure_config_not_found"]
-
         return result
 
     def get_edc_proxy(self):
@@ -154,7 +139,7 @@ class GenericSettings:
         return proxies
 
     def get_edc_secrets(self, edc_secrets="resources/edc.secrets"):
-        module = "get_edc_secrets"
+        module = __name__ + ".get_edc_secrets"
 
         try:
             with open(edc_secrets) as edc:
@@ -174,7 +159,7 @@ class GenericSettings:
         return messages.message["ok"]
 
     def determine_edc_secrets(self, data):
-        module = "generic_settings.determine_edc_secrets"
+        module = __name__ + ".determine_edc_secrets"
 
         if "meta_version" in data:
             main_meta_version = data["meta_version"][:3]

@@ -21,19 +21,8 @@ class Generic:
         self.settings_found = False
         self.settings = settings
         self.mu_log = mu_log_ref
-        if settings is None:
-            self.settings = generic_settings.GenericSettings()
-            result = self.settings.get_config()
-            if result != messages.message["ok"]:
-                self.mu_log.log(self.mu_log.FATAL, "Cannot find main configuration file >" + self.settings.main_config_file + "<."
-                                , module)
-                self.settings_found = False
-            else:
-                self.mu_log.log(self.mu_log.DEBUG, "Generic settings loaded.", module)
-                self.settings_found = True
-        else:
-            self.mu_log.log(self.mu_log.DEBUG, "Using provided generic settings.", module)
-            self.settings_found = True
+        self.mu_log.log(self.mu_log.DEBUG, "Using provided settings.", module)
+        self.settings_found = True
         self.json_file = self.settings.main_config_file
         self.jinja_environment = None
         self.jinja_base_directory = None
@@ -43,10 +32,15 @@ class Generic:
         self.jinja_configuration_file = self.settings.jinja_config
         self.get_jinja_settings()
 
-    def find_json(self, source_uuid, target_schema_type, property, log_prefix=""):
+    def find_json(self, source_uuid, target_schema_type, property, log_prefix="", skip_file_list=None):
         """
         find the JSON file that has the source_uuid in the value of the property.
         The JSON schema of the file must be 'target_schema_type'.
+        Params:
+            source_uuid: the uuid for search for
+            target_schema_type: which schema. Will filter on only those files that contain the specified entity type
+            property: which property (key) in the file should contain the uuid
+            log_prefix: text that will be added to any log messages. Useful to identify the related log entries
         """
         module = __name__ + ".find_json"
         if not self.settings_found:
@@ -64,6 +58,10 @@ class Generic:
         overall_result = messages.message["not_found"]
         # Walk through json directory and check all json files
         for file in glob.glob(directory + "*.json"):
+            if skip_file_list is not None:
+                if file in skip_file_list:
+                    self.mu_log.log(self.mu_log.VERBOSE, log_prefix + "File is in exclusion list. Skipped.")
+                    continue
             current_json_file = file
             self.mu_log.log(self.mu_log.DEBUG, log_prefix + "checking >" + current_json_file + "<", module)
             file_result = messages.message["not_found"]
@@ -85,7 +83,7 @@ class Generic:
                     self.mu_log.log(self.mu_log.DEBUG, log_prefix + "meta_type matches", module)
                     if property in self.data:
                         self.mu_log.log(self.mu_log.DEBUG, log_prefix
-                                        + "Current metadata_type matches target_schema_type", module)
+                                        + "File contains property >" + property + "<", module)
                         found_meta_type = True
                         try:
                             the_property_value = self.data[property]
@@ -164,12 +162,14 @@ class Generic:
 
         return overall_result
 
-    def write_local_file(self, filename, to_write):
+    def write_local_file(self, directory=None, filename="dummy", to_write=""):
         # local file system
         module = __name__ + ".write_local_file"
         file_result = messages.message["ok"]
-        path = self.settings.output_directory + filename
-        os.makedirs(self.settings.output_directory, exist_ok=True)
+        if directory is None:
+            directory = self.settings.output_directory
+        path = os.path.join(directory, filename)
+        os.makedirs(directory, exist_ok=True)
         self.mu_log.log(self.mu_log.DEBUG, "File name: " + path, module)
         self.mu_log.log(self.mu_log.VERBOSE, "writing >" + to_write + "< to file >" + path + "<...", module)
         try:

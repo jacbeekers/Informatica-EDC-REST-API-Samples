@@ -4,5 +4,6 @@
   "log_directory": "log/",
   "log_filename": "metadata_utilities.log",
   "log_filename_prefix": "{{timestamp}}",
-  "log_level": "VERBOSE"
+  "log_level": "VERBOSE",
+  "log_level_console": "INFO"
 }

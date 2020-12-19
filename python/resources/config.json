@@ -4,6 +4,7 @@
   "output_directory": "out/",
   "target": "local",
   "other_targets": [
+
     "azure_blob"
   ],
   "metadata_store": "edc",
@@ -16,5 +17,6 @@
   "suppress_edc_call": "False",
   "edc_http_proxy": "None",
   "edc_https_proxy": "None",
-  "log_config": "resources/log_config.json"
+  "log_config": "resources/log_config.json",
+  "base_location_for_metafiles": "data/"
 }

@@ -8,7 +8,7 @@ class LogSettings:
     """
     Some generic utilities, e.g. reading the config.json
     """
-    code_version = "0.2.21"
+    code_version = "0.3.35"
     VERBOSE = 5
     DEBUG = logging.DEBUG
     INFO = logging.INFO
@@ -83,30 +83,17 @@ class LogSettings:
     def determine_log_level(self, configured_log_level):
         module = __name__ + ".determine_log_level"
         if configured_log_level == "VERBOSE":
-            self.log_level = self.VERBOSE
-            print(module, "Log level has been set to VERBOSE.")
-            return self.log_level
+            return self.VERBOSE
         elif configured_log_level == logging.getLevelName(logging.DEBUG):
-            self.log_level = self.DEBUG
-            print(module, "Log level has been set to DEBUG.")
-            return self.log_level
+            return self.DEBUG
         elif configured_log_level == logging.getLevelName(logging.INFO):
-            self.log_level = self.INFO
-            print(module, "Log level has been set to INFO.")
-            return self.log_level
+            return self.INFO
         elif configured_log_level == logging.getLevelName(logging.WARNING):
-            self.log_level = self.WARNING
-            print(module, "Log level has been set to WARNING.")
-            return self.log_level
+            return self.WARNING
         elif configured_log_level == logging.getLevelName(logging.ERROR):
-            self.log_level = self.ERROR
-            print(module, "Log level has been set to ERROR.")
-            return self.log_level
+            return self.ERROR
         elif configured_log_level == logging.getLevelName(logging.FATAL):
-            self.log_level = self.FATAL
-            print(module, "Log level has been set to FATAL.")
-            return self.log_level
+            return self.FATAL
         else:
             print(f"invalid log level >{configured_log_level}< in config.json. Defaulting to DEBUG")
-            self.log_level = self.DEBUG
-            return self.log_level
+            return self.DEBUG
