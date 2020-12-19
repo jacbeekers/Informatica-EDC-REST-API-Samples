@@ -23,6 +23,7 @@ tmp/
 
 #output directory
 out/
+data/
 
 #data
 *.csv
