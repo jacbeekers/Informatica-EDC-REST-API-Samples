@@ -67,6 +67,8 @@ class GenericSettings:
         self.edc_https_proxy = None
         self.edc_auth = None
         self.edc_timeout = 10
+        self.trust_env = True
+        self.encoding = None
 
     def get_config(self):
         &#34;&#34;&#34;
@@ -254,6 +256,25 @@ class GenericSettings:
             self.edc_timeout = 10
             self.mu_log.log(self.mu_log.INFO, &#34;No edc_timeout setting found edc secrets file. Using default value: &#34;
                             + str(self.edc_timeout), module)
+
+        if &#34;trust_env&#34; in data:
+            self.trust_env = False if data[&#34;trust_env&#34;] == &#34;False&#34; else True
+            self.mu_log.log(self.mu_log.INFO, &#34;trust_env taken from edc secrets file. It now has been set to: &#34;
+                            + str(self.trust_env), module)
+        else:
+            self.trust_env = True
+            self.mu_log.log(self.mu_log.INFO, &#34;No trust_env setting found edc secrets file. Using default value: True&#34;
+                            , module)
+
+        if &#34;encoding&#34; in data:
+            self.encoding = data[&#34;encoding&#34;]
+            self.mu_log.log(self.mu_log.INFO, &#34;encoding taken from edc secrets file. It now has been set to: &#34;
+                            + str(self.encoding), module)
+        else:
+            self.encoding = None
+            self.mu_log.log(self.mu_log.INFO
+                            , &#34;No encoding setting found edc secrets file. Will not add any encoding to requests.&#34;
+                            , module)
 
         return messages.message[&#34;ok&#34;]</code></pre>
 </details>
@@ -312,6 +333,8 @@ class GenericSettings:
         self.edc_https_proxy = None
         self.edc_auth = None
         self.edc_timeout = 10
+        self.trust_env = True
+        self.encoding = None
 
     def get_config(self):
         &#34;&#34;&#34;
@@ -499,6 +522,25 @@ class GenericSettings:
             self.edc_timeout = 10
             self.mu_log.log(self.mu_log.INFO, &#34;No edc_timeout setting found edc secrets file. Using default value: &#34;
                             + str(self.edc_timeout), module)
+
+        if &#34;trust_env&#34; in data:
+            self.trust_env = False if data[&#34;trust_env&#34;] == &#34;False&#34; else True
+            self.mu_log.log(self.mu_log.INFO, &#34;trust_env taken from edc secrets file. It now has been set to: &#34;
+                            + str(self.trust_env), module)
+        else:
+            self.trust_env = True
+            self.mu_log.log(self.mu_log.INFO, &#34;No trust_env setting found edc secrets file. Using default value: True&#34;
+                            , module)
+
+        if &#34;encoding&#34; in data:
+            self.encoding = data[&#34;encoding&#34;]
+            self.mu_log.log(self.mu_log.INFO, &#34;encoding taken from edc secrets file. It now has been set to: &#34;
+                            + str(self.encoding), module)
+        else:
+            self.encoding = None
+            self.mu_log.log(self.mu_log.INFO
+                            , &#34;No encoding setting found edc secrets file. Will not add any encoding to requests.&#34;
+                            , module)
 
         return messages.message[&#34;ok&#34;]</code></pre>
 </details>
@@ -575,6 +617,25 @@ class GenericSettings:
         self.edc_timeout = 10
         self.mu_log.log(self.mu_log.INFO, &#34;No edc_timeout setting found edc secrets file. Using default value: &#34;
                         + str(self.edc_timeout), module)
+
+    if &#34;trust_env&#34; in data:
+        self.trust_env = False if data[&#34;trust_env&#34;] == &#34;False&#34; else True
+        self.mu_log.log(self.mu_log.INFO, &#34;trust_env taken from edc secrets file. It now has been set to: &#34;
+                        + str(self.trust_env), module)
+    else:
+        self.trust_env = True
+        self.mu_log.log(self.mu_log.INFO, &#34;No trust_env setting found edc secrets file. Using default value: True&#34;
+                        , module)
+
+    if &#34;encoding&#34; in data:
+        self.encoding = data[&#34;encoding&#34;]
+        self.mu_log.log(self.mu_log.INFO, &#34;encoding taken from edc secrets file. It now has been set to: &#34;
+                        + str(self.encoding), module)
+    else:
+        self.encoding = None
+        self.mu_log.log(self.mu_log.INFO
+                        , &#34;No encoding setting found edc secrets file. Will not add any encoding to requests.&#34;
+                        , module)
 
     return messages.message[&#34;ok&#34;]</code></pre>
 </details>

@@ -31,7 +31,7 @@ from datetime import datetime
 from opencensus.ext.azure.log_exporter import AzureLogHandler
 from src.metadata_utilities import log_settings
 import os
-
+import requests
 
 class MULogging:
     &#34;&#34;&#34;
@@ -51,7 +51,7 @@ class MULogging:
         self.log_setting = log_settings.LogSettings(log_configuration_file)
         self.log_setting.get_config()
         self.area = None
-        self.logger = self.setup_logger(self.log_setting.log_level
+        self.logger = self.setup_logger(self.log_setting.log_level, self.log_setting.log_level_console
                                         , self.log_setting.log_filename_prefix
                                         , self.log_setting.log_directory
                                         , self.log_setting.log_filename
@@ -60,7 +60,7 @@ class MULogging:
                                         )
 
     @staticmethod
-    def setup_logger(log_level
+    def setup_logger(log_level, log_level_console
                      , log_filename_prefix=&#34;&#34;
                      , log_directory=&#34;log/&#34;
                      , log_filename=&#34;some.log&#34;
@@ -82,7 +82,7 @@ class MULogging:
         fh = logging.FileHandler(log_path)
         fh.setLevel(log_level)
         ch = logging.StreamHandler()
-        ch.setLevel(log_level)
+        ch.setLevel(log_level_console)
         formatter = logging.Formatter(&#39;%(asctime)s - %(name)s - %(levelname)s - %(message)s&#39;)
         fh.setFormatter(formatter)
         ch.setFormatter(formatter)
@@ -93,6 +93,8 @@ class MULogging:
         if instrumentation_key != &#34;unknown&#34; and azure_monitor_requests == &#34;True&#34;:
             logger.addHandler(
                 AzureLogHandler(connection_string=&#34;InstrumentationKey=&#34; + instrumentation_key))
+        logger.propagate = True
+
         return logger
 
     def log(self, level=DEBUG, msg=&#34;no_message&#34;, method=&#34;undetermined&#34;, extra=None):
@@ -157,7 +159,7 @@ class MULogging:
         self.log_setting = log_settings.LogSettings(log_configuration_file)
         self.log_setting.get_config()
         self.area = None
-        self.logger = self.setup_logger(self.log_setting.log_level
+        self.logger = self.setup_logger(self.log_setting.log_level, self.log_setting.log_level_console
                                         , self.log_setting.log_filename_prefix
                                         , self.log_setting.log_directory
                                         , self.log_setting.log_filename
@@ -166,7 +168,7 @@ class MULogging:
                                         )
 
     @staticmethod
-    def setup_logger(log_level
+    def setup_logger(log_level, log_level_console
                      , log_filename_prefix=&#34;&#34;
                      , log_directory=&#34;log/&#34;
                      , log_filename=&#34;some.log&#34;
@@ -188,7 +190,7 @@ class MULogging:
         fh = logging.FileHandler(log_path)
         fh.setLevel(log_level)
         ch = logging.StreamHandler()
-        ch.setLevel(log_level)
+        ch.setLevel(log_level_console)
         formatter = logging.Formatter(&#39;%(asctime)s - %(name)s - %(levelname)s - %(message)s&#39;)
         fh.setFormatter(formatter)
         ch.setFormatter(formatter)
@@ -199,6 +201,8 @@ class MULogging:
         if instrumentation_key != &#34;unknown&#34; and azure_monitor_requests == &#34;True&#34;:
             logger.addHandler(
                 AzureLogHandler(connection_string=&#34;InstrumentationKey=&#34; + instrumentation_key))
+        logger.propagate = True
+
         return logger
 
     def log(self, level=DEBUG, msg=&#34;no_message&#34;, method=&#34;undetermined&#34;, extra=None):
@@ -267,7 +271,7 @@ class MULogging:
 <h3>Static methods</h3>
 <dl>
 <dt id="metadata_utilities.mu_logging.MULogging.setup_logger"><code class="name flex">
-<span>def <span class="ident">setup_logger</span></span>(<span>log_level, log_filename_prefix='', log_directory='log/', log_filename='some.log', instrumentation_key='unknown', azure_monitor_requests='False')</span>
+<span>def <span class="ident">setup_logger</span></span>(<span>log_level, log_level_console, log_filename_prefix='', log_directory='log/', log_filename='some.log', instrumentation_key='unknown', azure_monitor_requests='False')</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -276,7 +280,7 @@ class MULogging:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@staticmethod
-def setup_logger(log_level
+def setup_logger(log_level, log_level_console
                  , log_filename_prefix=&#34;&#34;
                  , log_directory=&#34;log/&#34;
                  , log_filename=&#34;some.log&#34;
@@ -298,7 +302,7 @@ def setup_logger(log_level
     fh = logging.FileHandler(log_path)
     fh.setLevel(log_level)
     ch = logging.StreamHandler()
-    ch.setLevel(log_level)
+    ch.setLevel(log_level_console)
     formatter = logging.Formatter(&#39;%(asctime)s - %(name)s - %(levelname)s - %(message)s&#39;)
     fh.setFormatter(formatter)
     ch.setFormatter(formatter)
@@ -309,6 +313,8 @@ def setup_logger(log_level
     if instrumentation_key != &#34;unknown&#34; and azure_monitor_requests == &#34;True&#34;:
         logger.addHandler(
             AzureLogHandler(connection_string=&#34;InstrumentationKey=&#34; + instrumentation_key))
+    logger.propagate = True
+
     return logger</code></pre>
 </details>
 </dd>

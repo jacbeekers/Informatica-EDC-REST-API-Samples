@@ -51,7 +51,9 @@ class LogSettings:
         self.log_filename = None
         self.log_filename_prefix = None
         self.configured_log_level = &#34;DEBUG&#34;
+        self.configured_log_level_console = &#34;INFO&#34;
         self.log_level = self.DEBUG
+        self.log_level_console = self.INFO
         self.azure_monitor_config = None
         self.azure_monitor_requests = False
         self.instrumentation_key = None
@@ -77,6 +79,12 @@ class LogSettings:
                     self.configured_log_level = &#34;DEBUG&#34;
                     print(&#34;module, Missing log_level. Set to default=\&#34;DEBUG\&#34;&#34;)
                 self.log_level = self.determine_log_level(self.configured_log_level)
+                if &#34;log_level_console&#34; in data:
+                    self.configured_log_level_console = data[&#34;log_level_console&#34;]
+                else:
+                    self.configured_log_level_console = &#34;INFO&#34;
+                    print(&#34;module, Missing log_level for console. Set to default=\&#34;INFO\&#34;&#34;)
+                self.log_level_console = self.determine_log_level(self.configured_log_level_console)
                 if &#34;azure_monitor_config&#34; in data:
                     self.azure_monitor_config = data[&#34;azure_monitor_config&#34;]
                 if &#34;azure_monitor_requests&#34; in data:
@@ -170,7 +178,9 @@ class LogSettings:
         self.log_filename = None
         self.log_filename_prefix = None
         self.configured_log_level = &#34;DEBUG&#34;
+        self.configured_log_level_console = &#34;INFO&#34;
         self.log_level = self.DEBUG
+        self.log_level_console = self.INFO
         self.azure_monitor_config = None
         self.azure_monitor_requests = False
         self.instrumentation_key = None
@@ -196,6 +206,12 @@ class LogSettings:
                     self.configured_log_level = &#34;DEBUG&#34;
                     print(&#34;module, Missing log_level. Set to default=\&#34;DEBUG\&#34;&#34;)
                 self.log_level = self.determine_log_level(self.configured_log_level)
+                if &#34;log_level_console&#34; in data:
+                    self.configured_log_level_console = data[&#34;log_level_console&#34;]
+                else:
+                    self.configured_log_level_console = &#34;INFO&#34;
+                    print(&#34;module, Missing log_level for console. Set to default=\&#34;INFO\&#34;&#34;)
+                self.log_level_console = self.determine_log_level(self.configured_log_level_console)
                 if &#34;azure_monitor_config&#34; in data:
                     self.azure_monitor_config = data[&#34;azure_monitor_config&#34;]
                 if &#34;azure_monitor_requests&#34; in data:
@@ -353,6 +369,12 @@ class LogSettings:
                 self.configured_log_level = &#34;DEBUG&#34;
                 print(&#34;module, Missing log_level. Set to default=\&#34;DEBUG\&#34;&#34;)
             self.log_level = self.determine_log_level(self.configured_log_level)
+            if &#34;log_level_console&#34; in data:
+                self.configured_log_level_console = data[&#34;log_level_console&#34;]
+            else:
+                self.configured_log_level_console = &#34;INFO&#34;
+                print(&#34;module, Missing log_level for console. Set to default=\&#34;INFO\&#34;&#34;)
+            self.log_level_console = self.determine_log_level(self.configured_log_level_console)
             if &#34;azure_monitor_config&#34; in data:
                 self.azure_monitor_config = data[&#34;azure_monitor_config&#34;]
             if &#34;azure_monitor_requests&#34; in data:

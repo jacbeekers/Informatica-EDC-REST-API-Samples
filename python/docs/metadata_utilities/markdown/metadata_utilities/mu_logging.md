@@ -38,7 +38,7 @@ Classes
 
     ### Static methods
 
-    `setup_logger(log_level, log_filename_prefix='', log_directory='log/', log_filename='some.log', instrumentation_key='unknown', azure_monitor_requests='False')`
+    `setup_logger(log_level, log_level_console, log_filename_prefix='', log_directory='log/', log_filename='some.log', instrumentation_key='unknown', azure_monitor_requests='False')`
     :
 
     ### Methods
