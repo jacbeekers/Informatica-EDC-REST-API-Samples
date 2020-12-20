@@ -44,7 +44,7 @@ import requests
 from requests.auth import HTTPBasicAuth
 
 
-def get_fact_value(item, attribute_name, json_property):
+def get_fact_value(item, attribute_name, json_property=&#34;value&#34;):
     &#34;&#34;&#34;
     returns the value of a fact (attribute) from an item
 
@@ -704,7 +704,7 @@ resourceDef (json)</p></div>
 </details>
 </dd>
 <dt id="edc_utilities.edcutils.get_fact_value"><code class="name flex">
-<span>def <span class="ident">get_fact_value</span></span>(<span>item, attribute_name, json_property)</span>
+<span>def <span class="ident">get_fact_value</span></span>(<span>item, attribute_name, json_property='value')</span>
 </code></dt>
 <dd>
 <div class="desc"><p>returns the value of a fact (attribute) from an item</p>
@@ -715,7 +715,7 @@ returns the "value" json_property or ""</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_fact_value(item, attribute_name, json_property):
+<pre><code class="python">def get_fact_value(item, attribute_name, json_property=&#34;value&#34;):
     &#34;&#34;&#34;
     returns the value of a fact (attribute) from an item
 

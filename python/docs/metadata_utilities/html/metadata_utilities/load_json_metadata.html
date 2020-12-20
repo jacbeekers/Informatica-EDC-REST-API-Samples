@@ -50,7 +50,7 @@ class ConvertJSONtoEDCLineage:
         self.result = messages.message[&#34;undetermined&#34;]
         self.settings = generic_settings.GenericSettings(configuration_file)
         self.config_result = self.settings.get_config()
-        self.edc_custom_attributes = edc_custom_attributes.EDCCustomAttribute()
+        self.edc_custom_attributes = edc_custom_attributes.EDCCustomAttribute(settings_ref=self.settings)
 
         if self.config_result == messages.message[&#34;ok&#34;]:
             self.mu_log = mu_logging.MULogging(self.settings.log_config)
@@ -63,6 +63,7 @@ class ConvertJSONtoEDCLineage:
             self.json_file_utilities = json_file_utilities.JSONFileUtilities()
             self.data = &#34;&#34;
             self.edc_lineage = edc_lineage.EDCLineage(self.settings, mu_log_ref=self.mu_log)
+            self.edc_lineage.get_edc_data_references()
         else:
             print(&#34;FATAL:&#34;, &#34;settings.get_config returned:&#34;,
                   self.config_result[&#34;code&#34;] + &#34; - &#34; + self.config_result[&#34;message&#34;])
@@ -84,29 +85,83 @@ class ConvertJSONtoEDCLineage:
                                                  , log_prefix=&#34;find entity &#34; + entity_uuid + &#34; - &#34;)
             attributes = self.generic.attribute_list
             if file_result[&#34;code&#34;] == &#34;OK&#34;:
-                file_result = self.create_metafile(filename, attributes)
+                is_from, is_to = self.find_entity_in_source_target_links(entity_uuid)
+                self.mu_log.log(self.mu_log.DEBUG, &#34;Base location for metafiles is: &#34;
+                                + self.settings.base_location_for_metafiles, module)
+                if is_from:
+                    path = self.settings.base_location_for_metafiles + self.edc_lineage.edc_source_folder
+                    self.mu_log.log(self.mu_log.DEBUG, &#34;Source path is: &#34; + path, module)
+                    file_result = self.create_metafile(
+                        path
+                        , filename
+                        , attributes)
+                if is_to:
+                    path = self.settings.base_location_for_metafiles + self.edc_lineage.edc_target_folder
+                    self.mu_log.log(self.mu_log.DEBUG, &#34;Target path is: &#34; + path, module)
+                    file_result = self.create_metafile(
+                        path
+                        , filename
+                        , attributes)
         else:
             self.mu_log.log(self.mu_log.DEBUG, &#34;entity is not a file. Skipping metafile creation&#34;, module)
         return file_result
 
-    def create_metafile(self, filename, attributes):
+    def create_metafile(self, location, filename, attributes):
         &#34;&#34;&#34;
         A metafile is created for Informatica EDC to scan. This way no real data is needed.
         &#34;&#34;&#34;
         module = &#34;ConvertJSONtoEDCLineage.create_metafile&#34;
-        self.mu_log.log(self.mu_log.DEBUG, &#34;Start writing file&#34;, module)
-        concatenated = self.generic.convert_list_into_string(attributes)
-        if self.settings.target == &#34;local&#34;:
-            file_result = self.generic.write_local_file(filename, concatenated)
-        else:
+        file_result = None
+        if self.settings.target != &#34;local&#34;:
             # TODO: Implement &#34;azure_blob&#34;
             self.mu_log.log(self.mu_log.DEBUG
                             , &#34;In this release the only target is local. In the future Azure Blob will be added.&#34;
                             , module)
-            file_result = messages.message[&#34;not_implemented&#34;]
+            return messages.message[&#34;not_implemented&#34;]
 
+        self.mu_log.log(self.mu_log.DEBUG, &#34;Start metafile &gt;&#34; + filename + &#34;&lt; creation in &gt;&#34;
+                        + location + &#34;&lt;&#34;, module)
+        concatenated = self.generic.convert_list_into_string(attributes)
+        file_result = self.generic.write_local_file(directory=location, filename=filename, to_write=concatenated)
         self.mu_log.log(self.mu_log.DEBUG, &#34;End writing file&#34;, module)
+
         return file_result
+
+    def find_entity_in_source_target_links(self
+                                           , source_uuid
+                                           , target_schema_type=&#34;physical_entity_association&#34;
+                                           , log_prefix=&#34;&#34;):
+        &#34;&#34;&#34;
+            find_entity_in_source_target_links
+            Determines whether an entity is used as source or target (or both) in the current run
+            Based on the outcome, the metafile can be created in the location as determined by the config file
+        &#34;&#34;&#34;
+        module = __name__ + &#34;.find_entity_in_source_target_links&#34;
+        is_from = False
+        is_to = False
+        directory = self.settings.json_directory
+        self.mu_log.log(self.mu_log.DEBUG, log_prefix + &#34;Looking in directory: &#34; + directory, module)
+        for file in glob.glob(directory + &#34;*.json&#34;):
+            with open(file) as f:
+                data = json.load(f)
+                if &#34;meta&#34; not in data:
+                    self.mu_log.log(self.mu_log.WARNING, log_prefix +
+                                    &#34;The key &#39;meta&#39; is required, but not found in file: &#34; + file
+                                    , module)
+                    continue
+
+                meta_type = data[&#34;meta&#34;]
+                if meta_type == target_schema_type:
+                    for source_target_entity_link in data[&#34;source_target_entity_links&#34;]:
+                        if source_target_entity_link[&#34;from&#34;] == source_uuid:
+                            self.mu_log.log(self.mu_log.DEBUG, log_prefix
+                                            + &#34;found as &#39;from&#39;&#34;, module)
+                            is_from = True
+                        if source_target_entity_link[&#34;to&#34;] == source_uuid:
+                            self.mu_log.log(self.mu_log.DEBUG, log_prefix
+                                            + &#34;found as &#39;to&#39;&#34;, module)
+                            is_to = True
+        return is_from, is_to
 
     def process_files(self):
         &#34;&#34;&#34;
@@ -170,12 +225,6 @@ class ConvertJSONtoEDCLineage:
         if self.meta_type == &#34;physical_entity&#34;:
             file_result = self.generate_file_structure()
             return file_result
-
-        # if self.meta_type == &#34;physical_attribute_association&#34;:
-        #    file_result = self.generate_transformations()
-        #    self.mu_log.log(self.mu_log.DEBUG, &#34;The generation of transformation files returned &gt;&#34;
-        #                    + file_result[&#39;code&#39;] + &#34;&lt;&#34;
-        #                    , module)
 
         if self.meta_type in (&#34;physical_attribute_association&#34;, &#34;physical_entity_association&#34;):
             file_result = self.process_lineage_request()
@@ -245,7 +294,7 @@ class ConvertJSONtoEDCLineage:
 
         return overall_result
 
-    def process_lineage_request(self):
+    def process_lineage_request(self, metafiles_only=False):
         # Generate the lineage file or payload
         module = __name__ + &#34;.process_lineage_request&#34;
         # TODO: generate json payload for the Metadata Interface APIs for lineage
@@ -289,7 +338,7 @@ class ConvertJSONtoEDCLineage:
         send_result = messages.message[&#34;not_implemented&#34;]
         return send_result
 
-    def main(self):
+    def main(self, metafiles_only=False):
         &#34;&#34;&#34;
             Main module to process JSON files that are stored at the location stated in the provided configuration file
             configuration_file: a relative or absolute path to the configuration file. Default is resources/config.json
@@ -341,7 +390,7 @@ if __name__ == &#34;__main__&#34;:
         self.result = messages.message[&#34;undetermined&#34;]
         self.settings = generic_settings.GenericSettings(configuration_file)
         self.config_result = self.settings.get_config()
-        self.edc_custom_attributes = edc_custom_attributes.EDCCustomAttribute()
+        self.edc_custom_attributes = edc_custom_attributes.EDCCustomAttribute(settings_ref=self.settings)
 
         if self.config_result == messages.message[&#34;ok&#34;]:
             self.mu_log = mu_logging.MULogging(self.settings.log_config)
@@ -354,6 +403,7 @@ if __name__ == &#34;__main__&#34;:
             self.json_file_utilities = json_file_utilities.JSONFileUtilities()
             self.data = &#34;&#34;
             self.edc_lineage = edc_lineage.EDCLineage(self.settings, mu_log_ref=self.mu_log)
+            self.edc_lineage.get_edc_data_references()
         else:
             print(&#34;FATAL:&#34;, &#34;settings.get_config returned:&#34;,
                   self.config_result[&#34;code&#34;] + &#34; - &#34; + self.config_result[&#34;message&#34;])
@@ -375,29 +425,83 @@ if __name__ == &#34;__main__&#34;:
                                                  , log_prefix=&#34;find entity &#34; + entity_uuid + &#34; - &#34;)
             attributes = self.generic.attribute_list
             if file_result[&#34;code&#34;] == &#34;OK&#34;:
-                file_result = self.create_metafile(filename, attributes)
+                is_from, is_to = self.find_entity_in_source_target_links(entity_uuid)
+                self.mu_log.log(self.mu_log.DEBUG, &#34;Base location for metafiles is: &#34;
+                                + self.settings.base_location_for_metafiles, module)
+                if is_from:
+                    path = self.settings.base_location_for_metafiles + self.edc_lineage.edc_source_folder
+                    self.mu_log.log(self.mu_log.DEBUG, &#34;Source path is: &#34; + path, module)
+                    file_result = self.create_metafile(
+                        path
+                        , filename
+                        , attributes)
+                if is_to:
+                    path = self.settings.base_location_for_metafiles + self.edc_lineage.edc_target_folder
+                    self.mu_log.log(self.mu_log.DEBUG, &#34;Target path is: &#34; + path, module)
+                    file_result = self.create_metafile(
+                        path
+                        , filename
+                        , attributes)
         else:
             self.mu_log.log(self.mu_log.DEBUG, &#34;entity is not a file. Skipping metafile creation&#34;, module)
         return file_result
 
-    def create_metafile(self, filename, attributes):
+    def create_metafile(self, location, filename, attributes):
         &#34;&#34;&#34;
         A metafile is created for Informatica EDC to scan. This way no real data is needed.
         &#34;&#34;&#34;
         module = &#34;ConvertJSONtoEDCLineage.create_metafile&#34;
-        self.mu_log.log(self.mu_log.DEBUG, &#34;Start writing file&#34;, module)
-        concatenated = self.generic.convert_list_into_string(attributes)
-        if self.settings.target == &#34;local&#34;:
-            file_result = self.generic.write_local_file(filename, concatenated)
-        else:
+        file_result = None
+        if self.settings.target != &#34;local&#34;:
             # TODO: Implement &#34;azure_blob&#34;
             self.mu_log.log(self.mu_log.DEBUG
                             , &#34;In this release the only target is local. In the future Azure Blob will be added.&#34;
                             , module)
-            file_result = messages.message[&#34;not_implemented&#34;]
+            return messages.message[&#34;not_implemented&#34;]
 
+        self.mu_log.log(self.mu_log.DEBUG, &#34;Start metafile &gt;&#34; + filename + &#34;&lt; creation in &gt;&#34;
+                        + location + &#34;&lt;&#34;, module)
+        concatenated = self.generic.convert_list_into_string(attributes)
+        file_result = self.generic.write_local_file(directory=location, filename=filename, to_write=concatenated)
         self.mu_log.log(self.mu_log.DEBUG, &#34;End writing file&#34;, module)
+
         return file_result
+
+    def find_entity_in_source_target_links(self
+                                           , source_uuid
+                                           , target_schema_type=&#34;physical_entity_association&#34;
+                                           , log_prefix=&#34;&#34;):
+        &#34;&#34;&#34;
+            find_entity_in_source_target_links
+            Determines whether an entity is used as source or target (or both) in the current run
+            Based on the outcome, the metafile can be created in the location as determined by the config file
+        &#34;&#34;&#34;
+        module = __name__ + &#34;.find_entity_in_source_target_links&#34;
+        is_from = False
+        is_to = False
+        directory = self.settings.json_directory
+        self.mu_log.log(self.mu_log.DEBUG, log_prefix + &#34;Looking in directory: &#34; + directory, module)
+        for file in glob.glob(directory + &#34;*.json&#34;):
+            with open(file) as f:
+                data = json.load(f)
+                if &#34;meta&#34; not in data:
+                    self.mu_log.log(self.mu_log.WARNING, log_prefix +
+                                    &#34;The key &#39;meta&#39; is required, but not found in file: &#34; + file
+                                    , module)
+                    continue
+
+                meta_type = data[&#34;meta&#34;]
+                if meta_type == target_schema_type:
+                    for source_target_entity_link in data[&#34;source_target_entity_links&#34;]:
+                        if source_target_entity_link[&#34;from&#34;] == source_uuid:
+                            self.mu_log.log(self.mu_log.DEBUG, log_prefix
+                                            + &#34;found as &#39;from&#39;&#34;, module)
+                            is_from = True
+                        if source_target_entity_link[&#34;to&#34;] == source_uuid:
+                            self.mu_log.log(self.mu_log.DEBUG, log_prefix
+                                            + &#34;found as &#39;to&#39;&#34;, module)
+                            is_to = True
+        return is_from, is_to
 
     def process_files(self):
         &#34;&#34;&#34;
@@ -461,12 +565,6 @@ if __name__ == &#34;__main__&#34;:
         if self.meta_type == &#34;physical_entity&#34;:
             file_result = self.generate_file_structure()
             return file_result
-
-        # if self.meta_type == &#34;physical_attribute_association&#34;:
-        #    file_result = self.generate_transformations()
-        #    self.mu_log.log(self.mu_log.DEBUG, &#34;The generation of transformation files returned &gt;&#34;
-        #                    + file_result[&#39;code&#39;] + &#34;&lt;&#34;
-        #                    , module)
 
         if self.meta_type in (&#34;physical_attribute_association&#34;, &#34;physical_entity_association&#34;):
             file_result = self.process_lineage_request()
@@ -536,7 +634,7 @@ if __name__ == &#34;__main__&#34;:
 
         return overall_result
 
-    def process_lineage_request(self):
+    def process_lineage_request(self, metafiles_only=False):
         # Generate the lineage file or payload
         module = __name__ + &#34;.process_lineage_request&#34;
         # TODO: generate json payload for the Metadata Interface APIs for lineage
@@ -580,7 +678,7 @@ if __name__ == &#34;__main__&#34;:
         send_result = messages.message[&#34;not_implemented&#34;]
         return send_result
 
-    def main(self):
+    def main(self, metafiles_only=False):
         &#34;&#34;&#34;
             Main module to process JSON files that are stored at the location stated in the provided configuration file
             configuration_file: a relative or absolute path to the configuration file. Default is resources/config.json
@@ -599,7 +697,7 @@ if __name__ == &#34;__main__&#34;:
 <h3>Methods</h3>
 <dl>
 <dt id="metadata_utilities.load_json_metadata.ConvertJSONtoEDCLineage.create_metafile"><code class="name flex">
-<span>def <span class="ident">create_metafile</span></span>(<span>self, filename, attributes)</span>
+<span>def <span class="ident">create_metafile</span></span>(<span>self, location, filename, attributes)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>A metafile is created for Informatica EDC to scan. This way no real data is needed.</p></div>
@@ -607,24 +705,74 @@ if __name__ == &#34;__main__&#34;:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def create_metafile(self, filename, attributes):
+<pre><code class="python">def create_metafile(self, location, filename, attributes):
     &#34;&#34;&#34;
     A metafile is created for Informatica EDC to scan. This way no real data is needed.
     &#34;&#34;&#34;
     module = &#34;ConvertJSONtoEDCLineage.create_metafile&#34;
-    self.mu_log.log(self.mu_log.DEBUG, &#34;Start writing file&#34;, module)
-    concatenated = self.generic.convert_list_into_string(attributes)
-    if self.settings.target == &#34;local&#34;:
-        file_result = self.generic.write_local_file(filename, concatenated)
-    else:
+    file_result = None
+    if self.settings.target != &#34;local&#34;:
         # TODO: Implement &#34;azure_blob&#34;
         self.mu_log.log(self.mu_log.DEBUG
                         , &#34;In this release the only target is local. In the future Azure Blob will be added.&#34;
                         , module)
-        file_result = messages.message[&#34;not_implemented&#34;]
+        return messages.message[&#34;not_implemented&#34;]
 
+    self.mu_log.log(self.mu_log.DEBUG, &#34;Start metafile &gt;&#34; + filename + &#34;&lt; creation in &gt;&#34;
+                    + location + &#34;&lt;&#34;, module)
+    concatenated = self.generic.convert_list_into_string(attributes)
+    file_result = self.generic.write_local_file(directory=location, filename=filename, to_write=concatenated)
     self.mu_log.log(self.mu_log.DEBUG, &#34;End writing file&#34;, module)
+
     return file_result</code></pre>
+</details>
+</dd>
+<dt id="metadata_utilities.load_json_metadata.ConvertJSONtoEDCLineage.find_entity_in_source_target_links"><code class="name flex">
+<span>def <span class="ident">find_entity_in_source_target_links</span></span>(<span>self, source_uuid, target_schema_type='physical_entity_association', log_prefix='')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>find_entity_in_source_target_links
+Determines whether an entity is used as source or target (or both) in the current run
+Based on the outcome, the metafile can be created in the location as determined by the config file</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def find_entity_in_source_target_links(self
+                                       , source_uuid
+                                       , target_schema_type=&#34;physical_entity_association&#34;
+                                       , log_prefix=&#34;&#34;):
+    &#34;&#34;&#34;
+        find_entity_in_source_target_links
+        Determines whether an entity is used as source or target (or both) in the current run
+        Based on the outcome, the metafile can be created in the location as determined by the config file
+    &#34;&#34;&#34;
+    module = __name__ + &#34;.find_entity_in_source_target_links&#34;
+    is_from = False
+    is_to = False
+    directory = self.settings.json_directory
+    self.mu_log.log(self.mu_log.DEBUG, log_prefix + &#34;Looking in directory: &#34; + directory, module)
+    for file in glob.glob(directory + &#34;*.json&#34;):
+        with open(file) as f:
+            data = json.load(f)
+            if &#34;meta&#34; not in data:
+                self.mu_log.log(self.mu_log.WARNING, log_prefix +
+                                &#34;The key &#39;meta&#39; is required, but not found in file: &#34; + file
+                                , module)
+                continue
+
+            meta_type = data[&#34;meta&#34;]
+            if meta_type == target_schema_type:
+                for source_target_entity_link in data[&#34;source_target_entity_links&#34;]:
+                    if source_target_entity_link[&#34;from&#34;] == source_uuid:
+                        self.mu_log.log(self.mu_log.DEBUG, log_prefix
+                                        + &#34;found as &#39;from&#39;&#34;, module)
+                        is_from = True
+                    if source_target_entity_link[&#34;to&#34;] == source_uuid:
+                        self.mu_log.log(self.mu_log.DEBUG, log_prefix
+                                        + &#34;found as &#39;to&#39;&#34;, module)
+                        is_to = True
+    return is_from, is_to</code></pre>
 </details>
 </dd>
 <dt id="metadata_utilities.load_json_metadata.ConvertJSONtoEDCLineage.generate_file_structure"><code class="name flex">
@@ -653,7 +801,23 @@ if __name__ == &#34;__main__&#34;:
                                              , log_prefix=&#34;find entity &#34; + entity_uuid + &#34; - &#34;)
         attributes = self.generic.attribute_list
         if file_result[&#34;code&#34;] == &#34;OK&#34;:
-            file_result = self.create_metafile(filename, attributes)
+            is_from, is_to = self.find_entity_in_source_target_links(entity_uuid)
+            self.mu_log.log(self.mu_log.DEBUG, &#34;Base location for metafiles is: &#34;
+                            + self.settings.base_location_for_metafiles, module)
+            if is_from:
+                path = self.settings.base_location_for_metafiles + self.edc_lineage.edc_source_folder
+                self.mu_log.log(self.mu_log.DEBUG, &#34;Source path is: &#34; + path, module)
+                file_result = self.create_metafile(
+                    path
+                    , filename
+                    , attributes)
+            if is_to:
+                path = self.settings.base_location_for_metafiles + self.edc_lineage.edc_target_folder
+                self.mu_log.log(self.mu_log.DEBUG, &#34;Target path is: &#34; + path, module)
+                file_result = self.create_metafile(
+                    path
+                    , filename
+                    , attributes)
     else:
         self.mu_log.log(self.mu_log.DEBUG, &#34;entity is not a file. Skipping metafile creation&#34;, module)
     return file_result</code></pre>
@@ -723,7 +887,7 @@ if __name__ == &#34;__main__&#34;:
 </details>
 </dd>
 <dt id="metadata_utilities.load_json_metadata.ConvertJSONtoEDCLineage.main"><code class="name flex">
-<span>def <span class="ident">main</span></span>(<span>self)</span>
+<span>def <span class="ident">main</span></span>(<span>self, metafiles_only=False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Main module to process JSON files that are stored at the location stated in the provided configuration file
@@ -732,7 +896,7 @@ configuration_file: a relative or absolute path to the configuration file. Defau
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def main(self):
+<pre><code class="python">def main(self, metafiles_only=False):
     &#34;&#34;&#34;
         Main module to process JSON files that are stored at the location stated in the provided configuration file
         configuration_file: a relative or absolute path to the configuration file. Default is resources/config.json
@@ -801,7 +965,7 @@ For each file: Validate its schema and generate the metadata definition file or 
 </details>
 </dd>
 <dt id="metadata_utilities.load_json_metadata.ConvertJSONtoEDCLineage.process_lineage_request"><code class="name flex">
-<span>def <span class="ident">process_lineage_request</span></span>(<span>self)</span>
+<span>def <span class="ident">process_lineage_request</span></span>(<span>self, metafiles_only=False)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -809,7 +973,7 @@ For each file: Validate its schema and generate the metadata definition file or 
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def process_lineage_request(self):
+<pre><code class="python">def process_lineage_request(self, metafiles_only=False):
     # Generate the lineage file or payload
     module = __name__ + &#34;.process_lineage_request&#34;
     # TODO: generate json payload for the Metadata Interface APIs for lineage
@@ -874,12 +1038,6 @@ For each file: Validate its schema and generate the metadata definition file or 
         file_result = self.generate_file_structure()
         return file_result
 
-    # if self.meta_type == &#34;physical_attribute_association&#34;:
-    #    file_result = self.generate_transformations()
-    #    self.mu_log.log(self.mu_log.DEBUG, &#34;The generation of transformation files returned &gt;&#34;
-    #                    + file_result[&#39;code&#39;] + &#34;&lt;&#34;
-    #                    , module)
-
     if self.meta_type in (&#34;physical_attribute_association&#34;, &#34;physical_entity_association&#34;):
         file_result = self.process_lineage_request()
         self.mu_log.log(self.mu_log.DEBUG, &#34;lineage processing completed with code &gt;&#34;
@@ -935,6 +1093,7 @@ For each file: Validate its schema and generate the metadata definition file or 
 <ul class="">
 <li><code><a title="metadata_utilities.load_json_metadata.ConvertJSONtoEDCLineage.code_version" href="#metadata_utilities.load_json_metadata.ConvertJSONtoEDCLineage.code_version">code_version</a></code></li>
 <li><code><a title="metadata_utilities.load_json_metadata.ConvertJSONtoEDCLineage.create_metafile" href="#metadata_utilities.load_json_metadata.ConvertJSONtoEDCLineage.create_metafile">create_metafile</a></code></li>
+<li><code><a title="metadata_utilities.load_json_metadata.ConvertJSONtoEDCLineage.find_entity_in_source_target_links" href="#metadata_utilities.load_json_metadata.ConvertJSONtoEDCLineage.find_entity_in_source_target_links">find_entity_in_source_target_links</a></code></li>
 <li><code><a title="metadata_utilities.load_json_metadata.ConvertJSONtoEDCLineage.generate_file_structure" href="#metadata_utilities.load_json_metadata.ConvertJSONtoEDCLineage.generate_file_structure">generate_file_structure</a></code></li>
 <li><code><a title="metadata_utilities.load_json_metadata.ConvertJSONtoEDCLineage.generate_transformations" href="#metadata_utilities.load_json_metadata.ConvertJSONtoEDCLineage.generate_transformations">generate_transformations</a></code></li>
 <li><code><a title="metadata_utilities.load_json_metadata.ConvertJSONtoEDCLineage.main" href="#metadata_utilities.load_json_metadata.ConvertJSONtoEDCLineage.main">main</a></code></li>

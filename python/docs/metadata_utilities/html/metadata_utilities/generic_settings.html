@@ -36,7 +36,7 @@ class GenericSettings:
     &#34;&#34;&#34;
     Some generic utilities, e.g. reading the config.json
     &#34;&#34;&#34;
-    code_version = &#34;0.3.12&#34;
+    code_version = &#34;0.3.35&#34;
 
     def __init__(self, configuration_file=&#34;resources/config.json&#34;):
         # config.json settings
@@ -53,7 +53,6 @@ class GenericSettings:
         self.log_directory = None
         self.log_filename = None
         self.log_filename_prefix = None
-        self.log_level = None
         self.edc_config = None
         self.edc_config_data = {}
         self.edc_url = &#34;http://localhost:8888&#34;
@@ -69,12 +68,14 @@ class GenericSettings:
         self.edc_timeout = 10
         self.trust_env = True
         self.encoding = None
+        self.base_location_for_metafiles = None
+        self.enable_response_hook = False
 
     def get_config(self):
         &#34;&#34;&#34;
             get the main configuration settings. default file is resources/config.json
         &#34;&#34;&#34;
-        module = &#34;get_config&#34;
+        module = __name__ + &#34;.get_config&#34;
         result = messages.message[&#34;undetermined&#34;]
 
         try:
@@ -86,6 +87,10 @@ class GenericSettings:
                 self.target = data[&#34;target&#34;]
                 self.output_directory = data[&#34;output_directory&#34;]
                 self.metadata_store = data[&#34;metadata_store&#34;]
+                if &#34;base_location_for_metafiles&#34; in data:
+                    self.base_location_for_metafiles = data[&#34;base_location_for_metafiles&#34;]
+                else:
+                    self.base_location_for_metafiles = self.output_directory
                 if &#34;edc_config&#34; in data:
                     self.edc_config = data[&#34;edc_config&#34;]
                 if &#34;edc_secrets&#34; in data:
@@ -113,20 +118,20 @@ class GenericSettings:
                         self.edc_https_proxy = None
                 else:
                     self.edc_https_proxy = None
+                if &#34;enable_response_hook&#34; in data:
+                    if data[&#34;enable_response_hook&#34;] == &#34;True&#34;:
+                        self.enable_response_hook = True
+                    else:
+                        self.enable_response_hook = False
+                else:
+                    self.enable_response_hook = False
                 if &#34;log_config&#34; in data:
                     self.log_config = data[&#34;log_config&#34;]
                 else:
                     self.log_config = &#34;resources/log_config.json&#34;
                 self.mu_log = mu_logging.MULogging(self.log_config)
-                self.log_directory = self.mu_log.log_setting.log_directory
-                self.log_filename = self.mu_log.log_setting.log_filename
-                self.log_filename_prefix = self.mu_log.log_setting.log_filename_prefix
-                self.log_level = self.mu_log.log_setting.log_level
-                self.azure_monitor_config = self.mu_log.log_setting.azure_monitor_config
-                self.azure_monitor_requests = self.mu_log.log_setting.azure_monitor_requests
-                self.instrumentation_key = self.mu_log.log_setting.instrumentation_key
                 self.mu_log.log(self.mu_log.DEBUG, &#34;Configuration file &gt;&#34; + self.main_config_file
-                                + &#34;&lt; found and read.&#34;, module)
+                                + &#34;&lt; found and read. log_config is &gt;&#34; + self.log_config + &#34;&lt;.&#34;, module)
 
             result = messages.message[&#34;ok&#34;]
         except FileNotFoundError:
@@ -154,18 +159,6 @@ class GenericSettings:
                 self.mu_log.log(self.mu_log.ERROR, &#34;get_edc_secrets returned: &#34; + edc_secrets_result[&#34;code&#34;], module)
                 return edc_secrets_result
 
-        if self.azure_monitor_config is not None:
-            try:
-                with open(self.azure_monitor_config) as az_monitor:
-                    data = json.load(az_monitor)
-                    if &#34;instrumentation_key&#34; in data:
-                        self.instrumentation_key = data[&#34;instrumentation_key&#34;]
-            except FileNotFoundError:
-                self.mu_log.log(self.mu_log.FATAL
-                                , &#34;Cannot find Azure configuration file, which is needed to get the instrumentation key&#34;
-                                , module)
-                return messages.message[&#34;azure_config_not_found&#34;]
-
         return result
 
     def get_edc_proxy(self):
@@ -182,7 +175,7 @@ class GenericSettings:
         return proxies
 
     def get_edc_secrets(self, edc_secrets=&#34;resources/edc.secrets&#34;):
-        module = &#34;get_edc_secrets&#34;
+        module = __name__ + &#34;.get_edc_secrets&#34;
 
         try:
             with open(edc_secrets) as edc:
@@ -202,7 +195,7 @@ class GenericSettings:
         return messages.message[&#34;ok&#34;]
 
     def determine_edc_secrets(self, data):
-        module = &#34;generic_settings.determine_edc_secrets&#34;
+        module = __name__ + &#34;.determine_edc_secrets&#34;
 
         if &#34;meta_version&#34; in data:
             main_meta_version = data[&#34;meta_version&#34;][:3]
@@ -302,7 +295,7 @@ class GenericSettings:
     &#34;&#34;&#34;
     Some generic utilities, e.g. reading the config.json
     &#34;&#34;&#34;
-    code_version = &#34;0.3.12&#34;
+    code_version = &#34;0.3.35&#34;
 
     def __init__(self, configuration_file=&#34;resources/config.json&#34;):
         # config.json settings
@@ -319,7 +312,6 @@ class GenericSettings:
         self.log_directory = None
         self.log_filename = None
         self.log_filename_prefix = None
-        self.log_level = None
         self.edc_config = None
         self.edc_config_data = {}
         self.edc_url = &#34;http://localhost:8888&#34;
@@ -335,12 +327,14 @@ class GenericSettings:
         self.edc_timeout = 10
         self.trust_env = True
         self.encoding = None
+        self.base_location_for_metafiles = None
+        self.enable_response_hook = False
 
     def get_config(self):
         &#34;&#34;&#34;
             get the main configuration settings. default file is resources/config.json
         &#34;&#34;&#34;
-        module = &#34;get_config&#34;
+        module = __name__ + &#34;.get_config&#34;
         result = messages.message[&#34;undetermined&#34;]
 
         try:
@@ -352,6 +346,10 @@ class GenericSettings:
                 self.target = data[&#34;target&#34;]
                 self.output_directory = data[&#34;output_directory&#34;]
                 self.metadata_store = data[&#34;metadata_store&#34;]
+                if &#34;base_location_for_metafiles&#34; in data:
+                    self.base_location_for_metafiles = data[&#34;base_location_for_metafiles&#34;]
+                else:
+                    self.base_location_for_metafiles = self.output_directory
                 if &#34;edc_config&#34; in data:
                     self.edc_config = data[&#34;edc_config&#34;]
                 if &#34;edc_secrets&#34; in data:
@@ -379,20 +377,20 @@ class GenericSettings:
                         self.edc_https_proxy = None
                 else:
                     self.edc_https_proxy = None
+                if &#34;enable_response_hook&#34; in data:
+                    if data[&#34;enable_response_hook&#34;] == &#34;True&#34;:
+                        self.enable_response_hook = True
+                    else:
+                        self.enable_response_hook = False
+                else:
+                    self.enable_response_hook = False
                 if &#34;log_config&#34; in data:
                     self.log_config = data[&#34;log_config&#34;]
                 else:
                     self.log_config = &#34;resources/log_config.json&#34;
                 self.mu_log = mu_logging.MULogging(self.log_config)
-                self.log_directory = self.mu_log.log_setting.log_directory
-                self.log_filename = self.mu_log.log_setting.log_filename
-                self.log_filename_prefix = self.mu_log.log_setting.log_filename_prefix
-                self.log_level = self.mu_log.log_setting.log_level
-                self.azure_monitor_config = self.mu_log.log_setting.azure_monitor_config
-                self.azure_monitor_requests = self.mu_log.log_setting.azure_monitor_requests
-                self.instrumentation_key = self.mu_log.log_setting.instrumentation_key
                 self.mu_log.log(self.mu_log.DEBUG, &#34;Configuration file &gt;&#34; + self.main_config_file
-                                + &#34;&lt; found and read.&#34;, module)
+                                + &#34;&lt; found and read. log_config is &gt;&#34; + self.log_config + &#34;&lt;.&#34;, module)
 
             result = messages.message[&#34;ok&#34;]
         except FileNotFoundError:
@@ -420,18 +418,6 @@ class GenericSettings:
                 self.mu_log.log(self.mu_log.ERROR, &#34;get_edc_secrets returned: &#34; + edc_secrets_result[&#34;code&#34;], module)
                 return edc_secrets_result
 
-        if self.azure_monitor_config is not None:
-            try:
-                with open(self.azure_monitor_config) as az_monitor:
-                    data = json.load(az_monitor)
-                    if &#34;instrumentation_key&#34; in data:
-                        self.instrumentation_key = data[&#34;instrumentation_key&#34;]
-            except FileNotFoundError:
-                self.mu_log.log(self.mu_log.FATAL
-                                , &#34;Cannot find Azure configuration file, which is needed to get the instrumentation key&#34;
-                                , module)
-                return messages.message[&#34;azure_config_not_found&#34;]
-
         return result
 
     def get_edc_proxy(self):
@@ -448,7 +434,7 @@ class GenericSettings:
         return proxies
 
     def get_edc_secrets(self, edc_secrets=&#34;resources/edc.secrets&#34;):
-        module = &#34;get_edc_secrets&#34;
+        module = __name__ + &#34;.get_edc_secrets&#34;
 
         try:
             with open(edc_secrets) as edc:
@@ -468,7 +454,7 @@ class GenericSettings:
         return messages.message[&#34;ok&#34;]
 
     def determine_edc_secrets(self, data):
-        module = &#34;generic_settings.determine_edc_secrets&#34;
+        module = __name__ + &#34;.determine_edc_secrets&#34;
 
         if &#34;meta_version&#34; in data:
             main_meta_version = data[&#34;meta_version&#34;][:3]
@@ -563,7 +549,7 @@ class GenericSettings:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def determine_edc_secrets(self, data):
-    module = &#34;generic_settings.determine_edc_secrets&#34;
+    module = __name__ + &#34;.determine_edc_secrets&#34;
 
     if &#34;meta_version&#34; in data:
         main_meta_version = data[&#34;meta_version&#34;][:3]
@@ -653,7 +639,7 @@ class GenericSettings:
     &#34;&#34;&#34;
         get the main configuration settings. default file is resources/config.json
     &#34;&#34;&#34;
-    module = &#34;get_config&#34;
+    module = __name__ + &#34;.get_config&#34;
     result = messages.message[&#34;undetermined&#34;]
 
     try:
@@ -665,6 +651,10 @@ class GenericSettings:
             self.target = data[&#34;target&#34;]
             self.output_directory = data[&#34;output_directory&#34;]
             self.metadata_store = data[&#34;metadata_store&#34;]
+            if &#34;base_location_for_metafiles&#34; in data:
+                self.base_location_for_metafiles = data[&#34;base_location_for_metafiles&#34;]
+            else:
+                self.base_location_for_metafiles = self.output_directory
             if &#34;edc_config&#34; in data:
                 self.edc_config = data[&#34;edc_config&#34;]
             if &#34;edc_secrets&#34; in data:
@@ -692,20 +682,20 @@ class GenericSettings:
                     self.edc_https_proxy = None
             else:
                 self.edc_https_proxy = None
+            if &#34;enable_response_hook&#34; in data:
+                if data[&#34;enable_response_hook&#34;] == &#34;True&#34;:
+                    self.enable_response_hook = True
+                else:
+                    self.enable_response_hook = False
+            else:
+                self.enable_response_hook = False
             if &#34;log_config&#34; in data:
                 self.log_config = data[&#34;log_config&#34;]
             else:
                 self.log_config = &#34;resources/log_config.json&#34;
             self.mu_log = mu_logging.MULogging(self.log_config)
-            self.log_directory = self.mu_log.log_setting.log_directory
-            self.log_filename = self.mu_log.log_setting.log_filename
-            self.log_filename_prefix = self.mu_log.log_setting.log_filename_prefix
-            self.log_level = self.mu_log.log_setting.log_level
-            self.azure_monitor_config = self.mu_log.log_setting.azure_monitor_config
-            self.azure_monitor_requests = self.mu_log.log_setting.azure_monitor_requests
-            self.instrumentation_key = self.mu_log.log_setting.instrumentation_key
             self.mu_log.log(self.mu_log.DEBUG, &#34;Configuration file &gt;&#34; + self.main_config_file
-                            + &#34;&lt; found and read.&#34;, module)
+                            + &#34;&lt; found and read. log_config is &gt;&#34; + self.log_config + &#34;&lt;.&#34;, module)
 
         result = messages.message[&#34;ok&#34;]
     except FileNotFoundError:
@@ -732,18 +722,6 @@ class GenericSettings:
         else:
             self.mu_log.log(self.mu_log.ERROR, &#34;get_edc_secrets returned: &#34; + edc_secrets_result[&#34;code&#34;], module)
             return edc_secrets_result
-
-    if self.azure_monitor_config is not None:
-        try:
-            with open(self.azure_monitor_config) as az_monitor:
-                data = json.load(az_monitor)
-                if &#34;instrumentation_key&#34; in data:
-                    self.instrumentation_key = data[&#34;instrumentation_key&#34;]
-        except FileNotFoundError:
-            self.mu_log.log(self.mu_log.FATAL
-                            , &#34;Cannot find Azure configuration file, which is needed to get the instrumentation key&#34;
-                            , module)
-            return messages.message[&#34;azure_config_not_found&#34;]
 
     return result</code></pre>
 </details>
@@ -781,7 +759,7 @@ class GenericSettings:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def get_edc_secrets(self, edc_secrets=&#34;resources/edc.secrets&#34;):
-    module = &#34;get_edc_secrets&#34;
+    module = __name__ + &#34;.get_edc_secrets&#34;
 
     try:
         with open(edc_secrets) as edc:

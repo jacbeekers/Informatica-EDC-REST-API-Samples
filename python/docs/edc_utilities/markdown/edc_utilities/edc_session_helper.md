@@ -40,5 +40,8 @@ Classes
         returns:
             url, auth
 
+    `print_roundtrip(self, response, *args, **kwargs)`
+    :
+
     `validate_edc_connection(self)`
     :

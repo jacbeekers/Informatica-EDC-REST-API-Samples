@@ -57,12 +57,11 @@ class EDCCustomAttribute:
         self.settings_found = False
         self.mu_log = None
 
-        if configuration_file is None:
-            current_configuration_file = &#34;resources/config.json&#34;
-        else:
-            current_configuration_file = configuration_file
-
         if settings_ref is None:
+            if configuration_file is None:
+                current_configuration_file = &#34;resources/config.json&#34;
+            else:
+                current_configuration_file = configuration_file
             # print(module, &#34;settings_ref is None. Getting them myself.&#34;)
             self.settings = generic_settings.GenericSettings(configuration_file=current_configuration_file)
             result = self.settings.get_config()
@@ -344,12 +343,11 @@ If both settings_ref and configuration_file are set, the configuration_file argu
         self.settings_found = False
         self.mu_log = None
 
-        if configuration_file is None:
-            current_configuration_file = &#34;resources/config.json&#34;
-        else:
-            current_configuration_file = configuration_file
-
         if settings_ref is None:
+            if configuration_file is None:
+                current_configuration_file = &#34;resources/config.json&#34;
+            else:
+                current_configuration_file = configuration_file
             # print(module, &#34;settings_ref is None. Getting them myself.&#34;)
             self.settings = generic_settings.GenericSettings(configuration_file=current_configuration_file)
             result = self.settings.get_config()

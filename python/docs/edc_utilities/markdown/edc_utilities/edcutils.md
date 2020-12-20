@@ -57,7 +57,7 @@ Functions
             resourceDef (json)
 
     
-`get_fact_value(item, attribute_name, json_property)`
+`get_fact_value(item, attribute_name, json_property='value')`
 :   returns the value of a fact (attribute) from an item
     
     iterates over the "facts" list - looking for a matching attributeId

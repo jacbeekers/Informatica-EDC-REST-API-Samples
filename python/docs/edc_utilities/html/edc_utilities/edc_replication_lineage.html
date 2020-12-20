@@ -1,0 +1,1401 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2" />
+<title>edc_utilities.edc_replication_lineage API documentation</title>
+<meta name="description" content="Created on December 19, 2020 to work with files and fields
+Based on …" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>edc_utilities.edc_replication_lineage</code></h1>
+</header>
+<section id="section-intro">
+<p>Created on December 19, 2020 to work with files and fields
+Based on <a href="https://github.com/Informatica-EIC/REST-API-Samples/blob/master/python/dbSchemaReplicationLineage.py">https://github.com/Informatica-EIC/REST-API-Samples/blob/master/python/dbSchemaReplicationLineage.py</a>
+Created on Jun 26, 2018</p>
+<p>@author: dwrigley</p>
+<hr>
+<p>Folder replication custom lineage generator</p>
+<p>process:-
+scenario:
+the files in 2 different folders
+(perhaps in different resources) are replicated
+in EDC - we have no way to automatically know that there is lineage
+between the folder contents (files &amp; fields)
+this utility will generate the custom lineage import to create the links</p>
+<pre><code>given two folders - leftSchema and rightSchema
+find the 2 folder objects in the catalog (GET /2/catalog/data/objects)
+
+for each schema
+    execute /2/catalog/data/relationships (2 levels folder-&gt;file-&gt;column)
+        for each file &amp; field - store the id &amp; name (names converted to
+        lower-case for case-insensitive match)
+
+for the stored objects (files/fields) left side...
+    find the same file/field in the right side
+    if found - write a custom lineage link to csv
+
+Note:  the custom lineage format used is:-
+    Association,From Connection,To Connection,From Object,To Object
+
+    where:  From Connection and To Connection will be empty
+            Association will be either core.DirectionalDataFlow
+            or core.DataSetDataFlow
+            the From and To Object will be the full object id
+
+    when importing - there is no need for auto connection assignment,
+    since the full id's are provided this happens automatically
+    this is possible using v10.2.0 with a patch,
+    and works native in v10.2.1+
+</code></pre>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;
+Created on December 19, 2020 to work with files and fields
+Based on https://github.com/Informatica-EIC/REST-API-Samples/blob/master/python/dbSchemaReplicationLineage.py
+Created on Jun 26, 2018
+
+@author: dwrigley
+***************************************************************************************
+Folder replication custom lineage generator
+
+process:-
+    scenario:  the files in 2 different folders
+    (perhaps in different resources) are replicated
+    in EDC - we have no way to automatically know that there is lineage
+    between the folder contents (files &amp; fields)
+    this utility will generate the custom lineage import to create the links
+
+    given two folders - leftSchema and rightSchema
+    find the 2 folder objects in the catalog (GET /2/catalog/data/objects)
+
+    for each schema
+        execute /2/catalog/data/relationships (2 levels folder-&gt;file-&gt;column)
+            for each file &amp; field - store the id &amp; name (names converted to
+            lower-case for case-insensitive match)
+
+    for the stored objects (files/fields) left side...
+        find the same file/field in the right side
+        if found - write a custom lineage link to csv
+
+    Note:  the custom lineage format used is:-
+        Association,From Connection,To Connection,From Object,To Object
+
+        where:  From Connection and To Connection will be empty
+                Association will be either core.DirectionalDataFlow
+                or core.DataSetDataFlow
+                the From and To Object will be the full object id
+
+        when importing - there is no need for auto connection assignment,
+        since the full id&#39;s are provided this happens automatically
+        this is possible using v10.2.0 with a patch,
+        and works native in v10.2.1+
+&#34;&#34;&#34;
+
+import argparse
+import csv
+import json
+import logging
+import time
+
+import urllib3, requests
+
+from src.edc_utilities import edc_session_helper
+from src.edc_utilities import edcutils
+from src.metadata_utilities import generic_settings
+from src.metadata_utilities import mu_logging
+
+
+class EDCReplicationLineage:
+    # disable ssl cert warnings, when using self-signed certificate
+    urllib3.disable_warnings()
+
+    def __init__(self, configuration_file=&#34;resources/config.json&#34;):
+        module = __name__ + &#34;.__init__&#34;
+        self.settings = generic_settings.GenericSettings(configuration_file)
+        self.settings.get_config()
+        # set edc helper session + variables (easy/re-useable connection to edc api)
+        self.edc_helper = edc_session_helper.EDCSession(self.settings)
+        self.mu_log = mu_logging.MULogging(&#34;resources/log_config.json&#34;)
+        self.mu_log.setup_logger(logging.DEBUG, logging.INFO)
+        self.mu_log.log(self.mu_log.DEBUG, &#34;mu_log was None. Logger has been setup now.&#34;, module)
+        self.settings.mu_log = self.mu_log
+
+    def get_schema_contents(self, schema_name, schema_type, resource_name, container_name):
+        &#34;&#34;&#34;
+        given a schema name, schema class type (e.g. hanadb is different)
+        and resource name, find the schema object
+        then
+            execute a relationships call to get the schema tables &amp; columns
+            (parent/child links)
+            note:  some models separate primary key columns from regular columns
+            note:  some models have different relationships (e.g. sap hana db)
+
+        returns a dictionary of all tables &amp; columns for the schema &amp; the id of
+        the schema object
+        key=table  val=tableid
+        key=table.column  val=columnid
+        &#34;&#34;&#34;
+        print(&#34;\tget_schema_contents for:&#34; + schema_name + &#34; resource=&#34; + resource_name)
+        # schema_dict returned  key=TABLE.COLUMN value=column id
+        schema_dict = {}
+        table_names = {}
+
+        # url = catalogServer + &#34;/access/2/catalog/data/objects&#34;
+        # within a resource:
+        # - core.classType = com.infa.ldm.file.Folder is e.g. ResourceName://FileServer/foldername/foldername
+        # - core.classType = core.Resource with core.resourceName = the name of the resource
+
+        url = self.edc_helper.baseUrl + &#34;/access/2/catalog/data/objects&#34;
+        query = (f&#39;+core.resourceName:&#34;{resource_name}&#34;&#39;
+                 + f&#39; +core.classType:&#34;{schema_type}&#34;&#39;
+        #         + f&#39; +core.name:&#34;{schema_name}&#34;&#39;
+                 )
+        parameters = {&#34;q&#34;: query, &#34;offset&#34;: 0, &#34;pageSize&#34;: 1000}
+        print(&#34;\tquery=&#34; + query)
+
+        schema_id = None
+        table_count = 0
+        column_count = 0
+        # make the call to find the schema object
+        try:
+            response = self.edc_helper.session.get(url, params=parameters)
+            print(f&#34;session get finished: {response.status_code}&#34;)
+            rc = response.status_code
+            if rc != 200:
+                print(&#34;error reading object: rc=&#34; + str(rc) + &#34; response:&#34; + str(response.json))
+                if rc == 401:
+                    print(
+                        &#34;\t401:Possible Missing/bad credentials&#34;
+                    )
+                    print(str(response))
+                return None, None
+        except urllib3.exceptions.NewConnectionError or requests.exceptions.ConnectionError:
+            print(f&#34;Exception during get for url {url} with params {parameters}&#34;)
+            response = None
+            return None, None
+
+        # get the total # of objects returned (first part of the json resultset)
+        total_objects = response.json()[&#34;metadata&#34;][&#34;totalCount&#34;]
+        print(&#34;\tobjects returned: &#34; + str(total_objects))
+
+        for item in response.json()[&#34;items&#34;]:
+            schema_id = item[&#34;id&#34;]
+            schema_name = edcutils.get_fact_value(item=item, attribute_name=&#34;core.name&#34;)
+            # get the tables &amp; columns
+            print(&#34;\tfound schema: &#34; + schema_name + &#34; id=&#34; + schema_id)
+
+            lineage_url = self.edc_helper.baseUrl + &#34;/access/2/catalog/data/relationships&#34;
+            lineage_parameters = {
+                &#34;seed&#34;: schema_id,
+                &#34;association&#34;: &#34;core.ParentChild&#34;,
+                &#34;depth&#34;: &#34;2&#34;,
+                &#34;direction&#34;: &#34;OUT&#34;,
+                &#34;includeAttribute&#34;: {&#34;core.name&#34;, &#34;core.classType&#34;},
+                &#34;includeTerms&#34;: &#34;false&#34;,
+                &#34;removeDuplicateAggregateLinks&#34;: &#34;false&#34;,
+            }
+            print(
+                &#34;\tGET child relations for schema: &#34; + lineage_url + &#34; parms=&#34; + str(lineage_parameters)
+            )
+            # get using uid/pwd
+            lineage_resp = self.edc_helper.session.get(
+                lineage_url,
+                params=lineage_parameters,
+            )
+            lineage_status = lineage_resp.status_code
+            print(&#34;\tlineage resp=&#34; + str(lineage_status))
+            if lineage_status != 200:
+                print(
+                    f&#34;error getting schema contents (tables) rc={rc}&#34;
+                    f&#34; response:{response.json}&#34;
+                )
+                if rc == 401:
+                    print(
+                        &#34;\t401:Possible missing/bad credentials&#34;
+                    )
+                    print(str(response))
+                return None, None
+
+            if lineage_resp.text.startswith(&#34;{items:&#34;):
+                # bug (10.2.0 &amp; 10.2.1) - the items collection should be &#34;items&#34;
+                lineage_json = lineage_resp.text.replace(&#34;items&#34;, &#39;&#34;items&#34;&#39;, 1)
+            else:
+                lineage_json = lineage_resp.text
+            # relations_json = json.loads(lineage_json.replace(&#39;items&#39;, &#39;&#34;items&#34;&#39;))
+            relations_json = json.loads(lineage_json)
+            # print(len(relations_json))
+
+            for lineage_item in relations_json[&#34;items&#34;]:
+                print(&#39;***NEW***\n\tlineage_item: &#39; + str(lineage_item))
+                in_id = lineage_item.get(&#34;inId&#34;)
+                out_id = lineage_item.get(&#34;outId&#34;)
+
+                print(&#39;\t\tin_id===&#39; + in_id + &#34;\n\t\tout_id=&#34; + out_id)
+                # print(edcutils.getFactValue(lineage_item[&#34;inEmbedded&#34;], &#34;core.name&#34;))
+                association_id = lineage_item.get(&#34;associationId&#34;)
+                print(&#34;\t\tassoc=&#34; + association_id)
+                # if association_id==&#39;com.infa.ldm.relational.SchemaTable&#39;:
+                if association_id.endswith(&#34;.DelimitedFileField&#34;) and &#34;inEmbedded&#34; in lineage_item:
+                    # note - custom lineage does not need table and column
+                    # count the tables &amp; store table names
+                    table_count += 1
+                    # table_name = in_id.split(&#39;/&#39;)[-1]
+                    #table_name = edcutils.get_fact_value(
+                    #    lineage_item[&#34;inEmbedded&#34;], &#34;core.name&#34;
+                    #).lower()
+                    # print(&#34;\t\tFilename: &#34; + table_name)
+                    out_id = out_id.split(&#34;/&#34;)[-1]
+                    print(&#34;\t\tFilename: &#34; + out_id)
+                    # store the table name (for lookup when processing the columns)
+                    # key=id, val=name
+                    table_names[in_id] = out_id
+                    schema_dict[out_id] = in_id
+                # if association_id==&#39;com.infa.ldm.relational.TableColumn&#39;:
+                if (association_id.endswith(&#34;.DelimitedFileField&#34;) or association_id.endswith(&#34;.TablePrimaryKeyColumn&#34;)) \
+                        and &#34;inEmbedded&#34; in lineage_item:
+                    # column_name = in_id.split(&#39;/&#39;)[-1]
+                    column_count += 1
+                    column_name = edcutils.get_fact_value(
+                        lineage_item[&#34;inEmbedded&#34;], &#34;core.name&#34;
+                    ).lower()
+                    print(&#34;\t\t\tField name: &#34; + column_name)
+                    table_name = table_names[in_id].lower()
+                    print(&#34;\t\tField=&#34; + table_name + &#34;.&#34; + column_name)
+                    schema_dict[table_name + &#34;.&#34; + column_name] = in_id
+
+        print(
+            &#34;\tgetSchema: returning &#34;
+            + str(column_count)
+            + &#34; fields, in &#34;
+            + str(table_count)
+            + &#34; files&#34;
+        )
+        return schema_dict, schema_id
+
+    def main(self):
+        &#34;&#34;&#34;
+        initialise the csv file(s) to write
+        call get_schema_contents for both left and right schema objects
+        match the tables/columns from the left schema to the right
+        when matched
+            write a lineage link - table and column level
+
+        Note:  this script generates the newer lineage format using complete
+               object id&#39;s and relationship types
+               connection assignment will not be necessary
+               works with v10.2.1+
+
+        &#34;&#34;&#34;
+        module = __name__ + &#34;.main&#34;
+        # define script command-line parameters (in global scope for gooey/wooey)
+        parser = argparse.ArgumentParser(parents=[self.edc_helper.argparser])
+        # add args specific to this utility (left/right resource, schema, classtype...)
+        parser.add_argument(
+            &#34;-lr&#34;, &#34;--leftresource&#34;, required=False, help=&#34;name of the left resource to find objects&#34;
+        )
+        parser.add_argument(
+            &#34;-ls&#34;, &#34;--leftschema&#34;, required=False, help=&#34;name of the left schema object&#34;
+        )
+        parser.add_argument(
+            &#34;-lc&#34;, &#34;--leftcontainer&#34;, required=False, help=&#34;name of the left container object&#34;
+        )
+        parser.add_argument(
+            &#34;-lt&#34;, &#34;--lefttype&#34;, required=False,
+            help=&#34;class type for the schema level object&#34;
+        )
+        parser.add_argument(
+            &#34;-rr&#34;, &#34;--rightresource&#34;, required=False, help=&#34;name of the right resource to find objects&#34;
+        )
+        parser.add_argument(
+            &#34;-rs&#34;, &#34;--rightschema&#34;, required=False, help=&#34;name of the right schema object&#34;
+        )
+        parser.add_argument(
+            &#34;-rc&#34;, &#34;--rightcontainer&#34;, required=False, help=&#34;name of the right container object&#34;
+        )
+        parser.add_argument(
+            &#34;-rt&#34;, &#34;--righttype&#34;, required=False,
+            help=&#34;class type for the right schema level object&#34;
+        )
+        parser.add_argument(
+            &#34;-p&#34;, &#34;--csvprefix&#34;, required=False, default=&#34;lineage_&#34;,
+            help=&#34;prefix to use when creating the output csv file&#34;
+        )
+        parser.add_argument(
+            &#34;-r&#34;, &#34;--righttableprefix&#34;, required=False, default=&#34;&#34;, help=&#34;table prefix for right datasets&#34;
+        )
+        parser.add_argument(
+            &#34;-o&#34;,
+            &#34;--outDir&#34;,
+            required=False,
+            help=(
+                &#34;output folder to write results - default = ./out &#34;
+                &#34; - will create folder if it does not exist&#34;
+            ),
+        )
+
+        args = args, unknown = parser.parse_known_args()
+        # setup edc session and catalog url - with auth in the session header,
+        # by using system vars or command-line args
+        self.edc_helper.init_edc_session()
+
+        print(&#34;from settings:&#34;, self.settings.edc_config_data)
+        print(f&#34;command-line args parsed = {args} &#34;)
+
+        start_time = time.time()
+
+        # Command line arguments have a higher priority
+        left_resource = args.leftresource
+        left_schema = args.leftschema
+        left_container = args.leftcontainer
+        left_type = args.lefttype
+        right_resource = args.rightresource
+        right_schema = args.rightschema
+        right_container = args.rightcontainer
+        right_type = args.righttype
+        output_folder = args.outDir
+        output_file_prefix = args.csvprefix
+        right_table_prefix = args.righttableprefix
+
+        # if not provided, use settings from config files
+        # note: not checking. If you want to use it, make sure the edc_config contains the necessary keys
+        if left_resource is None:
+            left_resource = self.settings.edc_config_data[&#34;edc_source_resource_name&#34;]
+        left_resource = left_resource.split(&#34;:&#34;)[0]
+        if left_schema is None:
+            left_schema = self.settings.edc_config_data[&#34;edc_source_datasource&#34;]
+        if left_container is None:
+            left_container = self.settings.edc_config_data[&#34;edc_source_container&#34;]
+        if left_type is None:
+            left_type = self.settings.edc_config_data[&#34;edc_source_type&#34;]
+        if right_resource is None:
+            right_resource = self.settings.edc_config_data[&#34;edc_target_resource_name&#34;]
+        right_resource = right_resource.split(&#34;:&#34;)[0]
+        if right_schema is None:
+            right_schema = self.settings.edc_config_data[&#34;edc_target_datasource&#34;]
+        if right_container is None:
+            right_container = self.settings.edc_config_data[&#34;edc_target_container&#34;]
+        if right_type is None:
+            right_type = self.settings.edc_config_data[&#34;edc_target_type&#34;]
+
+        if output_folder is None:
+            output_folder = self.settings.output_directory
+
+        if left_type is None:
+            # left_type = &#34;com.infa.ldm.relational.Schema&#34;
+            left_type = &#34;com.infa.ldm.file.delimited.DelimitedFile&#34;
+        if right_type is None:
+            # right_type = &#34;com.infa.ldm.relational.Schema&#34;
+            right_type = &#34;com.infa.ldm.file.delimited.DelimitedFile&#34;
+
+        print(&#34;dbSchemaReplicationLineage:start&#34;)
+        print(f&#34;Catalog={self.edc_helper.baseUrl}&#34;)
+        print(f&#34;left:  resource={left_resource}&#34;)
+        print(f&#34;left:    schema={left_schema}&#34;)
+        print(f&#34;left: container={left_container}&#34;)
+        print(f&#34;left:      type={left_type}&#34;)
+        print(f&#34;right:  resource={right_resource}&#34;)
+        print(f&#34;right:    schema={right_schema}&#34;)
+        print(f&#34;right: container={right_container}&#34;)
+        print(f&#34;right:      type={right_type}&#34;)
+        print(f&#34;output folder: {output_folder}&#34;)
+        print(f&#34;output file prefix: {output_file_prefix}&#34;)
+        print(f&#34;right table prefix: {right_table_prefix}&#34;)
+
+        # initialize csv output file
+        column_header = [
+            &#34;Association&#34;,
+            &#34;From Connection&#34;,
+            &#34;To Connection&#34;,
+            &#34;From Object&#34;,
+            &#34;To Object&#34;,
+        ]
+
+        # set the csv fileName
+        csv_file_name = output_folder \
+                        + output_file_prefix \
+                        + &#34;_&#34; + left_container.replace(&#34;/&#34;,&#34;_&#34;).lower()\
+                        + &#34;_&#34; + right_container.replace(&#34;/&#34;,&#34;_&#34;).lower() \
+                        + &#34;.csv&#34;
+
+        print(&#34;initializing file: &#34; + csv_file_name)
+        f_csv_file = open(csv_file_name, &#34;w&#34;, newline=&#34;&#34;, encoding=&#34;utf-8&#34;)
+        col_writer = csv.writer(f_csv_file)
+        col_writer.writerow(column_header)
+
+        # get the objects from the left schema into memory
+        print(
+            f&#34;get left schema: name={left_schema}&#34;
+            f&#34; resource={left_resource}&#34;
+            f&#34; container={left_container}&#34;
+            f&#34; type={left_type}&#34;
+        )
+        left_objects, left_schema_id = self.get_schema_contents(
+            left_schema, left_type, left_resource, left_container
+        )
+
+        # get the objects from the right schema into memory
+        print(
+            f&#34;get right schema: name={right_schema}&#34;
+            f&#34; resource={right_resource}&#34;
+            f&#34; container={right_container}&#34;
+            f&#34; type={right_type}&#34;
+        )
+        right_objects, right_schema_id = self.get_schema_contents(
+            right_schema, right_type, right_resource, right_container
+        )
+
+        matches = 0
+        missing = 0
+
+        if len(left_objects) &gt; 0 and len(right_objects) &gt; 0:
+            # iterate over all left objects - looking for matching right ones
+            print(&#34;\nprocessing: &#34; + str(len(left_objects)) + &#34; objects (left side)&#34;)
+            first_find =  True
+            for left_name, left_val in left_objects.items():
+                # if the target is using a prefix - add it to left_name
+                if len(right_table_prefix) &gt; 0:
+                    left_name = right_table_prefix.lower() + left_name
+
+                print(&#34;checking for left key=&#34; + left_name, &#34; in right_object keys: &#34;, right_objects.keys())
+                if left_name in right_objects.keys():
+                    # match
+                    right_val = right_objects.get(left_name)
+                    print(&#34;right_val=&#34;, right_val)
+                    matches += 1
+                    if first_find:
+                        # create the lineage file
+                        col_writer.writerow(
+                            [&#34;core.DataSourceDataFlow&#34;, &#34;&#34;, &#34;&#34;, left_schema_id.rsplit(&#34;/&#34;, 1)[0]
+                                , right_schema_id.rsplit(&#34;/&#34;, 1)[0]]
+                        )
+                        col_writer.writerow(
+                            [&#34;core.DataSetDataFlow&#34;
+                                , &#34;&#34;
+                                , &#34;&#34;
+                                , left_schema_id
+                                , right_schema_id]
+                        )
+                        first_find = False
+                    # print(&#34;\t&#34; + right_val)
+                    # check if it is formatted as table.column or just table
+                    if left_name.count(&#34;.&#34;) == 1:
+                        # column lineage - using DirectionalDataFlow
+                        col_writer.writerow(
+                            [&#34;core.DirectionalDataFlow&#34;, &#34;&#34;, &#34;&#34;, left_val, right_val]
+                        )
+
+                    # write a line to the custom lineage csv file (connection assignment)
+                    # col_writer.writerow([leftResource,rightResource,leftRef,rightRef])
+                else:
+                    missing += 1
+                    print(&#34;\t no match on right side for key=&#34; + left_name)
+
+        else:
+            print(&#34;error getting schema info... - no linking/lineage created&#34;)
+
+        print(
+            module + f&#34;:finished. {matches} link(s) created, &#34;
+            f&#34;{missing} missing (found in left, no match on right)&#34;
+        )
+        print(&#34;run time = %s seconds ---&#34; % (time.time() - start_time))
+
+        f_csv_file.close()
+
+
+# call main - if not already called or used by another script
+if __name__ == &#34;__main__&#34;:
+    EDCReplicationLineage(configuration_file=&#34;resources/config.json&#34;).main()</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="edc_utilities.edc_replication_lineage.EDCReplicationLineage"><code class="flex name class">
+<span>class <span class="ident">EDCReplicationLineage</span></span>
+<span>(</span><span>configuration_file='resources/config.json')</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class EDCReplicationLineage:
+    # disable ssl cert warnings, when using self-signed certificate
+    urllib3.disable_warnings()
+
+    def __init__(self, configuration_file=&#34;resources/config.json&#34;):
+        module = __name__ + &#34;.__init__&#34;
+        self.settings = generic_settings.GenericSettings(configuration_file)
+        self.settings.get_config()
+        # set edc helper session + variables (easy/re-useable connection to edc api)
+        self.edc_helper = edc_session_helper.EDCSession(self.settings)
+        self.mu_log = mu_logging.MULogging(&#34;resources/log_config.json&#34;)
+        self.mu_log.setup_logger(logging.DEBUG, logging.INFO)
+        self.mu_log.log(self.mu_log.DEBUG, &#34;mu_log was None. Logger has been setup now.&#34;, module)
+        self.settings.mu_log = self.mu_log
+
+    def get_schema_contents(self, schema_name, schema_type, resource_name, container_name):
+        &#34;&#34;&#34;
+        given a schema name, schema class type (e.g. hanadb is different)
+        and resource name, find the schema object
+        then
+            execute a relationships call to get the schema tables &amp; columns
+            (parent/child links)
+            note:  some models separate primary key columns from regular columns
+            note:  some models have different relationships (e.g. sap hana db)
+
+        returns a dictionary of all tables &amp; columns for the schema &amp; the id of
+        the schema object
+        key=table  val=tableid
+        key=table.column  val=columnid
+        &#34;&#34;&#34;
+        print(&#34;\tget_schema_contents for:&#34; + schema_name + &#34; resource=&#34; + resource_name)
+        # schema_dict returned  key=TABLE.COLUMN value=column id
+        schema_dict = {}
+        table_names = {}
+
+        # url = catalogServer + &#34;/access/2/catalog/data/objects&#34;
+        # within a resource:
+        # - core.classType = com.infa.ldm.file.Folder is e.g. ResourceName://FileServer/foldername/foldername
+        # - core.classType = core.Resource with core.resourceName = the name of the resource
+
+        url = self.edc_helper.baseUrl + &#34;/access/2/catalog/data/objects&#34;
+        query = (f&#39;+core.resourceName:&#34;{resource_name}&#34;&#39;
+                 + f&#39; +core.classType:&#34;{schema_type}&#34;&#39;
+        #         + f&#39; +core.name:&#34;{schema_name}&#34;&#39;
+                 )
+        parameters = {&#34;q&#34;: query, &#34;offset&#34;: 0, &#34;pageSize&#34;: 1000}
+        print(&#34;\tquery=&#34; + query)
+
+        schema_id = None
+        table_count = 0
+        column_count = 0
+        # make the call to find the schema object
+        try:
+            response = self.edc_helper.session.get(url, params=parameters)
+            print(f&#34;session get finished: {response.status_code}&#34;)
+            rc = response.status_code
+            if rc != 200:
+                print(&#34;error reading object: rc=&#34; + str(rc) + &#34; response:&#34; + str(response.json))
+                if rc == 401:
+                    print(
+                        &#34;\t401:Possible Missing/bad credentials&#34;
+                    )
+                    print(str(response))
+                return None, None
+        except urllib3.exceptions.NewConnectionError or requests.exceptions.ConnectionError:
+            print(f&#34;Exception during get for url {url} with params {parameters}&#34;)
+            response = None
+            return None, None
+
+        # get the total # of objects returned (first part of the json resultset)
+        total_objects = response.json()[&#34;metadata&#34;][&#34;totalCount&#34;]
+        print(&#34;\tobjects returned: &#34; + str(total_objects))
+
+        for item in response.json()[&#34;items&#34;]:
+            schema_id = item[&#34;id&#34;]
+            schema_name = edcutils.get_fact_value(item=item, attribute_name=&#34;core.name&#34;)
+            # get the tables &amp; columns
+            print(&#34;\tfound schema: &#34; + schema_name + &#34; id=&#34; + schema_id)
+
+            lineage_url = self.edc_helper.baseUrl + &#34;/access/2/catalog/data/relationships&#34;
+            lineage_parameters = {
+                &#34;seed&#34;: schema_id,
+                &#34;association&#34;: &#34;core.ParentChild&#34;,
+                &#34;depth&#34;: &#34;2&#34;,
+                &#34;direction&#34;: &#34;OUT&#34;,
+                &#34;includeAttribute&#34;: {&#34;core.name&#34;, &#34;core.classType&#34;},
+                &#34;includeTerms&#34;: &#34;false&#34;,
+                &#34;removeDuplicateAggregateLinks&#34;: &#34;false&#34;,
+            }
+            print(
+                &#34;\tGET child relations for schema: &#34; + lineage_url + &#34; parms=&#34; + str(lineage_parameters)
+            )
+            # get using uid/pwd
+            lineage_resp = self.edc_helper.session.get(
+                lineage_url,
+                params=lineage_parameters,
+            )
+            lineage_status = lineage_resp.status_code
+            print(&#34;\tlineage resp=&#34; + str(lineage_status))
+            if lineage_status != 200:
+                print(
+                    f&#34;error getting schema contents (tables) rc={rc}&#34;
+                    f&#34; response:{response.json}&#34;
+                )
+                if rc == 401:
+                    print(
+                        &#34;\t401:Possible missing/bad credentials&#34;
+                    )
+                    print(str(response))
+                return None, None
+
+            if lineage_resp.text.startswith(&#34;{items:&#34;):
+                # bug (10.2.0 &amp; 10.2.1) - the items collection should be &#34;items&#34;
+                lineage_json = lineage_resp.text.replace(&#34;items&#34;, &#39;&#34;items&#34;&#39;, 1)
+            else:
+                lineage_json = lineage_resp.text
+            # relations_json = json.loads(lineage_json.replace(&#39;items&#39;, &#39;&#34;items&#34;&#39;))
+            relations_json = json.loads(lineage_json)
+            # print(len(relations_json))
+
+            for lineage_item in relations_json[&#34;items&#34;]:
+                print(&#39;***NEW***\n\tlineage_item: &#39; + str(lineage_item))
+                in_id = lineage_item.get(&#34;inId&#34;)
+                out_id = lineage_item.get(&#34;outId&#34;)
+
+                print(&#39;\t\tin_id===&#39; + in_id + &#34;\n\t\tout_id=&#34; + out_id)
+                # print(edcutils.getFactValue(lineage_item[&#34;inEmbedded&#34;], &#34;core.name&#34;))
+                association_id = lineage_item.get(&#34;associationId&#34;)
+                print(&#34;\t\tassoc=&#34; + association_id)
+                # if association_id==&#39;com.infa.ldm.relational.SchemaTable&#39;:
+                if association_id.endswith(&#34;.DelimitedFileField&#34;) and &#34;inEmbedded&#34; in lineage_item:
+                    # note - custom lineage does not need table and column
+                    # count the tables &amp; store table names
+                    table_count += 1
+                    # table_name = in_id.split(&#39;/&#39;)[-1]
+                    #table_name = edcutils.get_fact_value(
+                    #    lineage_item[&#34;inEmbedded&#34;], &#34;core.name&#34;
+                    #).lower()
+                    # print(&#34;\t\tFilename: &#34; + table_name)
+                    out_id = out_id.split(&#34;/&#34;)[-1]
+                    print(&#34;\t\tFilename: &#34; + out_id)
+                    # store the table name (for lookup when processing the columns)
+                    # key=id, val=name
+                    table_names[in_id] = out_id
+                    schema_dict[out_id] = in_id
+                # if association_id==&#39;com.infa.ldm.relational.TableColumn&#39;:
+                if (association_id.endswith(&#34;.DelimitedFileField&#34;) or association_id.endswith(&#34;.TablePrimaryKeyColumn&#34;)) \
+                        and &#34;inEmbedded&#34; in lineage_item:
+                    # column_name = in_id.split(&#39;/&#39;)[-1]
+                    column_count += 1
+                    column_name = edcutils.get_fact_value(
+                        lineage_item[&#34;inEmbedded&#34;], &#34;core.name&#34;
+                    ).lower()
+                    print(&#34;\t\t\tField name: &#34; + column_name)
+                    table_name = table_names[in_id].lower()
+                    print(&#34;\t\tField=&#34; + table_name + &#34;.&#34; + column_name)
+                    schema_dict[table_name + &#34;.&#34; + column_name] = in_id
+
+        print(
+            &#34;\tgetSchema: returning &#34;
+            + str(column_count)
+            + &#34; fields, in &#34;
+            + str(table_count)
+            + &#34; files&#34;
+        )
+        return schema_dict, schema_id
+
+    def main(self):
+        &#34;&#34;&#34;
+        initialise the csv file(s) to write
+        call get_schema_contents for both left and right schema objects
+        match the tables/columns from the left schema to the right
+        when matched
+            write a lineage link - table and column level
+
+        Note:  this script generates the newer lineage format using complete
+               object id&#39;s and relationship types
+               connection assignment will not be necessary
+               works with v10.2.1+
+
+        &#34;&#34;&#34;
+        module = __name__ + &#34;.main&#34;
+        # define script command-line parameters (in global scope for gooey/wooey)
+        parser = argparse.ArgumentParser(parents=[self.edc_helper.argparser])
+        # add args specific to this utility (left/right resource, schema, classtype...)
+        parser.add_argument(
+            &#34;-lr&#34;, &#34;--leftresource&#34;, required=False, help=&#34;name of the left resource to find objects&#34;
+        )
+        parser.add_argument(
+            &#34;-ls&#34;, &#34;--leftschema&#34;, required=False, help=&#34;name of the left schema object&#34;
+        )
+        parser.add_argument(
+            &#34;-lc&#34;, &#34;--leftcontainer&#34;, required=False, help=&#34;name of the left container object&#34;
+        )
+        parser.add_argument(
+            &#34;-lt&#34;, &#34;--lefttype&#34;, required=False,
+            help=&#34;class type for the schema level object&#34;
+        )
+        parser.add_argument(
+            &#34;-rr&#34;, &#34;--rightresource&#34;, required=False, help=&#34;name of the right resource to find objects&#34;
+        )
+        parser.add_argument(
+            &#34;-rs&#34;, &#34;--rightschema&#34;, required=False, help=&#34;name of the right schema object&#34;
+        )
+        parser.add_argument(
+            &#34;-rc&#34;, &#34;--rightcontainer&#34;, required=False, help=&#34;name of the right container object&#34;
+        )
+        parser.add_argument(
+            &#34;-rt&#34;, &#34;--righttype&#34;, required=False,
+            help=&#34;class type for the right schema level object&#34;
+        )
+        parser.add_argument(
+            &#34;-p&#34;, &#34;--csvprefix&#34;, required=False, default=&#34;lineage_&#34;,
+            help=&#34;prefix to use when creating the output csv file&#34;
+        )
+        parser.add_argument(
+            &#34;-r&#34;, &#34;--righttableprefix&#34;, required=False, default=&#34;&#34;, help=&#34;table prefix for right datasets&#34;
+        )
+        parser.add_argument(
+            &#34;-o&#34;,
+            &#34;--outDir&#34;,
+            required=False,
+            help=(
+                &#34;output folder to write results - default = ./out &#34;
+                &#34; - will create folder if it does not exist&#34;
+            ),
+        )
+
+        args = args, unknown = parser.parse_known_args()
+        # setup edc session and catalog url - with auth in the session header,
+        # by using system vars or command-line args
+        self.edc_helper.init_edc_session()
+
+        print(&#34;from settings:&#34;, self.settings.edc_config_data)
+        print(f&#34;command-line args parsed = {args} &#34;)
+
+        start_time = time.time()
+
+        # Command line arguments have a higher priority
+        left_resource = args.leftresource
+        left_schema = args.leftschema
+        left_container = args.leftcontainer
+        left_type = args.lefttype
+        right_resource = args.rightresource
+        right_schema = args.rightschema
+        right_container = args.rightcontainer
+        right_type = args.righttype
+        output_folder = args.outDir
+        output_file_prefix = args.csvprefix
+        right_table_prefix = args.righttableprefix
+
+        # if not provided, use settings from config files
+        # note: not checking. If you want to use it, make sure the edc_config contains the necessary keys
+        if left_resource is None:
+            left_resource = self.settings.edc_config_data[&#34;edc_source_resource_name&#34;]
+        left_resource = left_resource.split(&#34;:&#34;)[0]
+        if left_schema is None:
+            left_schema = self.settings.edc_config_data[&#34;edc_source_datasource&#34;]
+        if left_container is None:
+            left_container = self.settings.edc_config_data[&#34;edc_source_container&#34;]
+        if left_type is None:
+            left_type = self.settings.edc_config_data[&#34;edc_source_type&#34;]
+        if right_resource is None:
+            right_resource = self.settings.edc_config_data[&#34;edc_target_resource_name&#34;]
+        right_resource = right_resource.split(&#34;:&#34;)[0]
+        if right_schema is None:
+            right_schema = self.settings.edc_config_data[&#34;edc_target_datasource&#34;]
+        if right_container is None:
+            right_container = self.settings.edc_config_data[&#34;edc_target_container&#34;]
+        if right_type is None:
+            right_type = self.settings.edc_config_data[&#34;edc_target_type&#34;]
+
+        if output_folder is None:
+            output_folder = self.settings.output_directory
+
+        if left_type is None:
+            # left_type = &#34;com.infa.ldm.relational.Schema&#34;
+            left_type = &#34;com.infa.ldm.file.delimited.DelimitedFile&#34;
+        if right_type is None:
+            # right_type = &#34;com.infa.ldm.relational.Schema&#34;
+            right_type = &#34;com.infa.ldm.file.delimited.DelimitedFile&#34;
+
+        print(&#34;dbSchemaReplicationLineage:start&#34;)
+        print(f&#34;Catalog={self.edc_helper.baseUrl}&#34;)
+        print(f&#34;left:  resource={left_resource}&#34;)
+        print(f&#34;left:    schema={left_schema}&#34;)
+        print(f&#34;left: container={left_container}&#34;)
+        print(f&#34;left:      type={left_type}&#34;)
+        print(f&#34;right:  resource={right_resource}&#34;)
+        print(f&#34;right:    schema={right_schema}&#34;)
+        print(f&#34;right: container={right_container}&#34;)
+        print(f&#34;right:      type={right_type}&#34;)
+        print(f&#34;output folder: {output_folder}&#34;)
+        print(f&#34;output file prefix: {output_file_prefix}&#34;)
+        print(f&#34;right table prefix: {right_table_prefix}&#34;)
+
+        # initialize csv output file
+        column_header = [
+            &#34;Association&#34;,
+            &#34;From Connection&#34;,
+            &#34;To Connection&#34;,
+            &#34;From Object&#34;,
+            &#34;To Object&#34;,
+        ]
+
+        # set the csv fileName
+        csv_file_name = output_folder \
+                        + output_file_prefix \
+                        + &#34;_&#34; + left_container.replace(&#34;/&#34;,&#34;_&#34;).lower()\
+                        + &#34;_&#34; + right_container.replace(&#34;/&#34;,&#34;_&#34;).lower() \
+                        + &#34;.csv&#34;
+
+        print(&#34;initializing file: &#34; + csv_file_name)
+        f_csv_file = open(csv_file_name, &#34;w&#34;, newline=&#34;&#34;, encoding=&#34;utf-8&#34;)
+        col_writer = csv.writer(f_csv_file)
+        col_writer.writerow(column_header)
+
+        # get the objects from the left schema into memory
+        print(
+            f&#34;get left schema: name={left_schema}&#34;
+            f&#34; resource={left_resource}&#34;
+            f&#34; container={left_container}&#34;
+            f&#34; type={left_type}&#34;
+        )
+        left_objects, left_schema_id = self.get_schema_contents(
+            left_schema, left_type, left_resource, left_container
+        )
+
+        # get the objects from the right schema into memory
+        print(
+            f&#34;get right schema: name={right_schema}&#34;
+            f&#34; resource={right_resource}&#34;
+            f&#34; container={right_container}&#34;
+            f&#34; type={right_type}&#34;
+        )
+        right_objects, right_schema_id = self.get_schema_contents(
+            right_schema, right_type, right_resource, right_container
+        )
+
+        matches = 0
+        missing = 0
+
+        if len(left_objects) &gt; 0 and len(right_objects) &gt; 0:
+            # iterate over all left objects - looking for matching right ones
+            print(&#34;\nprocessing: &#34; + str(len(left_objects)) + &#34; objects (left side)&#34;)
+            first_find =  True
+            for left_name, left_val in left_objects.items():
+                # if the target is using a prefix - add it to left_name
+                if len(right_table_prefix) &gt; 0:
+                    left_name = right_table_prefix.lower() + left_name
+
+                print(&#34;checking for left key=&#34; + left_name, &#34; in right_object keys: &#34;, right_objects.keys())
+                if left_name in right_objects.keys():
+                    # match
+                    right_val = right_objects.get(left_name)
+                    print(&#34;right_val=&#34;, right_val)
+                    matches += 1
+                    if first_find:
+                        # create the lineage file
+                        col_writer.writerow(
+                            [&#34;core.DataSourceDataFlow&#34;, &#34;&#34;, &#34;&#34;, left_schema_id.rsplit(&#34;/&#34;, 1)[0]
+                                , right_schema_id.rsplit(&#34;/&#34;, 1)[0]]
+                        )
+                        col_writer.writerow(
+                            [&#34;core.DataSetDataFlow&#34;
+                                , &#34;&#34;
+                                , &#34;&#34;
+                                , left_schema_id
+                                , right_schema_id]
+                        )
+                        first_find = False
+                    # print(&#34;\t&#34; + right_val)
+                    # check if it is formatted as table.column or just table
+                    if left_name.count(&#34;.&#34;) == 1:
+                        # column lineage - using DirectionalDataFlow
+                        col_writer.writerow(
+                            [&#34;core.DirectionalDataFlow&#34;, &#34;&#34;, &#34;&#34;, left_val, right_val]
+                        )
+
+                    # write a line to the custom lineage csv file (connection assignment)
+                    # col_writer.writerow([leftResource,rightResource,leftRef,rightRef])
+                else:
+                    missing += 1
+                    print(&#34;\t no match on right side for key=&#34; + left_name)
+
+        else:
+            print(&#34;error getting schema info... - no linking/lineage created&#34;)
+
+        print(
+            module + f&#34;:finished. {matches} link(s) created, &#34;
+            f&#34;{missing} missing (found in left, no match on right)&#34;
+        )
+        print(&#34;run time = %s seconds ---&#34; % (time.time() - start_time))
+
+        f_csv_file.close()</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="edc_utilities.edc_replication_lineage.EDCReplicationLineage.get_schema_contents"><code class="name flex">
+<span>def <span class="ident">get_schema_contents</span></span>(<span>self, schema_name, schema_type, resource_name, container_name)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>given a schema name, schema class type (e.g. hanadb is different)
+and resource name, find the schema object
+then
+execute a relationships call to get the schema tables &amp; columns
+(parent/child links)
+note:
+some models separate primary key columns from regular columns
+note:
+some models have different relationships (e.g. sap hana db)</p>
+<p>returns a dictionary of all tables &amp; columns for the schema &amp; the id of
+the schema object
+key=table
+val=tableid
+key=table.column
+val=columnid</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_schema_contents(self, schema_name, schema_type, resource_name, container_name):
+    &#34;&#34;&#34;
+    given a schema name, schema class type (e.g. hanadb is different)
+    and resource name, find the schema object
+    then
+        execute a relationships call to get the schema tables &amp; columns
+        (parent/child links)
+        note:  some models separate primary key columns from regular columns
+        note:  some models have different relationships (e.g. sap hana db)
+
+    returns a dictionary of all tables &amp; columns for the schema &amp; the id of
+    the schema object
+    key=table  val=tableid
+    key=table.column  val=columnid
+    &#34;&#34;&#34;
+    print(&#34;\tget_schema_contents for:&#34; + schema_name + &#34; resource=&#34; + resource_name)
+    # schema_dict returned  key=TABLE.COLUMN value=column id
+    schema_dict = {}
+    table_names = {}
+
+    # url = catalogServer + &#34;/access/2/catalog/data/objects&#34;
+    # within a resource:
+    # - core.classType = com.infa.ldm.file.Folder is e.g. ResourceName://FileServer/foldername/foldername
+    # - core.classType = core.Resource with core.resourceName = the name of the resource
+
+    url = self.edc_helper.baseUrl + &#34;/access/2/catalog/data/objects&#34;
+    query = (f&#39;+core.resourceName:&#34;{resource_name}&#34;&#39;
+             + f&#39; +core.classType:&#34;{schema_type}&#34;&#39;
+    #         + f&#39; +core.name:&#34;{schema_name}&#34;&#39;
+             )
+    parameters = {&#34;q&#34;: query, &#34;offset&#34;: 0, &#34;pageSize&#34;: 1000}
+    print(&#34;\tquery=&#34; + query)
+
+    schema_id = None
+    table_count = 0
+    column_count = 0
+    # make the call to find the schema object
+    try:
+        response = self.edc_helper.session.get(url, params=parameters)
+        print(f&#34;session get finished: {response.status_code}&#34;)
+        rc = response.status_code
+        if rc != 200:
+            print(&#34;error reading object: rc=&#34; + str(rc) + &#34; response:&#34; + str(response.json))
+            if rc == 401:
+                print(
+                    &#34;\t401:Possible Missing/bad credentials&#34;
+                )
+                print(str(response))
+            return None, None
+    except urllib3.exceptions.NewConnectionError or requests.exceptions.ConnectionError:
+        print(f&#34;Exception during get for url {url} with params {parameters}&#34;)
+        response = None
+        return None, None
+
+    # get the total # of objects returned (first part of the json resultset)
+    total_objects = response.json()[&#34;metadata&#34;][&#34;totalCount&#34;]
+    print(&#34;\tobjects returned: &#34; + str(total_objects))
+
+    for item in response.json()[&#34;items&#34;]:
+        schema_id = item[&#34;id&#34;]
+        schema_name = edcutils.get_fact_value(item=item, attribute_name=&#34;core.name&#34;)
+        # get the tables &amp; columns
+        print(&#34;\tfound schema: &#34; + schema_name + &#34; id=&#34; + schema_id)
+
+        lineage_url = self.edc_helper.baseUrl + &#34;/access/2/catalog/data/relationships&#34;
+        lineage_parameters = {
+            &#34;seed&#34;: schema_id,
+            &#34;association&#34;: &#34;core.ParentChild&#34;,
+            &#34;depth&#34;: &#34;2&#34;,
+            &#34;direction&#34;: &#34;OUT&#34;,
+            &#34;includeAttribute&#34;: {&#34;core.name&#34;, &#34;core.classType&#34;},
+            &#34;includeTerms&#34;: &#34;false&#34;,
+            &#34;removeDuplicateAggregateLinks&#34;: &#34;false&#34;,
+        }
+        print(
+            &#34;\tGET child relations for schema: &#34; + lineage_url + &#34; parms=&#34; + str(lineage_parameters)
+        )
+        # get using uid/pwd
+        lineage_resp = self.edc_helper.session.get(
+            lineage_url,
+            params=lineage_parameters,
+        )
+        lineage_status = lineage_resp.status_code
+        print(&#34;\tlineage resp=&#34; + str(lineage_status))
+        if lineage_status != 200:
+            print(
+                f&#34;error getting schema contents (tables) rc={rc}&#34;
+                f&#34; response:{response.json}&#34;
+            )
+            if rc == 401:
+                print(
+                    &#34;\t401:Possible missing/bad credentials&#34;
+                )
+                print(str(response))
+            return None, None
+
+        if lineage_resp.text.startswith(&#34;{items:&#34;):
+            # bug (10.2.0 &amp; 10.2.1) - the items collection should be &#34;items&#34;
+            lineage_json = lineage_resp.text.replace(&#34;items&#34;, &#39;&#34;items&#34;&#39;, 1)
+        else:
+            lineage_json = lineage_resp.text
+        # relations_json = json.loads(lineage_json.replace(&#39;items&#39;, &#39;&#34;items&#34;&#39;))
+        relations_json = json.loads(lineage_json)
+        # print(len(relations_json))
+
+        for lineage_item in relations_json[&#34;items&#34;]:
+            print(&#39;***NEW***\n\tlineage_item: &#39; + str(lineage_item))
+            in_id = lineage_item.get(&#34;inId&#34;)
+            out_id = lineage_item.get(&#34;outId&#34;)
+
+            print(&#39;\t\tin_id===&#39; + in_id + &#34;\n\t\tout_id=&#34; + out_id)
+            # print(edcutils.getFactValue(lineage_item[&#34;inEmbedded&#34;], &#34;core.name&#34;))
+            association_id = lineage_item.get(&#34;associationId&#34;)
+            print(&#34;\t\tassoc=&#34; + association_id)
+            # if association_id==&#39;com.infa.ldm.relational.SchemaTable&#39;:
+            if association_id.endswith(&#34;.DelimitedFileField&#34;) and &#34;inEmbedded&#34; in lineage_item:
+                # note - custom lineage does not need table and column
+                # count the tables &amp; store table names
+                table_count += 1
+                # table_name = in_id.split(&#39;/&#39;)[-1]
+                #table_name = edcutils.get_fact_value(
+                #    lineage_item[&#34;inEmbedded&#34;], &#34;core.name&#34;
+                #).lower()
+                # print(&#34;\t\tFilename: &#34; + table_name)
+                out_id = out_id.split(&#34;/&#34;)[-1]
+                print(&#34;\t\tFilename: &#34; + out_id)
+                # store the table name (for lookup when processing the columns)
+                # key=id, val=name
+                table_names[in_id] = out_id
+                schema_dict[out_id] = in_id
+            # if association_id==&#39;com.infa.ldm.relational.TableColumn&#39;:
+            if (association_id.endswith(&#34;.DelimitedFileField&#34;) or association_id.endswith(&#34;.TablePrimaryKeyColumn&#34;)) \
+                    and &#34;inEmbedded&#34; in lineage_item:
+                # column_name = in_id.split(&#39;/&#39;)[-1]
+                column_count += 1
+                column_name = edcutils.get_fact_value(
+                    lineage_item[&#34;inEmbedded&#34;], &#34;core.name&#34;
+                ).lower()
+                print(&#34;\t\t\tField name: &#34; + column_name)
+                table_name = table_names[in_id].lower()
+                print(&#34;\t\tField=&#34; + table_name + &#34;.&#34; + column_name)
+                schema_dict[table_name + &#34;.&#34; + column_name] = in_id
+
+    print(
+        &#34;\tgetSchema: returning &#34;
+        + str(column_count)
+        + &#34; fields, in &#34;
+        + str(table_count)
+        + &#34; files&#34;
+    )
+    return schema_dict, schema_id</code></pre>
+</details>
+</dd>
+<dt id="edc_utilities.edc_replication_lineage.EDCReplicationLineage.main"><code class="name flex">
+<span>def <span class="ident">main</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>initialise the csv file(s) to write
+call get_schema_contents for both left and right schema objects
+match the tables/columns from the left schema to the right
+when matched
+write a lineage link - table and column level</p>
+<p>Note:
+this script generates the newer lineage format using complete
+object id's and relationship types
+connection assignment will not be necessary
+works with v10.2.1+</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def main(self):
+    &#34;&#34;&#34;
+    initialise the csv file(s) to write
+    call get_schema_contents for both left and right schema objects
+    match the tables/columns from the left schema to the right
+    when matched
+        write a lineage link - table and column level
+
+    Note:  this script generates the newer lineage format using complete
+           object id&#39;s and relationship types
+           connection assignment will not be necessary
+           works with v10.2.1+
+
+    &#34;&#34;&#34;
+    module = __name__ + &#34;.main&#34;
+    # define script command-line parameters (in global scope for gooey/wooey)
+    parser = argparse.ArgumentParser(parents=[self.edc_helper.argparser])
+    # add args specific to this utility (left/right resource, schema, classtype...)
+    parser.add_argument(
+        &#34;-lr&#34;, &#34;--leftresource&#34;, required=False, help=&#34;name of the left resource to find objects&#34;
+    )
+    parser.add_argument(
+        &#34;-ls&#34;, &#34;--leftschema&#34;, required=False, help=&#34;name of the left schema object&#34;
+    )
+    parser.add_argument(
+        &#34;-lc&#34;, &#34;--leftcontainer&#34;, required=False, help=&#34;name of the left container object&#34;
+    )
+    parser.add_argument(
+        &#34;-lt&#34;, &#34;--lefttype&#34;, required=False,
+        help=&#34;class type for the schema level object&#34;
+    )
+    parser.add_argument(
+        &#34;-rr&#34;, &#34;--rightresource&#34;, required=False, help=&#34;name of the right resource to find objects&#34;
+    )
+    parser.add_argument(
+        &#34;-rs&#34;, &#34;--rightschema&#34;, required=False, help=&#34;name of the right schema object&#34;
+    )
+    parser.add_argument(
+        &#34;-rc&#34;, &#34;--rightcontainer&#34;, required=False, help=&#34;name of the right container object&#34;
+    )
+    parser.add_argument(
+        &#34;-rt&#34;, &#34;--righttype&#34;, required=False,
+        help=&#34;class type for the right schema level object&#34;
+    )
+    parser.add_argument(
+        &#34;-p&#34;, &#34;--csvprefix&#34;, required=False, default=&#34;lineage_&#34;,
+        help=&#34;prefix to use when creating the output csv file&#34;
+    )
+    parser.add_argument(
+        &#34;-r&#34;, &#34;--righttableprefix&#34;, required=False, default=&#34;&#34;, help=&#34;table prefix for right datasets&#34;
+    )
+    parser.add_argument(
+        &#34;-o&#34;,
+        &#34;--outDir&#34;,
+        required=False,
+        help=(
+            &#34;output folder to write results - default = ./out &#34;
+            &#34; - will create folder if it does not exist&#34;
+        ),
+    )
+
+    args = args, unknown = parser.parse_known_args()
+    # setup edc session and catalog url - with auth in the session header,
+    # by using system vars or command-line args
+    self.edc_helper.init_edc_session()
+
+    print(&#34;from settings:&#34;, self.settings.edc_config_data)
+    print(f&#34;command-line args parsed = {args} &#34;)
+
+    start_time = time.time()
+
+    # Command line arguments have a higher priority
+    left_resource = args.leftresource
+    left_schema = args.leftschema
+    left_container = args.leftcontainer
+    left_type = args.lefttype
+    right_resource = args.rightresource
+    right_schema = args.rightschema
+    right_container = args.rightcontainer
+    right_type = args.righttype
+    output_folder = args.outDir
+    output_file_prefix = args.csvprefix
+    right_table_prefix = args.righttableprefix
+
+    # if not provided, use settings from config files
+    # note: not checking. If you want to use it, make sure the edc_config contains the necessary keys
+    if left_resource is None:
+        left_resource = self.settings.edc_config_data[&#34;edc_source_resource_name&#34;]
+    left_resource = left_resource.split(&#34;:&#34;)[0]
+    if left_schema is None:
+        left_schema = self.settings.edc_config_data[&#34;edc_source_datasource&#34;]
+    if left_container is None:
+        left_container = self.settings.edc_config_data[&#34;edc_source_container&#34;]
+    if left_type is None:
+        left_type = self.settings.edc_config_data[&#34;edc_source_type&#34;]
+    if right_resource is None:
+        right_resource = self.settings.edc_config_data[&#34;edc_target_resource_name&#34;]
+    right_resource = right_resource.split(&#34;:&#34;)[0]
+    if right_schema is None:
+        right_schema = self.settings.edc_config_data[&#34;edc_target_datasource&#34;]
+    if right_container is None:
+        right_container = self.settings.edc_config_data[&#34;edc_target_container&#34;]
+    if right_type is None:
+        right_type = self.settings.edc_config_data[&#34;edc_target_type&#34;]
+
+    if output_folder is None:
+        output_folder = self.settings.output_directory
+
+    if left_type is None:
+        # left_type = &#34;com.infa.ldm.relational.Schema&#34;
+        left_type = &#34;com.infa.ldm.file.delimited.DelimitedFile&#34;
+    if right_type is None:
+        # right_type = &#34;com.infa.ldm.relational.Schema&#34;
+        right_type = &#34;com.infa.ldm.file.delimited.DelimitedFile&#34;
+
+    print(&#34;dbSchemaReplicationLineage:start&#34;)
+    print(f&#34;Catalog={self.edc_helper.baseUrl}&#34;)
+    print(f&#34;left:  resource={left_resource}&#34;)
+    print(f&#34;left:    schema={left_schema}&#34;)
+    print(f&#34;left: container={left_container}&#34;)
+    print(f&#34;left:      type={left_type}&#34;)
+    print(f&#34;right:  resource={right_resource}&#34;)
+    print(f&#34;right:    schema={right_schema}&#34;)
+    print(f&#34;right: container={right_container}&#34;)
+    print(f&#34;right:      type={right_type}&#34;)
+    print(f&#34;output folder: {output_folder}&#34;)
+    print(f&#34;output file prefix: {output_file_prefix}&#34;)
+    print(f&#34;right table prefix: {right_table_prefix}&#34;)
+
+    # initialize csv output file
+    column_header = [
+        &#34;Association&#34;,
+        &#34;From Connection&#34;,
+        &#34;To Connection&#34;,
+        &#34;From Object&#34;,
+        &#34;To Object&#34;,
+    ]
+
+    # set the csv fileName
+    csv_file_name = output_folder \
+                    + output_file_prefix \
+                    + &#34;_&#34; + left_container.replace(&#34;/&#34;,&#34;_&#34;).lower()\
+                    + &#34;_&#34; + right_container.replace(&#34;/&#34;,&#34;_&#34;).lower() \
+                    + &#34;.csv&#34;
+
+    print(&#34;initializing file: &#34; + csv_file_name)
+    f_csv_file = open(csv_file_name, &#34;w&#34;, newline=&#34;&#34;, encoding=&#34;utf-8&#34;)
+    col_writer = csv.writer(f_csv_file)
+    col_writer.writerow(column_header)
+
+    # get the objects from the left schema into memory
+    print(
+        f&#34;get left schema: name={left_schema}&#34;
+        f&#34; resource={left_resource}&#34;
+        f&#34; container={left_container}&#34;
+        f&#34; type={left_type}&#34;
+    )
+    left_objects, left_schema_id = self.get_schema_contents(
+        left_schema, left_type, left_resource, left_container
+    )
+
+    # get the objects from the right schema into memory
+    print(
+        f&#34;get right schema: name={right_schema}&#34;
+        f&#34; resource={right_resource}&#34;
+        f&#34; container={right_container}&#34;
+        f&#34; type={right_type}&#34;
+    )
+    right_objects, right_schema_id = self.get_schema_contents(
+        right_schema, right_type, right_resource, right_container
+    )
+
+    matches = 0
+    missing = 0
+
+    if len(left_objects) &gt; 0 and len(right_objects) &gt; 0:
+        # iterate over all left objects - looking for matching right ones
+        print(&#34;\nprocessing: &#34; + str(len(left_objects)) + &#34; objects (left side)&#34;)
+        first_find =  True
+        for left_name, left_val in left_objects.items():
+            # if the target is using a prefix - add it to left_name
+            if len(right_table_prefix) &gt; 0:
+                left_name = right_table_prefix.lower() + left_name
+
+            print(&#34;checking for left key=&#34; + left_name, &#34; in right_object keys: &#34;, right_objects.keys())
+            if left_name in right_objects.keys():
+                # match
+                right_val = right_objects.get(left_name)
+                print(&#34;right_val=&#34;, right_val)
+                matches += 1
+                if first_find:
+                    # create the lineage file
+                    col_writer.writerow(
+                        [&#34;core.DataSourceDataFlow&#34;, &#34;&#34;, &#34;&#34;, left_schema_id.rsplit(&#34;/&#34;, 1)[0]
+                            , right_schema_id.rsplit(&#34;/&#34;, 1)[0]]
+                    )
+                    col_writer.writerow(
+                        [&#34;core.DataSetDataFlow&#34;
+                            , &#34;&#34;
+                            , &#34;&#34;
+                            , left_schema_id
+                            , right_schema_id]
+                    )
+                    first_find = False
+                # print(&#34;\t&#34; + right_val)
+                # check if it is formatted as table.column or just table
+                if left_name.count(&#34;.&#34;) == 1:
+                    # column lineage - using DirectionalDataFlow
+                    col_writer.writerow(
+                        [&#34;core.DirectionalDataFlow&#34;, &#34;&#34;, &#34;&#34;, left_val, right_val]
+                    )
+
+                # write a line to the custom lineage csv file (connection assignment)
+                # col_writer.writerow([leftResource,rightResource,leftRef,rightRef])
+            else:
+                missing += 1
+                print(&#34;\t no match on right side for key=&#34; + left_name)
+
+    else:
+        print(&#34;error getting schema info... - no linking/lineage created&#34;)
+
+    print(
+        module + f&#34;:finished. {matches} link(s) created, &#34;
+        f&#34;{missing} missing (found in left, no match on right)&#34;
+    )
+    print(&#34;run time = %s seconds ---&#34; % (time.time() - start_time))
+
+    f_csv_file.close()</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="edc_utilities" href="index.html">edc_utilities</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="edc_utilities.edc_replication_lineage.EDCReplicationLineage" href="#edc_utilities.edc_replication_lineage.EDCReplicationLineage">EDCReplicationLineage</a></code></h4>
+<ul class="">
+<li><code><a title="edc_utilities.edc_replication_lineage.EDCReplicationLineage.get_schema_contents" href="#edc_utilities.edc_replication_lineage.EDCReplicationLineage.get_schema_contents">get_schema_contents</a></code></li>
+<li><code><a title="edc_utilities.edc_replication_lineage.EDCReplicationLineage.main" href="#edc_utilities.edc_replication_lineage.EDCReplicationLineage.main">main</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
+</footer>
+</body>
+</html>

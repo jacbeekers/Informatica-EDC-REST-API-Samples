@@ -36,7 +36,7 @@ class LogSettings:
     &#34;&#34;&#34;
     Some generic utilities, e.g. reading the config.json
     &#34;&#34;&#34;
-    code_version = &#34;0.2.21&#34;
+    code_version = &#34;0.3.35&#34;
     VERBOSE = 5
     DEBUG = logging.DEBUG
     INFO = logging.INFO
@@ -111,33 +111,20 @@ class LogSettings:
     def determine_log_level(self, configured_log_level):
         module = __name__ + &#34;.determine_log_level&#34;
         if configured_log_level == &#34;VERBOSE&#34;:
-            self.log_level = self.VERBOSE
-            print(module, &#34;Log level has been set to VERBOSE.&#34;)
-            return self.log_level
+            return self.VERBOSE
         elif configured_log_level == logging.getLevelName(logging.DEBUG):
-            self.log_level = self.DEBUG
-            print(module, &#34;Log level has been set to DEBUG.&#34;)
-            return self.log_level
+            return self.DEBUG
         elif configured_log_level == logging.getLevelName(logging.INFO):
-            self.log_level = self.INFO
-            print(module, &#34;Log level has been set to INFO.&#34;)
-            return self.log_level
+            return self.INFO
         elif configured_log_level == logging.getLevelName(logging.WARNING):
-            self.log_level = self.WARNING
-            print(module, &#34;Log level has been set to WARNING.&#34;)
-            return self.log_level
+            return self.WARNING
         elif configured_log_level == logging.getLevelName(logging.ERROR):
-            self.log_level = self.ERROR
-            print(module, &#34;Log level has been set to ERROR.&#34;)
-            return self.log_level
+            return self.ERROR
         elif configured_log_level == logging.getLevelName(logging.FATAL):
-            self.log_level = self.FATAL
-            print(module, &#34;Log level has been set to FATAL.&#34;)
-            return self.log_level
+            return self.FATAL
         else:
             print(f&#34;invalid log level &gt;{configured_log_level}&lt; in config.json. Defaulting to DEBUG&#34;)
-            self.log_level = self.DEBUG
-            return self.log_level</code></pre>
+            return self.DEBUG</code></pre>
 </details>
 </section>
 <section>
@@ -163,7 +150,7 @@ class LogSettings:
     &#34;&#34;&#34;
     Some generic utilities, e.g. reading the config.json
     &#34;&#34;&#34;
-    code_version = &#34;0.2.21&#34;
+    code_version = &#34;0.3.35&#34;
     VERBOSE = 5
     DEBUG = logging.DEBUG
     INFO = logging.INFO
@@ -238,33 +225,20 @@ class LogSettings:
     def determine_log_level(self, configured_log_level):
         module = __name__ + &#34;.determine_log_level&#34;
         if configured_log_level == &#34;VERBOSE&#34;:
-            self.log_level = self.VERBOSE
-            print(module, &#34;Log level has been set to VERBOSE.&#34;)
-            return self.log_level
+            return self.VERBOSE
         elif configured_log_level == logging.getLevelName(logging.DEBUG):
-            self.log_level = self.DEBUG
-            print(module, &#34;Log level has been set to DEBUG.&#34;)
-            return self.log_level
+            return self.DEBUG
         elif configured_log_level == logging.getLevelName(logging.INFO):
-            self.log_level = self.INFO
-            print(module, &#34;Log level has been set to INFO.&#34;)
-            return self.log_level
+            return self.INFO
         elif configured_log_level == logging.getLevelName(logging.WARNING):
-            self.log_level = self.WARNING
-            print(module, &#34;Log level has been set to WARNING.&#34;)
-            return self.log_level
+            return self.WARNING
         elif configured_log_level == logging.getLevelName(logging.ERROR):
-            self.log_level = self.ERROR
-            print(module, &#34;Log level has been set to ERROR.&#34;)
-            return self.log_level
+            return self.ERROR
         elif configured_log_level == logging.getLevelName(logging.FATAL):
-            self.log_level = self.FATAL
-            print(module, &#34;Log level has been set to FATAL.&#34;)
-            return self.log_level
+            return self.FATAL
         else:
             print(f&#34;invalid log level &gt;{configured_log_level}&lt; in config.json. Defaulting to DEBUG&#34;)
-            self.log_level = self.DEBUG
-            return self.log_level</code></pre>
+            return self.DEBUG</code></pre>
 </details>
 <h3>Class variables</h3>
 <dl>
@@ -311,33 +285,20 @@ class LogSettings:
 <pre><code class="python">def determine_log_level(self, configured_log_level):
     module = __name__ + &#34;.determine_log_level&#34;
     if configured_log_level == &#34;VERBOSE&#34;:
-        self.log_level = self.VERBOSE
-        print(module, &#34;Log level has been set to VERBOSE.&#34;)
-        return self.log_level
+        return self.VERBOSE
     elif configured_log_level == logging.getLevelName(logging.DEBUG):
-        self.log_level = self.DEBUG
-        print(module, &#34;Log level has been set to DEBUG.&#34;)
-        return self.log_level
+        return self.DEBUG
     elif configured_log_level == logging.getLevelName(logging.INFO):
-        self.log_level = self.INFO
-        print(module, &#34;Log level has been set to INFO.&#34;)
-        return self.log_level
+        return self.INFO
     elif configured_log_level == logging.getLevelName(logging.WARNING):
-        self.log_level = self.WARNING
-        print(module, &#34;Log level has been set to WARNING.&#34;)
-        return self.log_level
+        return self.WARNING
     elif configured_log_level == logging.getLevelName(logging.ERROR):
-        self.log_level = self.ERROR
-        print(module, &#34;Log level has been set to ERROR.&#34;)
-        return self.log_level
+        return self.ERROR
     elif configured_log_level == logging.getLevelName(logging.FATAL):
-        self.log_level = self.FATAL
-        print(module, &#34;Log level has been set to FATAL.&#34;)
-        return self.log_level
+        return self.FATAL
     else:
         print(f&#34;invalid log level &gt;{configured_log_level}&lt; in config.json. Defaulting to DEBUG&#34;)
-        self.log_level = self.DEBUG
-        return self.log_level</code></pre>
+        return self.DEBUG</code></pre>
 </details>
 </dd>
 <dt id="metadata_utilities.log_settings.LogSettings.get_config"><code class="name flex">

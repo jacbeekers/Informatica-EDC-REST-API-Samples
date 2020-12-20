@@ -49,19 +49,8 @@ class Generic:
         self.settings_found = False
         self.settings = settings
         self.mu_log = mu_log_ref
-        if settings is None:
-            self.settings = generic_settings.GenericSettings()
-            result = self.settings.get_config()
-            if result != messages.message[&#34;ok&#34;]:
-                self.mu_log.log(self.mu_log.FATAL, &#34;Cannot find main configuration file &gt;&#34; + self.settings.main_config_file + &#34;&lt;.&#34;
-                                , module)
-                self.settings_found = False
-            else:
-                self.mu_log.log(self.mu_log.DEBUG, &#34;Generic settings loaded.&#34;, module)
-                self.settings_found = True
-        else:
-            self.mu_log.log(self.mu_log.DEBUG, &#34;Using provided generic settings.&#34;, module)
-            self.settings_found = True
+        self.mu_log.log(self.mu_log.DEBUG, &#34;Using provided settings.&#34;, module)
+        self.settings_found = True
         self.json_file = self.settings.main_config_file
         self.jinja_environment = None
         self.jinja_base_directory = None
@@ -71,10 +60,15 @@ class Generic:
         self.jinja_configuration_file = self.settings.jinja_config
         self.get_jinja_settings()
 
-    def find_json(self, source_uuid, target_schema_type, property, log_prefix=&#34;&#34;):
+    def find_json(self, source_uuid, target_schema_type, property, log_prefix=&#34;&#34;, skip_file_list=None):
         &#34;&#34;&#34;
         find the JSON file that has the source_uuid in the value of the property.
         The JSON schema of the file must be &#39;target_schema_type&#39;.
+        Params:
+            source_uuid: the uuid for search for
+            target_schema_type: which schema. Will filter on only those files that contain the specified entity type
+            property: which property (key) in the file should contain the uuid
+            log_prefix: text that will be added to any log messages. Useful to identify the related log entries
         &#34;&#34;&#34;
         module = __name__ + &#34;.find_json&#34;
         if not self.settings_found:
@@ -92,6 +86,10 @@ class Generic:
         overall_result = messages.message[&#34;not_found&#34;]
         # Walk through json directory and check all json files
         for file in glob.glob(directory + &#34;*.json&#34;):
+            if skip_file_list is not None:
+                if file in skip_file_list:
+                    self.mu_log.log(self.mu_log.VERBOSE, log_prefix + &#34;File is in exclusion list. Skipped.&#34;)
+                    continue
             current_json_file = file
             self.mu_log.log(self.mu_log.DEBUG, log_prefix + &#34;checking &gt;&#34; + current_json_file + &#34;&lt;&#34;, module)
             file_result = messages.message[&#34;not_found&#34;]
@@ -113,7 +111,7 @@ class Generic:
                     self.mu_log.log(self.mu_log.DEBUG, log_prefix + &#34;meta_type matches&#34;, module)
                     if property in self.data:
                         self.mu_log.log(self.mu_log.DEBUG, log_prefix
-                                        + &#34;Current metadata_type matches target_schema_type&#34;, module)
+                                        + &#34;File contains property &gt;&#34; + property + &#34;&lt;&#34;, module)
                         found_meta_type = True
                         try:
                             the_property_value = self.data[property]
@@ -192,12 +190,14 @@ class Generic:
 
         return overall_result
 
-    def write_local_file(self, filename, to_write):
+    def write_local_file(self, directory=None, filename=&#34;dummy&#34;, to_write=&#34;&#34;):
         # local file system
         module = __name__ + &#34;.write_local_file&#34;
         file_result = messages.message[&#34;ok&#34;]
-        path = self.settings.output_directory + filename
-        os.makedirs(self.settings.output_directory, exist_ok=True)
+        if directory is None:
+            directory = self.settings.output_directory
+        path = os.path.join(directory, filename)
+        os.makedirs(directory, exist_ok=True)
         self.mu_log.log(self.mu_log.DEBUG, &#34;File name: &#34; + path, module)
         self.mu_log.log(self.mu_log.VERBOSE, &#34;writing &gt;&#34; + to_write + &#34;&lt; to file &gt;&#34; + path + &#34;&lt;...&#34;, module)
         try:
@@ -343,19 +343,8 @@ class Generic:
         self.settings_found = False
         self.settings = settings
         self.mu_log = mu_log_ref
-        if settings is None:
-            self.settings = generic_settings.GenericSettings()
-            result = self.settings.get_config()
-            if result != messages.message[&#34;ok&#34;]:
-                self.mu_log.log(self.mu_log.FATAL, &#34;Cannot find main configuration file &gt;&#34; + self.settings.main_config_file + &#34;&lt;.&#34;
-                                , module)
-                self.settings_found = False
-            else:
-                self.mu_log.log(self.mu_log.DEBUG, &#34;Generic settings loaded.&#34;, module)
-                self.settings_found = True
-        else:
-            self.mu_log.log(self.mu_log.DEBUG, &#34;Using provided generic settings.&#34;, module)
-            self.settings_found = True
+        self.mu_log.log(self.mu_log.DEBUG, &#34;Using provided settings.&#34;, module)
+        self.settings_found = True
         self.json_file = self.settings.main_config_file
         self.jinja_environment = None
         self.jinja_base_directory = None
@@ -365,10 +354,15 @@ class Generic:
         self.jinja_configuration_file = self.settings.jinja_config
         self.get_jinja_settings()
 
-    def find_json(self, source_uuid, target_schema_type, property, log_prefix=&#34;&#34;):
+    def find_json(self, source_uuid, target_schema_type, property, log_prefix=&#34;&#34;, skip_file_list=None):
         &#34;&#34;&#34;
         find the JSON file that has the source_uuid in the value of the property.
         The JSON schema of the file must be &#39;target_schema_type&#39;.
+        Params:
+            source_uuid: the uuid for search for
+            target_schema_type: which schema. Will filter on only those files that contain the specified entity type
+            property: which property (key) in the file should contain the uuid
+            log_prefix: text that will be added to any log messages. Useful to identify the related log entries
         &#34;&#34;&#34;
         module = __name__ + &#34;.find_json&#34;
         if not self.settings_found:
@@ -386,6 +380,10 @@ class Generic:
         overall_result = messages.message[&#34;not_found&#34;]
         # Walk through json directory and check all json files
         for file in glob.glob(directory + &#34;*.json&#34;):
+            if skip_file_list is not None:
+                if file in skip_file_list:
+                    self.mu_log.log(self.mu_log.VERBOSE, log_prefix + &#34;File is in exclusion list. Skipped.&#34;)
+                    continue
             current_json_file = file
             self.mu_log.log(self.mu_log.DEBUG, log_prefix + &#34;checking &gt;&#34; + current_json_file + &#34;&lt;&#34;, module)
             file_result = messages.message[&#34;not_found&#34;]
@@ -407,7 +405,7 @@ class Generic:
                     self.mu_log.log(self.mu_log.DEBUG, log_prefix + &#34;meta_type matches&#34;, module)
                     if property in self.data:
                         self.mu_log.log(self.mu_log.DEBUG, log_prefix
-                                        + &#34;Current metadata_type matches target_schema_type&#34;, module)
+                                        + &#34;File contains property &gt;&#34; + property + &#34;&lt;&#34;, module)
                         found_meta_type = True
                         try:
                             the_property_value = self.data[property]
@@ -486,12 +484,14 @@ class Generic:
 
         return overall_result
 
-    def write_local_file(self, filename, to_write):
+    def write_local_file(self, directory=None, filename=&#34;dummy&#34;, to_write=&#34;&#34;):
         # local file system
         module = __name__ + &#34;.write_local_file&#34;
         file_result = messages.message[&#34;ok&#34;]
-        path = self.settings.output_directory + filename
-        os.makedirs(self.settings.output_directory, exist_ok=True)
+        if directory is None:
+            directory = self.settings.output_directory
+        path = os.path.join(directory, filename)
+        os.makedirs(directory, exist_ok=True)
         self.mu_log.log(self.mu_log.DEBUG, &#34;File name: &#34; + path, module)
         self.mu_log.log(self.mu_log.VERBOSE, &#34;writing &gt;&#34; + to_write + &#34;&lt; to file &gt;&#34; + path + &#34;&lt;...&#34;, module)
         try:
@@ -636,19 +636,29 @@ class Generic:
 </details>
 </dd>
 <dt id="metadata_utilities.generic.Generic.find_json"><code class="name flex">
-<span>def <span class="ident">find_json</span></span>(<span>self, source_uuid, target_schema_type, property, log_prefix='')</span>
+<span>def <span class="ident">find_json</span></span>(<span>self, source_uuid, target_schema_type, property, log_prefix='', skip_file_list=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>find the JSON file that has the source_uuid in the value of the property.
-The JSON schema of the file must be 'target_schema_type'.</p></div>
+The JSON schema of the file must be 'target_schema_type'.</p>
+<h2 id="params">Params</h2>
+<p>source_uuid: the uuid for search for
+target_schema_type: which schema. Will filter on only those files that contain the specified entity type
+property: which property (key) in the file should contain the uuid
+log_prefix: text that will be added to any log messages. Useful to identify the related log entries</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def find_json(self, source_uuid, target_schema_type, property, log_prefix=&#34;&#34;):
+<pre><code class="python">def find_json(self, source_uuid, target_schema_type, property, log_prefix=&#34;&#34;, skip_file_list=None):
     &#34;&#34;&#34;
     find the JSON file that has the source_uuid in the value of the property.
     The JSON schema of the file must be &#39;target_schema_type&#39;.
+    Params:
+        source_uuid: the uuid for search for
+        target_schema_type: which schema. Will filter on only those files that contain the specified entity type
+        property: which property (key) in the file should contain the uuid
+        log_prefix: text that will be added to any log messages. Useful to identify the related log entries
     &#34;&#34;&#34;
     module = __name__ + &#34;.find_json&#34;
     if not self.settings_found:
@@ -666,6 +676,10 @@ The JSON schema of the file must be 'target_schema_type'.</p></div>
     overall_result = messages.message[&#34;not_found&#34;]
     # Walk through json directory and check all json files
     for file in glob.glob(directory + &#34;*.json&#34;):
+        if skip_file_list is not None:
+            if file in skip_file_list:
+                self.mu_log.log(self.mu_log.VERBOSE, log_prefix + &#34;File is in exclusion list. Skipped.&#34;)
+                continue
         current_json_file = file
         self.mu_log.log(self.mu_log.DEBUG, log_prefix + &#34;checking &gt;&#34; + current_json_file + &#34;&lt;&#34;, module)
         file_result = messages.message[&#34;not_found&#34;]
@@ -687,7 +701,7 @@ The JSON schema of the file must be 'target_schema_type'.</p></div>
                 self.mu_log.log(self.mu_log.DEBUG, log_prefix + &#34;meta_type matches&#34;, module)
                 if property in self.data:
                     self.mu_log.log(self.mu_log.DEBUG, log_prefix
-                                    + &#34;Current metadata_type matches target_schema_type&#34;, module)
+                                    + &#34;File contains property &gt;&#34; + property + &#34;&lt;&#34;, module)
                     found_meta_type = True
                     try:
                         the_property_value = self.data[property]
@@ -871,7 +885,7 @@ The JSON schema of the file must be 'target_schema_type'.</p></div>
 </details>
 </dd>
 <dt id="metadata_utilities.generic.Generic.write_local_file"><code class="name flex">
-<span>def <span class="ident">write_local_file</span></span>(<span>self, filename, to_write)</span>
+<span>def <span class="ident">write_local_file</span></span>(<span>self, directory=None, filename='dummy', to_write='')</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -879,12 +893,14 @@ The JSON schema of the file must be 'target_schema_type'.</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def write_local_file(self, filename, to_write):
+<pre><code class="python">def write_local_file(self, directory=None, filename=&#34;dummy&#34;, to_write=&#34;&#34;):
     # local file system
     module = __name__ + &#34;.write_local_file&#34;
     file_result = messages.message[&#34;ok&#34;]
-    path = self.settings.output_directory + filename
-    os.makedirs(self.settings.output_directory, exist_ok=True)
+    if directory is None:
+        directory = self.settings.output_directory
+    path = os.path.join(directory, filename)
+    os.makedirs(directory, exist_ok=True)
     self.mu_log.log(self.mu_log.DEBUG, &#34;File name: &#34; + path, module)
     self.mu_log.log(self.mu_log.VERBOSE, &#34;writing &gt;&#34; + to_write + &#34;&lt; to file &gt;&#34; + path + &#34;&lt;...&#34;, module)
     try:

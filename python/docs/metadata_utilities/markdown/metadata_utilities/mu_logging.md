@@ -36,12 +36,10 @@ Classes
     `fh`
     :
 
-    ### Static methods
-
-    `setup_logger(log_level, log_level_console, log_filename_prefix='', log_directory='log/', log_filename='some.log', instrumentation_key='unknown', azure_monitor_requests='False')`
-    :
-
     ### Methods
 
     `log(self, level=10, msg='no_message', method='undetermined', extra=None)`
+    :
+
+    `setup_logger(self, log_level, log_level_console, log_filename_prefix='', log_directory='log/', log_filename='some.log', instrumentation_key='unknown', azure_monitor_requests='False')`
     :

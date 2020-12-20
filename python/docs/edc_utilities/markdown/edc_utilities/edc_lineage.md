@@ -67,9 +67,6 @@ Classes
     `get_list_of_from_attributes(self, attribute_list)`
     :
 
-    `print_roundtrip(self, response, *args, **kwargs)`
-    :
-
     `send_metadata_to_edc(self, suppress_edc_call=False, method='PATCH', uri='/access/1/catalog/data/objects', etag=None, parameters=None, payload=None)`
     :
 

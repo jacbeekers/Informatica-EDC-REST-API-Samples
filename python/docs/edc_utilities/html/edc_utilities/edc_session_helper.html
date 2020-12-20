@@ -75,12 +75,11 @@ Note: this is syncronyous version - not async
 &#34;&#34;&#34;
 import argparse
 import os
+import textwrap
 import warnings
 from urllib.parse import urljoin
 
 import requests
-
-from src.metadata_utilities import messages
 
 warnings.filterwarnings(&#39;ignore&#39;, message=&#39;Unverified HTTPS request&#39;)
 
@@ -94,14 +93,12 @@ class EDCSession:
     def __init__(self, settings):
         module = __name__ + &#34;.__init__&#34;
         self.baseUrl = settings.edc_url
-        self.session: requests.session = None
         self.argparser = argparse.ArgumentParser(add_help=False)
         self.__setup_standard_cmdargs__()
         self.edcversion = 0
         self.http_proxy = None
         self.https_proxy = None
         self.settings = settings
-        self.timeout = settings.edc_timeout
         self.mu_log = self.settings.mu_log
         self.session = self.init_edc_session()
         status_code, response = self.validate_edc_connection()
@@ -229,13 +226,14 @@ class EDCSession:
         # self.session.headers.update({&#34;Content-Type&#34;: &#34;application/json; charset=utf8&#34;})
         self.session.headers.update({&#34;Content-Type&#34;: &#34;application/json&#34;})
         self.session.headers.update({&#34;Authorization&#34;: auth})
-        self.mu_log.log(self.mu_log.DEBUG, &#34;Authorization header was set.&#34;, module)
         self.session.baseUrl = self.baseUrl
         proxies = self.settings.get_edc_proxy()
         self.session.proxies.update(proxies)
         # just in case it&#39;s needed
-        self.session.headers.update({&#34;User-Agent&#34;: &#34;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36&#34;})
-
+        # self.session.headers.update({&#34;User-Agent&#34;: &#34;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36&#34;})
+        self.session.timeout = int(self.settings.edc_timeout)
+        if self.settings.enable_response_hook:
+            self.session.hooks = {&#39;response&#39;: self.print_roundtrip}
         return self.session
 
     def validate_edc_connection(self):
@@ -251,7 +249,7 @@ class EDCSession:
         try:
             url = urljoin(self.baseUrl, &#34;access/2/catalog/data/productInformation&#34;)
             # url = self.baseUrl + &#34;access/2/catalog/data/productInformation&#34;
-            resp = self.session.get(url, timeout=self.timeout)
+            resp = self.session.get(url)
             self.mu_log.log(self.mu_log.DEBUG, &#34;api status code=&gt;&#34; + str(resp.status_code) + &#34;&lt;.&#34;, module)
             if resp.status_code == 200:
                 # valid and 10.4+, get the actual version
@@ -271,15 +269,36 @@ class EDCSession:
                                 , module)
                 # invalid request - try another api call
                 url = urljoin(self.baseUrl, &#34;access/1/catalog/data&#34;)
-                resp = self.session.get(url, timeout=self.timeout)
+                resp = self.session.get(url)
                 self.mu_log.log(self.mu_log.DEBUG, &#34;2nd try status code: &#34; + str(resp.status_code), module)
+                return resp.status_code, None
             else:
-                self.mu_log.log(self.mu_log.ERROR, &#34;error connecting: &#34; + str(resp.json()), module)
-            return resp.status_code, resp.json()
+                self.mu_log.log(self.mu_log.ERROR, &#34;Error connecting. Status code: &#34; + str(resp.status_code), module)
+                return resp.status_code, None
         except requests.exceptions.RequestException as e:
             self.mu_log.log(self.mu_log.ERROR, &#34;Error connecting to : &#34; + self.baseUrl, module)
             # exit if we can&#39;t connect
-            return 0, None</code></pre>
+            return 0, None
+
+    def print_roundtrip(self, response, *args, **kwargs):
+        format_headers = lambda d: &#39;\n&#39;.join(f&#39;{k}: {v}&#39; for k, v in d.items())
+        print(textwrap.dedent(&#39;&#39;&#39;
+            ---------------- request ----------------
+            {req.method} {req.url}
+            {reqhdrs}
+
+            {req.body}
+            ---------------- response ----------------
+            {res.status_code} {res.reason} {res.url}
+            {reshdrs}
+
+            {res.text}
+        &#39;&#39;&#39;).format(
+            req=response.request,
+            res=response,
+            reqhdrs=format_headers(response.request.headers),
+            reshdrs=format_headers(response.headers),
+        ))</code></pre>
 </details>
 </section>
 <section>
@@ -311,14 +330,12 @@ for easy re-use for multiple scripts</p></div>
     def __init__(self, settings):
         module = __name__ + &#34;.__init__&#34;
         self.baseUrl = settings.edc_url
-        self.session: requests.session = None
         self.argparser = argparse.ArgumentParser(add_help=False)
         self.__setup_standard_cmdargs__()
         self.edcversion = 0
         self.http_proxy = None
         self.https_proxy = None
         self.settings = settings
-        self.timeout = settings.edc_timeout
         self.mu_log = self.settings.mu_log
         self.session = self.init_edc_session()
         status_code, response = self.validate_edc_connection()
@@ -446,13 +463,14 @@ for easy re-use for multiple scripts</p></div>
         # self.session.headers.update({&#34;Content-Type&#34;: &#34;application/json; charset=utf8&#34;})
         self.session.headers.update({&#34;Content-Type&#34;: &#34;application/json&#34;})
         self.session.headers.update({&#34;Authorization&#34;: auth})
-        self.mu_log.log(self.mu_log.DEBUG, &#34;Authorization header was set.&#34;, module)
         self.session.baseUrl = self.baseUrl
         proxies = self.settings.get_edc_proxy()
         self.session.proxies.update(proxies)
         # just in case it&#39;s needed
-        self.session.headers.update({&#34;User-Agent&#34;: &#34;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36&#34;})
-
+        # self.session.headers.update({&#34;User-Agent&#34;: &#34;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36&#34;})
+        self.session.timeout = int(self.settings.edc_timeout)
+        if self.settings.enable_response_hook:
+            self.session.hooks = {&#39;response&#39;: self.print_roundtrip}
         return self.session
 
     def validate_edc_connection(self):
@@ -468,7 +486,7 @@ for easy re-use for multiple scripts</p></div>
         try:
             url = urljoin(self.baseUrl, &#34;access/2/catalog/data/productInformation&#34;)
             # url = self.baseUrl + &#34;access/2/catalog/data/productInformation&#34;
-            resp = self.session.get(url, timeout=self.timeout)
+            resp = self.session.get(url)
             self.mu_log.log(self.mu_log.DEBUG, &#34;api status code=&gt;&#34; + str(resp.status_code) + &#34;&lt;.&#34;, module)
             if resp.status_code == 200:
                 # valid and 10.4+, get the actual version
@@ -488,15 +506,36 @@ for easy re-use for multiple scripts</p></div>
                                 , module)
                 # invalid request - try another api call
                 url = urljoin(self.baseUrl, &#34;access/1/catalog/data&#34;)
-                resp = self.session.get(url, timeout=self.timeout)
+                resp = self.session.get(url)
                 self.mu_log.log(self.mu_log.DEBUG, &#34;2nd try status code: &#34; + str(resp.status_code), module)
+                return resp.status_code, None
             else:
-                self.mu_log.log(self.mu_log.ERROR, &#34;error connecting: &#34; + str(resp.json()), module)
-            return resp.status_code, resp.json()
+                self.mu_log.log(self.mu_log.ERROR, &#34;Error connecting. Status code: &#34; + str(resp.status_code), module)
+                return resp.status_code, None
         except requests.exceptions.RequestException as e:
             self.mu_log.log(self.mu_log.ERROR, &#34;Error connecting to : &#34; + self.baseUrl, module)
             # exit if we can&#39;t connect
-            return 0, None</code></pre>
+            return 0, None
+
+    def print_roundtrip(self, response, *args, **kwargs):
+        format_headers = lambda d: &#39;\n&#39;.join(f&#39;{k}: {v}&#39; for k, v in d.items())
+        print(textwrap.dedent(&#39;&#39;&#39;
+            ---------------- request ----------------
+            {req.method} {req.url}
+            {reqhdrs}
+
+            {req.body}
+            ---------------- response ----------------
+            {res.status_code} {res.reason} {res.url}
+            {reshdrs}
+
+            {res.text}
+        &#39;&#39;&#39;).format(
+            req=response.request,
+            res=response,
+            reqhdrs=format_headers(response.request.headers),
+            reshdrs=format_headers(response.headers),
+        ))</code></pre>
 </details>
 <h3>Methods</h3>
 <dl>
@@ -575,14 +614,45 @@ url, auth</p></div>
     # self.session.headers.update({&#34;Content-Type&#34;: &#34;application/json; charset=utf8&#34;})
     self.session.headers.update({&#34;Content-Type&#34;: &#34;application/json&#34;})
     self.session.headers.update({&#34;Authorization&#34;: auth})
-    self.mu_log.log(self.mu_log.DEBUG, &#34;Authorization header was set.&#34;, module)
     self.session.baseUrl = self.baseUrl
     proxies = self.settings.get_edc_proxy()
     self.session.proxies.update(proxies)
     # just in case it&#39;s needed
-    self.session.headers.update({&#34;User-Agent&#34;: &#34;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36&#34;})
-
+    # self.session.headers.update({&#34;User-Agent&#34;: &#34;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36&#34;})
+    self.session.timeout = int(self.settings.edc_timeout)
+    if self.settings.enable_response_hook:
+        self.session.hooks = {&#39;response&#39;: self.print_roundtrip}
     return self.session</code></pre>
+</details>
+</dd>
+<dt id="edc_utilities.edc_session_helper.EDCSession.print_roundtrip"><code class="name flex">
+<span>def <span class="ident">print_roundtrip</span></span>(<span>self, response, *args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def print_roundtrip(self, response, *args, **kwargs):
+    format_headers = lambda d: &#39;\n&#39;.join(f&#39;{k}: {v}&#39; for k, v in d.items())
+    print(textwrap.dedent(&#39;&#39;&#39;
+        ---------------- request ----------------
+        {req.method} {req.url}
+        {reqhdrs}
+
+        {req.body}
+        ---------------- response ----------------
+        {res.status_code} {res.reason} {res.url}
+        {reshdrs}
+
+        {res.text}
+    &#39;&#39;&#39;).format(
+        req=response.request,
+        res=response,
+        reqhdrs=format_headers(response.request.headers),
+        reshdrs=format_headers(response.headers),
+    ))</code></pre>
 </details>
 </dd>
 <dt id="edc_utilities.edc_session_helper.EDCSession.validate_edc_connection"><code class="name flex">
@@ -607,7 +677,7 @@ url, auth</p></div>
     try:
         url = urljoin(self.baseUrl, &#34;access/2/catalog/data/productInformation&#34;)
         # url = self.baseUrl + &#34;access/2/catalog/data/productInformation&#34;
-        resp = self.session.get(url, timeout=self.timeout)
+        resp = self.session.get(url)
         self.mu_log.log(self.mu_log.DEBUG, &#34;api status code=&gt;&#34; + str(resp.status_code) + &#34;&lt;.&#34;, module)
         if resp.status_code == 200:
             # valid and 10.4+, get the actual version
@@ -627,11 +697,12 @@ url, auth</p></div>
                             , module)
             # invalid request - try another api call
             url = urljoin(self.baseUrl, &#34;access/1/catalog/data&#34;)
-            resp = self.session.get(url, timeout=self.timeout)
+            resp = self.session.get(url)
             self.mu_log.log(self.mu_log.DEBUG, &#34;2nd try status code: &#34; + str(resp.status_code), module)
+            return resp.status_code, None
         else:
-            self.mu_log.log(self.mu_log.ERROR, &#34;error connecting: &#34; + str(resp.json()), module)
-        return resp.status_code, resp.json()
+            self.mu_log.log(self.mu_log.ERROR, &#34;Error connecting. Status code: &#34; + str(resp.status_code), module)
+            return resp.status_code, None
     except requests.exceptions.RequestException as e:
         self.mu_log.log(self.mu_log.ERROR, &#34;Error connecting to : &#34; + self.baseUrl, module)
         # exit if we can&#39;t connect
@@ -660,6 +731,7 @@ url, auth</p></div>
 <h4><code><a title="edc_utilities.edc_session_helper.EDCSession" href="#edc_utilities.edc_session_helper.EDCSession">EDCSession</a></code></h4>
 <ul class="">
 <li><code><a title="edc_utilities.edc_session_helper.EDCSession.init_edc_session" href="#edc_utilities.edc_session_helper.EDCSession.init_edc_session">init_edc_session</a></code></li>
+<li><code><a title="edc_utilities.edc_session_helper.EDCSession.print_roundtrip" href="#edc_utilities.edc_session_helper.EDCSession.print_roundtrip">print_roundtrip</a></code></li>
 <li><code><a title="edc_utilities.edc_session_helper.EDCSession.validate_edc_connection" href="#edc_utilities.edc_session_helper.EDCSession.validate_edc_connection">validate_edc_connection</a></code></li>
 </ul>
 </li>

@@ -37,7 +37,7 @@ class MULogging:
     &#34;&#34;&#34;
         TODO: Code refactoring needed to use wrapper instead of complicated logging
     &#34;&#34;&#34;
-    code_version = &#34;0.2.21&#34;
+    code_version = &#34;0.3.35&#34;
     VERBOSE = 5
     DEBUG = logging.DEBUG
     INFO = logging.INFO
@@ -51,16 +51,16 @@ class MULogging:
         self.log_setting = log_settings.LogSettings(log_configuration_file)
         self.log_setting.get_config()
         self.area = None
-        self.logger = self.setup_logger(self.log_setting.log_level, self.log_setting.log_level_console
-                                        , self.log_setting.log_filename_prefix
-                                        , self.log_setting.log_directory
-                                        , self.log_setting.log_filename
-                                        , self.log_setting.instrumentation_key
-                                        , self.log_setting.azure_monitor_requests
+        self.logger = self.setup_logger(log_level=self.log_setting.log_level
+                                        , log_level_console=self.log_setting.log_level_console
+                                        , log_filename_prefix=self.log_setting.log_filename_prefix
+                                        , log_directory=self.log_setting.log_directory
+                                        , log_filename=self.log_setting.log_filename
+                                        , instrumentation_key=self.log_setting.instrumentation_key
+                                        , azure_monitor_requests=self.log_setting.azure_monitor_requests
                                         )
 
-    @staticmethod
-    def setup_logger(log_level, log_level_console
+    def setup_logger(self, log_level, log_level_console
                      , log_filename_prefix=&#34;&#34;
                      , log_directory=&#34;log/&#34;
                      , log_filename=&#34;some.log&#34;
@@ -98,28 +98,28 @@ class MULogging:
         return logger
 
     def log(self, level=DEBUG, msg=&#34;no_message&#34;, method=&#34;undetermined&#34;, extra=None):
-        if level &gt;= self.log_setting.log_level:
-            if extra is None:
-                properties = {&#34;custom_dimensions&#34;: {&#34;process&#34;: __name__, &#34;code_version&#34;: self.code_version}}
-            else:
-                properties = {&#34;custom_dimensions&#34;: extra}
-            message = &#34;&#34;
-            if self.area is None:
-                message += method + &#34; - &#34; + msg
-            else:
-                message = method + &#34; - &#34; + self.area + &#34; - &#34; + msg
-            if level == self.FATAL:
-                self.logger.critical(message, extra=properties)
-            elif level == self.ERROR:
-                self.logger.error(message, extra=properties)
-            elif level == self.WARNING:
-                self.logger.warning(message, extra=properties)
-            elif level == self.INFO:
-                self.logger.info(message, extra=properties)
-            elif level == self.DEBUG:
-                self.logger.debug(message, extra=properties)
-            else:
-                self.logger.debug(message, extra=properties)</code></pre>
+        # if level &gt;= self.log_setting.log_level:
+        if extra is None:
+            properties = {&#34;custom_dimensions&#34;: {&#34;process&#34;: __name__, &#34;code_version&#34;: self.code_version}}
+        else:
+            properties = {&#34;custom_dimensions&#34;: extra}
+        message = &#34;&#34;
+        if self.area is None:
+            message += method + &#34; - &#34; + msg
+        else:
+            message = method + &#34; - &#34; + self.area + &#34; - &#34; + msg
+        if level == self.FATAL:
+            self.logger.critical(message, extra=properties)
+        elif level == self.ERROR:
+            self.logger.error(message, extra=properties)
+        elif level == self.WARNING:
+            self.logger.warning(message, extra=properties)
+        elif level == self.INFO:
+            self.logger.info(message, extra=properties)
+        elif level == self.DEBUG:
+            self.logger.debug(message, extra=properties)
+        else:
+            self.logger.debug(message, extra=properties)</code></pre>
 </details>
 </section>
 <section>
@@ -145,7 +145,7 @@ class MULogging:
     &#34;&#34;&#34;
         TODO: Code refactoring needed to use wrapper instead of complicated logging
     &#34;&#34;&#34;
-    code_version = &#34;0.2.21&#34;
+    code_version = &#34;0.3.35&#34;
     VERBOSE = 5
     DEBUG = logging.DEBUG
     INFO = logging.INFO
@@ -159,16 +159,16 @@ class MULogging:
         self.log_setting = log_settings.LogSettings(log_configuration_file)
         self.log_setting.get_config()
         self.area = None
-        self.logger = self.setup_logger(self.log_setting.log_level, self.log_setting.log_level_console
-                                        , self.log_setting.log_filename_prefix
-                                        , self.log_setting.log_directory
-                                        , self.log_setting.log_filename
-                                        , self.log_setting.instrumentation_key
-                                        , self.log_setting.azure_monitor_requests
+        self.logger = self.setup_logger(log_level=self.log_setting.log_level
+                                        , log_level_console=self.log_setting.log_level_console
+                                        , log_filename_prefix=self.log_setting.log_filename_prefix
+                                        , log_directory=self.log_setting.log_directory
+                                        , log_filename=self.log_setting.log_filename
+                                        , instrumentation_key=self.log_setting.instrumentation_key
+                                        , azure_monitor_requests=self.log_setting.azure_monitor_requests
                                         )
 
-    @staticmethod
-    def setup_logger(log_level, log_level_console
+    def setup_logger(self, log_level, log_level_console
                      , log_filename_prefix=&#34;&#34;
                      , log_directory=&#34;log/&#34;
                      , log_filename=&#34;some.log&#34;
@@ -206,28 +206,28 @@ class MULogging:
         return logger
 
     def log(self, level=DEBUG, msg=&#34;no_message&#34;, method=&#34;undetermined&#34;, extra=None):
-        if level &gt;= self.log_setting.log_level:
-            if extra is None:
-                properties = {&#34;custom_dimensions&#34;: {&#34;process&#34;: __name__, &#34;code_version&#34;: self.code_version}}
-            else:
-                properties = {&#34;custom_dimensions&#34;: extra}
-            message = &#34;&#34;
-            if self.area is None:
-                message += method + &#34; - &#34; + msg
-            else:
-                message = method + &#34; - &#34; + self.area + &#34; - &#34; + msg
-            if level == self.FATAL:
-                self.logger.critical(message, extra=properties)
-            elif level == self.ERROR:
-                self.logger.error(message, extra=properties)
-            elif level == self.WARNING:
-                self.logger.warning(message, extra=properties)
-            elif level == self.INFO:
-                self.logger.info(message, extra=properties)
-            elif level == self.DEBUG:
-                self.logger.debug(message, extra=properties)
-            else:
-                self.logger.debug(message, extra=properties)</code></pre>
+        # if level &gt;= self.log_setting.log_level:
+        if extra is None:
+            properties = {&#34;custom_dimensions&#34;: {&#34;process&#34;: __name__, &#34;code_version&#34;: self.code_version}}
+        else:
+            properties = {&#34;custom_dimensions&#34;: extra}
+        message = &#34;&#34;
+        if self.area is None:
+            message += method + &#34; - &#34; + msg
+        else:
+            message = method + &#34; - &#34; + self.area + &#34; - &#34; + msg
+        if level == self.FATAL:
+            self.logger.critical(message, extra=properties)
+        elif level == self.ERROR:
+            self.logger.error(message, extra=properties)
+        elif level == self.WARNING:
+            self.logger.warning(message, extra=properties)
+        elif level == self.INFO:
+            self.logger.info(message, extra=properties)
+        elif level == self.DEBUG:
+            self.logger.debug(message, extra=properties)
+        else:
+            self.logger.debug(message, extra=properties)</code></pre>
 </details>
 <h3>Class variables</h3>
 <dl>
@@ -268,10 +268,10 @@ class MULogging:
 <div class="desc"></div>
 </dd>
 </dl>
-<h3>Static methods</h3>
+<h3>Methods</h3>
 <dl>
-<dt id="metadata_utilities.mu_logging.MULogging.setup_logger"><code class="name flex">
-<span>def <span class="ident">setup_logger</span></span>(<span>log_level, log_level_console, log_filename_prefix='', log_directory='log/', log_filename='some.log', instrumentation_key='unknown', azure_monitor_requests='False')</span>
+<dt id="metadata_utilities.mu_logging.MULogging.log"><code class="name flex">
+<span>def <span class="ident">log</span></span>(<span>self, level=10, msg='no_message', method='undetermined', extra=None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -279,8 +279,41 @@ class MULogging:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">@staticmethod
-def setup_logger(log_level, log_level_console
+<pre><code class="python">def log(self, level=DEBUG, msg=&#34;no_message&#34;, method=&#34;undetermined&#34;, extra=None):
+    # if level &gt;= self.log_setting.log_level:
+    if extra is None:
+        properties = {&#34;custom_dimensions&#34;: {&#34;process&#34;: __name__, &#34;code_version&#34;: self.code_version}}
+    else:
+        properties = {&#34;custom_dimensions&#34;: extra}
+    message = &#34;&#34;
+    if self.area is None:
+        message += method + &#34; - &#34; + msg
+    else:
+        message = method + &#34; - &#34; + self.area + &#34; - &#34; + msg
+    if level == self.FATAL:
+        self.logger.critical(message, extra=properties)
+    elif level == self.ERROR:
+        self.logger.error(message, extra=properties)
+    elif level == self.WARNING:
+        self.logger.warning(message, extra=properties)
+    elif level == self.INFO:
+        self.logger.info(message, extra=properties)
+    elif level == self.DEBUG:
+        self.logger.debug(message, extra=properties)
+    else:
+        self.logger.debug(message, extra=properties)</code></pre>
+</details>
+</dd>
+<dt id="metadata_utilities.mu_logging.MULogging.setup_logger"><code class="name flex">
+<span>def <span class="ident">setup_logger</span></span>(<span>self, log_level, log_level_console, log_filename_prefix='', log_directory='log/', log_filename='some.log', instrumentation_key='unknown', azure_monitor_requests='False')</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def setup_logger(self, log_level, log_level_console
                  , log_filename_prefix=&#34;&#34;
                  , log_directory=&#34;log/&#34;
                  , log_filename=&#34;some.log&#34;
@@ -316,43 +349,6 @@ def setup_logger(log_level, log_level_console
     logger.propagate = True
 
     return logger</code></pre>
-</details>
-</dd>
-</dl>
-<h3>Methods</h3>
-<dl>
-<dt id="metadata_utilities.mu_logging.MULogging.log"><code class="name flex">
-<span>def <span class="ident">log</span></span>(<span>self, level=10, msg='no_message', method='undetermined', extra=None)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def log(self, level=DEBUG, msg=&#34;no_message&#34;, method=&#34;undetermined&#34;, extra=None):
-    if level &gt;= self.log_setting.log_level:
-        if extra is None:
-            properties = {&#34;custom_dimensions&#34;: {&#34;process&#34;: __name__, &#34;code_version&#34;: self.code_version}}
-        else:
-            properties = {&#34;custom_dimensions&#34;: extra}
-        message = &#34;&#34;
-        if self.area is None:
-            message += method + &#34; - &#34; + msg
-        else:
-            message = method + &#34; - &#34; + self.area + &#34; - &#34; + msg
-        if level == self.FATAL:
-            self.logger.critical(message, extra=properties)
-        elif level == self.ERROR:
-            self.logger.error(message, extra=properties)
-        elif level == self.WARNING:
-            self.logger.warning(message, extra=properties)
-        elif level == self.INFO:
-            self.logger.info(message, extra=properties)
-        elif level == self.DEBUG:
-            self.logger.debug(message, extra=properties)
-        else:
-            self.logger.debug(message, extra=properties)</code></pre>
 </details>
 </dd>
 </dl>
