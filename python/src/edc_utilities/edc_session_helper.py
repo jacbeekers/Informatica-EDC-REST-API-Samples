@@ -43,7 +43,6 @@ class EDCSession:
     def __init__(self, settings):
         module = __name__ + ".__init__"
         self.baseUrl = settings.edc_url
-        self.session: requests.session = None
         self.argparser = argparse.ArgumentParser(add_help=False)
         self.__setup_standard_cmdargs__()
         self.edcversion = 0
@@ -183,7 +182,8 @@ class EDCSession:
         # just in case it's needed
         # self.session.headers.update({"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36"})
         self.session.timeout = int(self.settings.edc_timeout)
-        self.session.hooks = {'response': self.print_roundtrip}
+        if self.settings.enable_response_hook:
+            self.session.hooks = {'response': self.print_roundtrip}
         return self.session
 
     def validate_edc_connection(self):

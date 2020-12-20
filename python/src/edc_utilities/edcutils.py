@@ -13,7 +13,7 @@ import requests
 from requests.auth import HTTPBasicAuth
 
 
-def get_fact_value(item, attribute_name, json_property):
+def get_fact_value(item, attribute_name, json_property="value"):
     """
     returns the value of a fact (attribute) from an item
 

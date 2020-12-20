@@ -18,5 +18,6 @@
   "edc_http_proxy": "None",
   "edc_https_proxy": "None",
   "log_config": "resources/log_config.json",
-  "base_location_for_metafiles": "data/"
+  "base_location_for_metafiles": "data/",
+  "enable_response_hook": "True"
 }

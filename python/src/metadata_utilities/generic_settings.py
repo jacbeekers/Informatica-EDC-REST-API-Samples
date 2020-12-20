@@ -41,6 +41,7 @@ class GenericSettings:
         self.trust_env = True
         self.encoding = None
         self.base_location_for_metafiles = None
+        self.enable_response_hook = False
 
     def get_config(self):
         """
@@ -89,6 +90,13 @@ class GenericSettings:
                         self.edc_https_proxy = None
                 else:
                     self.edc_https_proxy = None
+                if "enable_response_hook" in data:
+                    if data["enable_response_hook"] == "True":
+                        self.enable_response_hook = True
+                    else:
+                        self.enable_response_hook = False
+                else:
+                    self.enable_response_hook = False
                 if "log_config" in data:
                     self.log_config = data["log_config"]
                 else:

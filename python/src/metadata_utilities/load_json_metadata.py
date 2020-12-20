@@ -316,7 +316,7 @@ class ConvertJSONtoEDCLineage:
             configuration_file: a relative or absolute path to the configuration file. Default is resources/config.json
         """
         module = "ConvertJSONtoEDCLineage.main"
-        process_result = self.process_files(metafiles_only)
+        process_result = self.process_files()
         return process_result
 
 
