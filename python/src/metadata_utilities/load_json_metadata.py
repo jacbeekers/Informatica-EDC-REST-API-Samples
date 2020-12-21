@@ -44,7 +44,7 @@ class ConvertJSONtoEDCLineage:
         """
         Generate the metadata file for the data. The result is a file with only a header. No real data is needed.
         """
-        module = "ConvertJSONtoEDCLineage.generate_file_structure"
+        module = __name__ + ".generate_file_structure"
         file_result = messages.message["ok"]
         with open(self.json_file) as entity:
             data = json.load(entity)
@@ -82,7 +82,7 @@ class ConvertJSONtoEDCLineage:
         """
         A metafile is created for Informatica EDC to scan. This way no real data is needed.
         """
-        module = "ConvertJSONtoEDCLineage.create_metafile"
+        module = __name__ + ".create_metafile"
         file_result = None
         if self.settings.target != "local":
             # TODO: Implement "azure_blob"
@@ -135,13 +135,13 @@ class ConvertJSONtoEDCLineage:
                             is_to = True
         return is_from, is_to
 
-    def process_files(self):
+    def process_files(self, metafiles_only = False, ignore_metafile_creation=False):
         """
         Process files in the configued json directory (check config.json)
         For each file: Validate its schema and generate the metadata definition file or lineage file
             (depends on the meta_type of the file found)
         """
-        module = "ConvertJSONtoEDCLineage.process_files"
+        module = __name__ + ".process_files"
         if self.config_result != messages.message["ok"]:
             return self.config_result
         else:
@@ -167,7 +167,10 @@ class ConvertJSONtoEDCLineage:
             if check_result == messages.message["ok"]:
                 self.mu_log.log(self.mu_log.DEBUG, "schema check returned OK", module)
                 self.meta_type = check.meta_type
-                file_result = self.process_physical_entity_and_attribute()
+                file_result = self.process_physical_entity_and_attribute(
+                    metafiles_only=metafiles_only
+                    , ignore_metafile_creation=ignore_metafile_creation
+                )
                 if file_result == messages.message["ok"]:
                     self.mu_log.log(self.mu_log.DEBUG, "file processed successfully", module)
                 else:
@@ -181,22 +184,35 @@ class ConvertJSONtoEDCLineage:
         self.mu_log.log(self.mu_log.INFO, "Number of JSON files processed: " + str(number_of_files), module)
         return self.overall_result
 
-    def process_physical_entity_and_attribute(self):
+    def process_physical_entity_and_attribute(self, metafiles_only=False, ignore_metafile_creation=False):
         """
         Generate metadata files to be parsed by EDC
         """
         file_result = messages.message["ok"]
-        module = "ConvertJSONtoEDCLineage.process_physical_entity_and_attribute"
+        module = __name__ + ".process_physical_entity_and_attribute"
 
         if self.meta_type not in ("physical_entity", "physical_entity_association", "physical_attribute_association"):
-            self.mu_log.log(self.mu_log.DEBUG,
+            self.mu_log.log(self.mu_log.INFO,
                             "file is not a physical entity or an association. File ignored."
                             , module)
             return file_result
 
+        if self.meta_type == "physical_entity" and ignore_metafile_creation:
+            self.mu_log.log(self.mu_log.INFO
+                            , "metadata type is physical_entity and metafile creation was set to True. " +
+                              "File structure will not be created."
+                            , module)
+            return messages.message["ok"]
+
         if self.meta_type == "physical_entity":
             file_result = self.generate_file_structure()
             return file_result
+
+        if metafiles_only:
+            self.mu_log.log(self.mu_log.INFO
+                            , "metafiles_only was set to True. Not processing lineage. File with meta_type >"
+                            + self.meta_type + "< ignored.", module)
+            return messages.message["ok"]
 
         if self.meta_type in ("physical_attribute_association", "physical_entity_association"):
             file_result = self.process_lineage_request()
@@ -310,13 +326,18 @@ class ConvertJSONtoEDCLineage:
         send_result = messages.message["not_implemented"]
         return send_result
 
-    def main(self, metafiles_only=False):
+    def main(self, metafiles_only=False, ignore_metafile_creation=False):
         """
             Main module to process JSON files that are stored at the location stated in the provided configuration file
             configuration_file: a relative or absolute path to the configuration file. Default is resources/config.json
         """
-        module = "ConvertJSONtoEDCLineage.main"
-        process_result = self.process_files()
+        module = __name__ + ".main"
+        process_result = self.process_files(metafiles_only=metafiles_only, ignore_metafile_creation=ignore_metafile_creation)
+        return process_result
+
+    def create_metafiles(self):
+        module = __name__ + ".create_metafiles"
+        process_result = self.process_files(metafiles_only=True, ignore_metafile_creation=False)
         return process_result
 
 
@@ -324,7 +345,12 @@ if __name__ == "__main__":
     """
         Call to main without any arguments reads the resources/config.json file to determine directories and other settings
     """
-    result = ConvertJSONtoEDCLineage().main()
+    result = ConvertJSONtoEDCLineage().create_metafiles()
+    print(result)
+
+    result = ConvertJSONtoEDCLineage().main(metafiles_only=False, ignore_metafile_creation=True)
+    print(result)
+
     if result["code"] != "OK":
         exit(1)
     else:
