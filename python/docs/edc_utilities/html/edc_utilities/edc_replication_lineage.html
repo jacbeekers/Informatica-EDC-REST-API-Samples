@@ -113,7 +113,8 @@ import json
 import logging
 import time
 
-import urllib3, requests
+import requests
+import urllib3
 
 from src.edc_utilities import edc_session_helper
 from src.edc_utilities import edcutils
@@ -131,9 +132,8 @@ class EDCReplicationLineage:
         self.settings.get_config()
         # set edc helper session + variables (easy/re-useable connection to edc api)
         self.edc_helper = edc_session_helper.EDCSession(self.settings)
-        self.mu_log = mu_logging.MULogging(&#34;resources/log_config.json&#34;)
+        self.mu_log = mu_logging.MULogging(self.settings.log_config)
         self.mu_log.setup_logger(logging.DEBUG, logging.INFO)
-        self.mu_log.log(self.mu_log.DEBUG, &#34;mu_log was None. Logger has been setup now.&#34;, module)
         self.settings.mu_log = self.mu_log
 
     def get_schema_contents(self, schema_name, schema_type, resource_name, container_name):
@@ -151,7 +151,9 @@ class EDCReplicationLineage:
         key=table  val=tableid
         key=table.column  val=columnid
         &#34;&#34;&#34;
-        print(&#34;\tget_schema_contents for:&#34; + schema_name + &#34; resource=&#34; + resource_name)
+        module = __name__ + &#34;.get_schema_contents&#34;
+        self.mu_log.log(self.mu_log.INFO, &#34;get_schema_contents for &gt;&#34;
+                        + schema_name + &#34;&gt; resource &gt;&#34; + resource_name + &#34;&lt;&#34;, module)
         # schema_dict returned  key=TABLE.COLUMN value=column id
         schema_dict = {}
         table_names = {}
@@ -164,10 +166,10 @@ class EDCReplicationLineage:
         url = self.edc_helper.baseUrl + &#34;/access/2/catalog/data/objects&#34;
         query = (f&#39;+core.resourceName:&#34;{resource_name}&#34;&#39;
                  + f&#39; +core.classType:&#34;{schema_type}&#34;&#39;
-        #         + f&#39; +core.name:&#34;{schema_name}&#34;&#39;
+                 #         + f&#39; +core.name:&#34;{schema_name}&#34;&#39;
                  )
         parameters = {&#34;q&#34;: query, &#34;offset&#34;: 0, &#34;pageSize&#34;: 1000}
-        print(&#34;\tquery=&#34; + query)
+        self.mu_log.log(self.mu_log.DEBUG, &#34;query=&#34; + query, module)
 
         schema_id = None
         table_count = 0
@@ -175,30 +177,31 @@ class EDCReplicationLineage:
         # make the call to find the schema object
         try:
             response = self.edc_helper.session.get(url, params=parameters)
-            print(f&#34;session get finished: {response.status_code}&#34;)
+            self.mu_log.log(self.mu_log.DEBUG, f&#34;session get finished: {response.status_code}&#34;, module)
             rc = response.status_code
             if rc != 200:
-                print(&#34;error reading object: rc=&#34; + str(rc) + &#34; response:&#34; + str(response.json))
+                self.mu_log.log(self.mu_log.ERROR
+                                , &#34;error reading object: rc=&#34; + str(rc) + &#34; response:&#34; + str(response.json)
+                                , module)
                 if rc == 401:
-                    print(
-                        &#34;\t401:Possible Missing/bad credentials&#34;
-                    )
-                    print(str(response))
+                    self.mu_log.log(self.mu_log.ERROR,
+                                    &#34;401:Possible Missing/bad credentials. Response: &#34; + str(response)
+                                    , module)
                 return None, None
         except urllib3.exceptions.NewConnectionError or requests.exceptions.ConnectionError:
-            print(f&#34;Exception during get for url {url} with params {parameters}&#34;)
+            self.mu_log.log(self.mu_log.ERROR, f&#34;Exception during get for url {url} with params {parameters}&#34;, module)
             response = None
             return None, None
 
         # get the total # of objects returned (first part of the json resultset)
         total_objects = response.json()[&#34;metadata&#34;][&#34;totalCount&#34;]
-        print(&#34;\tobjects returned: &#34; + str(total_objects))
+        self.mu_log.log(self.mu_log.INFO, &#34;objects returned: &#34; + str(total_objects), module)
 
         for item in response.json()[&#34;items&#34;]:
             schema_id = item[&#34;id&#34;]
             schema_name = edcutils.get_fact_value(item=item, attribute_name=&#34;core.name&#34;)
             # get the tables &amp; columns
-            print(&#34;\tfound schema: &#34; + schema_name + &#34; id=&#34; + schema_id)
+            self.mu_log.log(self.mu_log.INFO, &#34;found schema: &#34; + schema_name + &#34; id=&#34; + schema_id, module)
 
             lineage_url = self.edc_helper.baseUrl + &#34;/access/2/catalog/data/relationships&#34;
             lineage_parameters = {
@@ -210,26 +213,25 @@ class EDCReplicationLineage:
                 &#34;includeTerms&#34;: &#34;false&#34;,
                 &#34;removeDuplicateAggregateLinks&#34;: &#34;false&#34;,
             }
-            print(
-                &#34;\tGET child relations for schema: &#34; + lineage_url + &#34; parms=&#34; + str(lineage_parameters)
-            )
+            self.mu_log.log(self.mu_log.DEBUG,
+                            &#34;GET child relations for schema: &#34; + lineage_url + &#34; parms=&#34; + str(lineage_parameters),
+                            module)
             # get using uid/pwd
             lineage_resp = self.edc_helper.session.get(
                 lineage_url,
                 params=lineage_parameters,
             )
             lineage_status = lineage_resp.status_code
-            print(&#34;\tlineage resp=&#34; + str(lineage_status))
+            self.mu_log.log(self.mu_log.DEBUG, &#34;lineage resp=&#34; + str(lineage_status), module)
             if lineage_status != 200:
-                print(
-                    f&#34;error getting schema contents (tables) rc={rc}&#34;
-                    f&#34; response:{response.json}&#34;
-                )
+                self.mu_log.log(self.mu_log.ERROR,
+                                f&#34;error getting schema contents (tables) rc={rc}&#34;
+                                f&#34; response:{response.json}&#34;
+                                , module)
                 if rc == 401:
-                    print(
-                        &#34;\t401:Possible missing/bad credentials&#34;
-                    )
-                    print(str(response))
+                    self.mu_log.log(self.mu_log.ERROR,
+                                    &#34;\t401:Possible missing/bad credentials: &#34; + str(response)
+                                    , module)
                 return None, None
 
             if lineage_resp.text.startswith(&#34;{items:&#34;):
@@ -239,29 +241,30 @@ class EDCReplicationLineage:
                 lineage_json = lineage_resp.text
             # relations_json = json.loads(lineage_json.replace(&#39;items&#39;, &#39;&#34;items&#34;&#39;))
             relations_json = json.loads(lineage_json)
-            # print(len(relations_json))
+            self.mu_log.log(self.mu_log.VERBOSE, &#34;#relations: &#34; + str(len(relations_json)), module)
 
             for lineage_item in relations_json[&#34;items&#34;]:
-                print(&#39;***NEW***\n\tlineage_item: &#39; + str(lineage_item))
+                self.mu_log.log(self.mu_log.VERBOSE, &#39;***NEW*** - lineage_item: &#39; + str(lineage_item), module)
                 in_id = lineage_item.get(&#34;inId&#34;)
                 out_id = lineage_item.get(&#34;outId&#34;)
 
-                print(&#39;\t\tin_id===&#39; + in_id + &#34;\n\t\tout_id=&#34; + out_id)
-                # print(edcutils.getFactValue(lineage_item[&#34;inEmbedded&#34;], &#34;core.name&#34;))
+                self.mu_log.log(self.mu_log.VERBOSE, &#34;in_id===&#34; + in_id, module)
+                self.mu_log.log(self.mu_log.VERBOSE, &#34;out_id===&#34; + out_id, module)
+                self.mu_log.log(self.mu_log.VERBOSE, &#34;factvalue inEmbedded: &#34;
+                                + edcutils.get_fact_value(lineage_item[&#34;inEmbedded&#34;], &#34;core.name&#34;), module)
                 association_id = lineage_item.get(&#34;associationId&#34;)
-                print(&#34;\t\tassoc=&#34; + association_id)
+                self.mu_log.log(self.mu_log.VERBOSE, &#34;assoc=&#34; + association_id, module)
                 # if association_id==&#39;com.infa.ldm.relational.SchemaTable&#39;:
                 if association_id.endswith(&#34;.DelimitedFileField&#34;) and &#34;inEmbedded&#34; in lineage_item:
                     # note - custom lineage does not need table and column
                     # count the tables &amp; store table names
                     table_count += 1
                     # table_name = in_id.split(&#39;/&#39;)[-1]
-                    #table_name = edcutils.get_fact_value(
+                    # table_name = edcutils.get_fact_value(
                     #    lineage_item[&#34;inEmbedded&#34;], &#34;core.name&#34;
-                    #).lower()
-                    # print(&#34;\t\tFilename: &#34; + table_name)
+                    # ).lower()
                     out_id = out_id.split(&#34;/&#34;)[-1]
-                    print(&#34;\t\tFilename: &#34; + out_id)
+                    self.mu_log.log(self.mu_log.DEBUG, &#34;Filename: &#34; + out_id, module)
                     # store the table name (for lookup when processing the columns)
                     # key=id, val=name
                     table_names[in_id] = out_id
@@ -274,18 +277,18 @@ class EDCReplicationLineage:
                     column_name = edcutils.get_fact_value(
                         lineage_item[&#34;inEmbedded&#34;], &#34;core.name&#34;
                     ).lower()
-                    print(&#34;\t\t\tField name: &#34; + column_name)
+                    self.mu_log.log(self.mu_log.DEBUG, &#34;Field name: &#34; + column_name, module)
                     table_name = table_names[in_id].lower()
-                    print(&#34;\t\tField=&#34; + table_name + &#34;.&#34; + column_name)
+                    self.mu_log.log(self.mu_log.DEBUG, &#34;Field=&#34; + table_name + &#34;.&#34; + column_name, module)
                     schema_dict[table_name + &#34;.&#34; + column_name] = in_id
 
-        print(
-            &#34;\tgetSchema: returning &#34;
-            + str(column_count)
-            + &#34; fields, in &#34;
-            + str(table_count)
-            + &#34; files&#34;
-        )
+        self.mu_log.log(self.mu_log.INFO,
+                        &#34;getSchema: returning &#34;
+                        + str(column_count)
+                        + &#34; fields, in &#34;
+                        + str(table_count)
+                        + &#34; files&#34;
+                        , module)
         return schema_dict, schema_id
 
     def main(self):
@@ -354,8 +357,8 @@ class EDCReplicationLineage:
         # by using system vars or command-line args
         self.edc_helper.init_edc_session()
 
-        print(&#34;from settings:&#34;, self.settings.edc_config_data)
-        print(f&#34;command-line args parsed = {args} &#34;)
+        self.mu_log.log(self.mu_log.VERBOSE, &#34;from settings:&#34; + str(self.settings.edc_config_data), module)
+        self.mu_log.log(self.mu_log.DEBUG, f&#34;command-line args parsed = {args} &#34;, module)
 
         start_time = time.time()
 
@@ -403,19 +406,19 @@ class EDCReplicationLineage:
             # right_type = &#34;com.infa.ldm.relational.Schema&#34;
             right_type = &#34;com.infa.ldm.file.delimited.DelimitedFile&#34;
 
-        print(&#34;dbSchemaReplicationLineage:start&#34;)
-        print(f&#34;Catalog={self.edc_helper.baseUrl}&#34;)
-        print(f&#34;left:  resource={left_resource}&#34;)
-        print(f&#34;left:    schema={left_schema}&#34;)
-        print(f&#34;left: container={left_container}&#34;)
-        print(f&#34;left:      type={left_type}&#34;)
-        print(f&#34;right:  resource={right_resource}&#34;)
-        print(f&#34;right:    schema={right_schema}&#34;)
-        print(f&#34;right: container={right_container}&#34;)
-        print(f&#34;right:      type={right_type}&#34;)
-        print(f&#34;output folder: {output_folder}&#34;)
-        print(f&#34;output file prefix: {output_file_prefix}&#34;)
-        print(f&#34;right table prefix: {right_table_prefix}&#34;)
+        self.mu_log.log(self.mu_log.INFO, &#34;dbSchemaReplicationLineage:start&#34;, module)
+        self.mu_log.log(self.mu_log.INFO, f&#34;Catalog={self.edc_helper.baseUrl}&#34;, module)
+        self.mu_log.log(self.mu_log.INFO, f&#34;left:  resource={left_resource}&#34;, module)
+        self.mu_log.log(self.mu_log.INFO, f&#34;left:    schema={left_schema}&#34;, module)
+        self.mu_log.log(self.mu_log.INFO, f&#34;left: container={left_container}&#34;, module)
+        self.mu_log.log(self.mu_log.INFO, f&#34;left:      type={left_type}&#34;, module)
+        self.mu_log.log(self.mu_log.INFO, f&#34;right:  resource={right_resource}&#34;, module)
+        self.mu_log.log(self.mu_log.INFO, f&#34;right:    schema={right_schema}&#34;, module)
+        self.mu_log.log(self.mu_log.INFO, f&#34;right: container={right_container}&#34;, module)
+        self.mu_log.log(self.mu_log.INFO, f&#34;right:      type={right_type}&#34;, module)
+        self.mu_log.log(self.mu_log.INFO, f&#34;output folder: {output_folder}&#34;, module)
+        self.mu_log.log(self.mu_log.INFO, f&#34;output file prefix: {output_file_prefix}&#34;, module)
+        self.mu_log.log(self.mu_log.INFO, f&#34;right table prefix: {right_table_prefix}&#34;, module)
 
         # initialize csv output file
         column_header = [
@@ -429,33 +432,33 @@ class EDCReplicationLineage:
         # set the csv fileName
         csv_file_name = output_folder \
                         + output_file_prefix \
-                        + &#34;_&#34; + left_container.replace(&#34;/&#34;,&#34;_&#34;).lower()\
-                        + &#34;_&#34; + right_container.replace(&#34;/&#34;,&#34;_&#34;).lower() \
+                        + &#34;_&#34; + left_container.replace(&#34;/&#34;, &#34;_&#34;).lower() \
+                        + &#34;_&#34; + right_container.replace(&#34;/&#34;, &#34;_&#34;).lower() \
                         + &#34;.csv&#34;
 
-        print(&#34;initializing file: &#34; + csv_file_name)
+        self.mu_log.log(self.mu_log.DEBUG, &#34;initializing file: &#34; + csv_file_name, module)
         f_csv_file = open(csv_file_name, &#34;w&#34;, newline=&#34;&#34;, encoding=&#34;utf-8&#34;)
         col_writer = csv.writer(f_csv_file)
         col_writer.writerow(column_header)
 
         # get the objects from the left schema into memory
-        print(
-            f&#34;get left schema: name={left_schema}&#34;
-            f&#34; resource={left_resource}&#34;
-            f&#34; container={left_container}&#34;
-            f&#34; type={left_type}&#34;
-        )
+        self.mu_log.log(self.mu_log.DEBUG,
+                        f&#34;get left schema: name={left_schema}&#34;
+                        f&#34; resource={left_resource}&#34;
+                        f&#34; container={left_container}&#34;
+                        f&#34; type={left_type}&#34;
+                        , module)
         left_objects, left_schema_id = self.get_schema_contents(
             left_schema, left_type, left_resource, left_container
         )
 
         # get the objects from the right schema into memory
-        print(
-            f&#34;get right schema: name={right_schema}&#34;
-            f&#34; resource={right_resource}&#34;
-            f&#34; container={right_container}&#34;
-            f&#34; type={right_type}&#34;
-        )
+        self.mu_log.log(self.mu_log.DEBUG,
+                        f&#34;get right schema: name={right_schema}&#34;
+                        f&#34; resource={right_resource}&#34;
+                        f&#34; container={right_container}&#34;
+                        f&#34; type={right_type}&#34;
+                        , module)
         right_objects, right_schema_id = self.get_schema_contents(
             right_schema, right_type, right_resource, right_container
         )
@@ -465,18 +468,19 @@ class EDCReplicationLineage:
 
         if len(left_objects) &gt; 0 and len(right_objects) &gt; 0:
             # iterate over all left objects - looking for matching right ones
-            print(&#34;\nprocessing: &#34; + str(len(left_objects)) + &#34; objects (left side)&#34;)
-            first_find =  True
+            self.mu_log.log(self.mu_log.DEBUG, &#34;processing: &#34; + str(len(left_objects)) + &#34; objects (left side)&#34;, module)
+            first_find = True
             for left_name, left_val in left_objects.items():
                 # if the target is using a prefix - add it to left_name
                 if len(right_table_prefix) &gt; 0:
                     left_name = right_table_prefix.lower() + left_name
 
-                print(&#34;checking for left key=&#34; + left_name, &#34; in right_object keys: &#34;, right_objects.keys())
+                self.mu_log.log(self.mu_log.DEBUG, &#34;checking for left key=&#34; + left_name + &#34; in right_object keys: &#34;
+                                + right_objects.keys(), module)
                 if left_name in right_objects.keys():
                     # match
                     right_val = right_objects.get(left_name)
-                    print(&#34;right_val=&#34;, right_val)
+                    self.mu_log.log(self.mu_log.DEBUG, &#34;right_val=&#34; + right_val, module)
                     matches += 1
                     if first_find:
                         # create the lineage file
@@ -492,7 +496,7 @@ class EDCReplicationLineage:
                                 , right_schema_id]
                         )
                         first_find = False
-                    # print(&#34;\t&#34; + right_val)
+                    self.mu_log.log(self.mu_log.VERBOSE, &#34;right_val is &gt;&#34; + right_val + &#34;&lt;&#34;, module)
                     # check if it is formatted as table.column or just table
                     if left_name.count(&#34;.&#34;) == 1:
                         # column lineage - using DirectionalDataFlow
@@ -504,16 +508,16 @@ class EDCReplicationLineage:
                     # col_writer.writerow([leftResource,rightResource,leftRef,rightRef])
                 else:
                     missing += 1
-                    print(&#34;\t no match on right side for key=&#34; + left_name)
+                    self.mu_log.log(self.mu_log.WARNING, &#34;no match on right side for key=&#34; + left_name, module)
 
         else:
-            print(&#34;error getting schema info... - no linking/lineage created&#34;)
+            self.mu_log.log(self.mu_log.ERROR, &#34;error getting schema info... - no linking/lineage created&#34;, module)
 
-        print(
-            module + f&#34;:finished. {matches} link(s) created, &#34;
-            f&#34;{missing} missing (found in left, no match on right)&#34;
-        )
-        print(&#34;run time = %s seconds ---&#34; % (time.time() - start_time))
+        self.mu_log.log(self.mu_log.INFO,
+                        module + f&#34;:finished. {matches} link(s) created, &#34;
+                                 f&#34;{missing} missing (found in left, no match on right)&#34;
+                        , module)
+        self.mu_log.log(self.mu_log.INFO, &#34;run time = %s seconds ---&#34; % (time.time() - start_time), module)
 
         f_csv_file.close()
 
@@ -552,9 +556,8 @@ if __name__ == &#34;__main__&#34;:
         self.settings.get_config()
         # set edc helper session + variables (easy/re-useable connection to edc api)
         self.edc_helper = edc_session_helper.EDCSession(self.settings)
-        self.mu_log = mu_logging.MULogging(&#34;resources/log_config.json&#34;)
+        self.mu_log = mu_logging.MULogging(self.settings.log_config)
         self.mu_log.setup_logger(logging.DEBUG, logging.INFO)
-        self.mu_log.log(self.mu_log.DEBUG, &#34;mu_log was None. Logger has been setup now.&#34;, module)
         self.settings.mu_log = self.mu_log
 
     def get_schema_contents(self, schema_name, schema_type, resource_name, container_name):
@@ -572,7 +575,9 @@ if __name__ == &#34;__main__&#34;:
         key=table  val=tableid
         key=table.column  val=columnid
         &#34;&#34;&#34;
-        print(&#34;\tget_schema_contents for:&#34; + schema_name + &#34; resource=&#34; + resource_name)
+        module = __name__ + &#34;.get_schema_contents&#34;
+        self.mu_log.log(self.mu_log.INFO, &#34;get_schema_contents for &gt;&#34;
+                        + schema_name + &#34;&gt; resource &gt;&#34; + resource_name + &#34;&lt;&#34;, module)
         # schema_dict returned  key=TABLE.COLUMN value=column id
         schema_dict = {}
         table_names = {}
@@ -585,10 +590,10 @@ if __name__ == &#34;__main__&#34;:
         url = self.edc_helper.baseUrl + &#34;/access/2/catalog/data/objects&#34;
         query = (f&#39;+core.resourceName:&#34;{resource_name}&#34;&#39;
                  + f&#39; +core.classType:&#34;{schema_type}&#34;&#39;
-        #         + f&#39; +core.name:&#34;{schema_name}&#34;&#39;
+                 #         + f&#39; +core.name:&#34;{schema_name}&#34;&#39;
                  )
         parameters = {&#34;q&#34;: query, &#34;offset&#34;: 0, &#34;pageSize&#34;: 1000}
-        print(&#34;\tquery=&#34; + query)
+        self.mu_log.log(self.mu_log.DEBUG, &#34;query=&#34; + query, module)
 
         schema_id = None
         table_count = 0
@@ -596,30 +601,31 @@ if __name__ == &#34;__main__&#34;:
         # make the call to find the schema object
         try:
             response = self.edc_helper.session.get(url, params=parameters)
-            print(f&#34;session get finished: {response.status_code}&#34;)
+            self.mu_log.log(self.mu_log.DEBUG, f&#34;session get finished: {response.status_code}&#34;, module)
             rc = response.status_code
             if rc != 200:
-                print(&#34;error reading object: rc=&#34; + str(rc) + &#34; response:&#34; + str(response.json))
+                self.mu_log.log(self.mu_log.ERROR
+                                , &#34;error reading object: rc=&#34; + str(rc) + &#34; response:&#34; + str(response.json)
+                                , module)
                 if rc == 401:
-                    print(
-                        &#34;\t401:Possible Missing/bad credentials&#34;
-                    )
-                    print(str(response))
+                    self.mu_log.log(self.mu_log.ERROR,
+                                    &#34;401:Possible Missing/bad credentials. Response: &#34; + str(response)
+                                    , module)
                 return None, None
         except urllib3.exceptions.NewConnectionError or requests.exceptions.ConnectionError:
-            print(f&#34;Exception during get for url {url} with params {parameters}&#34;)
+            self.mu_log.log(self.mu_log.ERROR, f&#34;Exception during get for url {url} with params {parameters}&#34;, module)
             response = None
             return None, None
 
         # get the total # of objects returned (first part of the json resultset)
         total_objects = response.json()[&#34;metadata&#34;][&#34;totalCount&#34;]
-        print(&#34;\tobjects returned: &#34; + str(total_objects))
+        self.mu_log.log(self.mu_log.INFO, &#34;objects returned: &#34; + str(total_objects), module)
 
         for item in response.json()[&#34;items&#34;]:
             schema_id = item[&#34;id&#34;]
             schema_name = edcutils.get_fact_value(item=item, attribute_name=&#34;core.name&#34;)
             # get the tables &amp; columns
-            print(&#34;\tfound schema: &#34; + schema_name + &#34; id=&#34; + schema_id)
+            self.mu_log.log(self.mu_log.INFO, &#34;found schema: &#34; + schema_name + &#34; id=&#34; + schema_id, module)
 
             lineage_url = self.edc_helper.baseUrl + &#34;/access/2/catalog/data/relationships&#34;
             lineage_parameters = {
@@ -631,26 +637,25 @@ if __name__ == &#34;__main__&#34;:
                 &#34;includeTerms&#34;: &#34;false&#34;,
                 &#34;removeDuplicateAggregateLinks&#34;: &#34;false&#34;,
             }
-            print(
-                &#34;\tGET child relations for schema: &#34; + lineage_url + &#34; parms=&#34; + str(lineage_parameters)
-            )
+            self.mu_log.log(self.mu_log.DEBUG,
+                            &#34;GET child relations for schema: &#34; + lineage_url + &#34; parms=&#34; + str(lineage_parameters),
+                            module)
             # get using uid/pwd
             lineage_resp = self.edc_helper.session.get(
                 lineage_url,
                 params=lineage_parameters,
             )
             lineage_status = lineage_resp.status_code
-            print(&#34;\tlineage resp=&#34; + str(lineage_status))
+            self.mu_log.log(self.mu_log.DEBUG, &#34;lineage resp=&#34; + str(lineage_status), module)
             if lineage_status != 200:
-                print(
-                    f&#34;error getting schema contents (tables) rc={rc}&#34;
-                    f&#34; response:{response.json}&#34;
-                )
+                self.mu_log.log(self.mu_log.ERROR,
+                                f&#34;error getting schema contents (tables) rc={rc}&#34;
+                                f&#34; response:{response.json}&#34;
+                                , module)
                 if rc == 401:
-                    print(
-                        &#34;\t401:Possible missing/bad credentials&#34;
-                    )
-                    print(str(response))
+                    self.mu_log.log(self.mu_log.ERROR,
+                                    &#34;\t401:Possible missing/bad credentials: &#34; + str(response)
+                                    , module)
                 return None, None
 
             if lineage_resp.text.startswith(&#34;{items:&#34;):
@@ -660,29 +665,30 @@ if __name__ == &#34;__main__&#34;:
                 lineage_json = lineage_resp.text
             # relations_json = json.loads(lineage_json.replace(&#39;items&#39;, &#39;&#34;items&#34;&#39;))
             relations_json = json.loads(lineage_json)
-            # print(len(relations_json))
+            self.mu_log.log(self.mu_log.VERBOSE, &#34;#relations: &#34; + str(len(relations_json)), module)
 
             for lineage_item in relations_json[&#34;items&#34;]:
-                print(&#39;***NEW***\n\tlineage_item: &#39; + str(lineage_item))
+                self.mu_log.log(self.mu_log.VERBOSE, &#39;***NEW*** - lineage_item: &#39; + str(lineage_item), module)
                 in_id = lineage_item.get(&#34;inId&#34;)
                 out_id = lineage_item.get(&#34;outId&#34;)
 
-                print(&#39;\t\tin_id===&#39; + in_id + &#34;\n\t\tout_id=&#34; + out_id)
-                # print(edcutils.getFactValue(lineage_item[&#34;inEmbedded&#34;], &#34;core.name&#34;))
+                self.mu_log.log(self.mu_log.VERBOSE, &#34;in_id===&#34; + in_id, module)
+                self.mu_log.log(self.mu_log.VERBOSE, &#34;out_id===&#34; + out_id, module)
+                self.mu_log.log(self.mu_log.VERBOSE, &#34;factvalue inEmbedded: &#34;
+                                + edcutils.get_fact_value(lineage_item[&#34;inEmbedded&#34;], &#34;core.name&#34;), module)
                 association_id = lineage_item.get(&#34;associationId&#34;)
-                print(&#34;\t\tassoc=&#34; + association_id)
+                self.mu_log.log(self.mu_log.VERBOSE, &#34;assoc=&#34; + association_id, module)
                 # if association_id==&#39;com.infa.ldm.relational.SchemaTable&#39;:
                 if association_id.endswith(&#34;.DelimitedFileField&#34;) and &#34;inEmbedded&#34; in lineage_item:
                     # note - custom lineage does not need table and column
                     # count the tables &amp; store table names
                     table_count += 1
                     # table_name = in_id.split(&#39;/&#39;)[-1]
-                    #table_name = edcutils.get_fact_value(
+                    # table_name = edcutils.get_fact_value(
                     #    lineage_item[&#34;inEmbedded&#34;], &#34;core.name&#34;
-                    #).lower()
-                    # print(&#34;\t\tFilename: &#34; + table_name)
+                    # ).lower()
                     out_id = out_id.split(&#34;/&#34;)[-1]
-                    print(&#34;\t\tFilename: &#34; + out_id)
+                    self.mu_log.log(self.mu_log.DEBUG, &#34;Filename: &#34; + out_id, module)
                     # store the table name (for lookup when processing the columns)
                     # key=id, val=name
                     table_names[in_id] = out_id
@@ -695,18 +701,18 @@ if __name__ == &#34;__main__&#34;:
                     column_name = edcutils.get_fact_value(
                         lineage_item[&#34;inEmbedded&#34;], &#34;core.name&#34;
                     ).lower()
-                    print(&#34;\t\t\tField name: &#34; + column_name)
+                    self.mu_log.log(self.mu_log.DEBUG, &#34;Field name: &#34; + column_name, module)
                     table_name = table_names[in_id].lower()
-                    print(&#34;\t\tField=&#34; + table_name + &#34;.&#34; + column_name)
+                    self.mu_log.log(self.mu_log.DEBUG, &#34;Field=&#34; + table_name + &#34;.&#34; + column_name, module)
                     schema_dict[table_name + &#34;.&#34; + column_name] = in_id
 
-        print(
-            &#34;\tgetSchema: returning &#34;
-            + str(column_count)
-            + &#34; fields, in &#34;
-            + str(table_count)
-            + &#34; files&#34;
-        )
+        self.mu_log.log(self.mu_log.INFO,
+                        &#34;getSchema: returning &#34;
+                        + str(column_count)
+                        + &#34; fields, in &#34;
+                        + str(table_count)
+                        + &#34; files&#34;
+                        , module)
         return schema_dict, schema_id
 
     def main(self):
@@ -775,8 +781,8 @@ if __name__ == &#34;__main__&#34;:
         # by using system vars or command-line args
         self.edc_helper.init_edc_session()
 
-        print(&#34;from settings:&#34;, self.settings.edc_config_data)
-        print(f&#34;command-line args parsed = {args} &#34;)
+        self.mu_log.log(self.mu_log.VERBOSE, &#34;from settings:&#34; + str(self.settings.edc_config_data), module)
+        self.mu_log.log(self.mu_log.DEBUG, f&#34;command-line args parsed = {args} &#34;, module)
 
         start_time = time.time()
 
@@ -824,19 +830,19 @@ if __name__ == &#34;__main__&#34;:
             # right_type = &#34;com.infa.ldm.relational.Schema&#34;
             right_type = &#34;com.infa.ldm.file.delimited.DelimitedFile&#34;
 
-        print(&#34;dbSchemaReplicationLineage:start&#34;)
-        print(f&#34;Catalog={self.edc_helper.baseUrl}&#34;)
-        print(f&#34;left:  resource={left_resource}&#34;)
-        print(f&#34;left:    schema={left_schema}&#34;)
-        print(f&#34;left: container={left_container}&#34;)
-        print(f&#34;left:      type={left_type}&#34;)
-        print(f&#34;right:  resource={right_resource}&#34;)
-        print(f&#34;right:    schema={right_schema}&#34;)
-        print(f&#34;right: container={right_container}&#34;)
-        print(f&#34;right:      type={right_type}&#34;)
-        print(f&#34;output folder: {output_folder}&#34;)
-        print(f&#34;output file prefix: {output_file_prefix}&#34;)
-        print(f&#34;right table prefix: {right_table_prefix}&#34;)
+        self.mu_log.log(self.mu_log.INFO, &#34;dbSchemaReplicationLineage:start&#34;, module)
+        self.mu_log.log(self.mu_log.INFO, f&#34;Catalog={self.edc_helper.baseUrl}&#34;, module)
+        self.mu_log.log(self.mu_log.INFO, f&#34;left:  resource={left_resource}&#34;, module)
+        self.mu_log.log(self.mu_log.INFO, f&#34;left:    schema={left_schema}&#34;, module)
+        self.mu_log.log(self.mu_log.INFO, f&#34;left: container={left_container}&#34;, module)
+        self.mu_log.log(self.mu_log.INFO, f&#34;left:      type={left_type}&#34;, module)
+        self.mu_log.log(self.mu_log.INFO, f&#34;right:  resource={right_resource}&#34;, module)
+        self.mu_log.log(self.mu_log.INFO, f&#34;right:    schema={right_schema}&#34;, module)
+        self.mu_log.log(self.mu_log.INFO, f&#34;right: container={right_container}&#34;, module)
+        self.mu_log.log(self.mu_log.INFO, f&#34;right:      type={right_type}&#34;, module)
+        self.mu_log.log(self.mu_log.INFO, f&#34;output folder: {output_folder}&#34;, module)
+        self.mu_log.log(self.mu_log.INFO, f&#34;output file prefix: {output_file_prefix}&#34;, module)
+        self.mu_log.log(self.mu_log.INFO, f&#34;right table prefix: {right_table_prefix}&#34;, module)
 
         # initialize csv output file
         column_header = [
@@ -850,33 +856,33 @@ if __name__ == &#34;__main__&#34;:
         # set the csv fileName
         csv_file_name = output_folder \
                         + output_file_prefix \
-                        + &#34;_&#34; + left_container.replace(&#34;/&#34;,&#34;_&#34;).lower()\
-                        + &#34;_&#34; + right_container.replace(&#34;/&#34;,&#34;_&#34;).lower() \
+                        + &#34;_&#34; + left_container.replace(&#34;/&#34;, &#34;_&#34;).lower() \
+                        + &#34;_&#34; + right_container.replace(&#34;/&#34;, &#34;_&#34;).lower() \
                         + &#34;.csv&#34;
 
-        print(&#34;initializing file: &#34; + csv_file_name)
+        self.mu_log.log(self.mu_log.DEBUG, &#34;initializing file: &#34; + csv_file_name, module)
         f_csv_file = open(csv_file_name, &#34;w&#34;, newline=&#34;&#34;, encoding=&#34;utf-8&#34;)
         col_writer = csv.writer(f_csv_file)
         col_writer.writerow(column_header)
 
         # get the objects from the left schema into memory
-        print(
-            f&#34;get left schema: name={left_schema}&#34;
-            f&#34; resource={left_resource}&#34;
-            f&#34; container={left_container}&#34;
-            f&#34; type={left_type}&#34;
-        )
+        self.mu_log.log(self.mu_log.DEBUG,
+                        f&#34;get left schema: name={left_schema}&#34;
+                        f&#34; resource={left_resource}&#34;
+                        f&#34; container={left_container}&#34;
+                        f&#34; type={left_type}&#34;
+                        , module)
         left_objects, left_schema_id = self.get_schema_contents(
             left_schema, left_type, left_resource, left_container
         )
 
         # get the objects from the right schema into memory
-        print(
-            f&#34;get right schema: name={right_schema}&#34;
-            f&#34; resource={right_resource}&#34;
-            f&#34; container={right_container}&#34;
-            f&#34; type={right_type}&#34;
-        )
+        self.mu_log.log(self.mu_log.DEBUG,
+                        f&#34;get right schema: name={right_schema}&#34;
+                        f&#34; resource={right_resource}&#34;
+                        f&#34; container={right_container}&#34;
+                        f&#34; type={right_type}&#34;
+                        , module)
         right_objects, right_schema_id = self.get_schema_contents(
             right_schema, right_type, right_resource, right_container
         )
@@ -886,18 +892,19 @@ if __name__ == &#34;__main__&#34;:
 
         if len(left_objects) &gt; 0 and len(right_objects) &gt; 0:
             # iterate over all left objects - looking for matching right ones
-            print(&#34;\nprocessing: &#34; + str(len(left_objects)) + &#34; objects (left side)&#34;)
-            first_find =  True
+            self.mu_log.log(self.mu_log.DEBUG, &#34;processing: &#34; + str(len(left_objects)) + &#34; objects (left side)&#34;, module)
+            first_find = True
             for left_name, left_val in left_objects.items():
                 # if the target is using a prefix - add it to left_name
                 if len(right_table_prefix) &gt; 0:
                     left_name = right_table_prefix.lower() + left_name
 
-                print(&#34;checking for left key=&#34; + left_name, &#34; in right_object keys: &#34;, right_objects.keys())
+                self.mu_log.log(self.mu_log.DEBUG, &#34;checking for left key=&#34; + left_name + &#34; in right_object keys: &#34;
+                                + right_objects.keys(), module)
                 if left_name in right_objects.keys():
                     # match
                     right_val = right_objects.get(left_name)
-                    print(&#34;right_val=&#34;, right_val)
+                    self.mu_log.log(self.mu_log.DEBUG, &#34;right_val=&#34; + right_val, module)
                     matches += 1
                     if first_find:
                         # create the lineage file
@@ -913,7 +920,7 @@ if __name__ == &#34;__main__&#34;:
                                 , right_schema_id]
                         )
                         first_find = False
-                    # print(&#34;\t&#34; + right_val)
+                    self.mu_log.log(self.mu_log.VERBOSE, &#34;right_val is &gt;&#34; + right_val + &#34;&lt;&#34;, module)
                     # check if it is formatted as table.column or just table
                     if left_name.count(&#34;.&#34;) == 1:
                         # column lineage - using DirectionalDataFlow
@@ -925,16 +932,16 @@ if __name__ == &#34;__main__&#34;:
                     # col_writer.writerow([leftResource,rightResource,leftRef,rightRef])
                 else:
                     missing += 1
-                    print(&#34;\t no match on right side for key=&#34; + left_name)
+                    self.mu_log.log(self.mu_log.WARNING, &#34;no match on right side for key=&#34; + left_name, module)
 
         else:
-            print(&#34;error getting schema info... - no linking/lineage created&#34;)
+            self.mu_log.log(self.mu_log.ERROR, &#34;error getting schema info... - no linking/lineage created&#34;, module)
 
-        print(
-            module + f&#34;:finished. {matches} link(s) created, &#34;
-            f&#34;{missing} missing (found in left, no match on right)&#34;
-        )
-        print(&#34;run time = %s seconds ---&#34; % (time.time() - start_time))
+        self.mu_log.log(self.mu_log.INFO,
+                        module + f&#34;:finished. {matches} link(s) created, &#34;
+                                 f&#34;{missing} missing (found in left, no match on right)&#34;
+                        , module)
+        self.mu_log.log(self.mu_log.INFO, &#34;run time = %s seconds ---&#34; % (time.time() - start_time), module)
 
         f_csv_file.close()</code></pre>
 </details>
@@ -978,7 +985,9 @@ val=columnid</p></div>
     key=table  val=tableid
     key=table.column  val=columnid
     &#34;&#34;&#34;
-    print(&#34;\tget_schema_contents for:&#34; + schema_name + &#34; resource=&#34; + resource_name)
+    module = __name__ + &#34;.get_schema_contents&#34;
+    self.mu_log.log(self.mu_log.INFO, &#34;get_schema_contents for &gt;&#34;
+                    + schema_name + &#34;&gt; resource &gt;&#34; + resource_name + &#34;&lt;&#34;, module)
     # schema_dict returned  key=TABLE.COLUMN value=column id
     schema_dict = {}
     table_names = {}
@@ -991,10 +1000,10 @@ val=columnid</p></div>
     url = self.edc_helper.baseUrl + &#34;/access/2/catalog/data/objects&#34;
     query = (f&#39;+core.resourceName:&#34;{resource_name}&#34;&#39;
              + f&#39; +core.classType:&#34;{schema_type}&#34;&#39;
-    #         + f&#39; +core.name:&#34;{schema_name}&#34;&#39;
+             #         + f&#39; +core.name:&#34;{schema_name}&#34;&#39;
              )
     parameters = {&#34;q&#34;: query, &#34;offset&#34;: 0, &#34;pageSize&#34;: 1000}
-    print(&#34;\tquery=&#34; + query)
+    self.mu_log.log(self.mu_log.DEBUG, &#34;query=&#34; + query, module)
 
     schema_id = None
     table_count = 0
@@ -1002,30 +1011,31 @@ val=columnid</p></div>
     # make the call to find the schema object
     try:
         response = self.edc_helper.session.get(url, params=parameters)
-        print(f&#34;session get finished: {response.status_code}&#34;)
+        self.mu_log.log(self.mu_log.DEBUG, f&#34;session get finished: {response.status_code}&#34;, module)
         rc = response.status_code
         if rc != 200:
-            print(&#34;error reading object: rc=&#34; + str(rc) + &#34; response:&#34; + str(response.json))
+            self.mu_log.log(self.mu_log.ERROR
+                            , &#34;error reading object: rc=&#34; + str(rc) + &#34; response:&#34; + str(response.json)
+                            , module)
             if rc == 401:
-                print(
-                    &#34;\t401:Possible Missing/bad credentials&#34;
-                )
-                print(str(response))
+                self.mu_log.log(self.mu_log.ERROR,
+                                &#34;401:Possible Missing/bad credentials. Response: &#34; + str(response)
+                                , module)
             return None, None
     except urllib3.exceptions.NewConnectionError or requests.exceptions.ConnectionError:
-        print(f&#34;Exception during get for url {url} with params {parameters}&#34;)
+        self.mu_log.log(self.mu_log.ERROR, f&#34;Exception during get for url {url} with params {parameters}&#34;, module)
         response = None
         return None, None
 
     # get the total # of objects returned (first part of the json resultset)
     total_objects = response.json()[&#34;metadata&#34;][&#34;totalCount&#34;]
-    print(&#34;\tobjects returned: &#34; + str(total_objects))
+    self.mu_log.log(self.mu_log.INFO, &#34;objects returned: &#34; + str(total_objects), module)
 
     for item in response.json()[&#34;items&#34;]:
         schema_id = item[&#34;id&#34;]
         schema_name = edcutils.get_fact_value(item=item, attribute_name=&#34;core.name&#34;)
         # get the tables &amp; columns
-        print(&#34;\tfound schema: &#34; + schema_name + &#34; id=&#34; + schema_id)
+        self.mu_log.log(self.mu_log.INFO, &#34;found schema: &#34; + schema_name + &#34; id=&#34; + schema_id, module)
 
         lineage_url = self.edc_helper.baseUrl + &#34;/access/2/catalog/data/relationships&#34;
         lineage_parameters = {
@@ -1037,26 +1047,25 @@ val=columnid</p></div>
             &#34;includeTerms&#34;: &#34;false&#34;,
             &#34;removeDuplicateAggregateLinks&#34;: &#34;false&#34;,
         }
-        print(
-            &#34;\tGET child relations for schema: &#34; + lineage_url + &#34; parms=&#34; + str(lineage_parameters)
-        )
+        self.mu_log.log(self.mu_log.DEBUG,
+                        &#34;GET child relations for schema: &#34; + lineage_url + &#34; parms=&#34; + str(lineage_parameters),
+                        module)
         # get using uid/pwd
         lineage_resp = self.edc_helper.session.get(
             lineage_url,
             params=lineage_parameters,
         )
         lineage_status = lineage_resp.status_code
-        print(&#34;\tlineage resp=&#34; + str(lineage_status))
+        self.mu_log.log(self.mu_log.DEBUG, &#34;lineage resp=&#34; + str(lineage_status), module)
         if lineage_status != 200:
-            print(
-                f&#34;error getting schema contents (tables) rc={rc}&#34;
-                f&#34; response:{response.json}&#34;
-            )
+            self.mu_log.log(self.mu_log.ERROR,
+                            f&#34;error getting schema contents (tables) rc={rc}&#34;
+                            f&#34; response:{response.json}&#34;
+                            , module)
             if rc == 401:
-                print(
-                    &#34;\t401:Possible missing/bad credentials&#34;
-                )
-                print(str(response))
+                self.mu_log.log(self.mu_log.ERROR,
+                                &#34;\t401:Possible missing/bad credentials: &#34; + str(response)
+                                , module)
             return None, None
 
         if lineage_resp.text.startswith(&#34;{items:&#34;):
@@ -1066,29 +1075,30 @@ val=columnid</p></div>
             lineage_json = lineage_resp.text
         # relations_json = json.loads(lineage_json.replace(&#39;items&#39;, &#39;&#34;items&#34;&#39;))
         relations_json = json.loads(lineage_json)
-        # print(len(relations_json))
+        self.mu_log.log(self.mu_log.VERBOSE, &#34;#relations: &#34; + str(len(relations_json)), module)
 
         for lineage_item in relations_json[&#34;items&#34;]:
-            print(&#39;***NEW***\n\tlineage_item: &#39; + str(lineage_item))
+            self.mu_log.log(self.mu_log.VERBOSE, &#39;***NEW*** - lineage_item: &#39; + str(lineage_item), module)
             in_id = lineage_item.get(&#34;inId&#34;)
             out_id = lineage_item.get(&#34;outId&#34;)
 
-            print(&#39;\t\tin_id===&#39; + in_id + &#34;\n\t\tout_id=&#34; + out_id)
-            # print(edcutils.getFactValue(lineage_item[&#34;inEmbedded&#34;], &#34;core.name&#34;))
+            self.mu_log.log(self.mu_log.VERBOSE, &#34;in_id===&#34; + in_id, module)
+            self.mu_log.log(self.mu_log.VERBOSE, &#34;out_id===&#34; + out_id, module)
+            self.mu_log.log(self.mu_log.VERBOSE, &#34;factvalue inEmbedded: &#34;
+                            + edcutils.get_fact_value(lineage_item[&#34;inEmbedded&#34;], &#34;core.name&#34;), module)
             association_id = lineage_item.get(&#34;associationId&#34;)
-            print(&#34;\t\tassoc=&#34; + association_id)
+            self.mu_log.log(self.mu_log.VERBOSE, &#34;assoc=&#34; + association_id, module)
             # if association_id==&#39;com.infa.ldm.relational.SchemaTable&#39;:
             if association_id.endswith(&#34;.DelimitedFileField&#34;) and &#34;inEmbedded&#34; in lineage_item:
                 # note - custom lineage does not need table and column
                 # count the tables &amp; store table names
                 table_count += 1
                 # table_name = in_id.split(&#39;/&#39;)[-1]
-                #table_name = edcutils.get_fact_value(
+                # table_name = edcutils.get_fact_value(
                 #    lineage_item[&#34;inEmbedded&#34;], &#34;core.name&#34;
-                #).lower()
-                # print(&#34;\t\tFilename: &#34; + table_name)
+                # ).lower()
                 out_id = out_id.split(&#34;/&#34;)[-1]
-                print(&#34;\t\tFilename: &#34; + out_id)
+                self.mu_log.log(self.mu_log.DEBUG, &#34;Filename: &#34; + out_id, module)
                 # store the table name (for lookup when processing the columns)
                 # key=id, val=name
                 table_names[in_id] = out_id
@@ -1101,18 +1111,18 @@ val=columnid</p></div>
                 column_name = edcutils.get_fact_value(
                     lineage_item[&#34;inEmbedded&#34;], &#34;core.name&#34;
                 ).lower()
-                print(&#34;\t\t\tField name: &#34; + column_name)
+                self.mu_log.log(self.mu_log.DEBUG, &#34;Field name: &#34; + column_name, module)
                 table_name = table_names[in_id].lower()
-                print(&#34;\t\tField=&#34; + table_name + &#34;.&#34; + column_name)
+                self.mu_log.log(self.mu_log.DEBUG, &#34;Field=&#34; + table_name + &#34;.&#34; + column_name, module)
                 schema_dict[table_name + &#34;.&#34; + column_name] = in_id
 
-    print(
-        &#34;\tgetSchema: returning &#34;
-        + str(column_count)
-        + &#34; fields, in &#34;
-        + str(table_count)
-        + &#34; files&#34;
-    )
+    self.mu_log.log(self.mu_log.INFO,
+                    &#34;getSchema: returning &#34;
+                    + str(column_count)
+                    + &#34; fields, in &#34;
+                    + str(table_count)
+                    + &#34; files&#34;
+                    , module)
     return schema_dict, schema_id</code></pre>
 </details>
 </dd>
@@ -1200,8 +1210,8 @@ works with v10.2.1+</p></div>
     # by using system vars or command-line args
     self.edc_helper.init_edc_session()
 
-    print(&#34;from settings:&#34;, self.settings.edc_config_data)
-    print(f&#34;command-line args parsed = {args} &#34;)
+    self.mu_log.log(self.mu_log.VERBOSE, &#34;from settings:&#34; + str(self.settings.edc_config_data), module)
+    self.mu_log.log(self.mu_log.DEBUG, f&#34;command-line args parsed = {args} &#34;, module)
 
     start_time = time.time()
 
@@ -1249,19 +1259,19 @@ works with v10.2.1+</p></div>
         # right_type = &#34;com.infa.ldm.relational.Schema&#34;
         right_type = &#34;com.infa.ldm.file.delimited.DelimitedFile&#34;
 
-    print(&#34;dbSchemaReplicationLineage:start&#34;)
-    print(f&#34;Catalog={self.edc_helper.baseUrl}&#34;)
-    print(f&#34;left:  resource={left_resource}&#34;)
-    print(f&#34;left:    schema={left_schema}&#34;)
-    print(f&#34;left: container={left_container}&#34;)
-    print(f&#34;left:      type={left_type}&#34;)
-    print(f&#34;right:  resource={right_resource}&#34;)
-    print(f&#34;right:    schema={right_schema}&#34;)
-    print(f&#34;right: container={right_container}&#34;)
-    print(f&#34;right:      type={right_type}&#34;)
-    print(f&#34;output folder: {output_folder}&#34;)
-    print(f&#34;output file prefix: {output_file_prefix}&#34;)
-    print(f&#34;right table prefix: {right_table_prefix}&#34;)
+    self.mu_log.log(self.mu_log.INFO, &#34;dbSchemaReplicationLineage:start&#34;, module)
+    self.mu_log.log(self.mu_log.INFO, f&#34;Catalog={self.edc_helper.baseUrl}&#34;, module)
+    self.mu_log.log(self.mu_log.INFO, f&#34;left:  resource={left_resource}&#34;, module)
+    self.mu_log.log(self.mu_log.INFO, f&#34;left:    schema={left_schema}&#34;, module)
+    self.mu_log.log(self.mu_log.INFO, f&#34;left: container={left_container}&#34;, module)
+    self.mu_log.log(self.mu_log.INFO, f&#34;left:      type={left_type}&#34;, module)
+    self.mu_log.log(self.mu_log.INFO, f&#34;right:  resource={right_resource}&#34;, module)
+    self.mu_log.log(self.mu_log.INFO, f&#34;right:    schema={right_schema}&#34;, module)
+    self.mu_log.log(self.mu_log.INFO, f&#34;right: container={right_container}&#34;, module)
+    self.mu_log.log(self.mu_log.INFO, f&#34;right:      type={right_type}&#34;, module)
+    self.mu_log.log(self.mu_log.INFO, f&#34;output folder: {output_folder}&#34;, module)
+    self.mu_log.log(self.mu_log.INFO, f&#34;output file prefix: {output_file_prefix}&#34;, module)
+    self.mu_log.log(self.mu_log.INFO, f&#34;right table prefix: {right_table_prefix}&#34;, module)
 
     # initialize csv output file
     column_header = [
@@ -1275,33 +1285,33 @@ works with v10.2.1+</p></div>
     # set the csv fileName
     csv_file_name = output_folder \
                     + output_file_prefix \
-                    + &#34;_&#34; + left_container.replace(&#34;/&#34;,&#34;_&#34;).lower()\
-                    + &#34;_&#34; + right_container.replace(&#34;/&#34;,&#34;_&#34;).lower() \
+                    + &#34;_&#34; + left_container.replace(&#34;/&#34;, &#34;_&#34;).lower() \
+                    + &#34;_&#34; + right_container.replace(&#34;/&#34;, &#34;_&#34;).lower() \
                     + &#34;.csv&#34;
 
-    print(&#34;initializing file: &#34; + csv_file_name)
+    self.mu_log.log(self.mu_log.DEBUG, &#34;initializing file: &#34; + csv_file_name, module)
     f_csv_file = open(csv_file_name, &#34;w&#34;, newline=&#34;&#34;, encoding=&#34;utf-8&#34;)
     col_writer = csv.writer(f_csv_file)
     col_writer.writerow(column_header)
 
     # get the objects from the left schema into memory
-    print(
-        f&#34;get left schema: name={left_schema}&#34;
-        f&#34; resource={left_resource}&#34;
-        f&#34; container={left_container}&#34;
-        f&#34; type={left_type}&#34;
-    )
+    self.mu_log.log(self.mu_log.DEBUG,
+                    f&#34;get left schema: name={left_schema}&#34;
+                    f&#34; resource={left_resource}&#34;
+                    f&#34; container={left_container}&#34;
+                    f&#34; type={left_type}&#34;
+                    , module)
     left_objects, left_schema_id = self.get_schema_contents(
         left_schema, left_type, left_resource, left_container
     )
 
     # get the objects from the right schema into memory
-    print(
-        f&#34;get right schema: name={right_schema}&#34;
-        f&#34; resource={right_resource}&#34;
-        f&#34; container={right_container}&#34;
-        f&#34; type={right_type}&#34;
-    )
+    self.mu_log.log(self.mu_log.DEBUG,
+                    f&#34;get right schema: name={right_schema}&#34;
+                    f&#34; resource={right_resource}&#34;
+                    f&#34; container={right_container}&#34;
+                    f&#34; type={right_type}&#34;
+                    , module)
     right_objects, right_schema_id = self.get_schema_contents(
         right_schema, right_type, right_resource, right_container
     )
@@ -1311,18 +1321,19 @@ works with v10.2.1+</p></div>
 
     if len(left_objects) &gt; 0 and len(right_objects) &gt; 0:
         # iterate over all left objects - looking for matching right ones
-        print(&#34;\nprocessing: &#34; + str(len(left_objects)) + &#34; objects (left side)&#34;)
-        first_find =  True
+        self.mu_log.log(self.mu_log.DEBUG, &#34;processing: &#34; + str(len(left_objects)) + &#34; objects (left side)&#34;, module)
+        first_find = True
         for left_name, left_val in left_objects.items():
             # if the target is using a prefix - add it to left_name
             if len(right_table_prefix) &gt; 0:
                 left_name = right_table_prefix.lower() + left_name
 
-            print(&#34;checking for left key=&#34; + left_name, &#34; in right_object keys: &#34;, right_objects.keys())
+            self.mu_log.log(self.mu_log.DEBUG, &#34;checking for left key=&#34; + left_name + &#34; in right_object keys: &#34;
+                            + right_objects.keys(), module)
             if left_name in right_objects.keys():
                 # match
                 right_val = right_objects.get(left_name)
-                print(&#34;right_val=&#34;, right_val)
+                self.mu_log.log(self.mu_log.DEBUG, &#34;right_val=&#34; + right_val, module)
                 matches += 1
                 if first_find:
                     # create the lineage file
@@ -1338,7 +1349,7 @@ works with v10.2.1+</p></div>
                             , right_schema_id]
                     )
                     first_find = False
-                # print(&#34;\t&#34; + right_val)
+                self.mu_log.log(self.mu_log.VERBOSE, &#34;right_val is &gt;&#34; + right_val + &#34;&lt;&#34;, module)
                 # check if it is formatted as table.column or just table
                 if left_name.count(&#34;.&#34;) == 1:
                     # column lineage - using DirectionalDataFlow
@@ -1350,16 +1361,16 @@ works with v10.2.1+</p></div>
                 # col_writer.writerow([leftResource,rightResource,leftRef,rightRef])
             else:
                 missing += 1
-                print(&#34;\t no match on right side for key=&#34; + left_name)
+                self.mu_log.log(self.mu_log.WARNING, &#34;no match on right side for key=&#34; + left_name, module)
 
     else:
-        print(&#34;error getting schema info... - no linking/lineage created&#34;)
+        self.mu_log.log(self.mu_log.ERROR, &#34;error getting schema info... - no linking/lineage created&#34;, module)
 
-    print(
-        module + f&#34;:finished. {matches} link(s) created, &#34;
-        f&#34;{missing} missing (found in left, no match on right)&#34;
-    )
-    print(&#34;run time = %s seconds ---&#34; % (time.time() - start_time))
+    self.mu_log.log(self.mu_log.INFO,
+                    module + f&#34;:finished. {matches} link(s) created, &#34;
+                             f&#34;{missing} missing (found in left, no match on right)&#34;
+                    , module)
+    self.mu_log.log(self.mu_log.INFO, &#34;run time = %s seconds ---&#34; % (time.time() - start_time), module)
 
     f_csv_file.close()</code></pre>
 </details>
