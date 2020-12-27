@@ -62,6 +62,7 @@ class ConvertJSONtoEDCLineage:
                                 + self.settings.base_location_for_metafiles, module)
                 if is_from:
                     path = self.settings.base_location_for_metafiles + self.edc_lineage.edc_source_folder
+                    os.makedirs(path, exist_ok=True)
                     self.mu_log.log(self.mu_log.DEBUG, "Source path is: " + path, module)
                     file_result = self.create_metafile(
                         path
@@ -69,13 +70,15 @@ class ConvertJSONtoEDCLineage:
                         , attributes)
                 elif is_to:
                     path = self.settings.base_location_for_metafiles + self.edc_lineage.edc_target_folder
+                    os.makedirs(path, exist_ok=True)
                     self.mu_log.log(self.mu_log.DEBUG, "Target path is: " + path, module)
                     file_result = self.create_metafile(
                         path
                         , filename
                         , attributes)
                 else:
-                    path = self.settings.base_location_for_metafiles + "neutral/"
+                    path = self.settings.base_location_for_metafiles + self.edc_lineage.edc_source_folder
+                    os.makedirs(path, exist_ok=True)
                     self.mu_log.log(self.mu_log.DEBUG, "Target path is: " + path, module)
                     file_result = self.create_metafile(
                         path
