@@ -1,5 +1,5 @@
 import json
-from src.metadata_utilities import messages
+from edc_rest_api.metadata_utilities import messages
 # from metadata_utilities import mu_logging
 import logging
 

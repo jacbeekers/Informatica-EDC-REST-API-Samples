@@ -1,4 +1,4 @@
-from src.metadata_utilities import load_custom_attributes, messages
+from edc_rest_api.metadata_utilities import load_custom_attributes, messages
 
 
 def test_read_defined_custom_attributes():

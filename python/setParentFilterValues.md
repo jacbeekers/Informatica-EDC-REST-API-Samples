@@ -11,7 +11,7 @@ the data type should be set to String, the attribute can be multivalued or not, 
 * execute the script [`setParentFilterValues.py`](../informatica/setParentFilterValues.py)
 setup your environment by creating an .env file, with 2 environment variables
 
-  * INFA_EDC_AUTH=Basic {your value} - see [`encodeUser.py`](src/edc_utilities/encodeUser.py) to generate the value
+  * INFA_EDC_AUTH=Basic {your value} - see [`encodeUser.py`](edc_rest_api/edc_utilities/encodeUser.py) to generate the value
   * INFA_EDC_URL=http://{your server}:9085
 
 to execute the script:

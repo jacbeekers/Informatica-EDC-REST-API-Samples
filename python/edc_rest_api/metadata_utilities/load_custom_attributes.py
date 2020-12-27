@@ -1,8 +1,8 @@
 import json
 
-from src.edc_utilities import edc_custom_attributes
-from src.metadata_utilities import generic_settings, generic
-from src.metadata_utilities import messages, mu_logging
+from edc_rest_api.edc_utilities import edc_custom_attributes
+from edc_rest_api.metadata_utilities import generic_settings, generic
+from edc_rest_api.metadata_utilities import messages, mu_logging
 
 
 class LoadCustomAttributes:

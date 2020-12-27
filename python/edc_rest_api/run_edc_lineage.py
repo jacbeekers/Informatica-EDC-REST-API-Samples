@@ -1,4 +1,4 @@
-from src.metadata_utilities import load_json_metadata
+from edc_rest_api.metadata_utilities import load_json_metadata
 
 
 def main():

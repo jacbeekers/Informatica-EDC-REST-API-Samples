@@ -1,4 +1,4 @@
-from src.metadata_utilities import log_settings, messages
+from edc_rest_api.metadata_utilities import log_settings, messages
 import pytest
 
 # @pytest.mark.usefixtures("edc_config_jinja_config_is_none")

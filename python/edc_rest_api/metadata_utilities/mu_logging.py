@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime
 from opencensus.ext.azure.log_exporter import AzureLogHandler
-from src.metadata_utilities import log_settings
+from edc_rest_api.metadata_utilities import log_settings
 import os
 import requests
 

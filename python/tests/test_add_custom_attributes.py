@@ -1,7 +1,7 @@
 
 import pytest
 
-from src import add_custom_attributes
+from edc_rest_api import add_custom_attributes
 
 
 def test_main_add_custom_attributes():

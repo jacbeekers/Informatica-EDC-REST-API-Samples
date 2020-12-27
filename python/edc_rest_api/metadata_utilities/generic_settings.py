@@ -1,7 +1,7 @@
 import json
 
-from src.metadata_utilities import messages
-from src.metadata_utilities import mu_logging
+from edc_rest_api.metadata_utilities import messages
+from edc_rest_api.metadata_utilities import mu_logging
 
 
 class GenericSettings:

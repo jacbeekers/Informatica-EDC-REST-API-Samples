@@ -32,8 +32,9 @@ Check the *.secrets.example files for, well, examples.
 * Note: The code above assumes you've already configured your pip through a pip.conf or pip.ini
 
 * Create a small python code, e.g. run_edc_lineage.py similar to the example:
+
 ```python
-from src.metadata_utilities import load_json_metadata
+from edc_rest_api.metadata_utilities import load_json_metadata
 
 
 def main():

@@ -1,5 +1,5 @@
-from src.edc_utilities import edc_lineage
-from src.metadata_utilities import messages, generic_settings, mu_logging
+from edc_rest_api.edc_utilities import edc_lineage
+from edc_rest_api.metadata_utilities import messages, generic_settings, mu_logging
 
 
 def test_generate_lineage():

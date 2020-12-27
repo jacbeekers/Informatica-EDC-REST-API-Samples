@@ -1,8 +1,8 @@
-from src.metadata_utilities import messages
-from src.metadata_utilities import generic_settings, mu_logging, generic
+from edc_rest_api.metadata_utilities import messages
+from edc_rest_api.metadata_utilities import generic_settings, mu_logging, generic
 import logging
 import time
-from src.edc_utilities import edc_session_helper
+from edc_rest_api.edc_utilities import edc_session_helper
 import requests
 import time
 import json

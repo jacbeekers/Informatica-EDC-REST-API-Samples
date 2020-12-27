@@ -1,5 +1,5 @@
-from src.edc_utilities import edcutils
-from src.edc_utilities import encodeUser
+from edc_rest_api.edc_utilities import edcutils
+from edc_rest_api.edc_utilities import encodeUser
 
 # the code in edcutils is provided by Informatica and not properly tested in this project
 import csv

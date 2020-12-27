@@ -1,5 +1,5 @@
-from src.edc_utilities import edc_session_helper
-from src.metadata_utilities import generic_settings, messages
+from edc_rest_api.edc_utilities import edc_session_helper
+from edc_rest_api.metadata_utilities import generic_settings, messages
 
 test_url = "http://localhost:7777"
 auth = "Basic this-will-not-work=="

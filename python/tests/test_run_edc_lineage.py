@@ -2,12 +2,12 @@ from pathlib import Path
 
 import pytest
 
-from src import run_edc_lineage
-from src.metadata_utilities import load_json_metadata
-from src.metadata_utilities import messages, generic_settings, mu_logging
+from edc_rest_api import run_edc_lineage
+from edc_rest_api.metadata_utilities import load_json_metadata
+from edc_rest_api.metadata_utilities import messages, generic_settings, mu_logging
 import os
 import contextlib
-from src.edc_utilities import edc_lineage
+from edc_rest_api.edc_utilities import edc_lineage
 
 
 @pytest.mark.usefixtures("default_config")

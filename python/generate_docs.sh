@@ -20,6 +20,6 @@ pdoc3 --force --html --output-dir docs/$PACKAGE_NAME/html src/$PACKAGE_NAME
 #
 # generate dependency graph
 pydeps --log ERROR -o docs/$PACKAGE_NAME/${PACKAGE_NAME}.svg src/$PACKAGE_NAME
-# generate dependency graph for everything in src
+# generate dependency graph for everything in edc_rest_api
 pydeps --log ERROR -o docs/overall.svg src
 

@@ -2,12 +2,12 @@ import glob
 import json
 import os
 
-from src.edc_utilities import edc_custom_attributes
-from src.edc_utilities import edc_lineage
-from src.metadata_utilities import check_schema
-from src.metadata_utilities import generic_settings, generic
-from src.metadata_utilities import messages
-from src.metadata_utilities import mu_logging, json_file_utilities
+from edc_rest_api.edc_utilities import edc_custom_attributes
+from edc_rest_api.edc_utilities import edc_lineage
+from edc_rest_api.metadata_utilities import check_schema
+from edc_rest_api.metadata_utilities import generic_settings, generic
+from edc_rest_api.metadata_utilities import messages
+from edc_rest_api.metadata_utilities import mu_logging, json_file_utilities
 
 
 class ConvertJSONtoEDCLineage:

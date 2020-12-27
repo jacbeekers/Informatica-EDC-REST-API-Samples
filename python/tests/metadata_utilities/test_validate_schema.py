@@ -1,6 +1,6 @@
 import pytest
 
-from src.metadata_utilities import validate_schema
+from edc_rest_api.metadata_utilities import validate_schema
 
 
 def test_validate_schema_defaults():

@@ -1,7 +1,7 @@
 import glob
 import json
 import jinja2
-from src.metadata_utilities import messages, generic_settings
+from edc_rest_api.metadata_utilities import messages, generic_settings
 import os
 
 

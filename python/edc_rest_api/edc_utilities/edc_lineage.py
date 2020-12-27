@@ -6,8 +6,8 @@ from datetime import datetime
 from time import time
 import jinja2
 from requests import exceptions
-from src.edc_utilities import edc_session_helper
-from src.metadata_utilities import messages, generic, generic_settings, mu_logging
+from edc_rest_api.edc_utilities import edc_session_helper
+from edc_rest_api.metadata_utilities import messages, generic, generic_settings, mu_logging
 
 
 class EDCLineage:

@@ -49,10 +49,10 @@ import time
 import requests
 import urllib3
 
-from src.edc_utilities import edc_session_helper
-from src.edc_utilities import edcutils
-from src.metadata_utilities import generic_settings
-from src.metadata_utilities import mu_logging
+from edc_rest_api.edc_utilities import edc_session_helper
+from edc_rest_api.edc_utilities import edcutils
+from edc_rest_api.metadata_utilities import generic_settings
+from edc_rest_api.metadata_utilities import mu_logging
 
 
 class EDCReplicationLineage:

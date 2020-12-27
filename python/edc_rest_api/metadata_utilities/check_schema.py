@@ -2,7 +2,7 @@ import json
 
 import jsonschema
 
-from src.metadata_utilities import messages
+from edc_rest_api.metadata_utilities import messages
 
 
 class CheckSchema:
