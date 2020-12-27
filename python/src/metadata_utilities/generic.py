@@ -175,7 +175,7 @@ class Generic:
         try:
             with open(path, "w") as f:
                 f.write(to_write)
-            self.mu_log.log(self.mu_log.DEBUG, "write completed", module)
+            self.mu_log.log(self.mu_log.INFO, "File >%s< created successfully" % path, module)
         except OSError as e:
             self.mu_log.log(self.mu_log.ERROR, "OS error: " + str(e.errno) + " - " + e.strerror, module)
             file_result = messages.message["os_error"]

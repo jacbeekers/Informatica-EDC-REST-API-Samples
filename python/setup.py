@@ -43,7 +43,6 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     install_requires=[
         'requests',
-        #    'openpyxl',
         'urllib3',
         'jinja2',
         'opencensus-ext-azure',
