@@ -409,7 +409,7 @@ class EDCReplicationLineage:
                     left_name = right_table_prefix.lower() + left_name
 
                 self.mu_log.log(self.mu_log.DEBUG, "checking for left key=" + left_name + " in right_object keys: "
-                                + right_objects.keys(), module)
+                                + str(right_objects.keys()), module)
                 if left_name in right_objects.keys():
                     # match
                     right_val = right_objects.get(left_name)
