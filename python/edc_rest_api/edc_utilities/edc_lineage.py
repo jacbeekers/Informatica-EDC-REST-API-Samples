@@ -549,9 +549,9 @@ class EDCLineage:
                                         module)
                         if item["id"] == to_attribute_id:
                             self.mu_log.log(self.mu_log.VERBOSE, "This IS the attribute we were looking for.", module)
-                        else:
-                            self.mu_log.log(self.mu_log.VERBOSE, "This is not the attribute you are looking for...",
-                                            module)
+                        # else:
+                        #    self.mu_log.log(self.mu_log.VERBOSE, "This is not the attribute you are looking for...",
+                        #                    module)
             else:
                 self.mu_log.log(self.mu_log.DEBUG, "GET did not result in an \"items\" list. And that is OK.", module)
 
@@ -659,8 +659,8 @@ class EDCLineage:
                                     , module)
                     found_attribute = True
                     break
-                else:
-                    self.mu_log.log(self.mu_log.VERBOSE, "This is not the attribute you are looking for...", module)
+                # else:
+                #     self.mu_log.log(self.mu_log.VERBOSE, "This is not the attribute you are looking for...", module)
 
         if found_attribute:
             return messages.message["ok"], attribute_id

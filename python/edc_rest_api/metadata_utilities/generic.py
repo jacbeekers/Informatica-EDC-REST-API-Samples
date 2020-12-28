@@ -128,9 +128,9 @@ class Generic:
                                     self.found_data = self.data
                                     self.index = i
                                     break
-                                else:
-                                    self.mu_log.log(self.mu_log.VERBOSE, log_prefix
-                                                    + "This is not the UUID we are looking for", module)
+                                # else:
+                                #     self.mu_log.log(self.mu_log.VERBOSE, log_prefix
+                                #                     + "This is not the UUID we are looking for", module)
                         else:
                             self.mu_log.log(self.mu_log.VERBOSE, "property and attribute_list are not in the file",
                                             module)

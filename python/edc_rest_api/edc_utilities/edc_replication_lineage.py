@@ -52,7 +52,7 @@ import urllib3
 from edc_rest_api.edc_utilities import edc_session_helper
 from edc_rest_api.edc_utilities import edcutils
 from edc_rest_api.metadata_utilities import generic_settings
-from edc_rest_api.metadata_utilities import mu_logging
+from edc_rest_api.metadata_utilities import mu_logging, messages
 
 
 class EDCReplicationLineage:
@@ -63,11 +63,16 @@ class EDCReplicationLineage:
         module = __name__ + ".__init__"
         self.settings = generic_settings.GenericSettings(configuration_file)
         self.settings.get_config()
+        if self.settings.suppress_edc_call:
+            self.suppress = "True"
+        else:
+            self.suppress = "False"
         # set edc helper session + variables (easy/re-useable connection to edc api)
         self.edc_helper = edc_session_helper.EDCSession(self.settings)
         self.mu_log = mu_logging.MULogging(self.settings.log_config)
         self.mu_log.setup_logger(logging.DEBUG, logging.INFO)
         self.settings.mu_log = self.mu_log
+        self.mu_log.log(self.mu_log.INFO, "suppress is >" + self.suppress + "<.", module)
 
     def get_schema_contents(self, schema_name, schema_type, resource_name, container_name):
         """
@@ -109,9 +114,14 @@ class EDCReplicationLineage:
         column_count = 0
         # make the call to find the schema object
         try:
-            response = self.edc_helper.session.get(url, params=parameters)
-            self.mu_log.log(self.mu_log.DEBUG, f"session get finished: {response.status_code}", module)
+            if self.suppress == "False":
+                response = self.edc_helper.session.get(url, params=parameters)
+            else:
+                response = dict(status_code=200)
+            self.mu_log.log(self.mu_log.DEBUG, f"session get finished with: {response.status_code}", module)
             rc = response.status_code
+            # rc=200
+            # response = requests.Response().json()
             if rc != 200:
                 self.mu_log.log(self.mu_log.ERROR
                                 , "error reading object: rc=" + str(rc) + " response:" + str(response.json)
@@ -149,11 +159,14 @@ class EDCReplicationLineage:
             self.mu_log.log(self.mu_log.DEBUG,
                             "GET child relations for schema: " + lineage_url + " parms=" + str(lineage_parameters),
                             module)
-            # get using uid/pwd
-            lineage_resp = self.edc_helper.session.get(
-                lineage_url,
-                params=lineage_parameters,
-            )
+            #
+            if self.suppress == "False":
+                lineage_resp = self.edc_helper.session.get(
+                    lineage_url,
+                    params=lineage_parameters,
+                )
+            else:
+                lineage_resp = dict(status_code=200, text="items: []")
             lineage_status = lineage_resp.status_code
             self.mu_log.log(self.mu_log.DEBUG, "lineage resp=" + str(lineage_status), module)
             if lineage_status != 200:
@@ -288,7 +301,8 @@ class EDCReplicationLineage:
         args = args, unknown = parser.parse_known_args()
         # setup edc session and catalog url - with auth in the session header,
         # by using system vars or command-line args
-        self.edc_helper.init_edc_session()
+        if self.suppress != "True":
+            self.edc_helper.init_edc_session()
 
         self.mu_log.log(self.mu_log.VERBOSE, "from settings:" + str(self.settings.edc_config_data), module)
         self.mu_log.log(self.mu_log.DEBUG, f"command-line args parsed = {args} ", module)
@@ -399,43 +413,42 @@ class EDCReplicationLineage:
         matches = 0
         missing = 0
 
-        if len(left_objects) > 0 and len(right_objects) > 0:
+        if left_objects is not None and len(left_objects) > 0 and len(right_objects) > 0:
             # iterate over all left objects - looking for matching right ones
             self.mu_log.log(self.mu_log.DEBUG, "processing: " + str(len(left_objects)) + " objects (left side)", module)
             first_find = True
             for left_name, left_val in left_objects.items():
                 # if the target is using a prefix - add it to left_name
-                if len(right_table_prefix) > 0:
-                    left_name = right_table_prefix.lower() + left_name
-
-                self.mu_log.log(self.mu_log.DEBUG, "checking for left key=" + left_name + " in right_object keys: "
-                                + str(right_objects.keys()), module)
-                if left_name in right_objects.keys():
-                    # match
-                    right_val = right_objects.get(left_name)
-                    self.mu_log.log(self.mu_log.DEBUG, "right_val=" + right_val, module)
-                    matches += 1
-                    if first_find:
-                        # create the lineage file
-                        col_writer.writerow(
-                            ["core.DataSourceDataFlow", "", "", left_schema_id.rsplit("/", 1)[0]
-                                , right_schema_id.rsplit("/", 1)[0]]
-                        )
-                        col_writer.writerow(
-                            ["core.DataSetDataFlow"
-                                , ""
-                                , ""
-                                , left_schema_id
-                                , right_schema_id]
-                        )
-                        first_find = False
-                    self.mu_log.log(self.mu_log.VERBOSE, "right_val is >" + right_val + "<", module)
-                    # check if it is formatted as table.column or just table
-                    if left_name.count(".") == 1:
-                        # column lineage - using DirectionalDataFlow
-                        col_writer.writerow(
-                            ["core.DirectionalDataFlow", "", "", left_val, right_val]
-                        )
+                self.mu_log.log(self.mu_log.DEBUG, "checking for left name=>" + left_name + "< with left value=>"
+                                + left_val + "<", module)
+                matches = 0
+                for right_name, right_val in right_objects.items():
+                    self.mu_log.log(self.mu_log.VERBOSE, "    checking >" + left_name + "< against right name=>"
+                                    + right_name +
+                                    "< with right value=>" + right_val + "<", module)
+                    if right_name.lower() == left_name.lower():
+                        self.mu_log.log(self.mu_log.DEBUG, "FOUND", module)
+                        matches += 1
+                        if first_find:
+                            # create the lineage file
+                            col_writer.writerow(
+                                ["core.DataSourceDataFlow", "", "", left_schema_id.rsplit("/", 1)[0]
+                                    , right_schema_id.rsplit("/", 1)[0]]
+                            )
+                            col_writer.writerow(
+                                ["core.DataSetDataFlow"
+                                    , ""
+                                    , ""
+                                    , left_schema_id
+                                    , right_schema_id]
+                            )
+                            first_find = False
+                        # check if it is formatted as filename.csv.fieldname
+                        if left_name.count(".") == 2:
+                            # column lineage - using DirectionalDataFlow
+                            col_writer.writerow(
+                                ["core.DirectionalDataFlow", "", "", left_val, right_val]
+                            )
 
                     # write a line to the custom lineage csv file (connection assignment)
                     # col_writer.writerow([leftResource,rightResource,leftRef,rightRef])
@@ -454,7 +467,4 @@ class EDCReplicationLineage:
 
         f_csv_file.close()
 
-
-# call main - if not already called or used by another script
-if __name__ == "__main__":
-    EDCReplicationLineage(configuration_file="resources/config.json").main()
+        return messages.message["ok"]
