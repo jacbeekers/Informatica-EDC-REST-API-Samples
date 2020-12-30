@@ -444,7 +444,7 @@ class EDCReplicationLineage:
                             )
                             first_find = False
                         # check if it is formatted as filename.csv.fieldname
-                        if left_name.count(".") == 2:
+                        if left_name.count(".") == 1:
                             # column lineage - using DirectionalDataFlow
                             col_writer.writerow(
                                 ["core.DirectionalDataFlow", "", "", left_val, right_val]

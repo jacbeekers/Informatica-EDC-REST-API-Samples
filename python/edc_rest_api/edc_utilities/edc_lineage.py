@@ -534,6 +534,10 @@ class EDCLineage:
                 overall_result = result
                 continue
 
+            if self.settings.suppress_edc_call:
+                # when the EDC is suppressed, we also don't have any response
+                continue
+
             # Since 10.2.2HF1 an underscore is treated as OR, so we might find too many results
             json_response = response.json()
             if "metadata" in json_response:
@@ -633,13 +637,18 @@ class EDCLineage:
                                                          , uri="/access/2/catalog/models/attributes"
                                                          , parameters=paging_params)
 
-            if result == messages.message["ok"]:
-                json_response = response.json()
-                self.mu_log.log(self.mu_log.VERBOSE, "Call to EDC returned OK.", module)
+            if self.settings.suppress_edc_call:
+                self.mu_log.log(self.mu_log.INFO, "Call to EDC was suppressed as suppress_edc_call is True")
+                return messages.message["ok"], None
+
             else:
-                self.mu_log.log(self.mu_log.ERROR, "Call to EDC returned: " + result["code"]
-                                , module)
-                return result, None
+                if result == messages.message["ok"]:
+                    json_response = response.json()
+                    self.mu_log.log(self.mu_log.VERBOSE, "Call to EDC returned OK.", module)
+                else:
+                    self.mu_log.log(self.mu_log.ERROR, "Call to EDC returned: " + result["code"]
+                                    , module)
+                    return result, None
 
             total = json_response["metadata"]["totalCount"]
             self.mu_log.log(self.mu_log.VERBOSE, "There are >" + str(total) + "< attributes in the response."

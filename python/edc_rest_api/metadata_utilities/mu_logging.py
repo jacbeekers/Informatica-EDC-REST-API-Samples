@@ -3,7 +3,7 @@ from datetime import datetime
 from opencensus.ext.azure.log_exporter import AzureLogHandler
 from edc_rest_api.metadata_utilities import log_settings
 import os
-import requests
+
 
 class MULogging:
     """

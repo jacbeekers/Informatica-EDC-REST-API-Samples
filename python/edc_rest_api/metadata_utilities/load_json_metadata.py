@@ -8,13 +8,15 @@ from edc_rest_api.metadata_utilities import check_schema
 from edc_rest_api.metadata_utilities import generic_settings, generic
 from edc_rest_api.metadata_utilities import messages
 from edc_rest_api.metadata_utilities import mu_logging, json_file_utilities
+from datetime import datetime
 
 
 class ConvertJSONtoEDCLineage:
     """
     Converts JSON file to a JSON payload that can be send to Informatica EDC using its APIs
     """
-    code_version = "0.2.15"
+    code_version = "0.4.0"
+    start_time = datetime.now().isoformat(timespec="microseconds").replace(":", "-")
 
     def __init__(self, configuration_file="resources/config.json"):
         self.json_file = "not provided"
@@ -164,6 +166,7 @@ class ConvertJSONtoEDCLineage:
         self.mu_log.log(self.mu_log.INFO, "===============================================", module)
         number_of_files = 0
         for file in glob.glob(directory + "*.json"):
+            self.mu_log.log(self.mu_log.INFO, "=== " + file + " === START ==========================================", module)
             number_of_files += 1
             self.json_file = file
             base_filename = os.path.splitext(os.path.basename(self.json_file))[0]
@@ -187,12 +190,25 @@ class ConvertJSONtoEDCLineage:
                     self.overall_result = file_result
             else:
                 self.overall_result = check_result
+                file_result = check_result
                 self.mu_log.log(self.mu_log.DEBUG, "schema check failed with: " + check_result["code"] + " - "
                                 + check_result["message"], module)
-            self.mu_log.log(self.mu_log.INFO, "=== END ============================================", module)
+            self.mu_log.log(self.mu_log.INFO, "=== " + file + " === END ============================================", module)
+            self.register_result(file, file_result)
+
         self.mu_log.area = "conclusion"
         self.mu_log.log(self.mu_log.INFO, "Number of JSON files processed: " + str(number_of_files), module)
         return self.overall_result
+
+    def register_result(self, file, result):
+        filename = self.settings.output_directory + self.start_time + "-" + __name__ + "-results.txt"
+        if os.path.exists(filename):
+            append_or_write = "a"
+        else:
+            append_or_write = "w"
+        print("results file:", filename)
+        with open(filename, append_or_write) as out:
+            out.write(file + ": " + json.dumps(result) + "\n")
 
     def process_physical_entity_and_attribute(self, metafiles_only=False, ignore_metafile_creation=False):
         """
