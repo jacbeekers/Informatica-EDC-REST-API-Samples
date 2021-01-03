@@ -466,5 +466,6 @@ class EDCReplicationLineage:
         self.mu_log.log(self.mu_log.INFO, "run time = %s seconds ---" % (time.time() - start_time), module)
 
         f_csv_file.close()
+        self.mu_log.log(self.mu_log.INFO, "Lineage info written to >%s<" % csv_file_name, module)
 
         return messages.message["ok"]
