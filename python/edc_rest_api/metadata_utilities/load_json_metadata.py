@@ -201,14 +201,23 @@ class ConvertJSONtoEDCLineage:
         return self.overall_result
 
     def register_result(self, file, result):
-        filename = self.settings.output_directory + self.start_time + "-" + __name__ + "-results.txt"
-        if os.path.exists(filename):
+        result_filename = self.settings.output_directory + self.start_time + "-" + __name__ + "-results.txt"
+        if os.path.exists(result_filename):
             append_or_write = "a"
         else:
             append_or_write = "w"
-        print("results file:", filename)
-        with open(filename, append_or_write) as out:
+        print("results file:", result_filename)
+        with open(result_filename, append_or_write) as out:
             out.write(file + ": " + json.dumps(result) + "\n")
+
+        if result["code"] != "OK":
+            error_filename = self.settings.output_directory + self.start_time + "-" + __name__ + "-errors.txt"
+            if os.path.exists(error_filename):
+                append_or_write = "a"
+            else:
+                append_or_write = "w"
+            with open(error_filename, append_or_write) as out:
+                out.write(file + ": " + json.dumps(result) + "\n")
 
     def process_physical_entity_and_attribute(self, metafiles_only=False, ignore_metafile_creation=False):
         """

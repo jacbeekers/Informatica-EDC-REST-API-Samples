@@ -150,7 +150,7 @@ class EDCLineage:
         if payload is None:
             self.mu_log.log(self.mu_log.VERBOSE, "payload is None due to a previous error (see above).", module)
         else:
-            self.mu_log.log(self.mu_log.VERBOSE, "payload: " + payload, module)
+            self.mu_log.log(self.mu_log.VERBOSE, "payload: " + str(payload), module)
         return build_result, payload
 
     def build_api_load_entity_association(self):
